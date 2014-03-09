@@ -11,31 +11,28 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
             };
         },
 
+        // changeState([Page, pageProps], [rootStateOverrides], [errb])
         changeState: function (page, props, rootState, errb) {
-            var that = this;
 
-            if (!page) {
-                changeStateErrorHandler(new Error("Cannot change the state to an empty page"));
+            if (page && !$.isFunction(page)) {
+                rootState = page;
+                errb = props;
+                page = undefined;
+                props = undefined;
+            } else {
+                if ($.isFunction(props)) {
+                    errb = props;
+                    props = undefined;
+                } else if ($.isFunction(rootState)) {
+                    errb = rootState;
+                    rootState = undefined;
+                }
             }
 
-            if (!rootState) {
-                rootState = {};
-            } else if ($.isFunction(rootState)) {
-                errb = rootState;
-                rootState = {};
-            }
-
-            var state = $.extend({}, this.state, {
-                currentPage: page,
-                currentPageProps: props
-            }, rootState);
-
-            Q.whenAll(state).then(function (resolved) {
-                that.setState(resolved);
-            }, changeStateErrorHandler);
-
-
-            function changeStateErrorHandler(error) {
+            page = page || this.state.currentPage;
+            props = props || this.state.currentPageProps;
+            rootState = rootState || {};
+            var changeStateErrorHandler = function () {
                 if (errb) {
                     try {
                         errb(error);
@@ -44,7 +41,20 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
                     }
                 }
                 console.error(error);
-            }
+            };
+
+            var state = $.extend({}, this.state, {
+                currentPage: page,
+                currentPageProps: props
+            }, rootState);
+
+            // prevent recursion
+            delete state.currentPageProps.app;
+
+            var that = this;
+            Q.whenAll(state).then(function (resolved) {
+                that.setState(resolved);
+            }, changeStateErrorHandler);
         },
 
 

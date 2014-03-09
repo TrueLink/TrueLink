@@ -4,7 +4,7 @@
         baseUrl: "/js",
         paths: {
             "react": "lib/react",
-            "zepto": "lib/zepto",
+            "zepto": "lib/zepto.min",
             "zepto_fx": "lib/zepto.fx",
             "q": "lib/q",
             "es5": "lib/es5-shim.min",

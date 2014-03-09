@@ -4,8 +4,24 @@ define(["react"], function (React) {
     return React.createClass({
         displayName: "MenuSelectProfile",
 
+        handleSelect: function (evt) {
+            var profileId = evt.target.value;
+            var profile = this.props.profiles.filter(function (profile) {
+                return profile.id === profileId;
+            })[0];
+            this.props.selectProfile(profile);
+        },
+
         render: function () {
-            return React.DOM.div(null);
+            var current = this.props.selectedProfile;
+            return React.DOM.select({
+                value: current.id,
+                onChange: this.handleSelect
+            },
+                this.props.profiles.map(function (profile) {
+                    return React.DOM.option({key: profile.id, value: profile.id}, profile.name);
+                })
+            );
         }
     });
 });
