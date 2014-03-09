@@ -1,41 +1,61 @@
 (function ($, Q, modules, React) {
     "use strict";
 
-    var test = React.createClass({
-        handleClick: function () {
-            var promise = Q.promise(function (resolve, reject) {
-                setTimeout(function () {
-                    resolve("timedout");
-                }, 1000);
-            });
-            this.props.changeState({currentPage: promise}, function (error) { alert(error); });
-        },
-        render: function () {
-            return React.DOM.a({onClick: this.handleClick}, "change");
-        }
-    });
-
     modules.App = React.createClass({
         displayName: "App",
         getInitialState: function () {
             return {
-                currentPage: "lalala"
+                changeState: this.changeState,
+                currentPage: modules.LoginPage,
+                currentPageProps: { message: "welcome" }
             };
         },
 
-        changeState: function (stateObj, errb) {
+        changeState: function (page, props, rootState, errb) {
             var that = this;
-            $.resolveObj(stateObj).then(function (resolved) {
+
+            if (!page) {
+                changeStateErrorHandler(new Error("Cannot change the state to an empty page"));
+            }
+
+            if (!rootState) {
+                rootState = {};
+            } else if ($.isFunction(rootState)) {
+                errb = rootState;
+                rootState = {};
+            }
+
+            var state = $.extend({}, this.state, {
+                currentPage: page,
+                currentPageProps: props
+            }, rootState);
+
+            $.resolveObj(state).then(function (resolved) {
                 that.setState(resolved);
-            }, errb);
+            }, changeStateErrorHandler);
+
+
+            function changeStateErrorHandler(error) {
+                if (errb) {
+                    try {
+                        errb(error);
+                    } catch (errbError) {
+                        console.error(errbError);
+                    }
+                }
+                console.error(error);
+            }
         },
+
 
         render: function () {
             var that = this;
+            var rootState = {app: this.state};
+            this.state.currentPageProps = this.state.currentPageProps || {};
             return React.DOM.div({id: "app"},
-                "currentPage: " + this.state.currentPage,
-                React.DOM.span(null, " "),
-                test({changeState: this.changeState})
+                modules.Menu(rootState),
+                !this.state.currentPage ? null :
+                        this.state.currentPage($.extend(this.state.currentPageProps, rootState))
             );
         }
     });
