@@ -1,13 +1,13 @@
-(function ($, Q, modules, React) {
+define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], function ($, Q, React, Menu, LoginPage) {
     "use strict";
 
-    modules.App = React.createClass({
+    return React.createClass({
         displayName: "App",
         getInitialState: function () {
             return {
                 changeState: this.changeState,
-                currentPage: modules.LoginPage,
-                currentPageProps: { message: "welcome" }
+                currentPage: LoginPage,
+                currentPageProps: { }
             };
         },
 
@@ -30,7 +30,7 @@
                 currentPageProps: props
             }, rootState);
 
-            $.resolveObj(state).then(function (resolved) {
+            Q.whenAll(state).then(function (resolved) {
                 that.setState(resolved);
             }, changeStateErrorHandler);
 
@@ -53,10 +53,10 @@
             var rootState = {app: this.state};
             this.state.currentPageProps = this.state.currentPageProps || {};
             return React.DOM.div({id: "app"},
-                modules.Menu(rootState),
+                Menu(rootState),
                 !this.state.currentPage ? null :
                         this.state.currentPage($.extend(this.state.currentPageProps, rootState))
-            );
+                );
         }
     });
-}(Zepto, Q, _modules, React));
+});

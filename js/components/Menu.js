@@ -1,11 +1,14 @@
-(function ($, Q, modules, React) {
+define(["zepto", "q", "react", "components/menu/MenuSelectProfile"], function ($, Q, React, MenuSelectProfile) {
     "use strict";
 
-    modules.Menu = React.createClass({
+    return React.createClass({
         displayName: "Menu",
 
         render: function () {
-            return React.DOM.div({id: "menu"}, null);
+            var app = this.props.app;
+            return React.DOM.div({id: "menu"},
+                MenuSelectProfile({profileList: app.profiles, selectedProfile: app.currentProfile})
+                );
         }
     });
-}(Zepto, Q, _modules, React));
+});
