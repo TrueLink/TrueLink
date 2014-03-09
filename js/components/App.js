@@ -63,7 +63,7 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
             var rootState = {app: this.state};
             this.state.currentPageProps = this.state.currentPageProps || {};
             return React.DOM.div({id: "app"},
-                Menu(rootState),
+                Menu($.extend({className: "app-menu"}, rootState)),
                 !this.state.currentPage ? null :
                         this.state.currentPage($.extend(this.state.currentPageProps, rootState))
                 );

@@ -14,8 +14,9 @@ define(["zepto", "q", "react", "components/menu/MenuSelectProfile"], function ($
             app.profiles = [{id: "gr", name: "prof1"}, {id: "df", name: "prof2"}];
             app.currentProfile = app.currentProfile || app.profiles[1];
 
-            return React.DOM.div({id: "menu"},
+            return React.DOM.div({className: this.props.className},
                 MenuSelectProfile({
+                    className: "profile-selector",
                     profiles: app.profiles,
                     selectedProfile: app.currentProfile,
                     selectProfile: this.handleSelectProfile
