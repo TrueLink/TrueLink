@@ -1,5 +1,50 @@
-define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], function ($, Q, React, Menu, LoginPage) {
+define(["zepto", "q", "react", "components/Menu", "components/LoginPage", "db", "settings", "services/crypto"], function ($, Q, React, Menu, LoginPage, db, settings, crypto) {
     "use strict";
+
+    function createRootEntity(password) {
+        var root, getPasswordFn = Q(password);
+
+        var promise = getPasswordFn()
+            .then(function (password) {
+                // use the same password for encrypt rootEntity id and data
+                crypto.setGettingPasswordFn(password);
+                db.init(crypto);
+                return crypto.createRootEntity();
+            })
+            .then(function (entity) {
+                root = entity;
+                return db.save(entity, db.createEncryptor(crypto, crypto.encryptWithMasterKey));
+            })
+            .then(function (entity) {
+                var rootData = {id : entity.id };
+                return crypto.encryptWithMasterKey(rootData);
+            })
+            .then(function (encryptedRootData) {
+                settings.set("root", encryptedRootData);
+                crypto.setRootEntity(root);
+                return root;
+            });
+        return promise;
+    }
+
+    function loadRootEntity(password) {
+        var getPasswordFn = Q(password);
+        var encryptedRootData = settings.get("root");
+        var promise = getPasswordFn()
+            .then(function (password) {
+                crypto.setGettingPasswordFn(password);
+                db.init(crypto);
+                return crypto.decryptWithMasterKey(encryptedRootData);
+            })
+            .then(function (rootData) {
+                return db.getById(rootData.id, db.createDecryptor(crypto, crypto.decryptWithMasterKey));
+            })
+            .then(function (root) {
+                crypto.setRootEntity(root);
+                return root;
+            });
+        return promise;
+    }
 
     return React.createClass({
         displayName: "App",
@@ -7,8 +52,26 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
             return {
                 changeState: this.changeState,
                 currentPage: LoginPage,
-                currentPageProps: { }
+                currentPageProps: {
+                    isRegistered: !!settings.get("root"),
+                    login: this.login,
+                    error: null
+                }
             };
+        },
+
+        login: function (password) {
+            var loginPromise, that = this;
+            if (settings.get("root")) {
+                loginPromise = loadRootEntity(passwordGettingFn);
+            } else {
+                loginPromise = createRootEntity(passwordGettingFn);
+            }
+            loginPromise.then(function init() {
+                alert("success");
+            }, function (error) {
+                that.changeState(null, {error: error.reason || error.message || JSON.stringify(error)});
+            });
         },
 
         // changeState([Page, pageProps], [rootStateOverrides], [errb])
@@ -30,9 +93,9 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
             }
 
             page = page || this.state.currentPage;
-            props = props || this.state.currentPageProps;
+            props = props ? $.extend(this.state.currentPageProps, props) : this.state.currentPageProps;
             rootState = rootState || {};
-            var changeStateErrorHandler = function () {
+            var changeStateErrorHandler = function (error) {
                 if (errb) {
                     try {
                         errb(error);

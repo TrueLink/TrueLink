@@ -1,16 +1,39 @@
-define(["interface/linkDb", "dbJs"], function (lib, dbJs) {
+define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
     "use strict";
 
     var extend = lib.extend;
 
     function LocalForageAdapter(dbName) {
-
+        this.openPromise = dbJs.open({
+            server: dbName,
+            version: 1,
+            schema: {
+                objects: {
+                    key: { keyPath: "dbid", autoIncrement: true },
+                    indexes: {
+                        id: { },
+                        revId: { }
+                    }
+                },
+                links: {
+                    key: { keyPath: "dbid", autoIncrement: true },
+                    indexes: {
+                        fromId: { },
+                        toId: { },
+                        type: { }
+                    }
+                }
+            }
+        });
     }
 
     extend(LocalForageAdapter.prototype, {
         put: function (obj) {
-
-
+            return this.openPromise.then(function (db) {
+                return db.objects.add(obj);
+            }).then(function () {
+                return obj;
+            });
         },
         getById: function (id, hideDebugMessage) {
 

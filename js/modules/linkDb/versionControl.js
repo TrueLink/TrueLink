@@ -1,4 +1,4 @@
-define(["interface/linkDb"], function (lib) {
+define(["linkDb/interface"], function (lib) {
     "use strict";
 
     return {

@@ -6,11 +6,13 @@ define(["zepto", "q", "react"], function ($, Q, React) {
         displayName: "LoginPage",
 
         login: function () {
-//            this.props.app.changeState(modules.HomePage, {test: "123"});
+            this.props.login(this.refs.login.value);
         },
 
         render: function () {
-            return React.DOM.div(null);
+            return React.DOM.div(null,
+                React.DOM.input({ref: "login"})
+            );
         }
     });
 });

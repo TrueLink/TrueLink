@@ -1,4 +1,4 @@
-define(["angular", "modules/converters/multiconverter"], function (angular, converter) {
+define(["modules/converters/multiconverter", "zepto"], function (converter, $) {
     "use strict";
 
     var Multivalue = function () {};
@@ -13,7 +13,7 @@ define(["angular", "modules/converters/multiconverter"], function (angular, conv
         type.typeName = name;
         type.prototype = new Multivalue();
         if (mixin) {
-            angular.extend(type.prototype, mixin);
+            $.extend(type.prototype, mixin);
         }
         type.prototype.constructor = type;
         return type;

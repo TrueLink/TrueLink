@@ -9,7 +9,11 @@
             "q": "lib/q",
             "es5Shim": "lib/es5-shim.min",
             "idbShim": "lib/idb-shim.min",
-            "whenAll": "tools/resolve"
+            "dbJs": "lib/db",
+            "whenAll": "tools/resolve",
+            "linkDb": "modules/linkDb",
+            "db": "services/db",
+            "settings": "services/settings"
         },
         shim: {
             "zepto": { exports: "Zepto" },

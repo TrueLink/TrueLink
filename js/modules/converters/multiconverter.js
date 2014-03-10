@@ -1,4 +1,4 @@
-define(["sc_console"], function (console) {
+define([], function () {
     "use strict";
     var map = {};
     return {

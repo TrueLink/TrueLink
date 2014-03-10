@@ -1,4 +1,4 @@
-define(["linkDb/core", "interface/linkDb"], function (core, lib) {
+define(["linkDb/core", "linkDb/interface"], function (core, lib) {
     "use strict";
     var extend = lib.extend;
     var plurals = {}, meta = [];
