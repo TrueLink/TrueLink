@@ -4,6 +4,13 @@ define(["react"], function (React) {
     return React.createClass({
         displayName: "MenuSelectProfile",
 
+        componentDidMount: function () {
+            this.refs.select.getDOMNode().blur();
+        },
+        componentDidUpdate: function () {
+            this.refs.select.getDOMNode().blur();
+        },
+
         handleSelect: function (evt) {
             var profileId = evt.target.value;
             if (profileId === "__add") {
@@ -25,6 +32,7 @@ define(["react"], function (React) {
                 );
             return React.DOM.div({ className: this.props.className },
                 React.DOM.select({
+                    ref: "select",
                     className: "title",
                     value: current.id,
                     onChange: this.handleSelect
