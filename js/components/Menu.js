@@ -11,7 +11,10 @@ define(["zepto", "q", "react", "components/menu/MenuSelectProfile"], function ($
         render: function () {
             var app = this.props.app;
 
-            app.profiles = [{id: "gr", name: "prof1"}, {id: "df", name: "prof2"}];
+            app.profiles = [
+                {id: "gr", name: "prof1", getData: function () { return "1"; }},
+                {id: "df", name: "prof2", getData: function () { return "2"; }}
+            ];
             app.currentProfile = app.currentProfile || app.profiles[1];
 
             return React.DOM.div({className: this.props.className},

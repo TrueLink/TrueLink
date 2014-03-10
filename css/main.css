@@ -1,3 +1,44 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body, html {
+    font-size: 100%;
+    height: 100%;
+    width: 100%;
+}
+
+/* --- GENERIC ---*/
+#app {
+    font-family: 'Open Sans' , sans-serif;
+    font-size: 16px;
+    color: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+}
+
+.title {
+    font-size: 24px;
+}
+
+.default-background-light {
+    background-color: #1F497D;
+}
+.default-background-dark {
+    background-color: #153153
+}
+
+/* --- MENU --- */
+.app-menu {
+   background-color: #383838;
+}
+.app-menu title {
+    color: #F8A25B;
+}
 .app-menu .profile-selector {
 
 }
@@ -6,4 +47,28 @@
 }
 .app-menu .profile-selector option {
 
+}
+.app-menu a.menu-item {
+    border-top: 1px solid #313131;
+    color: #FFFFFF;
+    display: block;
+    padding: 14px;
+    text-decoration: none;
+}
+.app-menu a.last {
+    border-bottom: 1px solid #313131;
+}
+.app-menu p {
+    margin: 14px 0 0 14px;
+}
+
+
+
+/* --- MISC --- */
+.stretch-background{
+    background: no-repeat center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }

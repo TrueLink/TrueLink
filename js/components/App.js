@@ -59,14 +59,22 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage"], funct
 
 
         render: function () {
-            var that = this;
-            var rootState = {app: this.state};
-            this.state.currentPageProps = this.state.currentPageProps || {};
-            return React.DOM.div({id: "app"},
-                Menu($.extend({className: "app-menu"}, rootState)),
-                !this.state.currentPage ? null :
-                        this.state.currentPage($.extend(this.state.currentPageProps, rootState))
-                );
+            try {
+                var that = this;
+                var rootState = {app: this.state};
+                var pageProps = this.state.currentPageProps || {};
+                var pageCustomClass = !this.state.currentProfile ? "" :
+                        " stretch-background user-background-" + this.state.currentProfile.getData("bg");
+                $.extend(pageProps, rootState);
+                return React.DOM.div({id: "app"},
+                    Menu($.extend({className: "app-menu"}, rootState)),
+                    React.DOM.div({className: "app-page" + pageCustomClass},
+                        !this.state.currentPage ? null :
+                                this.state.currentPage(pageProps)
+                        ));
+            } catch (err) {
+                console.error(err);
+            }
         }
     });
 });
