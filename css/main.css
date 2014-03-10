@@ -21,6 +21,13 @@ body, html {
     position: relative;
 }
 
+.app-menu, .app-page {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+
 .title {
     font-size: 24px;
 }
@@ -36,17 +43,19 @@ body, html {
 .app-menu {
    background-color: #383838;
 }
-.app-menu title {
+.app-menu .title {
     color: #F8A25B;
+    width: 100%;
+    padding: 5px;
 }
 .app-menu .profile-selector {
 
 }
 .app-menu .profile-selector select{
-
+    background: #383838;
+    border: none;
 }
 .app-menu .profile-selector option {
-
 }
 .app-menu a.menu-item {
     border-top: 1px solid #313131;

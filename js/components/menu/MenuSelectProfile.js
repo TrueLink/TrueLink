@@ -6,6 +6,9 @@ define(["react"], function (React) {
 
         handleSelect: function (evt) {
             var profileId = evt.target.value;
+            if (profileId === "__add") {
+                return;
+            }
             var profile = this.props.profiles.filter(function (profile) {
                 return profile.id === profileId;
             })[0];
@@ -14,15 +17,19 @@ define(["react"], function (React) {
 
         render: function () {
             var current = this.props.selectedProfile;
+            var options = this.props.profiles.map(function (profile) {
+                return React.DOM.option({key: profile.id, value: profile.id, className: "title"}, profile.name);
+            });
+            options.push(React.DOM.optgroup({key: "__add", label: "───"},
+                React.DOM.option({value: "__add", className: "title"}, "Add profile..."))
+                );
             return React.DOM.div({ className: this.props.className },
-                React.DOM.div({className: "title"}, "Test"),
                 React.DOM.select({
+                    className: "title",
                     value: current.id,
                     onChange: this.handleSelect
-                }, this.props.profiles.map(function (profile) {
-                    return React.DOM.option({key: profile.id, value: profile.id}, profile.name);
-                })
-            ));
+                }, options)
+                );
         }
     });
 });
