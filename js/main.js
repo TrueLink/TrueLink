@@ -7,7 +7,8 @@
             "zepto": "lib/zepto.min",
             "zepto_fx": "lib/zepto.fx",
             "q": "lib/q",
-            "es5": "lib/es5-shim.min",
+            "es5Shim": "lib/es5-shim.min",
+            "idbShim": "lib/idb-shim.min",
             "whenAll": "tools/resolve"
         },
         shim: {
@@ -16,7 +17,9 @@
         }
     });
 
-    require(["zepto", "react", "components/App", "zepto_fx", "whenAll"], function ($, React, App) {
+    define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
+
+    require(["zepto", "react", "components/App", "addons"], function ($, React, App) {
         $(function () {
             React.renderComponent(App(), document.body);
         });
