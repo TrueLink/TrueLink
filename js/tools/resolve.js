@@ -6,10 +6,11 @@ define(["zepto", "q"], function ($, Q) {
                 return resolve(item);
             }));
         }
-        if (typeof obj !== "object" || Q.isPromiseAlike(obj)) {
+        if (typeof obj !== "object" || Q.isPromiseAlike(obj) || obj === null) {
             return Q.when(obj);
         }
         var newObj = {}, promises = [];
+
         $.each(obj, function (key, value) {
             promises.push(resolve(value).then(function (val) {
                 newObj[key] = val;
