@@ -2,6 +2,7 @@ var connect = require('connect');
 var app = connect()
     .use(function (req, res, next) {
         "use strict";
+	console.log(req.method + " " + req.url);
         try {
             if (req.url.indexOf(".appcache") !== -1) {
                 res.setHeader("Content-Type", "text/cache-manifest");
@@ -16,4 +17,6 @@ var app = connect()
         }
     })
     .use(connect.static(__dirname));
-connect.createServer(app).listen(8010);
+var port = 8010;
+connect.createServer(app).listen(port);
+console.log("server started at http://localhost:"+port);
