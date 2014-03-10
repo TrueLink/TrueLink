@@ -15,7 +15,7 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
         };
 
     }
-    function createEncrypter(crypto, fn) {
+    function createEncryptor(crypto, fn) {
         return function (plainData) {
             return crypto.encryptWithMasterKey(plainData).then(function (encryptedData) {
                 return {
@@ -28,6 +28,7 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
 
     function init(crypto) {
         sugar.setEncryptor(crypto);
+        sugar.connect("truelink");
     }
     // sugar: {
     // addLinkMeta,
@@ -36,6 +37,7 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
     // unlink }
     return $.extend({}, sugar, {
         createDecryptor: createDecryptor,
-        createEncrypter: createEncrypter
+        createEncryptor: createEncryptor,
+        init: init
     });
 });

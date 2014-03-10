@@ -177,6 +177,7 @@ define([
 
     return {
         connect: connect,
+        setEncryptor: setEncryptor,
         drop: drop,
         save: save,
         getById: getById,

@@ -1,5 +1,6 @@
 define([
     "q",
+    "linkDb/Entity",
     "tools/random",
     "tools/urandom",
     "modules/cryptography/sha3-crypto-js",
@@ -7,7 +8,7 @@ define([
     "modules/data-types/utf8string",
     "modules/data-types/bytes",
     "modules/data-types/bitArray",
-    "modules/cryptography/aes-sjcl"], function (Q, random, urandom, sha3, Base64, Utf8String, Bytes, BitArray, Aes) {
+    "modules/cryptography/aes-sjcl"], function (Q, Entity, random, urandom, sha3, Base64, Utf8String, Bytes, BitArray, Aes) {
     "use strict";
 
     // will be widely used later for decrypt older entities

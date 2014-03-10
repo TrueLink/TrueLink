@@ -2,7 +2,7 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage", "db", 
     "use strict";
 
     function createRootEntity(password) {
-        var root, getPasswordFn = Q(password);
+        var root, getPasswordFn = function () { return Q(password); };
 
         var promise = getPasswordFn()
             .then(function (password) {
@@ -28,7 +28,7 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage", "db", 
     }
 
     function loadRootEntity(password) {
-        var getPasswordFn = Q(password);
+        var getPasswordFn = function () { return Q(password); };
         var encryptedRootData = settings.get("root");
         var promise = getPasswordFn()
             .then(function (password) {
@@ -61,17 +61,21 @@ define(["zepto", "q", "react", "components/Menu", "components/LoginPage", "db", 
         },
 
         login: function (password) {
-            var loginPromise, that = this;
-            if (settings.get("root")) {
-                loginPromise = loadRootEntity(passwordGettingFn);
-            } else {
-                loginPromise = createRootEntity(passwordGettingFn);
+            try {
+                var loginPromise, that = this;
+                if (settings.get("root")) {
+                    loginPromise = loadRootEntity(password);
+                } else {
+                    loginPromise = createRootEntity(password);
+                }
+                loginPromise.then(function init() {
+                    alert("success");
+                }, function (error) {
+                    that.changeState(null, {error: error.reason || error.message || JSON.stringify(error)});
+                });
+            } catch (ex) {
+                console.error(ex);
             }
-            loginPromise.then(function init() {
-                alert("success");
-            }, function (error) {
-                that.changeState(null, {error: error.reason || error.message || JSON.stringify(error)});
-            });
         },
 
         // changeState([Page, pageProps], [rootStateOverrides], [errb])
