@@ -3,11 +3,11 @@
 
 @font-face {
   font-family: "truelink1";
-  src:url("%ASSET('/css/fonts/truelink1.eot')%");
-  src:url("%ASSET('/css/fonts/truelink1.eot')%?#iefix") format("embedded-opentype"),
-    url("%ASSET('/css/fonts/truelink1.ttf')%") format("truetype"),
-    url("%ASSET('/css/fonts/truelink1.svg')%#truelink1") format("svg"),
-    url("%ASSET('/css/fonts/truelink1.woff')%") format("woff");
+  src:url("/css/fonts/truelink1.eot");
+  src:url("/css/fonts/truelink1.eot?#iefix") format("embedded-opentype"),
+    url("/css/fonts/truelink1.ttf") format("truetype"),
+    url("/css/fonts/truelink1.svg#truelink1") format("svg"),
+    url("/css/fonts/truelink1.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 

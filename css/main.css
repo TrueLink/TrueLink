@@ -9,6 +9,16 @@ body, html {
     width: 100%;
 }
 
+input[type="text"], input[type="password"]{
+    display: block;
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 /* --- GENERIC ---*/
 #app {
     font-family: 'Open Sans' , sans-serif;
@@ -21,10 +31,13 @@ body, html {
     position: relative;
 }
 
+select, option, input {
+    font-family: 'Open Sans',sans-serif;
+}
+
 .app-menu, .app-page {
     height: 100%;
     position: relative;
-    overflow: hidden;
 }
 
 
@@ -39,9 +52,19 @@ body, html {
     background-color: #153153
 }
 
+.app-page {
+    margin-left: 250px;
+    height: 100%;
+    overflow: hidden;
+}
+
 /* --- MENU --- */
 .app-menu {
-   background-color: #383838;
+    background-color: #383838;
+    float: left;
+    width: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .app-menu .title {
     color: #F8A25B;
@@ -71,7 +94,11 @@ body, html {
     margin: 14px 0 0 14px;
 }
 
-
+/* --- LOGIN --- */
+.login-form {
+    height: 100%;
+    padding: 20px;
+}
 
 /* --- MISC --- */
 .stretch-background{
