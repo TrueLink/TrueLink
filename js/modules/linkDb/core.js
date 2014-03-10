@@ -2,15 +2,13 @@ define([
     "linkDb/LocalForageAdapter",
     "linkDb/versionControl",
     "linkDb/Entity",
-    "interface/linkDb",
-    "interface/linkDbCrypto",
-    "sc_console"], function (LS, ver, Entity, lib, cryptoService, console) {
+    "linkDb/interface"], function (LS, ver, Entity, lib) {
     "use strict";
 
     var when = lib.when;
     var extend = lib.extend;
-    var async = lib.async;
     var whenAll = lib.whenAll;
+    var Promise = lib.Promise;
 
     var adapter;
 
@@ -52,22 +50,20 @@ define([
         return adapter.drop().then(function () { return true; });
     }
 
-    var checkRevId = async(null, function (dfd, entity) {
-        adapter.getById(entity.id, true).then(function (found) {
-            if (found.revId === entity.revId) {
-                dfd.resolve();
-            } else {
-                console.error(new Error("not a head revision of entity " + entity.id));
-                dfd.reject({ error: "conflict", reason: "not a head revision" });
-            }
-        }, function (err) {
-            if (err.error === "not_found") {
-                dfd.resolve();
-            } else {
-                dfd.reject(err);
-            }
+
+    var checkRevId = function (entity) {
+        return Promise(function (resolve, reject) {
+            adapter.getById(entity.id, true).then(function (found) {
+                if (!found) { resolve(); }
+                if (found.revId === entity.revId) {
+                    resolve();
+                } else {
+                    console.error(new Error("Not a head revision of entity " + entity.id));
+                    reject({ error: "conflict", reason: "not a head revision" });
+                }
+            });
         });
-    });
+    };
 
     function save(entity, overrideEncrypt) {
         if (!entity.isDirty()) { return when(entity); }
@@ -124,13 +120,19 @@ define([
     }
 
     function addLink(entityFrom, entityTo, linkType, isDeleted) {
-        return adapter.getLink(entityFrom.id, entityTo.id, linkType).then(function (link) {
-            if (link && !isDeleted) { return link; }
-            if (!link && isDeleted) { return; }
-            entityFrom.makeDirty();
-            var newRevPromise = when(save(entityFrom));
-            return newRevPromise.then(function () {
-                return adapter.addLink(entityFrom.revId, entityFrom.id, entityTo.id, linkType, isDeleted);
+
+        return adapter.getAnyLink(entityFrom.id, entityTo.id).then(function (anyLink) {
+            var newRevPromise = when(true);
+            if (anyLink) {
+                entityFrom.makeDirty();
+                newRevPromise = save(entityFrom);
+            }
+            return adapter.getLink(entityFrom.id, entityTo.id, linkType).then(function (link) {
+                if (link && !isDeleted) { return link; }
+                if (!link && isDeleted) { return; }
+                return newRevPromise.then(function () {
+                    return adapter.addLink(entityFrom.revId, entityFrom.id, entityTo.id, linkType, isDeleted);
+                });
             });
         });
     }
