@@ -30,14 +30,12 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
         sugar.setEncryptor(crypto);
         sugar.connect("truelink");
     }
-    // sugar: {
-    // addLinkMeta,
-    // clearMeta,
-    // link,
-    // unlink }
-    return $.extend({}, sugar, {
+
+    //function getProfiles
+
+    return {
         createDecryptor: createDecryptor,
         createEncryptor: createEncryptor,
         init: init
-    });
+    };
 });
