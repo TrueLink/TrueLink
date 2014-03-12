@@ -9,23 +9,6 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
     sugar.addLinkMeta("channel", "channels", "profile", "profile");
     sugar.addLinkMeta("message", "messages", "dialog", "dialogs");
 
-    function createDecryptor(crypto, fn) {
-        return function (encryptionInfo, encryptedData) {
-            return crypto.decryptWithMasterKey(encryptedData);
-        };
-
-    }
-    function createEncryptor(crypto, fn) {
-        return function (plainData) {
-            return crypto.encryptWithMasterKey(plainData).then(function (encryptedData) {
-                return {
-                    encryptionInfo: undefined,
-                    encryptedData: encryptedData
-                };
-            });
-        };
-    }
-
     function init(crypto) {
         sugar.setEncryptor(crypto);
         sugar.connect("truelink");
@@ -34,8 +17,6 @@ define(["linkDb/sugar", "zepto"], function (sugar, $) {
     //function getProfiles
 
     return {
-        createDecryptor: createDecryptor,
-        createEncryptor: createEncryptor,
         init: init
     };
 });

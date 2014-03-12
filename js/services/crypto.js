@@ -11,10 +11,6 @@ define([
     "modules/cryptography/aes-sjcl"], function (Q, Entity, random, urandom, sha3, Base64, Utf8String, Bytes, BitArray, Aes) {
     "use strict";
 
-    // will be widely used later for decrypt older entities
-    var getMasterKey;
-    var rootEntity;
-
     function generateKeys() {
         var keyList = [];
         var i;
@@ -24,78 +20,67 @@ define([
         return keyList;
     }
 
-    function decryptWithMasterKey(encryptedData) {
-        var dfd = Q.defer();
-
-        getMasterKey().then(function (key) {
-            try {
-                var keysAes = new Aes(key);
-                var decrypted = keysAes.decryptCbc(new Base64(encryptedData));
-                var dataObj = JSON.parse(decrypted.as(Utf8String).value);
-                dfd.resolve(dataObj);
-            } catch (e) {
-                dfd.reject({error: "login_error", reason: "Invalid password"});
-            }
-        }, function (err) { dfd.reject(err); });
-
-        return dfd.promise;
-    }
-    function encryptWithMasterKey(data) {
-        var dfd = Q.defer();
-        getMasterKey().then(function (key) {
-            var keysAes = new Aes(key);
-            var plain = JSON.stringify(data);
-            var encrypted = keysAes.encryptCbc(new Utf8String(plain));
-
-            dfd.resolve(encrypted.as(Base64).value);
-
-        }, function (err) { dfd.reject(err); });
-        return dfd.promise;
-    }
-
-    function decryptData(keyIndex, base64Data) {
-        var aesKey = new BitArray(rootEntity.getData("keys")[keyIndex]);
-        var aes = new Aes(aesKey);
-        var plainData = aes.decryptCbc(new Base64(base64Data));
-        return JSON.parse(plainData.as(Utf8String).value);
-    }
-    function encryptData(objData) {
-        var keyIndex = urandom.int(0, 99);
-        var aesKey = new BitArray(rootEntity.getData("keys")[keyIndex]);
-        var aes = new Aes(aesKey);
-        var encryptedData = aes.encryptCbc(new Utf8String(JSON.stringify(objData)));
+    function createDbEncryptor(rootEntity) {
         return {
-            encryptionInfo: keyIndex,
-            encryptedData: encryptedData.as(Base64).value
+            decryptData: function (keyIndex, base64Data) {
+                var aesKey = new BitArray(rootEntity.getData("keys")[keyIndex]);
+                var aes = new Aes(aesKey);
+                try {
+                    var plainData = aes.decryptCbc(new Base64(base64Data));
+                    return JSON.parse(plainData.as(Utf8String).value);
+                } catch (ex) {
+                    throw new Error("Decrypt error");
+                }
+            },
+            encryptData: function (objData) {
+                var keyIndex = urandom.int(0, 99);
+                var aesKey = new BitArray(rootEntity.getData("keys")[keyIndex]);
+                var aes = new Aes(aesKey);
+                var encryptedData = aes.encryptCbc(new Utf8String(JSON.stringify(objData)));
+                return {
+                    encryptionInfo: keyIndex,
+                    encryptedData: encryptedData.as(Base64).value
+                };
+            }
         };
     }
 
+    function createDbMasterEncryptor(password) {
+        var masterKey = masterKeyFromPassword(password);
+        return {
+            decryptData: function (encryptionInfo, encryptedData) {
+                var keysAes = new Aes(masterKey);
+                try {
+                    var decrypted = keysAes.decryptCbc(new Base64(encryptedData));
+                    return JSON.parse(decrypted.as(Utf8String).value);
+                } catch (ex) {
+                    throw new Error("Decrypt error");
+                }
+            },
+            encryptData: function (objData) {
+                var keysAes = new Aes(masterKey);
+                var plain = JSON.stringify(objData);
+                var encrypted = keysAes.encryptCbc(new Utf8String(plain));
+                return {
+                    encryptionInfo: undefined,
+                    encryptedData: encrypted.as(Base64).value
+                };
+            }
+
+        };
+    }
+
+    function masterKeyFromPassword(password) {
+        return sha3(new Utf8String(password), 256);
+    }
 
     return {
-        setRootEntity: function (entity) {
-            rootEntity = entity;
-        },
-        // TODO achtung, all repos are using this function,
-        // TODO watch out when moving to a dynamic rootEntity, because rootEntity != repositoryRoot then
-        getRootEntity: function () {
-            return rootEntity;
-        },
         createRootEntity: function () {
             var root = new Entity();
             root.setData("keys", generateKeys());
-            return Q(root);
+            return root;
         },
-
-        setGettingPasswordFn : function (promiseOrValue) {
-            getMasterKey = function () {
-                return Q(promiseOrValue).then(function (password) {
-                    return Q(sha3(new Utf8String(password), 256));
-                });
-            };
-        },
-        decryptWithMasterKey: decryptWithMasterKey,
-        encryptWithMasterKey: encryptWithMasterKey,
-        decryptData: decryptData,
-        encryptData: encryptData
+        createDbEncryptor: createDbEncryptor,
+        createDbMasterEncryptor: createDbMasterEncryptor
     };
 });

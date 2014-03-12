@@ -138,7 +138,7 @@ define([
     function addLink(entityFrom, entityTo, linkType, isDeleted) {
         assertReady();
         return adapter.getAnyLink(entityFrom.id, entityTo.id).then(function (anyLink) {
-            var newRevPromise = when(true);
+            var newRevPromise = when();
             if (anyLink) {
                 entityFrom.makeDirty();
                 newRevPromise = save(entityFrom);
