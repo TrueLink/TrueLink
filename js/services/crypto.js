@@ -76,9 +76,7 @@ define([
 
     return {
         createRootEntity: function () {
-            var root = new Entity();
-            root.setData("keys", generateKeys());
-            return root;
+            return new Entity({keys: generateKeys()});
         },
         createDbEncryptor: createDbEncryptor,
         createDbMasterEncryptor: createDbMasterEncryptor
