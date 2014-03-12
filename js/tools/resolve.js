@@ -20,5 +20,23 @@ define(["zepto", "q"], function ($, Q) {
             return newObj;
         });
     }
+
+    // chain(initialPromiseOrValue, fn1, fn2, [fn3.1, fn3.2], fn4)
+    // fn3.1 and fn3.2 runs at parallel, fn4 is called with array of resolved values
+    function chain() {
+        var chainLinks = Array.prototype.slice.call(arguments);
+        var initialValue = chainLinks.shift();
+
+        function getParallel(fns) {
+            return function parallel(value) {
+                return Q.all(fns.map(function (fn) { return fn(value); }));
+            };
+        }
+        return chainLinks.reduce(function (soFar, f) {
+            return soFar.then($.isArray(f) ? getParallel(f) : f);
+        }, Q(initialValue));
+    }
     Q.whenAll = resolve;
+    Q.chain = chain;
+    window.q = Q;
 });
