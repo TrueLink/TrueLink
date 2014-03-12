@@ -5,7 +5,7 @@ define(["zepto", "q", "react", "components/menu/MenuSelectProfile"], function ($
         displayName: "Menu",
 
         handleSelectProfile: function (profile) {
-            this.props.app.changeState({currentProfile: profile});
+            this.props.app.changeState(null, {currentProfile: profile});
         },
 
         render: function () {
