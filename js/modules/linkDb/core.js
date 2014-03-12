@@ -79,12 +79,10 @@ define([
     function save(entity, overrideEncrypt) {
         assertReady();
         if (!entity.isDirty()) { return when(entity); }
-        if (entity.isNew()) {entity.id = ver.createId(); }
         var checkPromise = checkRevId(entity);
 
         function saveEntity() {
             ver.prepareRevIds(entity);
-            //entity.key = crypto.getKe
             var storObjPromise = getEncryptedObj(entity, overrideEncrypt);
             var savePromise = when(storObjPromise)
                 .then(function (storObj) {

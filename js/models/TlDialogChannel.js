@@ -68,7 +68,6 @@ define([
             getBackChannelName: function () {
                 return this.getData("inChannelName").as(Hex).value;
             },
-            isNew: function () { return this.entity.isNew(); },
 
             // data and return value are multivalues
             encrypt: function (data) {

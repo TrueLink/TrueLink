@@ -85,7 +85,6 @@ define([
             getBackChannelName: function () {
                 return this.getData("inChannelName").as(Hex).value;
             },
-            isNew: function () { return this.entity.isNew(); },
             getState: function () { return this.getData("state"); },
 
 

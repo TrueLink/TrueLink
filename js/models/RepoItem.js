@@ -34,7 +34,6 @@ define(["zepto"], function ($) {
                 }
                 return this.entity.setData(keyOrValue, value);
             },
-            isNew: function () { return this.entity.isNew(); }
         };
         return RepoItem;
     });

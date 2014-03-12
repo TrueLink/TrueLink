@@ -1,12 +1,12 @@
-define(["linkDb/interface"], function (lib) {
+define(["linkDb/interface", "linkDb/versionControl"], function (lib, ver) {
     "use strict";
 
     var extend = lib.extend;
 
     // data entity to be saved in the databases
-    function Entity(data) {
+    function Entity(data, id) {
         // undefineds are important
-        this.id             =  0;
+        this.id             =  id === undefined ? ver.createId() : id;
         this.data           = data || undefined;
         this.revId          = undefined;    // to be defined later
         this.prevRevId      = undefined;
@@ -17,7 +17,7 @@ define(["linkDb/interface"], function (lib) {
     Entity.deserialize = function (obj) {
         if (!obj) { return null; }
         obj = extend({}, obj);
-        var newEntity = new Entity();
+        var newEntity = new Entity(null, null);
         var prop;
         for (prop in newEntity) {
             if (newEntity.hasOwnProperty(prop)) {
