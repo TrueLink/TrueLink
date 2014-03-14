@@ -29,6 +29,9 @@ define([
 
     // encrypt/decrypt proxies
     function getDecryptedEntity(dbObj, overrideDecrypt) {
+        if (dbObj === null) {
+            return when(null);
+        }
         var dataPromise;
         if (overrideDecrypt) {
             dataPromise = overrideDecrypt(dbObj.key, dbObj._protected);
@@ -57,7 +60,7 @@ define([
     }
 
     function drop() {
-        assertReady();
+        assertReady(true);
         return adapter.drop().then(function () { return true; });
     }
 
