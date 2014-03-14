@@ -21,8 +21,8 @@ define([
         cryptoService = iEncryptor;
     }
 
-    function assertReady() {
-        if (!adapter || !cryptoService) {
+    function assertReady(skipCrypto) {
+        if (!adapter || (!cryptoService && !skipCrypto)) {
             throw new Error("Database is not configured");
         }
     }
@@ -64,6 +64,11 @@ define([
 
     var checkRevId = function (entity) {
         return Promise(function (resolve, reject) {
+            // TODO temp solution
+            if (!entity.revId) {
+                resolve();
+                return;
+            }
             adapter.getById(entity.id, true).then(function (found) {
                 if (!found) { resolve(); }
                 if (found.revId === entity.revId) {
@@ -77,7 +82,7 @@ define([
     };
 
     function save(entity, overrideEncrypt) {
-        assertReady();
+        assertReady(!!overrideEncrypt);
         if (!entity.isDirty()) { return when(entity); }
         var checkPromise = checkRevId(entity);
 
@@ -98,7 +103,7 @@ define([
     }
 
     function getById(id, overrideDecrypt) {
-        assertReady();
+        assertReady(!!overrideDecrypt);
         return adapter.getById(id).then(function (found) {
             return when(getDecryptedEntity(found, overrideDecrypt));
         });

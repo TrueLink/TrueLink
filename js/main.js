@@ -13,7 +13,7 @@
             "whenAll": "tools/resolve",
             "linkDb": "modules/linkDb",
             "db": "services/db",
-            "settings": "services/settings"
+            "settings": "services/settings",
         },
         shim: {
             "zepto": { exports: "Zepto" },

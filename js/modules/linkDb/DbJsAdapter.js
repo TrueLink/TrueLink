@@ -2,9 +2,10 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
     "use strict";
 
     var extend = lib.extend;
+    var when = lib.when;
 
     function LocalForageAdapter(dbName) {
-        this.openPromise = dbJs.open({
+        this.openPromise = when(dbJs.open({
             server: dbName,
             version: 1,
             schema: {
@@ -24,15 +25,13 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
                     }
                 }
             }
-        });
+        }));
     }
 
     extend(LocalForageAdapter.prototype, {
         put: function (obj) {
             return this.openPromise.then(function (db) {
-                return db.objects.add(obj);
-            }).then(function () {
-                return obj;
+                return when(db.objects.add(obj));
             });
         },
         getById: function (id, hideDebugMessage) {
