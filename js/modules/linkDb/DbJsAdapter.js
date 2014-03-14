@@ -3,6 +3,7 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
 
     var extend = lib.extend;
     var when = lib.when;
+    var whenAll = lib.whenAll;
 
     function LocalForageAdapter(dbName) {
         this.openPromise = when(dbJs.open({
@@ -31,11 +32,26 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
     extend(LocalForageAdapter.prototype, {
         put: function (obj) {
             return this.openPromise.then(function (db) {
-                return when(db.objects.add(obj));
+                return when(db.objects.query("id")
+                    .only(obj.id)
+                    .modify({isHead: false})
+                    .execute())
+                    .then(function () {
+                        obj.isHead = true;
+                        return when(db.objects.add(obj));
+                    });
             });
         },
-        getById: function (id, hideDebugMessage) {
-
+        getById: function (id) {
+            return this.openPromise.then(function (db) {
+                return when(db.objects.query("id")
+                    .only(id)
+                    .filter("isHead", true)
+                    .execute())
+                    .then(function (found) {
+                        return found.length > 0 ? found[0] : null;
+                    });
+            });
         },
         getAllById: function (id) {
 
@@ -84,7 +100,11 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
         setAllEntities: function (entities) {
         },
         drop: function () {
-
+            return this.openPromise.then(function (db) {
+                var p1 = db.objects.clear();
+                var p2 = db.links.clear();
+                return whenAll([p1, p2]);
+            });
         }
     });
     return LocalForageAdapter;

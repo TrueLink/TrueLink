@@ -24,6 +24,7 @@ define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto)
 
     return {
         init: init,
+        drop: sugar.drop,
         loadRootEntity: loadRootEntity,
         saveRootEntity: saveRootEntity
     };
