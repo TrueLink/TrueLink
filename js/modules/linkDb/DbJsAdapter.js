@@ -53,9 +53,6 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
                     });
             });
         },
-        getAllById: function (id) {
-
-        },
         addLink: function (fromRevId, fromId, toId, type, isDeleted) {
 
         },
