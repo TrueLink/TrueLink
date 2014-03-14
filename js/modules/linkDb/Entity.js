@@ -71,7 +71,7 @@ define(["linkDb/interface", "linkDb/versionControl"], function (lib, ver) {
             // TODO someday chek for data changes OR store data mirror
             this.dirty = true;
 
-            if (value === undefined) { this.data = keyOrValue; return; }
+            if (value === undefined) { this.data = keyOrValue; return this.data; }
             var key = keyOrValue;
             if (key.indexOf(".") === -1) {
                 if (this.data === undefined) { this.data = {}; }
@@ -86,6 +86,7 @@ define(["linkDb/interface", "linkDb/versionControl"], function (lib, ver) {
                 }
                 parent[thisKey] = value;
             }
+            return this.getData(key);
         },
         // may be changed to data mirror later
         isDirty: function () {
