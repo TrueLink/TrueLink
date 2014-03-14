@@ -14,6 +14,7 @@ define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto)
     function init(rootEntity) {
         var encryptor = crypto.createDbEncryptor(rootEntity);
         sugar.setEncryptor(encryptor);
+        return rootEntity;
     }
     function saveRootEntity(entity, encryptor) {
         return sugar.save(entity, encryptor);
@@ -22,10 +23,17 @@ define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto)
         return sugar.getById(id, encryptor);
     }
 
+    function getProfiles(rootEntity) {
+        return sugar.get("profiles").linkedWith("root", rootEntity);
+    }
+
     return {
         init: init,
         drop: sugar.drop,
         loadRootEntity: loadRootEntity,
-        saveRootEntity: saveRootEntity
+        saveRootEntity: saveRootEntity,
+
+        getProfiles: getProfiles
+
     };
 });

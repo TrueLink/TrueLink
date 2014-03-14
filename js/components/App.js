@@ -1,4 +1,13 @@
-define(["zepto", "q", "react", "components/AppWindow", "components/LoginPage", "db", "settings", "services/crypto"], function ($, Q, React, AppWindow, LoginPage, db, settings, crypto) {
+define(["zepto",
+    "q",
+    "react",
+    "components/AppWindow",
+    "components/LoginPage",
+    "components/HomePage",
+    "models/Profile",
+    "db",
+    "settings",
+    "services/crypto"], function ($, Q, React, AppWindow, LoginPage, HomePage, Profile, db, settings, crypto) {
     "use strict";
     function isRegistered() {
         return !!settings.get("root");
@@ -35,15 +44,26 @@ define(["zepto", "q", "react", "components/AppWindow", "components/LoginPage", "
 
         login: function (password) {
             var that = this;
-            var loginPromise = isRegistered() ? this.loadRootEntity(password) : this.createRootEntity(password);
-
-            loginPromise.then(function init(root) {
-                db.init(root);
-                alert("success");
-            }, function (error) {
+            function showError(error) {
                 var currentPage = that.state.currentPage;
                 that.changeState(LoginPage($.extend(currentPage.props, {error: error.message || JSON.stringify(error)})));
-            });
+            }
+
+            var rootState = {};
+            var loginPromise = isRegistered() ? this.loadRootEntity(password) : this.createRootEntity(password);
+            var createFirstProfile = function () { var profile = Profile.create(); rootState.profiles = [profile]; return profile; };
+
+            Q.chain(
+                loginPromise,
+                function init(root) { return db.init(crypto.createDbEncryptor(root)); },
+                db.getProfiles,
+                [
+                    function ensureProfile(profiles) { return profiles.length > 0 ? profiles[0] : createFirstProfile(); },
+                    function setProfiles(profiles) { rootState.profiles = profiles; }
+                ],
+                function setCurrentProfile(chainResult) { rootState.currentProfile = chainResult[0]; },
+                function goHome() { that.changeState(HomePage(), rootState); }
+            ).then(null, showError);
         },
 
         getInitialState: function () {

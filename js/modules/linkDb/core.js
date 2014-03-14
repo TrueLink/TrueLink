@@ -112,15 +112,6 @@ define([
         });
     }
 
-    function getAllById(id, overrideDecrypt) {
-        assertReady();
-        return adapter.getAllById(id).then(function (foundArr) {
-            return whenAll(foundArr.map(function (found) {
-                return getDecryptedEntity(found, overrideDecrypt);
-            }));
-        });
-    }
-
     function getLinkedFrom(entity, linkType) {
         assertReady();
         var promise = adapter.getLinksFrom(entity.id, linkType).then(function (links) {
@@ -187,7 +178,6 @@ define([
         drop: drop,
         save: save,
         getById: getById,
-        getAllById: getAllById,
         addLink: addLink,
         deleteLink: deleteLink,
         getLinkedFrom: getLinkedFrom,
