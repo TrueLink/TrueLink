@@ -16,6 +16,9 @@ define(["zepto", "models/RepoItem", "tools/urandom"], function ($, RepoItem, ura
         bg = bg || 0;
         return new Profile(new Entity({username: username, bg: bg}));
     };
+    Profile.deserialize = function (entity) {
+        return new Profile(entity);
+    };
 
     return Profile;
 });

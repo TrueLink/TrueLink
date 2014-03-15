@@ -1,4 +1,7 @@
-define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto) {
+define(["linkDb/sugar",
+    "zepto",
+    "services/crypto",
+    "models/Profile"], function (sugar, $, crypto, Profile) {
     "use strict";
     sugar.addLinkMeta("profile", "profiles", "root", "root");
     sugar.addLinkMeta("contact", "contacts", "profile", "profiles");
@@ -9,7 +12,7 @@ define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto)
     sugar.addLinkMeta("channel", "channels", "profile", "profile");
     sugar.addLinkMeta("message", "messages", "dialog", "dialogs");
 
-    sugar.connect("truelink");
+    sugar.core.connect("truelink");
 
     function init(rootEntity) {
         var encryptor = crypto.createDbEncryptor(rootEntity);
@@ -25,7 +28,7 @@ define(["linkDb/sugar", "zepto", "services/crypto"], function (sugar, $, crypto)
 
     function getById(constructor, id) {
         var query = sugar.getById(id)
-            .resolve(function (entity) { return constructor(entity); });
+            .resolve(function (entity) { return constructor.deserialize(entity); });
         return query.execute();
     }
     function getByLink(constructor, link, entityId) {
