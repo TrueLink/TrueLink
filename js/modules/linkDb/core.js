@@ -17,7 +17,11 @@ define([
         adapter = new Adapter(dbName || "db");
     }
 
-    function setEncryptor(iEncryptor) {
+    // iEncryptor: {
+    //   object decryptData(object encryptionInfo, object encryptedData)
+    //   {object encryptionInfo, object encryptedData} encrypt(object dataToEncrypt)
+    // }
+    function setDefaultEncryptor(iEncryptor) {
         cryptoService = iEncryptor;
     }
 
@@ -112,25 +116,32 @@ define([
         });
     }
 
-    function getLinkedFrom(entity, linkType) {
-        assertReady();
-        var promise = adapter.getLinksFrom(entity.id, linkType).then(function (links) {
-            return whenAll(links.map(function (link) {
-                return getById(link.toId);
-            }));
-        });
-        return when(promise);
+    function getLinksFrom(entity, linkType, since) {
+
     }
 
-    function getLinkedTo(entity, linkType) {
-        assertReady();
-        var promise = adapter.getLinksTo(entity.id, linkType).then(function (links) {
-            return whenAll(links.map(function (link) {
-                return getById(link.fromId);
-            }));
-        });
-        return when(promise);
+    function getLinksTo(entity, linkType, since) {
+
     }
+    //function getLinkedFrom(entity, linkType) {
+    //    assertReady();
+    //    var promise = adapter.getLinksFrom(entity.id, linkType).then(function (links) {
+    //        return whenAll(links.map(function (link) {
+    //            return getById(link.toId);
+    //        }));
+    //    });
+    //    return when(promise);
+    //}
+
+    //function getLinkedTo(entity, linkType) {
+    //    assertReady();
+    //    var promise = adapter.getLinksTo(entity.id, linkType).then(function (links) {
+    //        return whenAll(links.map(function (link) {
+    //            return getById(link.fromId);
+    //        }));
+    //    });
+    //    return when(promise);
+    //}
 
     function addLink(entityFrom, entityTo, linkType, isDeleted) {
         assertReady();
@@ -174,14 +185,14 @@ define([
 
     return {
         connect: connect,
-        setEncryptor: setEncryptor,
+        setDefaultEncryptor: setDefaultEncryptor,
         drop: drop,
         save: save,
         getById: getById,
         addLink: addLink,
         deleteLink: deleteLink,
-        getLinkedFrom: getLinkedFrom,
-        getLinkedTo: getLinkedTo,
+        getLinksFrom: getLinksFrom,
+        getLinksTo: getLinksTo,
         getAllLinks: getAllLinks,
         getAllEntities: getAllEntities,
         setAllLinks: setAllLinks,
