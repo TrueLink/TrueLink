@@ -2,6 +2,8 @@ define(["linkDb/core", "linkDb/interface"], function (core, lib) {
     "use strict";
     var extend = lib.extend;
     var whenAll = lib.whenAll;
+    var Promise = lib.Promise;
+    var reject = lib.reject;
     var plurals = {}, meta = [];
 
     function clearMeta() {
@@ -81,15 +83,48 @@ define(["linkDb/core", "linkDb/interface"], function (core, lib) {
         }
     };
 
+    function GetEntityCommand() {
+        this.sinceVal = null;
+        this.resolver = this._entityFromEntity;
+        this.decryptor = null;
+    }
+
+    GetEntityCommand.prototype = {
+        _entityFromEntity: function (entity) { return entity; },
+        byId: function (id) { this.idFilter = id; return this; },
+        since: function (n) { this.since = n; return this; },
+        decrypt: function (decryptor) { this.decryptor = decryptor; return this; },
+        resolve: function (resolver) { this.resolver = resolver; return this; },
+        execute: function () {
+            if (this.idFilter) {
+                return core.getById(this.idFilter, this.decryptor, this.sinceVal).then(this.resolver);
+            }
+            return reject("not implemented");
+        }
+    };
+
+    function SaveEntityCommand(entity) {
+        this.entity = entity;
+        this.encryptor = null;
+    }
+
+    SaveEntityCommand.prototype = {
+        encrypt: function (encryptor) { this.encryptor = encryptor; return this; },
+        execute: function () {
+            return core.save(this.entity, this.encryptor);
+        }
+    };
 
     return {
         addLinkMeta: addLinkMeta,
         clearMeta: clearMeta,
+        // save(id)[.encrypt(encryptor)].execute()
         save: function (entity) {
-
+            return new SaveEntityCommand(entity);
         },
+        // getById(id)[.decrypt(decryptor)][.since(n)][.resolve(fn(entity))].execute()
         getById: function (id) {
-
+            return new GetEntityCommand().byId(id);
         },
         // get("type1").linkedWith("type2", entity)[.since(n)][.resolve(fn(link))].execute()
         get: function (what) {

@@ -109,7 +109,7 @@ define([
         return checkPromise.then(saveEntity);
     }
 
-    function getById(id, overrideDecrypt) {
+    function getById(id, overrideDecrypt, since) {
         assertReady(!!overrideDecrypt);
         return adapter.getById(id).then(function (found) {
             return when(getDecryptedEntity(found, overrideDecrypt));

@@ -6,6 +6,7 @@ define(["tools/uuid", "q", "zepto"], function (newUid, Q, $) {
         whenAll: Q.whenAll,
         extend: $.extend,
         newUid: newUid,
-        Promise: Q.Promise
+        Promise: Q.Promise,
+        reject: Q.reject
     };
 });
