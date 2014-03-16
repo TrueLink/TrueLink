@@ -117,53 +117,41 @@ define([
     }
 
     function getLinksFrom(entity, linkType, since) {
-
+        return adapter.getLinksFrom(entity.id, linkType);
     }
 
     function getLinksTo(entity, linkType, since) {
-
+        return adapter.getLinksTo(entity.id, linkType);
     }
-    //function getLinkedFrom(entity, linkType) {
-    //    assertReady();
-    //    var promise = adapter.getLinksFrom(entity.id, linkType).then(function (links) {
-    //        return whenAll(links.map(function (link) {
-    //            return getById(link.toId);
-    //        }));
-    //    });
-    //    return when(promise);
-    //}
 
-    //function getLinkedTo(entity, linkType) {
-    //    assertReady();
-    //    var promise = adapter.getLinksTo(entity.id, linkType).then(function (links) {
-    //        return whenAll(links.map(function (link) {
-    //            return getById(link.fromId);
-    //        }));
-    //    });
-    //    return when(promise);
-    //}
-
-    function addLink(entityFrom, entityTo, linkType, isDeleted) {
+    function addLink(entityFrom, entityTo, linkType, isDeleted, createNewRev) {
         assertReady();
-        return adapter.getAnyLink(entityFrom.id, entityTo.id).then(function (anyLink) {
-            var newRevPromise = when();
-            if (anyLink) {
-                entityFrom.makeDirty();
-                newRevPromise = save(entityFrom);
+        var newRevPromise = when(entityFrom);
+        if (createNewRev) {
+            entityFrom.makeDirty();
+            newRevPromise = save(entityFrom);
+        }
+
+        var getExisting = adapter.getLink(entityFrom.id, entityTo.id, linkType).then(function (existing) {
+            if (existing && ((existing.isDeleted && isDeleted) || (!existing.isDeleted && !isDeleted))) {
+                return existing;
             }
-            return adapter.getLink(entityFrom.id, entityTo.id, linkType).then(function (link) {
-                if (link && !isDeleted) { return link; }
-                if (!link && isDeleted) { return; }
-                return newRevPromise.then(function () {
-                    return adapter.addLink(entityFrom.revId, entityFrom.id, entityTo.id, linkType, isDeleted);
-                });
+            return null;
+        });
+
+        return getExisting.then(function (existing) {
+            if (existing) {
+                return existing;
+            }
+            return newRevPromise.then(function (saved) {
+                return adapter.addLink(saved.revId, saved.id, entityTo.id, linkType, isDeleted);
             });
         });
     }
 
-    function deleteLink(entityFrom, entityTo, linkType) {
+    function deleteLink(entityFrom, entityTo, linkType, createNewRev) {
         assertReady();
-        return addLink(entityFrom, entityTo, linkType, true);
+        return addLink(entityFrom, entityTo, linkType, true, createNewRev);
     }
 
     function getAllLinks() {

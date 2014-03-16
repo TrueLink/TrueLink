@@ -69,6 +69,24 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
             return this.addLink(fromRevId, fromId, toId, type, true);
         },
 
+        getLink: function (fromId, toId, type) {
+            var that = this;
+            return this.queryLinks({fromId: fromId, toId: toId, type: type}).then(function (links) {
+                if (!links.length) {
+                    return null;
+                }
+                var added = that.getWhereSum(links, null, that.sumLinkAdded);
+                if (added.length) {
+                    return added[added.length - 1];
+                }
+                var deleted = that.getWhereSum(links, null, that.sumLinkDeleted);
+                if (deleted.length) {
+                    return added[deleted.length - 1];
+                }
+                return null;
+            });
+        },
+
         // WARNING link.fromRevId is meaningless here because we assume the database non-coherent.
         // every link is just one of having common fromId ones
         getLinksTo: function (id, type) {
@@ -109,33 +127,9 @@ define(["linkDb/interface", "dbJs"], function (lib, dbJs) {
             });
         },
 
-        hasAnyLink: function (fromId, toId) {
-            return this.queryLinks({fromId: fromId, toId: toId}).then(function (links) {
-                return links.length > 0;
-            });
-        },
-
         sumLinkDeleted: function (sum) { return sum === 0; },
         sumLinkAdded: function (sum) { return sum === 1; },
         sumLinkUnknown: function (sum) { return !this.sumLinkAdded(sum) && !this.sumLinkDeleted(sum); },
-
-        getResultingLink: function (fromId, toId, type) {
-            var that = this;
-            return this.queryLinks({fromId: fromId, toId: toId, type: type}).then(function (links) {
-                if (!links.length) {
-                    return null;
-                }
-                var deleted = that.getWhereSum(links, null, that.sumLinkDeleted);
-                if (deleted.length) {
-                    return deleted[deleted.length - 1];
-                }
-                var added = that.getWhereSum(links, null, that.sumLinkAdded);
-                if (added.length) {
-                    return added[added.length - 1];
-                }
-                return null;
-            });
-        },
 
         getWhereSum: function (items, groupFn, sumFn) {
             var i, link, groups = {}, group, resultLinks = [];
