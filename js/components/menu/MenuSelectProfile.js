@@ -34,7 +34,7 @@ define(["react"], function (React) {
                 React.DOM.select({
                     ref: "select",
                     className: "title",
-                    value: current.id,
+                    value: current.getId(),
                     onChange: this.handleSelect
                 }, options)
                 );
