@@ -1,8 +1,7 @@
 define(["linkDb/core", "linkDb/interface"], function (core, lib) {
     "use strict";
-    var extend = lib.extend;
     var whenAll = lib.whenAll;
-    var Promise = lib.Promise;
+    var when = lib.when;
     var reject = lib.reject;
     var plurals = {}, meta = [];
 
@@ -106,19 +105,38 @@ define(["linkDb/core", "linkDb/interface"], function (core, lib) {
     function SaveEntityCommand(entity) {
         this.entity = entity;
         this.encryptor = null;
+        this.link = null;
     }
 
     SaveEntityCommand.prototype = {
         encrypt: function (encryptor) { this.encryptor = encryptor; return this; },
+        linkTo: function (withWhat, withEntity) {
+            var that = this;
+            this.link =  {
+                withEntity: withEntity,
+                withWhat: withWhat
+            };
+            return {as: function (what) {
+                that.link.what = what;
+                return that;
+            }};
+        },
         execute: function () {
-            return core.save(this.entity, this.encryptor);
+            var that = this;
+            function processLink(savedEntity) {
+                if (that.link) {
+                    return getLinkPromise(that.link.what, that.entity, that.link.withWhat, that.link.withEntity);
+                }
+                return when(savedEntity);
+            }
+            return core.save(this.entity, this.encryptor).then(processLink);
         }
     };
 
     return {
         addLinkMeta: addLinkMeta,
         clearMeta: clearMeta,
-        // save(id)[.encrypt(encryptor)].execute()
+        // save(id)[.encrypt(encryptor)][.linkTo("profile", entity).as("contact")].execute()
         save: function (entity) {
             return new SaveEntityCommand(entity);
         },

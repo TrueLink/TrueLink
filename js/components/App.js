@@ -49,19 +49,23 @@ define(["zepto",
                 that.changeState(LoginPage($.extend(currentPage.props, {error: error.message || JSON.stringify(error)})));
             }
 
-            var rootState = {};
+            var rootState = {}, rootEntity = null;
             var loginPromise = isRegistered() ? this.loadRootEntity(password) : this.createRootEntity(password);
-            var createFirstProfile = function () { var profile = Profile.create(); rootState.profiles = [profile]; return profile; };
+
+            var createFirstProfile = function () {
+                var newProfile = Profile.create();
+                db.addProfile(newProfile, rootEntity);
+                return newProfile;
+            };
 
             Q.chain(
                 loginPromise,
-                function init(root) { return db.init(crypto.createDbEncryptor(root)); },
+                function init(root) { rootEntity = root; return db.init(root); },
                 db.getProfiles,
-                [
-                    function ensureProfile(profiles) { return profiles.length > 0 ? profiles[0] : createFirstProfile(); },
-                    function setProfiles(profiles) { rootState.profiles = profiles; }
-                ],
-                function setCurrentProfile(chainResult) { rootState.currentProfile = chainResult[0]; },
+                function setProfiles(profiles) {
+                    rootState.profiles = profiles.length ? profiles : [createFirstProfile()];
+                    rootState.currentProfile = rootState.profiles[0];
+                },
                 function goHome() { that.changeState(HomePage(), rootState); }
             ).then(null, showError);
         },

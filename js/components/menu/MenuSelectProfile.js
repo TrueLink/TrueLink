@@ -17,7 +17,7 @@ define(["react"], function (React) {
                 return;
             }
             var profile = this.props.profiles.filter(function (profile) {
-                return profile.id === profileId;
+                return profile.getId() === profileId;
             })[0];
             this.props.selectProfile(profile);
         },
@@ -25,7 +25,7 @@ define(["react"], function (React) {
         render: function () {
             var current = this.props.selectedProfile;
             var options = this.props.profiles.map(function (profile) {
-                return React.DOM.option({key: profile.id, value: profile.id, className: "title"}, profile.name);
+                return React.DOM.option({key: profile.getId(), value: profile.getId(), className: "title"}, profile.getUsername());
             });
             options.push(React.DOM.optgroup({key: "__add", label: "───"},
                 React.DOM.option({value: "__add", className: "title"}, "Add profile..."))

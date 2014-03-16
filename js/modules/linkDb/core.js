@@ -15,6 +15,8 @@ define([
     function connect(dbName) {
         if (adapter) { return; }
         adapter = new Adapter(dbName || "db");
+        window.adapter = adapter;
+        window.Entity = Entity;
     }
 
     // iEncryptor: {
@@ -171,7 +173,7 @@ define([
         return adapter.setAllEntities(entities);
     }
 
-    return {
+    window.core = {
         connect: connect,
         setDefaultEncryptor: setDefaultEncryptor,
         drop: drop,
@@ -186,4 +188,6 @@ define([
         setAllLinks: setAllLinks,
         setAllEntities: setAllEntities
     };
+
+    return window.core;
 });

@@ -6,6 +6,7 @@ define(["zepto", "models/RepoItem", "tools/urandom"], function ($, RepoItem, ura
     }
     Profile.prototype = new RepoItem();
     $.extend(Profile.prototype, {
+        getUsername: function () { return this.getData("username"); },
         getUserBackground: function () {
             var bg = this.getData("bg");
             return parseInt(bg, 10) || 0;

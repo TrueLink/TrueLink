@@ -42,13 +42,21 @@ define(["linkDb/sugar",
         return query.execute();
     }
 
+    function addProfile(profile, rootEntity) {
+        var query = sugar.save(profile.entity)
+            .linkTo("root", rootEntity)
+            .as("profile");
+        return query.execute();
+    }
+
     return {
         init: init,
         drop: sugar.drop,
         loadRootEntity: loadRootEntity,
         saveRootEntity: saveRootEntity,
 
-        getProfiles: getProfiles
+        getProfiles: getProfiles,
+        addProfile: addProfile
 
     };
 });
