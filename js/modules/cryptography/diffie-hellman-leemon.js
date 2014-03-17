@@ -1,7 +1,6 @@
 define([
-    "tools/random",
     "modules/data-types/hex",
-    "modules/leemon/BigInt"], function (random, Hex, lemon) {
+    "modules/leemon/BigInt"], function (Hex, lemon) {
     "use strict";
 
     /*
@@ -28,7 +27,10 @@ define([
         return lemon.int2bigInt(22, 5);
     }
 
-    function genPrivKey(bitLength) {
+    function genPrivKey(bitLength, random) {
+        if (!random || typeof random.bitArray !== "function") {
+            throw new Error("No valid rng provided");
+        }
         var rndHex = random.bitArray(bitLength).as(Hex).value;
         return lemon.str2bigInt(rndHex, 16);
     }
@@ -41,9 +43,9 @@ define([
         return str;
     }
 
-    function DiffieHellman(privKeyBitLength) {
+    function DiffieHellman(privKeyBitLength, rnd) {
         if (privKeyBitLength) {
-            this._initialize(genP(), genG(), genPrivKey(privKeyBitLength));
+            this._initialize(genP(), genG(), genPrivKey(privKeyBitLength, rnd));
         }
     }
 

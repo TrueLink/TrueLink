@@ -117,7 +117,7 @@ define([
                 return new Hex(dhkHex);
             },
             // return is bitArray
-            getVerifiedDhk: function () {
+            _getVerifiedDhk: function () {
                 var dhk = this.getData("dhk").as(Bytes);
                 var auth = this.getData("auth").as(Bytes);
                 return hash(dhk.concat(auth));
