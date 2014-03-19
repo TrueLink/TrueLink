@@ -1,4 +1,4 @@
-define(["channels/channel",
+define(["modules/channels/channel",
     "zepto",
     "modules/cryptography/diffie-hellman-leemon",
     "modules/data-types/hex",
@@ -50,6 +50,8 @@ define(["channels/channel",
         },
         serialize: function () { throw new Error("Not implemented"); },
 
+        setRng: function (iRng) { this.random = iRng; },
+
         _encrypt: function (bytes, customKey) {
             var iv = this.random.bitArray(128);
             var aes = new Aes(customKey || this.dhAesKey);
@@ -75,11 +77,11 @@ define(["channels/channel",
             this.dhAesKey = dhAes;
             this.outChannelName = dhAes.bitSlice(0, 16);
             this.inChannelName = dhAes.bitSlice(16, 32);
-            this._notifyChannel({idIn: this.inChannelName, idOut: this.outChannelName});
+            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this.state = EstablishChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._notifyDirty();
             this._sendPacket(this._getOfferData());
-            this._prompt(new EstablishChannel.OfferToken(this.dhAesKey), null);
+            this._processMessage(new EstablishChannel.OfferToken(this.dhAesKey));
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -89,7 +91,7 @@ define(["channels/channel",
             this.dhAesKey = dhAes;
             this.inChannelName = dhAes.bitSlice(0, 16);
             this.outChannelName = dhAes.bitSlice(16, 32);
-            this._notifyChannel({idIn: this.inChannelName, idOut: this.outChannelName});
+            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this.state = EstablishChannel.STATE_AWAITING_OFFER;
             this._notifyDirty();
         },
@@ -167,7 +169,7 @@ define(["channels/channel",
             this._notifyDirty();
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._prompt(new EstablishChannel.NewChannelToken(
+            this._processMessage(new EstablishChannel.NewChannelMessage(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))

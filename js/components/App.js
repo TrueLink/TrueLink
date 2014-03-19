@@ -7,7 +7,8 @@ define(["zepto",
     "models/Profile",
     "db",
     "settings",
-    "services/crypto"], function ($, Q, React, AppWindow, LoginPage, HomePage, Profile, db, settings, crypto) {
+    "services/crypto",
+    "modules/mockForChannels"], function ($, Q, React, AppWindow, LoginPage, HomePage, Profile, db, settings, crypto, Mock) {
     "use strict";
     function isRegistered() {
         return !!settings.get("root");
@@ -70,14 +71,20 @@ define(["zepto",
             ).then(null, showError);
         },
 
+        componentDidMount: function () {
+            this.state.channelStuff = new Mock(this.state);
+            this.state.channelStuff.stateChanged = this.forceUpdate.bind(this);
+            this.changeState(LoginPage({
+                isRegistered: isRegistered(),
+                login: this.login,
+                error: null,
+                app: this.state
+            }));
+        },
+
         getInitialState: function () {
             return {
-                changeState: this.changeState,
-                currentPage: LoginPage({
-                    isRegistered: isRegistered(),
-                    login: this.login,
-                    error: null
-                })
+                changeState: this.changeState
             };
         },
 

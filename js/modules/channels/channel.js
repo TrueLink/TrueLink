@@ -9,7 +9,6 @@ define([], function () {
         setTokenPrompter: function (iTokenPrompter) { this.tokenPrompter = iTokenPrompter; },
         setDirtyNotifier: function (iDirtyNotifier) { this.dirtyNotifier = iDirtyNotifier; },
         setChannelNotifier: function (iChannelNotifier) { this.channelNotifier = iChannelNotifier; },
-        setRng: function (iRng) { this.random = iRng; },
         sendMessage: function (bytes) { throw new Error("Not implemented"); },
         enterToken: function (token, context) { throw new Error("Not implemented"); },
         processPacket: function (bytes) { throw new Error("Not implemented"); },
