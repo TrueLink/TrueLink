@@ -34,6 +34,10 @@ define([], function () {
         _prompt: function (token, context) {
             this._check("tokenPrompter");
             this.tokenPrompter.prompt(token, context);
+        },
+        _processMessage: function (message) {
+            this._check("msgProcessor");
+            this.msgProcessor.processMessage(message);
         }
     };
 

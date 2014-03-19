@@ -187,7 +187,7 @@ define(["channels/channel",
                 throw new Error("ACHTUNG");
             }
             this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
-            this._prompt(new EstablishChannel.NewChannelToken(
+            this._processMessage(new EstablishChannel.NewChannelMessage(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))
@@ -206,7 +206,7 @@ define(["channels/channel",
     EstablishChannel.GenerateToken = function () {};
     EstablishChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
     EstablishChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
-    EstablishChannel.NewChannelToken = function (inId, outId, key) {
+    EstablishChannel.NewChannelMessage = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;
