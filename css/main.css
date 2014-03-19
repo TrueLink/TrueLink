@@ -56,6 +56,13 @@ select, option, input {
     margin-left: 250px;
     height: 100%;
     overflow: hidden;
+    position: relative;
+}
+
+.wide {
+    height: 100%;
+    width: 100%;
+    position: relative;
 }
 
 /* --- MENU --- */
