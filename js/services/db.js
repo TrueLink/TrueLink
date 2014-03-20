@@ -26,19 +26,32 @@ define(["linkDb/sugar",
         return sugar.getById(id).decrypt(encryptor).execute();
     }
 
-    function getById(constructor, id) {
+    function _getById(constructor, id) {
         var query = sugar.getById(id)
-            .resolve(function (entity) { return constructor.deserialize(entity); });
+            .resolve(function (entity) { return constructor(entity); });
         return query.execute();
     }
-    function getByLink(constructor, link, entityId) {
-        return getById(constructor, entityId);
+    function _getByLink(constructor, link, entityId) {
+        return _getById(constructor, entityId);
+    }
+
+    function getById(id, constructor) {
+        var query = sugar.getById(id)
+            .resolve(constructor);
+        return query.execute();
+    }
+
+    function getPages(rootEntity, constructor) {
+        var query = sugar.get("profiles")
+            .linkedWith("root", rootEntity)
+            .resolve(constructor);
+        return query.execute();
     }
 
     function getProfiles(rootEntity) {
         var query = sugar.get("profiles")
             .linkedWith("root", rootEntity)
-            .resolve(getByLink.bind(null, Profile));
+            .resolve(_getByLink.bind(null, Profile));
         return query.execute();
     }
 
@@ -55,7 +68,9 @@ define(["linkDb/sugar",
         loadRootEntity: loadRootEntity,
         saveRootEntity: saveRootEntity,
 
+        getById: getById,
         getProfiles: getProfiles,
+        getPages: getPages,
         addProfile: addProfile
 
     };

@@ -3,11 +3,11 @@ define(["react", "components/Menu"], function (React, Menu) {
 
     return React.createClass({
         render: function () {
-            var currentProfile = this.props.app.currentProfile;
+            var currentProfile = this.props.currentProfile;
             var pageCustomClass = !currentProfile ? "" :
                     " stretch-background user-background-" + currentProfile.getData("bg");
             return React.DOM.div({id: "app"},
-                Menu({className: "app-menu", app: this.props.app}),
+                this.props.menu,
                 React.DOM.div({className: "app-page" + pageCustomClass},
                     this.props.currentPage));
         }

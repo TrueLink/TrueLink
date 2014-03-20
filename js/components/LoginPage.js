@@ -1,9 +1,11 @@
-define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, React, ChannelsTestPage) {
+define(["zepto", "q", "react", "bind", "components/ChannelsTestPage"], function ($, Q, React, bind, ChannelsTestPage) {
 
     "use strict";
 
     return React.createClass({
         displayName: "LoginPage",
+        mixins: [bind],
+
 
         getInitialState: function () {
             return {error: null};
@@ -11,10 +13,6 @@ define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, R
 
         componentDidMount: function () {
             this.refs.login.getDOMNode().focus();
-        },
-
-        bind: function (fn) {
-            return fn.bind(this);
         },
 
         login: function () {

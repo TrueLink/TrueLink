@@ -1,82 +1,65 @@
 define(["zepto",
     "q",
     "react",
-    "components/AppWindow",
-    "components/LoginPage",
-    "components/HomePage",
-    "models/Profile",
-    "db",
-    "settings",
-    "services/crypto",
-    "modules/mockForChannels"], function ($, Q, React, AppWindow, LoginPage, HomePage, Profile, db, settings, crypto, Mock) {
+    "bind",
+    "components/AppWindow", "components/Menu", "components/HomePage", "components/ChannelsTestPage"
+    ], function ($, Q, React, bind, AppWindow, Menu, HomePage, ChannelsTestPage) {
     "use strict";
-    function isRegistered() {
-        return !!settings.get("root");
+
+    var pageTypes = {
+        "HomePage": HomePage,
+        "ChannelsTestPage": ChannelsTestPage
+    };
+
+    function pageFromEntity(aspect, entity) {
+        var typeName = entity.getData("pageType");
+        if (!typeName || !pageTypes[typeName]) {
+            throw new Error("Cannot create page for entity " + entity.getId());
+        }
+        var type = pageTypes[typeName];
+        if (aspect) {
+            if (!type.aspects[aspect]) {
+                throw new Error("Cannot create page for entity " + entity.getId());
+            }
+            type = type.aspects[aspect];
+        }
+        return type.deserialize(entity);
     }
 
     return React.createClass({
         displayName: "App",
-
-
-
-        login: function (password) {
-            var that = this;
-            function showError(error) {
-                var currentPage = that.state.currentPage;
-                that.changeState(LoginPage($.extend(currentPage.props, {error: error.message || JSON.stringify(error)})));
-            }
-
-            var rootState = {}, rootEntity = null;
-            var loginPromise = isRegistered() ? this.loadRootEntity(password) : this.createRootEntity(password);
-
-            var createFirstProfile = function () {
-                var newProfile = Profile.create();
-                db.addProfile(newProfile, rootEntity);
-                return newProfile;
-            };
-
-            Q.chain(
-                loginPromise,
-                function init(root) { rootEntity = root; return db.init(root); },
-                db.getProfiles,
-                function setProfiles(profiles) {
-                    rootState.profiles = profiles.length ? profiles : [createFirstProfile()];
-                    rootState.currentProfile = rootState.profiles[0];
-                },
-                function goHome() { that.changeState(HomePage(), rootState); }
-            ).then(null, showError);
-        },
-
-        componentDidMount: function () {
-            this.state.channelStuff = new Mock(this.state);
-            this.state.channelStuff.stateChanged = (function () {
-                this.forceUpdate();
-            }).bind(this);
-            this.changeState(LoginPage({
-                isRegistered: isRegistered(),
-                login: this.login,
-                error: null,
-                app: this.state
-            }));
-        },
+        mixins: [bind],
 
         getInitialState: function () {
             return {
-                changeState: this.changeState
+                currentProfile: null,
+                currentPage: null
             };
         },
 
-        changeState: function (page, rootState) {
-            rootState = rootState || {};
-            page = page || this.state.currentPage;
-            this.setState($.extend(this.state, rootState, {
-                currentPage: page
+        createPage: function (id, aspect) {
+            var db = this.props.db;
+            return db.getById(id, pageFromEntity.bind(aspect));
+        },
+
+        navigate: function (guid, aspect) {
+            this.createPage(guid, aspect).then(this.bind(function (page) {
+                this.setState({currentPage: page});
             }));
         },
 
+        componentDidMount: function () {
+            // just go home
+            this.navigate(this.props.rootEntity.getId());
+        },
 
         render: function () {
-            return AppWindow({app: this.state, currentPage: this.state.currentPage});
+            var profile = this.state.currentProfile;
+            return AppWindow({
+                currentProfile: profile,
+                menu: Menu({currentProfile: profile, rootEntity: this.props.rootEntity}),
+                currentPage: this.state.currentPage
+            });
         }
     });
 });

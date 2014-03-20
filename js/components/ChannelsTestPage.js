@@ -1,8 +1,9 @@
-define(["zepto", "q", "react", "modules/channels/establishChannel", "components/channels/ChannelTestInfo"], function ($, Q, React, Establish, ChannelTestInfo) {
+define(["zepto", "q", "react", "bind", "modules/channels/establishChannel", "components/channels/ChannelTestInfo"], function ($, Q, React, bind, Establish, ChannelTestInfo) {
     "use strict";
 
     return React.createClass({
         displayName: "ChannelsTestPage",
+        mixins: [bind],
 
         getInitialState: function () {
             return { alice: null, bob: null };

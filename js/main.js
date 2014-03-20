@@ -12,6 +12,7 @@
             "dbJs": "lib/db",
             "whenAll": "tools/resolve",
             "linkDb": "modules/linkDb",
+            "bind": "tools/bind",
             "db": "services/db",
             "settings": "services/settings"
         },
@@ -28,9 +29,9 @@
             $(function () {
                 function startApp(rootEntity, rootData) {
                     settings.set("root", rootData);
-                    console.log(rootEntity);
+                    db.init(rootEntity);
+                    React.renderComponent(App({rootEntity: rootEntity}), document.body);
                 }
-                //React.renderComponent(App(), document.body);
                 React.renderComponent(LoginPage({login: startApp, db: db, crypto: crypto, rootData: settings.get("root")}), document.body);
             });
         });

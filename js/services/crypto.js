@@ -1,6 +1,6 @@
 define([
     "q",
-    "linkDb/Entity",
+    "models/RootEntity",
     "tools/random",
     "tools/urandom",
     "modules/cryptography/sha3-crypto-js",
@@ -8,7 +8,7 @@ define([
     "modules/data-types/utf8string",
     "modules/data-types/bytes",
     "modules/data-types/bitArray",
-    "modules/cryptography/aes-sjcl"], function (Q, Entity, random, urandom, sha3, Base64, Utf8String, Bytes, BitArray, Aes) {
+    "modules/cryptography/aes-sjcl"], function (Q, RootEntity, random, urandom, sha3, Base64, Utf8String, Bytes, BitArray, Aes) {
     "use strict";
 
     function generateKeys() {
@@ -76,7 +76,7 @@ define([
 
     return {
         createRootEntity: function () {
-            return new Entity({keys: generateKeys()});
+            return RootEntity.create(generateKeys());
         },
         createDbEncryptor: createDbEncryptor,
         createDbMasterEncryptor: createDbMasterEncryptor
