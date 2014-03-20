@@ -73,7 +73,9 @@ define(["zepto",
 
         componentDidMount: function () {
             this.state.channelStuff = new Mock(this.state);
-            this.state.channelStuff.stateChanged = this.forceUpdate.bind(this);
+            this.state.channelStuff.stateChanged = (function () {
+                this.forceUpdate();
+            }).bind(this);
             this.changeState(LoginPage({
                 isRegistered: isRegistered(),
                 login: this.login,

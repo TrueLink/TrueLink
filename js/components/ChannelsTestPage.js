@@ -1,4 +1,4 @@
-define(["zepto", "q", "react", "modules/channels/establishChannel", "components/ChannelTestInfo"], function ($, Q, React, Establish, ChannelTestInfo) {
+define(["zepto", "q", "react", "modules/channels/establishChannel", "components/channels/ChannelTestInfo"], function ($, Q, React, Establish, ChannelTestInfo) {
     "use strict";
 
     return React.createClass({
@@ -17,14 +17,43 @@ define(["zepto", "q", "react", "modules/channels/establishChannel", "components/
             //alice.enterToken(new Establish.GenerateToken());
         },
 
+        generate: function (channel) {
+            channel.enterToken(new Establish.GenerateToken());
+            this.forceUpdate();
+        },
+        accept: function (channel, offer) {
+            channel.enterToken(new Establish.OfferToken(offer));
+            this.forceUpdate();
+        },
+        acceptAuth: function (channel, auth) {
+            channel.enterToken(new Establish.AuthToken(auth));
+            this.forceUpdate();
+        },
+
         render: function () {
 
 
             var w;
             if (this.state.alice && this.state.bob) {
+                var alice = this.state.alice;
+                var bob = this.state.bob;
                 w = React.DOM.div(null,
-                    ChannelTestInfo({channel: this.state.alice}),
-                    ChannelTestInfo({channel: this.state.bob}));
+                    ChannelTestInfo({
+                        channel: alice,
+                        generate: this.generate.bind(this, alice),
+                        accept: this.accept.bind(this, alice),
+                        acceptAuth: this.acceptAuth.bind(this, alice),
+                        messages: this.props.app.channelStuff.getMessages(alice),
+                        prompts: this.props.app.channelStuff.getPrompts(alice)
+                    }),
+                    ChannelTestInfo({
+                        channel: bob,
+                        generate: this.generate.bind(this, bob),
+                        accept: this.accept.bind(this, bob),
+                        acceptAuth: this.acceptAuth.bind(this, bob),
+                        messages: this.props.app.channelStuff.getMessages(bob),
+                        prompts: this.props.app.channelStuff.getPrompts(bob)
+                    }));
             } else {
                 w = React.DOM.button({onClick: this.start}, "Start");
 

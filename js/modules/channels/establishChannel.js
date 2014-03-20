@@ -17,7 +17,9 @@ define(["modules/channels/channel",
         return SHA1(value.as(Hex)).as(BitArray).bitSlice(0, 128);
     }
 
-    function EstablishChannel() {}
+    function EstablishChannel() {
+        this.state = EstablishChannel.STATE_NOT_STARTED;
+    }
 
     EstablishChannel.prototype = new Channel();
     $.extend(EstablishChannel.prototype, {
@@ -48,6 +50,8 @@ define(["modules/channels/channel",
                 break;
             }
         },
+
+        getState: function () { return this.state; },
         serialize: function () { throw new Error("Not implemented"); },
 
         setRng: function (iRng) { this.random = iRng; },
@@ -81,7 +85,7 @@ define(["modules/channels/channel",
             this.state = EstablishChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._notifyDirty();
             this._sendPacket(this._getOfferData());
-            this._processMessage(new EstablishChannel.OfferToken(this.dhAesKey));
+            this._processMessage(new EstablishChannel.OfferMessage(this.dhAesKey));
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -129,6 +133,7 @@ define(["modules/channels/channel",
             this.state = EstablishChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._notifyDirty();
             this._sendPacket(this._getAuthData());
+            this._processMessage(new EstablishChannel.AuthMessage(this.auth));
         },
 
         _getAuthData: function () {
@@ -206,7 +211,9 @@ define(["modules/channels/channel",
     };
 
     EstablishChannel.GenerateToken = function () {};
+    EstablishChannel.OfferMessage = function (offerBytes) { this.offer = offerBytes; };
     EstablishChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
+    EstablishChannel.AuthMessage = function (authBytes) { this.auth = authBytes; };
     EstablishChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
     EstablishChannel.NewChannelMessage = function (inId, outId, key) {
         this.inId = inId;

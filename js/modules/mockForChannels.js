@@ -1,4 +1,4 @@
-define(["modules/channels/establishChannel", "tools/random"], function (Establish, random) {
+define(["modules/channels/establishChannel", "tools/random", "modules/data-types/hex"], function (Establish, random, Hex) {
     "use strict";
 
     function Service() {
@@ -6,6 +6,7 @@ define(["modules/channels/establishChannel", "tools/random"], function (Establis
         this.prompts = [];
         this.messages = [];
         this.stateChanged = null;
+        this.undelivered = [];
     }
 
     Service.prototype = {
@@ -27,9 +28,13 @@ define(["modules/channels/establishChannel", "tools/random"], function (Establis
             return ch;
         },
         processMessage: function (channel, message) {
-            if (message instanceof Establish.NewChannelMessage) {
-                console.log(channel, " has established a new channel with outId: " + message.outId + " and inId: " + message.inId);
+            if (message instanceof Establish.OfferMessage) {
+                this.getMessageInfo(channel).messages.push(message);
             }
+            if (message instanceof Establish.NewChannelMessage) {
+                console.log(channel, " has established a new channel with outId: " + message.outId.as(Hex).value + " and inId: " + message.inId);
+            }
+            this.notifyStateChanged();
         },
         getChannelInfo: function (channel) {
             var found = this.channels.filter(function (chI) { return chI.channel === channel; });
@@ -53,22 +58,29 @@ define(["modules/channels/establishChannel", "tools/random"], function (Establis
             return found[0];
         },
         getChannelInfoByInId: function (inId) {
-            var found = this.channels.filter(function (chI) { return chI.inId === inId; });
+            var found = this.channels.filter(function (chI) { return chI.inId.as(Hex).value === inId.as(Hex).value; });
             if (!found.length) {
-                throw new Error("channel not found");
+                return null;
             }
             return found[0];
         },
         sendPacket: function (channel, bytes) {
             var chId = this.getChannelInfo(channel).outId;
-            console.log("sending message to " + chId);
-            var receiver = this.getChannelInfoByInId(chId).channel;
-            setTimeout(receiver.processPacket.bind(null, bytes), 500);
+            console.log("sending message to " + chId.as(Hex).value);
+            var receiver = this.getChannelInfoByInId(chId);
+            if (!receiver) {
+                this.undelivered.push({
+                    to: chId.as(Hex).value,
+                    content: bytes
+                });
+                return;
+            }
+            setTimeout(receiver.channel.processPacket.bind(channel, bytes), 500);
         },
         prompt: function (channel, token, context) {
             var promptsInfo = this.getPromptInfo(channel);
-            promptsInfo.push(token);
-
+            promptsInfo.prompts.push(token);
+            this.notifyStateChanged();
         },
 
         notifyStateChanged: function () {
@@ -103,6 +115,13 @@ define(["modules/channels/establishChannel", "tools/random"], function (Establis
         },
         notifyIds: function (channel, idsObj) {
             this.channels.push({channel: channel, inId: idsObj.inId, outId: idsObj.outId });
+            if (this.undelivered.length) {
+                this.undelivered.forEach(function (message) {
+                    if (message.to === idsObj.inId.as(Hex).value) {
+                        setTimeout(channel.processPacket.bind(channel, message.content), 500);
+                    }
+                });
+            }
         },
         createMsgProcessor: function (channel) {
             return { processMessage: this.processMessage.bind(this, channel) };
