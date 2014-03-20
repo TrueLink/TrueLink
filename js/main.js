@@ -13,7 +13,7 @@
             "whenAll": "tools/resolve",
             "linkDb": "modules/linkDb",
             "db": "services/db",
-            "settings": "services/settings",
+            "settings": "services/settings"
         },
         shim: {
             "zepto": { exports: "Zepto" },
@@ -23,9 +23,15 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["zepto", "react", "components/App", "addons"], function ($, React, App) {
-        $(function () {
-            React.renderComponent(App(), document.body);
+    require(["zepto", "react", "components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"],
+        function ($, React, App, LoginPage, db, crypto, settings) {
+            $(function () {
+                function startApp(rootEntity, rootData) {
+                    settings.set("root", rootData);
+                    console.log(rootEntity);
+                }
+                //React.renderComponent(App(), document.body);
+                React.renderComponent(LoginPage({login: startApp, db: db, crypto: crypto, rootData: settings.get("root")}), document.body);
+            });
         });
-    });
 }(require, window.document));
