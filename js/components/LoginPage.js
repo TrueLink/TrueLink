@@ -12,20 +12,28 @@ define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, R
         componentDidMount: function () {
             this.refs.login.getDOMNode().focus();
         },
+
+        bind: function (fn) {
+            return fn.bind(this);
+        },
+
         login: function () {
             var password = this.refs.login.getDOMNode().value;
             var masterKeyEncryptor = this.props.crypto.createDbMasterEncryptor(password);
             var login = this.props.login;
             var rootData = this.props.rootData;
-            var showError = (function (error) { this.setState({error: error.message || JSON.stringify(error)}); }).bind(this);
+            var showError = this.bind(function (error) { this.setState({error: error.message || JSON.stringify(error)}); });
             if (rootData) {
-                this.loadRootEntity(masterKeyEncryptor).then(function (root) {
+                this.loadRootEntity(masterKeyEncryptor).then(this.bind(function (root) {
                     if (!root) {
-                        showError(new Error("Root entity not found. Try to clear the local storage."));
+                        this.setState({
+                            error: "Root entity not found. Try to clear the local storage.",
+                            showClearButton: true
+                        });
                         return;
                     }
                     login(root, rootData);
-                }, showError);
+                }), showError);
             } else {
                 this.createRootEntity(masterKeyEncryptor).then(function (result) {
                     login(result.root, result.rootData);
@@ -46,7 +54,7 @@ define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, R
         },
 
         loadRootEntity: function (masterKeyEncryptor) {
-            return new Q.Promise((function (resolve, reject) {
+            return new Q.Promise(this.bind(function (resolve, reject) {
                 var encryptedData = this.props.rootData, rootData;
                 try {
                     rootData = masterKeyEncryptor.decryptData(null, encryptedData);
@@ -54,7 +62,12 @@ define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, R
                 } catch (ex) {
                     reject(new Error("Wrong password"));
                 }
-            }).bind(this));
+            }));
+        },
+
+        clearLs: function () {
+            localStorage.clear();
+            location.replace("/");
         },
 
         render: function () {
@@ -65,7 +78,9 @@ define(["zepto", "q", "react", "components/ChannelsTestPage"], function ($, Q, R
                         React.DOM.input({ref: "login", type: "text"}),
                         !this.state.error ? null :
                                 React.DOM.div(null, this.state.error),
-                        React.DOM.input({type: "submit", value: this.props.rootData ? "Login" : "Register"})
+                        React.DOM.input({type: "submit", value: this.props.rootData ? "Login" : "Register"}),
+                        !this.state.showClearButton ? null :
+                                React.DOM.input({type: "button", value: "Clear localStorage", onClick: this.clearLs})
                         )));
         }
     });

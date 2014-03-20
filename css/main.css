@@ -9,7 +9,7 @@ body, html {
     width: 100%;
 }
 
-input[type="text"], input[type="password"], input[type="submit"]{
+input[type="text"], input[type="password"], input[type="submit"], input[type="button"]{
     padding: 5px;
     font-size: 14px;
     -moz-box-sizing: border-box;
