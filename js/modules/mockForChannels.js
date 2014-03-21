@@ -10,12 +10,18 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
     }
 
     Service.prototype = {
+        getInfo: function (channel) {
+            return {
+                state: channel.state,
+                messages: this.getMessages(channel),
+                prompts: this.getPrompts(channel)
+            };
+        },
         createChatChannel: function () {
 
         },
-        createEstablishChannel: function (name) {
+        createEstablishChannel: function () {
             var ch = new Establish();
-            ch.name = name;
             ch.setMsgProcessor(this.createMsgProcessor(ch));
             ch.setPacketSender(this.createPacketSender(ch));
             ch.setTokenPrompter(this.createTokenPrompter(ch));
@@ -28,9 +34,7 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
             return ch;
         },
         processMessage: function (channel, message) {
-            if (message instanceof Establish.OfferMessage) {
-                this.getMessageInfo(channel).messages.push(message);
-            }
+            this.getMessageInfo(channel).messages.push(message);
             if (message instanceof Establish.NewChannelMessage) {
                 console.log(channel, " has established a new channel with outId: " + message.outId.as(Hex).value + " and inId: " + message.inId);
             }
@@ -75,7 +79,13 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
                 });
                 return;
             }
-            setTimeout(receiver.channel.processPacket.bind(channel, bytes), 500);
+            setTimeout(function () {
+                try {
+                    receiver.channel.processPacket(bytes);
+                } catch (ex) {
+                    console.error(ex);
+                }
+            }, 500);
         },
         prompt: function (channel, token, context) {
             var promptsInfo = this.getPromptInfo(channel);

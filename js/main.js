@@ -24,15 +24,70 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["zepto", "react", "components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"],
-        function ($, React, App, LoginPage, db, crypto, settings) {
+    require(["modules/channels/establishChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
+        //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
+    ],
+        function (Establish, ChannelStuff, ChannelsTestPage, urandom, $, React) {
             $(function () {
-                function startApp(rootEntity, rootData) {
-                    settings.set("root", rootData);
-                    db.init(rootEntity);
-                    React.renderComponent(App({rootEntity: rootEntity}), document.body);
+
+                var wrapper = new ChannelStuff();
+                wrapper.stateChanged = update;
+                var channels = {};
+                var model = {};
+                var page = ChannelsTestPage({
+                    addChannel: createChannel,
+                    channels: model,
+                    generate: generate,
+                    accept: accept,
+                    acceptAuth: acceptAuth
+                });
+
+                function update() {
+                    var newModel = {};
+                    $.each(channels, function (key, channel) {
+                        newModel[key] = wrapper.getInfo(channel);
+                        newModel[key].name = key;
+                    });
+                    page.setProps({channels: newModel});
                 }
-                React.renderComponent(LoginPage({login: startApp, db: db, crypto: crypto, rootData: settings.get("root")}), document.body);
+                function createChannel() {
+                    var name = urandom.name();
+                    channels[name] = wrapper.createEstablishChannel();
+                    update();
+                }
+
+                function generate(key) {
+                    try {
+                        channels[key].enterToken(new Establish.GenerateToken());
+                    } catch (ex) {
+                        console.error(ex);
+                    }
+                }
+
+                function accept(key, offer) {
+                    try {
+                        channels[key].enterToken(new Establish.OfferToken(offer));
+                    } catch (ex) {
+                        console.error(ex);
+                    }
+                }
+
+                function acceptAuth(key, auth) {
+                    try {
+                        channels[key].enterToken(new Establish.AuthToken(auth));
+                    } catch (ex) {
+                        console.error(ex);
+                    }
+                }
+
+                React.renderComponent(page, document.body);
+
+                //function startApp(rootEntity, rootData) {
+                //    settings.set("root", rootData);
+                //    db.init(rootEntity);
+                //    React.renderComponent(App({rootEntity: rootEntity}), document.body);
+                //}
+                //React.renderComponent(LoginPage({login: startApp, db: db, crypto: crypto, rootData: settings.get("root")}), document.body);
             });
         });
 }(require, window.document));

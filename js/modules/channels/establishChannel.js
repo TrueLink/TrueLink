@@ -31,6 +31,7 @@ define(["modules/channels/channel",
             } else if (token instanceof EstablishChannel.AuthToken) {
                 this._acceptAuth(token.auth);
             }
+            this._notifyDirty();
         },
         processPacket: function (bytes) {
             switch (this.state) {
@@ -49,6 +50,7 @@ define(["modules/channels/channel",
             default:
                 break;
             }
+            this._notifyDirty();
         },
 
         getState: function () { return this.state; },
@@ -83,7 +85,6 @@ define(["modules/channels/channel",
             this.inChannelName = dhAes.bitSlice(16, 32);
             this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this.state = EstablishChannel.STATE_AWAITING_OFFER_RESPONSE;
-            this._notifyDirty();
             this._sendPacket(this._getOfferData());
             this._processMessage(new EstablishChannel.OfferMessage(this.dhAesKey));
         },
@@ -97,7 +98,6 @@ define(["modules/channels/channel",
             this.outChannelName = dhAes.bitSlice(16, 32);
             this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this.state = EstablishChannel.STATE_AWAITING_OFFER;
-            this._notifyDirty();
         },
 
         _getOfferData: function () {
@@ -112,7 +112,6 @@ define(["modules/channels/channel",
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
             this.state = EstablishChannel.STATE_AWAITING_AUTH;
-            this._notifyDirty();
             this._sendPacket(this._getOfferResponse());
             this._prompt(new EstablishChannel.AuthToken(), null);
         },
@@ -124,14 +123,13 @@ define(["modules/channels/channel",
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            var dhDataHex = this.decrypt(data).as(Hex).value;
+            var dhDataHex = this._decrypt(data).as(Hex).value;
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
-            this.dhk = Hex(dhkHex);
+            this.dhk = new Hex(dhkHex);
 
             this.auth = this.random.bitArray(authBitLength);
             this.check = this.random.bitArray(128);
             this.state = EstablishChannel.STATE_AWAITING_AUTH_RESPONSE;
-            this._notifyDirty();
             this._sendPacket(this._getAuthData());
             this._processMessage(new EstablishChannel.AuthMessage(this.auth));
         },
@@ -149,7 +147,6 @@ define(["modules/channels/channel",
         // Bob 4.2
         _acceptAuthData: function (bytes) {
             this.authData = bytes;
-            this._notifyDirty();
             if (this.auth) {
                 this._acceptAuthAndData();
             }
@@ -158,7 +155,6 @@ define(["modules/channels/channel",
         // Bob 4.1
         _acceptAuth: function (auth) {
             this.auth = auth;
-            this._notifyDirty();
             if (this.authData) {
                 this._acceptAuthAndData();
             }
@@ -171,7 +167,6 @@ define(["modules/channels/channel",
             var verified = this._getVerifiedDhk();
             this.check = this._decrypt(bytes, verified);
             this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
-            this._notifyDirty();
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
             this._processMessage(new EstablishChannel.NewChannelMessage(
@@ -189,9 +184,10 @@ define(["modules/channels/channel",
         // Alice 5
         _acceptAuthResponse: function (bytes) {
             var verified = this._getVerifiedDhk();
-            var hCheck = this._decrypt(new Hex(bytes), verified);
+            var hCheck = this._decrypt(bytes, verified);
             if (hash(this.check).as(Hex).value !== hCheck.as(Hex).value) {
-                throw new Error("ACHTUNG");
+                this.state = EstablishChannel.STATE_CONNECTION_FAILED;
+                return;
             }
             this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
             this._processMessage(new EstablishChannel.NewChannelMessage(
