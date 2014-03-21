@@ -54,18 +54,21 @@ define(["zepto", "settings"], function ($, Settings) {
             if (!this.messages.length) { return; }
             var message = this.messages.pop(), that = this;
 
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                url: this.url,
-                data: JSON.stringify(message),
-                success: function (data, status, xhr) { that._send(); },
-                error: function (xhr, errorType, error) {
-                    console.warn("Message sending failed: ", error || errorType);
-                    that.messages.push(message);
-                    setTimeout(function () { that._send(); }, 5000);
-                }
-            });
+            setTimeout(function () {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: that.url,
+                    data: JSON.stringify(message),
+                    success: function (data, status, xhr) { that._send(); },
+                    error: function (xhr, errorType, error) {
+                        console.warn("Message sending failed: ", error || errorType);
+                        that.messages.push(message);
+                        setTimeout(function () { that._send(); }, 5000);
+                    }
+                });
+            }, 500);
+
         },
         _handleResult: function (data) {
             try {
