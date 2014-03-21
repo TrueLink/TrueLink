@@ -72,9 +72,10 @@
                     }
                 }
 
-                function acceptAuth(key, auth) {
+                function acceptAuth(key, auth, context) {
                     try {
                         channels[key].enterToken(new Establish.AuthToken(auth));
+                        wrapper.removePrompt(context);
                     } catch (ex) {
                         console.error(ex);
                     }

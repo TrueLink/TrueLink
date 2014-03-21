@@ -30,11 +30,12 @@ define([], function () {
             this._check("packetSender");
             this.packetSender.sendPacket(bytes);
         },
-        _prompt: function (token, context) {
+        _emitPrompt: function (token, context) {
+            context = context || {};
             this._check("tokenPrompter");
             this.tokenPrompter.prompt(token, context);
         },
-        _processMessage: function (message) {
+        _emitUserMessage: function (message) {
             this._check("msgProcessor");
             this.msgProcessor.processMessage(message);
         }

@@ -86,7 +86,7 @@ define(["modules/channels/channel",
             this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this.state = EstablishChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._sendPacket(this._getOfferData());
-            this._processMessage(new EstablishChannel.OfferMessage(this.dhAesKey));
+            this._emitPrompt(new EstablishChannel.OfferToken(this.dhAesKey));
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -113,7 +113,7 @@ define(["modules/channels/channel",
             this.dhk = new Hex(dhkHex);
             this.state = EstablishChannel.STATE_AWAITING_AUTH;
             this._sendPacket(this._getOfferResponse());
-            this._prompt(new EstablishChannel.AuthToken(), null);
+            this._emitPrompt(new EstablishChannel.AuthToken(), null);
         },
 
         _getOfferResponse: function () {
@@ -131,7 +131,7 @@ define(["modules/channels/channel",
             this.check = this.random.bitArray(128);
             this.state = EstablishChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._sendPacket(this._getAuthData());
-            this._processMessage(new EstablishChannel.AuthMessage(this.auth));
+            this._emitPrompt(new EstablishChannel.AuthToken(this.auth));
         },
 
         _getAuthData: function () {
@@ -169,7 +169,7 @@ define(["modules/channels/channel",
             this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._processMessage(new EstablishChannel.NewChannelMessage(
+            this._emitPrompt(new EstablishChannel.NewChannelToken(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
@@ -190,7 +190,7 @@ define(["modules/channels/channel",
                 return;
             }
             this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
-            this._processMessage(new EstablishChannel.NewChannelMessage(
+            this._emitPrompt(new EstablishChannel.NewChannelToken(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))
@@ -207,11 +207,9 @@ define(["modules/channels/channel",
     };
 
     EstablishChannel.GenerateToken = function () {};
-    EstablishChannel.OfferMessage = function (offerBytes) { this.offer = offerBytes; };
     EstablishChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
-    EstablishChannel.AuthMessage = function (authBytes) { this.auth = authBytes; };
     EstablishChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
-    EstablishChannel.NewChannelMessage = function (inId, outId, key) {
+    EstablishChannel.NewChannelToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;
