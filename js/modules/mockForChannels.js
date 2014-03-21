@@ -1,10 +1,18 @@
-define(["modules/channels/establishChannel", "modules/channels/chatChannel", "tools/random", "modules/data-types/hex"], function (EstablishChannel, ChatChannel, random, Hex) {
+define([
+    "modules/channels/establishChannel",
+    "modules/channels/chatChannel",
+    "tools/random",
+    "modules/data-types/hex",
+    "modules/couchTransport"
+], function (EstablishChannel, ChatChannel, random, Hex, CouchTransport) {
     "use strict";
 
     function Service() {
         this.channels = [];
         this.stateChanged = null;
         this.undelivered = [];
+        this.transport = new CouchTransport("http://couch.ctx.im:5984/tl_channels");
+        this.transport.setHandler(this._onCouchMessage.bind(this));
     }
 
     Service.prototype = {
@@ -15,6 +23,24 @@ define(["modules/channels/establishChannel", "modules/channels/chatChannel", "to
                 messages: entry.messages,
                 prompts: entry.prompts
             };
+        },
+
+        _onCouchMessage: function (chIdHex, dataHex) {
+            var receiver = this.getChannelInfoByInId(chIdHex);
+            if (!receiver) {
+                this.undelivered.push({
+                    to: chIdHex,
+                    content: bytes
+                });
+                return;
+            }
+            receiver.channel.processPacket(new Hex(dataHex));
+        },
+        _sendCouchMessage: function (chId, data) {
+            this.transport.sendMessage(chId.as(Hex).value, data.as(Hex).value);
+        },
+        _addCouchListeningChannel: function(chId) {
+            this.transport.addChannel(chId.as(Hex).value);
         },
 
         _bindChannel: function (ch) {
@@ -50,9 +76,9 @@ define(["modules/channels/establishChannel", "modules/channels/chatChannel", "to
             return found[0];
         },
 
-        getChannelInfoByInId: function (inId) {
+        getChannelInfoByInId: function (inIdHex) {
             var found = this.channels.filter(function (entry) {
-                return entry.inId && entry.inId.as(Hex).value === inId.as(Hex).value;
+                return entry.inId && entry.inId.as(Hex).value === inIdHex;
             });
             if (!found.length) {
                 return null;
@@ -62,21 +88,7 @@ define(["modules/channels/establishChannel", "modules/channels/chatChannel", "to
         sendPacket: function (channel, bytes) {
             var chId = this.getChannelEntry(channel).outId;
             console.log("sending message to " + chId.as(Hex).value);
-            var receiver = this.getChannelInfoByInId(chId);
-            if (!receiver) {
-                this.undelivered.push({
-                    to: chId.as(Hex).value,
-                    content: bytes
-                });
-                return;
-            }
-            setTimeout(function () {
-                try {
-                    receiver.channel.processPacket(bytes);
-                } catch (ex) {
-                    console.error(ex);
-                }
-            }, 500);
+            this._sendCouchMessage(chId, bytes);
         },
         prompt: function (channel, token, context) {
             var entry = this.getChannelEntry(channel);
@@ -119,13 +131,8 @@ define(["modules/channels/establishChannel", "modules/channels/chatChannel", "to
             var entry = this.getChannelEntry(channel);
             entry.inId = idsObj.inId;
             entry.outId = idsObj.outId;
-            if (this.undelivered.length) {
-                this.undelivered.forEach(function (message) {
-                    if (message.to === idsObj.inId.as(Hex).value) {
-                        setTimeout(channel.processPacket.bind(channel, message.content), 500);
-                    }
-                });
-            }
+
+            this._addCouchListeningChannel(idsObj.inId);
         },
         createMsgProcessor: function (channel) {
             return { processMessage: this.processMessage.bind(this, channel) };
