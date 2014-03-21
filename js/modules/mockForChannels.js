@@ -26,6 +26,7 @@ define([
         },
 
         _onCouchMessage: function (chIdHex, dataHex) {
+            console.log("received message from ", chIdHex);
             var receiver = this.getChannelInfoByInId(chIdHex);
             if (!receiver) {
                 this.undelivered.push({
@@ -39,7 +40,7 @@ define([
         _sendCouchMessage: function (chId, data) {
             this.transport.sendMessage(chId.as(Hex).value, data.as(Hex).value);
         },
-        _addCouchListeningChannel: function(chId) {
+        _addCouchListeningChannel: function (chId) {
             this.transport.addChannel(chId.as(Hex).value);
         },
 
@@ -106,7 +107,7 @@ define([
         removePrompt: function (context) {
             this.channels.forEach(function (entry) {
                 var index;
-                for (index = entry.prompts.length - 1; index > -1; index--) {
+                for (index = entry.prompts.length - 1; index > -1; index -= 1) {
                     if (entry.prompts[index].context === context) { break; }
                 }
                 if (index !== -1) {
