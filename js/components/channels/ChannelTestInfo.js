@@ -1,4 +1,4 @@
-define(["zepto", "q", "react", "modules/channels/establishChannel", "modules/data-types/hex"], function ($, Q, React, Establish, Hex) {
+define(["zepto", "q", "react", "modules/channels/establishChannel", "modules/data-types/hex", "modules/data-types/decBlocks"], function ($, Q, React, Establish, Hex, DecBlocks) {
     "use strict";
 
     var stateStatuses = {};
@@ -13,21 +13,37 @@ define(["zepto", "q", "react", "modules/channels/establishChannel", "modules/dat
     return React.createClass({
         displayName: "ChannelTestInfo",
 
+        getInitialState: function () {
+            return {};
+        },
+
         generate: function () {
             this.props.generate();
         },
         accept: function () {
-            var offerHex = this.refs.offer.getDOMNode().value;
-            this.props.accept(new Hex(offerHex));
+            var offerText = this.refs.offer.getDOMNode().value;
+            var offer = DecBlocks.fromString(offerText);
+            if (!offer) {
+                this.setState({error: "Wrong value"});
+                return;
+            }
+            this.setState({error: null});
+            this.props.accept(offer.as(Hex));
         },
         acceptAuth: function (context) {
-            var authHex = this.refs.auth.getDOMNode().value;
-            this.props.acceptAuth(new Hex(authHex), context);
+            var authText = this.refs.auth.getDOMNode().value;
+            var auth = DecBlocks.fromString(authText);
+            if (!auth) {
+                this.setState({error: "Wrong value"});
+                return;
+            }
+            this.setState({error: null});
+            this.props.acceptAuth(auth.as(Hex), context);
         },
         render: function () {
             var channel = this.props.channel;
             var acceptAuth = this.acceptAuth;
-            var status = stateStatuses[channel.state];
+            var status = this.state.error || stateStatuses[channel.state];
             var actions = {};
 
             var i = 0, elem;
@@ -44,12 +60,12 @@ define(["zepto", "q", "react", "modules/channels/establishChannel", "modules/dat
                     elem = null;
                     if (prompt.token instanceof Establish.OfferToken) {
                         if (prompt.token.offer) {
-                            elem = React.DOM.div(null, prompt.token.offer.as(Hex).value);
+                            elem = React.DOM.div(null, prompt.token.offer.as(DecBlocks).toString());
                         }
                     }
                     if (prompt.token instanceof Establish.AuthToken) {
                         if (prompt.token.auth) {
-                            elem = React.DOM.div(null, prompt.token.auth.as(Hex).value);
+                            elem = React.DOM.div(null, prompt.token.auth.as(DecBlocks).toString());
                         } else {
                             elem = React.DOM.div(null,
                                 React.DOM.input({ref: "auth"}),

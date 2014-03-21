@@ -124,7 +124,7 @@ define([
 
 
         notifyDirty: function (channel) {
-            console.log(channel, "will be saved");
+            //console.log(channel, "will be saved");
             this.notifyStateChanged();
         },
         notifyIds: function (channel, idsObj) {

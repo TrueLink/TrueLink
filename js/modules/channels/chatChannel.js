@@ -35,6 +35,7 @@ define(["modules/channels/channel",
             }
         },
         onHashMessage: function (hash, netMsg) {
+            console.info("receiving hashtail", netMsg.ht);
             if (this.isHashValid(hash) !== false && netMsg.ht) {
                 console.log("Received hashtail " + netMsg.ht);
                 this.backHashEnd = new Hex(netMsg.ht);
@@ -80,6 +81,7 @@ define(["modules/channels/channel",
                 t: ChatChannel.MSG_TYPE_HASH,
                 ht: hashEnd.as(Hex).value
             };
+            console.info("sending hashtail", hashEnd.as(Hex).value);
             this._sendMessage(netMessage);
         },
 

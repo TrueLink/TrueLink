@@ -5,7 +5,8 @@ define(["modules/channels/channel",
     "modules/data-types/bitArray",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js",
-    "modules/cryptography/aes-sjcl"
+    "modules/cryptography/aes-sjcl",
+    "modules/converters/customTypes"
 ], function (Channel, $, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes) {
     "use strict";
 
