@@ -8,10 +8,10 @@ define(["zepto", "q", "react", "modules/channels/chatChannel", "modules/data-typ
 
         send: function () {
             var node = this.refs.messageText.getDOMNode();
-            var data = {type: "t", data: node.value};
+            //var data = {type: "t", data: node.value};
+            //var messageData = new Utf8String(JSON.stringify(data));
+            this.props.send(node.value);
             node.value = "";
-            var messageData = new Utf8String(JSON.stringify(data));
-            this.props.send(messageData);
             return false;
         },
 
@@ -19,8 +19,8 @@ define(["zepto", "q", "react", "modules/channels/chatChannel", "modules/data-typ
             var channel = this.props.channel;
             var messages = {}, i = 0;
             channel.messages.forEach(function (messageData) {
-                var data = JSON.parse(messageData.as(Utf8String).value);
-                messages["m_" + i] = React.DOM.li(null, data.data);
+                //var data = JSON.parse(messageData.as(Utf8String).value);
+                messages["m_" + i] = React.DOM.li(null, messageData);
                 i += 1;
             });
             return React.DOM.div({style: {float: "left", width: 250, "margin-left": 10 }},

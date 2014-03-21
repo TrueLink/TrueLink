@@ -197,6 +197,7 @@ define(["modules/channels/channel",
     });
 
     EstablishChannel.deserialize = function (dto) {
+        throw new Error("Not implemented");
         var deserialized = new EstablishChannel();
         ["dh", "dhk", "dhAesKey", "inChannelName", "outChannelName", "state"].forEach(function (key) {
             this[key] = dto.getData(key);
