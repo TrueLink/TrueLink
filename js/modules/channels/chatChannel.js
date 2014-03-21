@@ -1,8 +1,8 @@
-define(["channels/channel",
+define(["modules/channels/channel",
     "zepto",
     "modules/cryptography/aes-sjcl",
-    "modules/data-types/bytes"
-], function (Channel, $, Aes) {
+    "modules/channels/establishChannel"
+], function (Channel, $, Aes, EstablishChannel) {
     "use strict";
 
 
@@ -11,12 +11,21 @@ define(["channels/channel",
     ChatChannel.prototype = new Channel();
     $.extend(ChatChannel.prototype, {
         enterToken: function (token, context) {
-
+            if (token instanceof EstablishChannel.NewChannelToken) {
+                this._setupChannel(token.inId, token.outId, token.key);
+            }
         },
         processPacket: function (bytes) {
 
         },
         serialize: function () { throw new Error("Not implemented"); },
+
+        _setupChannel: function (inId, outId, key) {
+            this.dhAesKey = key;
+            this.inChannelName = inId;
+            this.outChannelName = outId;
+            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
+        },
 
         _encrypt: function (bytes, customKey) {
             var iv = this.random.bitArray(128);

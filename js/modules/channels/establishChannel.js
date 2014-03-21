@@ -56,8 +56,6 @@ define(["modules/channels/channel",
         getState: function () { return this.state; },
         serialize: function () { throw new Error("Not implemented"); },
 
-        setRng: function (iRng) { this.random = iRng; },
-
         _encrypt: function (bytes, customKey) {
             var iv = this.random.bitArray(128);
             var aes = new Aes(customKey || this.dhAesKey);

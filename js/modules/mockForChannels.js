@@ -1,4 +1,4 @@
-define(["modules/channels/establishChannel", "tools/random", "modules/data-types/hex"], function (EstablishChannel, random, Hex) {
+define(["modules/channels/establishChannel", "modules/channels/chatChannel", "tools/random", "modules/data-types/hex"], function (EstablishChannel, ChatChannel, random, Hex) {
     "use strict";
 
     function Service() {
@@ -8,7 +8,7 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
     }
 
     Service.prototype = {
-        getInfo: function (channel) {
+        getChannelInfo: function (channel) {
             var entry = this.getChannelEntry(channel);
             return {
                 state: channel.state,
@@ -16,11 +16,8 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
                 prompts: entry.prompts
             };
         },
-        createChatChannel: function () {
 
-        },
-        createEstablishChannel: function () {
-            var ch = new EstablishChannel();
+        _bindChannel: function (ch) {
             ch.setMsgProcessor(this.createMsgProcessor(ch));
             ch.setPacketSender(this.createPacketSender(ch));
             ch.setTokenPrompter(this.createTokenPrompter(ch));
@@ -28,8 +25,17 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
             ch.setChannelNotifier(this.createChannelNotifier(ch));
             ch.setRng(random);
 
-            this.channels.push({channel: ch, messages: [], prompts: []});
+            this.channels.push({channel: ch, messages: [], prompts: [], listeners: []});
             this.notifyStateChanged();
+        },
+        createChatChannel: function () {
+            var ch = new ChatChannel();
+            this._bindChannel(ch);
+            return ch;
+        },
+        createEstablishChannel: function () {
+            var ch = new EstablishChannel();
+            this._bindChannel(ch);
             return ch;
         },
         processMessage: function (channel, message) {
@@ -45,7 +51,9 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
         },
 
         getChannelInfoByInId: function (inId) {
-            var found = this.channels.filter(function (entry) { return entry.inId.as(Hex).value === inId.as(Hex).value; });
+            var found = this.channels.filter(function (entry) {
+                return entry.inId && entry.inId.as(Hex).value === inId.as(Hex).value;
+            });
             if (!found.length) {
                 return null;
             }
@@ -71,8 +79,16 @@ define(["modules/channels/establishChannel", "tools/random", "modules/data-types
             }, 500);
         },
         prompt: function (channel, token, context) {
-            this.getChannelEntry(channel).prompts.push({token: token, context: context});
+            var entry = this.getChannelEntry(channel);
+            entry.prompts.push({token: token, context: context});
             this.notifyStateChanged();
+            entry.listeners.forEach(function (cb) {
+                cb(token, context);
+            });
+        },
+
+        addPromptListener: function (channel, cb) {
+            this.getChannelEntry(channel).listeners.push(cb);
         },
 
         removePrompt: function (context) {
