@@ -60,12 +60,12 @@ define(["zepto", "q", "react", "modules/channels/establishChannel", "modules/dat
                     elem = null;
                     if (prompt.token instanceof Establish.OfferToken) {
                         if (prompt.token.offer) {
-                            elem = React.DOM.div(null, prompt.token.offer.as(DecBlocks).toString());
+                            elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.offer.as(DecBlocks).toString()});
                         }
                     }
                     if (prompt.token instanceof Establish.AuthToken) {
                         if (prompt.token.auth) {
-                            elem = React.DOM.div(null, prompt.token.auth.as(DecBlocks).toString());
+                            elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.auth.as(DecBlocks).toString()});
                         } else {
                             elem = React.DOM.div(null,
                                 React.DOM.input({ref: "auth"}),
