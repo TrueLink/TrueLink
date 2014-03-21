@@ -4,11 +4,6 @@ define(["zepto", "q", "react", "components/ContactsPage", "components/DialogsPag
     return React.createClass({
         displayName: "ProfilePage",
         statics: {
-            aspects: {
-                "contacts": Contacts,
-                "dialogs": Dialogs,
-                "documents": Documents
-            },
             deserialize: function (entity) {
 
             }

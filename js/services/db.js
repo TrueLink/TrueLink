@@ -41,12 +41,6 @@ define(["linkDb/sugar",
         return query.execute();
     }
 
-    function getPages(rootEntity, constructor) {
-        var query = sugar.get("profiles")
-            .linkedWith("root", rootEntity)
-            .resolve(constructor);
-        return query.execute();
-    }
 
     function getProfiles(rootEntity) {
         var query = sugar.get("profiles")
@@ -70,7 +64,6 @@ define(["linkDb/sugar",
 
         getById: getById,
         getProfiles: getProfiles,
-        getPages: getPages,
         addProfile: addProfile
 
     };

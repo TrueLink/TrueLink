@@ -10,6 +10,12 @@ define(["zepto", "models/RepoItem", "tools/urandom"], function ($, RepoItem, ura
         getUserBackground: function () {
             var bg = this.getData("bg");
             return parseInt(bg, 10) || 0;
+        },
+        views: {
+            "default": "ProfilePage",
+            "contacts": "ContactsPage",
+            "documents": "DocumentsPage",
+            "dialogs": "DialogsPage"
         }
     });
     Profile.create = function (username, bg) {
