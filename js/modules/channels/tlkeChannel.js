@@ -81,9 +81,9 @@ define(["modules/channels/channel",
             this.dh = new DiffieHellman(dhPrivBitLength, this.random);
             var dhAes = this.random.bitArray(channelAesKeyEffectiveBitLength);
             this.dhAesKey = dhAes;
-            this.outChannelName = dhAes.bitSlice(0, 16);
-            this.inChannelName = dhAes.bitSlice(16, 32);
-            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
+            var outId = dhAes.bitSlice(0, 16);
+            var inId = dhAes.bitSlice(16, 32);
+            this._emitPrompt(new TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._sendPacket(this._getOfferData());
             this._emitPrompt(new TlkeChannel.OfferToken(this.dhAesKey));
@@ -94,9 +94,9 @@ define(["modules/channels/channel",
             this.dh = new DiffieHellman(dhPrivBitLength, this.random);
             var dhAes = offer.as(Hex).as(BitArray);
             this.dhAesKey = dhAes;
-            this.inChannelName = dhAes.bitSlice(0, 16);
-            this.outChannelName = dhAes.bitSlice(16, 32);
-            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
+            var inId = dhAes.bitSlice(0, 16);
+            var outId = dhAes.bitSlice(16, 32);
+            this._emitPrompt(new TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER;
         },
 
@@ -169,7 +169,7 @@ define(["modules/channels/channel",
             this.state = TlkeChannel.STATE_CONNECTION_ESTABLISHED;
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._emitPrompt(new TlkeChannel.NewChannelToken(
+            this._emitPrompt(new TlkeChannel.GenericChannelGeneratedToken(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
@@ -190,7 +190,7 @@ define(["modules/channels/channel",
                 return;
             }
             this.state = TlkeChannel.STATE_CONNECTION_ESTABLISHED;
-            this._emitPrompt(new TlkeChannel.NewChannelToken(
+            this._emitPrompt(new TlkeChannel.GenericChannelGeneratedToken(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))
@@ -210,7 +210,11 @@ define(["modules/channels/channel",
     TlkeChannel.GenerateToken = function () {};
     TlkeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
     TlkeChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
-    TlkeChannel.NewChannelToken = function (inId, outId, key) {
+    TlkeChannel.TlkeChannelGeneratedToken = function (inId, outId) {
+        this.inId = inId;
+        this.outId = outId;
+    };
+    TlkeChannel.GenericChannelGeneratedToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;

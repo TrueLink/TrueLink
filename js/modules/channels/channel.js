@@ -9,7 +9,6 @@ define([], function () {
         setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
         setTokenPrompter: function (iTokenPrompter) { this.tokenPrompter = iTokenPrompter; },
         setDirtyNotifier: function (iDirtyNotifier) { this.dirtyNotifier = iDirtyNotifier; },
-        setChannelNotifier: function (iChannelNotifier) { this.channelNotifier = iChannelNotifier; },
         setRng: function (iRng) { this.random = iRng; },
         sendMessage: function (bytes) { throw new Error("Not implemented"); },
         enterToken: function (token, context) { throw new Error("Not implemented"); },
@@ -24,22 +23,18 @@ define([], function () {
             this._check("dirtyNotifier");
             this.dirtyNotifier.notify(this);
         },
-        _notifyChannel: function (idsObj) {
-            this._check("channelNotifier");
-            this.channelNotifier.notify(idsObj);
-        },
         _sendPacket: function (bytes) {
             this._check("packetSender");
-            this.packetSender.sendPacket(bytes);
+            this.packetSender.sendPacket(this, bytes);
         },
         _emitPrompt: function (token, context) {
             context = context || {};
             this._check("tokenPrompter");
-            this.tokenPrompter.prompt(token, context);
+            this.tokenPrompter.prompt(this, token, context);
         },
         _emitUserMessage: function (message) {
             this._check("msgProcessor");
-            this.msgProcessor.processMessage(message);
+            this.msgProcessor.processMessage(this, message);
         }
     };
 

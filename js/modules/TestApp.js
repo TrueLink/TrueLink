@@ -51,7 +51,7 @@ define([
             var name = urandom.name(), chatChannels = this.chatChannels, wrapper = this.wrapper;
             this.tlkeHandshakesInProgress[name] = this.wrapper.createTlkeChannel();
             wrapper.addPromptListener(this.tlkeHandshakesInProgress[name], function (token, context) {
-                if (token instanceof TlkeChannel.NewChannelToken) {
+                if (token instanceof TlkeChannel.GenericChannelGeneratedToken) {
                     // handshake produced keys and transport channel ids
                     chatChannels[name] = wrapper.createChatChannel();
                     chatChannels[name].enterToken(token);

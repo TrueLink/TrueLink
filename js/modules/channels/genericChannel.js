@@ -22,8 +22,8 @@ define(["modules/channels/channel",
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof TlkeChannel.NewChannelToken) {
-                this._setupChannel(token.inId, token.outId, token.key);
+            if (token instanceof TlkeChannel.GenericChannelGeneratedToken) {
+                this._setupChannel(token.key);
             }
         },
 
@@ -101,12 +101,20 @@ define(["modules/channels/channel",
         },
 
         _sendMessage: function (netMessage) {
-
+            if (!this.hashCounter) {
+                throw new Error("This channel is expired");
+            }
             var hx = this.hashStart, i;
             for (i = 0; i < this.hashCounter; i += 1) {
                 hx = hash(hx);
             }
             this.hashCounter -= 1;
+            if (this.hashCounter === GenericChannel.HashExperiesCount) {
+                this._emitPrompt(new GenericChannel.ExpiresToken());
+            }
+            if (this.hashCounter < 1) {
+                this._emitPrompt(new GenericChannel.ExpiredToken());
+            }
             this._notifyDirty();
 
             var raw = new Utf8String(JSON.stringify(netMessage));
@@ -139,12 +147,9 @@ define(["modules/channels/channel",
         },
         serialize: function () { throw new Error("Not implemented"); },
 
-        _setupChannel: function (inId, outId, key) {
+        _setupChannel: function (key) {
             this.dhAesKey = key;
-            this.inChannelName = inId;
-            this.outChannelName = outId;
             this._notifyDirty();
-            this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
             this._generateHashTail();
             this._sendHashTail();
         },
@@ -170,7 +175,10 @@ define(["modules/channels/channel",
     GenericChannel.MSG_TYPE_USER = "c";
     GenericChannel.MSG_TYPE_HASH = "h";
     GenericChannel.HashCount = 1000;
+    GenericChannel.HashExperiesCount = 10;
     GenericChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
+    GenericChannel.ExpiresToken = function () {  };
+    GenericChannel.ExpiredToken = function () {  };
 
     GenericChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
