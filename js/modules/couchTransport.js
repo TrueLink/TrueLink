@@ -1,6 +1,7 @@
 define(["zepto", "settings"], function ($, Settings) {
     "use strict";
 
+    // CouchTransport uses strings as channelName
     function CouchTransport(url, channels, prefix) {
         this.saveKey = (prefix || "") + "_lastSecFor_" + url;
         this.url = url;
@@ -16,7 +17,7 @@ define(["zepto", "settings"], function ($, Settings) {
         addChannel: function (channelName, dontStart) {
             if (!channelName) { return; }
             var i;
-            for (i = 0; i < this.channels.length; i++) {
+            for (i = 0; i < this.channels.length; i += 1) {
                 if (this.channels[i] === channelName) { return; }
             }
             this._cancel();
@@ -26,7 +27,7 @@ define(["zepto", "settings"], function ($, Settings) {
         deleteChannel: function (channelName) {
             if (!channelName) { return; }
             var i;
-            for (i = 0; i < this.channels.length; i++) {
+            for (i = 0; i < this.channels.length; i += 1) {
                 if (this.channels[i] === channelName) {
                     this._cancel();
                     this.channels.splice(i, 1);

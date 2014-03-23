@@ -4,7 +4,7 @@ define(["modules/converters/multiconverter", "zepto"], function (converter, $) {
     var Multivalue = function () {};
     Multivalue.prototype = {
         as : function (target) {
-            if (target.typeName == this.constructor.typeName) { return this; }
+            if (target.typeName === this.constructor.typeName) { return this; }
             return converter.convert(this.constructor.typeName, target.typeName, this.value);
         }
     };

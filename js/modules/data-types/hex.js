@@ -6,9 +6,13 @@ define(["modules/data-types/multivalue"], function (createType) {
     };
     var mixin = {
         isEqualTo: function (other) {
+            if (this.constructor.typeName !== other.constructor.typeName) { return false; }
             var thisStr = this.value.toUpperCase().replace(/^0+/, "");
             var thatStr = other.value.toUpperCase().replace(/^0+/, "");
             return thisStr === thatStr;
+        },
+        toString: function () {
+            return this.value;
         }
     };
     return createType(Hex, "hex", mixin);
