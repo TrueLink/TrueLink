@@ -1,13 +1,13 @@
 define(["modules/channels/channel",
     "zepto",
     "modules/cryptography/aes-sjcl",
-    "modules/channels/establishChannel",
+    "modules/channels/tlkeHandshakeChannel",
     "modules/data-types/bitArray",
     "modules/data-types/utf8string",
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-    ], function (Channel, $, Aes, EstablishChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+    ], function (Channel, $, Aes, TlkeHandshakeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -22,7 +22,7 @@ define(["modules/channels/channel",
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof EstablishChannel.NewChannelToken) {
+            if (token instanceof TlkeHandshakeChannel.NewChannelToken) {
                 this._setupChannel(token.inId, token.outId, token.key);
             }
         },

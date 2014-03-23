@@ -1,10 +1,10 @@
 define([
-    "modules/channels/establishChannel",
+    "modules/channels/tlkeHandshakeChannel",
     "modules/channels/chatChannel",
     "tools/random",
     "modules/data-types/hex",
     "modules/couchTransport"
-], function (EstablishChannel, ChatChannel, random, Hex, CouchTransport) {
+], function (TlkeHandshakeChannel, ChatChannel, random, Hex, CouchTransport) {
     "use strict";
 
     function Service() {
@@ -60,8 +60,8 @@ define([
             this._bindChannel(ch);
             return ch;
         },
-        createEstablishChannel: function () {
-            var ch = new EstablishChannel();
+        createTlkeHandshakeChannel: function () {
+            var ch = new TlkeHandshakeChannel();
             this._bindChannel(ch);
             return ch;
         },

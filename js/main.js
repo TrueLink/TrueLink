@@ -24,19 +24,19 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["modules/channels/establishChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
+    require(["modules/channels/tlkeHandshakeChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
     ],
-        function (EstablishChannel, MockForChannels, ChannelsTestPage, urandom, $, React) {
+        function (TlkeHandshakeChannel, MockForChannels, ChannelsTestPage, urandom, $, React) {
             $(function () {
 
                 var wrapper = new MockForChannels();
-                wrapper.stateChanged = update;
-                var establishChannels = {};
+                wrapper.stateChanged = onChannelsChanged;
+                var tlkeHandshakesInProgress = {};
                 var chatChannels = {};
                 var page = ChannelsTestPage({
-                    addChannel: createEstablishChannel,
-                    establishChannels: {},
+                    addChannel: createTlkeHandshakeChannel,
+                    tlkeHandshakesInProgress: {},
                     chatChannels: {},
                     generate: generate,
                     accept: accept,
@@ -44,11 +44,12 @@
                     sendTextMessage: sendTextMessage
                 });
 
-                function update() {
-                    var newModel = {chatChannels: {}, establishChannels: {}};
-                    $.each(establishChannels, function (key, channel) {
-                        newModel.establishChannels[key] = wrapper.getChannelInfo(channel);
-                        newModel.establishChannels[key].name = key;
+                // mock will call this when it's time to rerender channels in ui
+                function onChannelsChanged() {
+                    var newModel = {chatChannels: {}, tlkeHandshakesInProgress: {}};
+                    $.each(tlkeHandshakesInProgress, function (key, channel) {
+                        newModel.tlkeHandshakesInProgress[key] = wrapper.getChannelInfo(channel);
+                        newModel.tlkeHandshakesInProgress[key].name = key;
                     });
                     $.each(chatChannels, function (key, channel) {
                         newModel.chatChannels[key] = wrapper.getChannelInfo(channel);
@@ -56,11 +57,11 @@
                     });
                     page.setProps(newModel);
                 }
-                function createEstablishChannel() {
+                function createTlkeHandshakeChannel() {
                     var name = urandom.name();
-                    establishChannels[name] = wrapper.createEstablishChannel();
-                    wrapper.addPromptListener(establishChannels[name], function (token, context) {
-                        if (token instanceof EstablishChannel.NewChannelToken) {
+                    tlkeHandshakesInProgress[name] = wrapper.createTlkeHandshakeChannel();
+                    wrapper.addPromptListener(tlkeHandshakesInProgress[name], function (token, context) {
+                        if (token instanceof TlkeHandshakeChannel.NewChannelToken) {
                             chatChannels[name] = wrapper.createChatChannel();
                             chatChannels[name].enterToken(token);
                         }
@@ -70,7 +71,7 @@
 
                 function generate(key) {
                     try {
-                        establishChannels[key].enterToken(new EstablishChannel.GenerateToken());
+                        tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.GenerateToken());
                     } catch (ex) {
                         console.error(ex);
                     }
@@ -78,7 +79,7 @@
 
                 function accept(key, offer) {
                     try {
-                        establishChannels[key].enterToken(new EstablishChannel.OfferToken(offer));
+                        tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.OfferToken(offer));
                     } catch (ex) {
                         console.error(ex);
                     }
@@ -86,7 +87,7 @@
 
                 function acceptAuth(key, auth, context) {
                     try {
-                        establishChannels[key].enterToken(new EstablishChannel.AuthToken(auth));
+                        tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.AuthToken(auth));
                         wrapper.removePrompt(context);
                     } catch (ex) {
                         console.error(ex);

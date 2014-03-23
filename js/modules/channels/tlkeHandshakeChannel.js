@@ -19,34 +19,34 @@ define(["modules/channels/channel",
     }
 
     // tl channel that is used during key exchange (while channel is being set up)
-    function EstablishChannel() {
-        this.state = EstablishChannel.STATE_NOT_STARTED;
+    function TlkeHandshakeChannel() {
+        this.state = TlkeHandshakeChannel.STATE_NOT_STARTED;
     }
 
-    EstablishChannel.prototype = new Channel();
-    $.extend(EstablishChannel.prototype, {
+    TlkeHandshakeChannel.prototype = new Channel();
+    $.extend(TlkeHandshakeChannel.prototype, {
         enterToken: function (token, context) {
-            if (token instanceof EstablishChannel.GenerateToken) {
+            if (token instanceof TlkeHandshakeChannel.GenerateToken) {
                 this._generateOffer();
-            } else if (token instanceof EstablishChannel.OfferToken) {
+            } else if (token instanceof TlkeHandshakeChannel.OfferToken) {
                 this._acceptOffer(token.offer);
-            } else if (token instanceof EstablishChannel.AuthToken) {
+            } else if (token instanceof TlkeHandshakeChannel.AuthToken) {
                 this._acceptAuth(token.auth);
             }
             this._notifyDirty();
         },
         processPacket: function (bytes) {
             switch (this.state) {
-            case EstablishChannel.STATE_AWAITING_OFFER_RESPONSE:
+            case TlkeHandshakeChannel.STATE_AWAITING_OFFER_RESPONSE:
                 this._acceptOfferResponse(bytes);
                 break;
-            case EstablishChannel.STATE_AWAITING_AUTH_RESPONSE:
+            case TlkeHandshakeChannel.STATE_AWAITING_AUTH_RESPONSE:
                 this._acceptAuthResponse(bytes);
                 break;
-            case EstablishChannel.STATE_AWAITING_OFFER:
+            case TlkeHandshakeChannel.STATE_AWAITING_OFFER:
                 this._acceptOfferData(bytes);
                 break;
-            case EstablishChannel.STATE_AWAITING_AUTH:
+            case TlkeHandshakeChannel.STATE_AWAITING_AUTH:
                 this._acceptAuthData(bytes);
                 break;
             default:
@@ -84,9 +84,9 @@ define(["modules/channels/channel",
             this.outChannelName = dhAes.bitSlice(0, 16);
             this.inChannelName = dhAes.bitSlice(16, 32);
             this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
-            this.state = EstablishChannel.STATE_AWAITING_OFFER_RESPONSE;
+            this.state = TlkeHandshakeChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._sendPacket(this._getOfferData());
-            this._emitPrompt(new EstablishChannel.OfferToken(this.dhAesKey));
+            this._emitPrompt(new TlkeHandshakeChannel.OfferToken(this.dhAesKey));
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -97,7 +97,7 @@ define(["modules/channels/channel",
             this.inChannelName = dhAes.bitSlice(0, 16);
             this.outChannelName = dhAes.bitSlice(16, 32);
             this._notifyChannel({inId: this.inChannelName, outId: this.outChannelName});
-            this.state = EstablishChannel.STATE_AWAITING_OFFER;
+            this.state = TlkeHandshakeChannel.STATE_AWAITING_OFFER;
         },
 
         _getOfferData: function () {
@@ -111,9 +111,9 @@ define(["modules/channels/channel",
             var dhDataHex = dhData.as(Hex).value;
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
-            this.state = EstablishChannel.STATE_AWAITING_AUTH;
+            this.state = TlkeHandshakeChannel.STATE_AWAITING_AUTH;
             this._sendPacket(this._getOfferResponse());
-            this._emitPrompt(new EstablishChannel.AuthToken(), null);
+            this._emitPrompt(new TlkeHandshakeChannel.AuthToken(), null);
         },
 
         _getOfferResponse: function () {
@@ -129,9 +129,9 @@ define(["modules/channels/channel",
 
             this.auth = this.random.bitArray(authBitLength);
             this.check = this.random.bitArray(128);
-            this.state = EstablishChannel.STATE_AWAITING_AUTH_RESPONSE;
+            this.state = TlkeHandshakeChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._sendPacket(this._getAuthData());
-            this._emitPrompt(new EstablishChannel.AuthToken(this.auth));
+            this._emitPrompt(new TlkeHandshakeChannel.AuthToken(this.auth));
         },
 
         _getAuthData: function () {
@@ -166,10 +166,10 @@ define(["modules/channels/channel",
             // todo check's checksum and ACHTUNG if not match
             var verified = this._getVerifiedDhk();
             this.check = this._decrypt(bytes, verified);
-            this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
+            this.state = TlkeHandshakeChannel.STATE_CONNECTION_ESTABLISHED;
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._emitPrompt(new EstablishChannel.NewChannelToken(
+            this._emitPrompt(new TlkeHandshakeChannel.NewChannelToken(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
@@ -186,11 +186,11 @@ define(["modules/channels/channel",
             var verified = this._getVerifiedDhk();
             var hCheck = this._decrypt(bytes, verified);
             if (hash(this.check).as(Hex).value !== hCheck.as(Hex).value) {
-                this.state = EstablishChannel.STATE_CONNECTION_FAILED;
+                this.state = TlkeHandshakeChannel.STATE_CONNECTION_FAILED;
                 return;
             }
-            this.state = EstablishChannel.STATE_CONNECTION_ESTABLISHED;
-            this._emitPrompt(new EstablishChannel.NewChannelToken(
+            this.state = TlkeHandshakeChannel.STATE_CONNECTION_ESTABLISHED;
+            this._emitPrompt(new TlkeHandshakeChannel.NewChannelToken(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))
@@ -198,31 +198,31 @@ define(["modules/channels/channel",
         }
     });
 
-    EstablishChannel.deserialize = function (dto) {
+    TlkeHandshakeChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
-        var deserialized = new EstablishChannel();
+        var deserialized = new TlkeHandshakeChannel();
         ["dh", "dhk", "dhAesKey", "inChannelName", "outChannelName", "state"].forEach(function (key) {
             this[key] = dto.getData(key);
         });
         return deserialized;
     };
 
-    EstablishChannel.GenerateToken = function () {};
-    EstablishChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
-    EstablishChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
-    EstablishChannel.NewChannelToken = function (inId, outId, key) {
+    TlkeHandshakeChannel.GenerateToken = function () {};
+    TlkeHandshakeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
+    TlkeHandshakeChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
+    TlkeHandshakeChannel.NewChannelToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;
     };
 
-    EstablishChannel.STATE_NOT_STARTED = 1;
-    EstablishChannel.STATE_AWAITING_OFFER = 2;
-    EstablishChannel.STATE_AWAITING_OFFER_RESPONSE = 3;
-    EstablishChannel.STATE_AWAITING_AUTH = 4;
-    EstablishChannel.STATE_AWAITING_AUTH_RESPONSE = 5;
-    EstablishChannel.STATE_CONNECTION_ESTABLISHED = 6;
-    EstablishChannel.STATE_CONNECTION_FAILED = -1;
+    TlkeHandshakeChannel.STATE_NOT_STARTED = 1;
+    TlkeHandshakeChannel.STATE_AWAITING_OFFER = 2;
+    TlkeHandshakeChannel.STATE_AWAITING_OFFER_RESPONSE = 3;
+    TlkeHandshakeChannel.STATE_AWAITING_AUTH = 4;
+    TlkeHandshakeChannel.STATE_AWAITING_AUTH_RESPONSE = 5;
+    TlkeHandshakeChannel.STATE_CONNECTION_ESTABLISHED = 6;
+    TlkeHandshakeChannel.STATE_CONNECTION_FAILED = -1;
 
-    return EstablishChannel;
+    return TlkeHandshakeChannel;
 });

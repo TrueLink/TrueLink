@@ -1,4 +1,5 @@
-define(["zepto", "q", "react", "bind", "modules/channels/establishChannel", "components/channels/ChannelTestInfo", "components/channels/ChatChannelTestInfo"], function ($, Q, React, bind, Establish, ChannelTestInfo, ChatChannelTestInfo) {
+define(["zepto", "q", "react", "bind", "components/channels/ChannelTestInfo",
+ "components/channels/ChatChannelTestInfo"], function ($, Q, React, bind, ChannelTestInfo, ChatChannelTestInfo) {
     "use strict";
 
     return React.createClass({
@@ -7,10 +8,10 @@ define(["zepto", "q", "react", "bind", "modules/channels/establishChannel", "com
 
         render: function () {
             var props = this.props;
-            var establishChannelViews = {};
+            var TlkeHandshakeChannelViews = {};
             var chatChannelViews = {};
-            $.each(this.props.establishChannels, function (key, channelInfo) {
-                establishChannelViews[key] = ChannelTestInfo({
+            $.each(this.props.TlkeHandshakeChannels, function (key, channelInfo) {
+                TlkeHandshakeChannelViews[key] = ChannelTestInfo({
                     channel: channelInfo,
                     generate: props.generate.bind(null, key),
                     accept: props.accept.bind(null, key),
@@ -27,7 +28,7 @@ define(["zepto", "q", "react", "bind", "modules/channels/establishChannel", "com
 
             return React.DOM.div({id: "app"},
                 React.DOM.div({className: "default-background-dark wide"},
-                    establishChannelViews,
+                    TlkeHandshakeChannelViews,
                     React.DOM.div(null, React.DOM.button({onClick: this.props.addChannel}, "Add channel")),
                     React.DOM.div(null, chatChannelViews)
                 ));
