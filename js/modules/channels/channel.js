@@ -1,6 +1,7 @@
 define([], function () {
     "use strict";
 
+    // tl channel base
     function Channel() { }
 
     Channel.prototype = {

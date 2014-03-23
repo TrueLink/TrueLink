@@ -14,29 +14,33 @@ define(["modules/channels/channel",
         return SHA1(value.as(Hex)).as(BitArray).bitSlice(0, 128);
     }
 
+    // tl channel that is established and ready to transmit POJOs
     function ChatChannel() {}
 
     ChatChannel.prototype = new Channel();
     $.extend(ChatChannel.prototype, {
 
+        // token received from user
         enterToken: function (token, context) {
             if (token instanceof EstablishChannel.NewChannelToken) {
                 this._setupChannel(token.inId, token.outId, token.key);
             }
         },
 
-
+        // user message container received from network
         onUserMessage: function (hash, netMsg) {
-            if (this.isHashValid(hash)) {
+            if (this._isHashValid(hash)) {
                 this._emitUserMessage(netMsg.c);
             } else {
                 console.error("Received a user message with wrong signature, rejected");
                 this._emitPrompt(new ChatChannel.WrongSignatureToken(netMsg.c));
             }
         },
+
+        // hashtail message container received from network
         onHashMessage: function (hash, netMsg) {
             console.info("receiving hashtail", netMsg.ht);
-            if (this.isHashValid(hash) !== false && netMsg.ht) {
+            if (this._isHashValid(hash) !== false && netMsg.ht) {
                 console.log("Received hashtail " + netMsg.ht);
                 this.backHashEnd = new Hex(netMsg.ht);
                 this._notifyDirty();
@@ -44,12 +48,14 @@ define(["modules/channels/channel",
                 console.error("Received a new hashtail with wrong signature, rejected");
             }
         },
+
+        // wtf received from network
         onUnknownMessage: function (hash, netMsg) {
             console.warn("Received message of unknown type " + netMsg.t + ": ", netMsg);
         },
 
         // null if has not received the hashtail yet
-        isHashValid: function (hx) {
+        _isHashValid: function (hx) {
             // TODO ACHTUNG will accept any message if no hashtail set yet!
             if (!this.backHashEnd) {
                 console.warn("this channel did not receive any hashtail yet");
@@ -85,6 +91,7 @@ define(["modules/channels/channel",
             this._sendMessage(netMessage);
         },
 
+        // user submits message to send
         sendMessage: function (message) {
             var netMessage = {
                 t: ChatChannel.MSG_TYPE_USER,
@@ -107,6 +114,7 @@ define(["modules/channels/channel",
             this._sendPacket(encrypted);
         },
 
+        // process packet from the network
         processPacket: function (bytes) {
             var decryptedData = this._decrypt(bytes);
             var hx = decryptedData.bitSlice(0, 128);
@@ -115,7 +123,7 @@ define(["modules/channels/channel",
             try {
                 netMessage = JSON.parse(netData.as(Utf8String).value);
             } catch (ex) {
-                throw new Error("Could not parse the network message");
+                throw new Error("Could not parse packet from the network");
             }
             switch (netMessage.t) {
             case ChatChannel.MSG_TYPE_USER:

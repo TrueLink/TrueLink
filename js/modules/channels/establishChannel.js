@@ -18,6 +18,7 @@ define(["modules/channels/channel",
         return SHA1(value.as(Hex)).as(BitArray).bitSlice(0, 128);
     }
 
+    // tl channel that is used during key exchange (while channel is being set up)
     function EstablishChannel() {
         this.state = EstablishChannel.STATE_NOT_STARTED;
     }
