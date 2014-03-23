@@ -61,12 +61,13 @@
                     var name = urandom.name();
                     tlkeHandshakesInProgress[name] = wrapper.createTlkeHandshakeChannel();
                     wrapper.addPromptListener(tlkeHandshakesInProgress[name], function (token, context) {
-                        if (token instanceof TlkeHandshakeChannel.NewChannelToken) {
+                        if (token instanceof TlkeHandshakeChannel.NewChannelToken) { 
+                            // handshake produced keys and transport channel ids
                             chatChannels[name] = wrapper.createChatChannel();
                             chatChannels[name].enterToken(token);
                         }
                     });
-                    update();
+                    onChannelsChanged();
                 }
 
                 function generate(key) {
