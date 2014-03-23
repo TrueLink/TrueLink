@@ -24,7 +24,7 @@ define(["zepto", "q", "react", "modules/channels/chatChannel", "modules/data-typ
                 i += 1;
             });
             return React.DOM.div({style: {float: "left", width: 250, "margin-left": 10 }},
-                React.DOM.h1({className: "title"}, channel.name + ": "),
+                React.DOM.h2({className: "title"}, channel.name + ": "),
                 React.DOM.ul({style: {"list-style-type": "none"}}, messages),
                 React.DOM.div(null, React.DOM.form({onSubmit: this.send},
                     React.DOM.input({type: "text", ref: "messageText"}, React.DOM.input({type: "submit", value: "send"}))

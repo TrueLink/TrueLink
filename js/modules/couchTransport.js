@@ -1,10 +1,11 @@
 define(["zepto", "settings"], function ($, Settings) {
     "use strict";
 
-    function CouchTransport(url, channels) {
+    function CouchTransport(url, channels, prefix) {
+        this.saveKey = (prefix || "") + "_lastSecFor_" + url;
         this.url = url;
         this.channels = channels || [];
-        this.updateSeq = Settings.get("lastSecFor" + url) || 0;
+        this.updateSeq = Settings.get(this.saveKey) || 0;
         this.handler = function (channelName, data) {};
         this.pendingAjax = null;
         this.timeoutDefer = null;
@@ -76,7 +77,7 @@ define(["zepto", "settings"], function ($, Settings) {
                     throw new Error("wrong answer structure");
                 }
                 this.updateSeq = data.last_seq;
-                Settings.set("lastSecFor" + this.url, this.updateSeq);
+                Settings.set(this.saveKey, this.updateSeq);
                 if (data.results.length < 1) {
                     this._deferredStart();
                 } else {

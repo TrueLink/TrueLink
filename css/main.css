@@ -50,6 +50,10 @@ select, option, input {
     font-weight: normal;
 }
 
+h2.title {
+    font-size: 22px;
+}
+
 .default-background-light {
     background-color: #1F497D;
 }

@@ -7,11 +7,11 @@ define([
 ], function (TlkeHandshakeChannel, ChatChannel, random, Hex, CouchTransport) {
     "use strict";
 
-    function Service() {
+    function Service(id) {
         this.channels = [];
         this.stateChanged = null;
         this.undelivered = [];
-        this.transport = new CouchTransport("http://couch.ctx.im:5984/tl_channels");
+        this.transport = new CouchTransport("http://couch.ctx.im:5984/tl_channels", null, id);
         this.transport.setHandler(this._onCouchMessage.bind(this));
     }
 
