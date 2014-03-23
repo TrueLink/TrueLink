@@ -1,5 +1,5 @@
-define(["zepto", "q", "react", "modules/channels/tlkeHandshakeChannel", "modules/data-types/hex", "modules/data-types/decBlocks"],
-    function ($, Q, React, TlkeHandshakeChannel, Hex, DecBlocks) {
+define(["zepto", "q", "react", "modules/channels/tlkeHandshakeChannel", "modules/data-types/hex", "modules/data-types/decBlocks"
+], function ($, Q, React, TlkeHandshakeChannel, Hex, DecBlocks) {
     "use strict";
 
     var stateStatuses = {};

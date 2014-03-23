@@ -10,7 +10,7 @@ define(["zepto", "q", "react", "bind", "components/channels/ChannelTestInfo",
             var props = this.props;
             var TlkeHandshakeChannelViews = {};
             var chatChannelViews = {};
-            $.each(this.props.TlkeHandshakeChannels, function (key, channelInfo) {
+            $.each(this.props.tlkeHandshakesInProgress, function (key, channelInfo) {
                 TlkeHandshakeChannelViews[key] = ChannelTestInfo({
                     channel: channelInfo,
                     generate: props.generate.bind(null, key),
