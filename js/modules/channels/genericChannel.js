@@ -20,6 +20,23 @@ define(["modules/channels/channel",
     GenericChannel.prototype = new Channel();
     $.extend(GenericChannel.prototype, {
 
+        // user submits message to send
+        sendMessage: function (message) {
+            var netMessage = {
+                t: GenericChannel.MSG_TYPE_USER,
+                c: message
+            };
+            this._sendMessage(netMessage);
+        },
+        // set user message receiver
+        setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
+
+        // emit user message to this.msgProcessor
+        _emitUserMessage: function (message) {
+            this._check("msgProcessor");
+            this.msgProcessor.processMessage(this, message);
+        },
+
         // token received from user
         enterToken: function (token, context) {
             if (token instanceof TlkeChannel.GenericChannelGeneratedToken) {
@@ -88,15 +105,6 @@ define(["modules/channels/channel",
                 ht: hashEnd.as(Hex).value
             };
             console.info("sending hashtail", hashEnd.as(Hex).value);
-            this._sendMessage(netMessage);
-        },
-
-        // user submits message to send
-        sendMessage: function (message) {
-            var netMessage = {
-                t: GenericChannel.MSG_TYPE_USER,
-                c: message
-            };
             this._sendMessage(netMessage);
         },
 

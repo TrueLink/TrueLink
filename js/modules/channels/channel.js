@@ -6,11 +6,9 @@ define([], function () {
 
     Channel.prototype = {
         setPacketSender: function (iPacketSender) { this.packetSender = iPacketSender; },
-        setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
         setTokenPrompter: function (iTokenPrompter) { this.tokenPrompter = iTokenPrompter; },
         setDirtyNotifier: function (iDirtyNotifier) { this.dirtyNotifier = iDirtyNotifier; },
         setRng: function (iRng) { this.random = iRng; },
-        sendMessage: function (bytes) { throw new Error("Not implemented"); },
         enterToken: function (token, context) { throw new Error("Not implemented"); },
         processPacket: function (bytes) { throw new Error("Not implemented"); },
         serialize: function () { throw new Error("Not implemented"); },
@@ -31,10 +29,6 @@ define([], function () {
             context = context || {};
             this._check("tokenPrompter");
             this.tokenPrompter.prompt(this, token, context);
-        },
-        _emitUserMessage: function (message) {
-            this._check("msgProcessor");
-            this.msgProcessor.processMessage(this, message);
         }
     };
 
