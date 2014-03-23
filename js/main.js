@@ -27,10 +27,10 @@
     require(["modules/channels/establishChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
     ],
-        function (EstablishChannel, ChannelStuff, ChannelsTestPage, urandom, $, React) {
+        function (EstablishChannel, MockForChannels, ChannelsTestPage, urandom, $, React) {
             $(function () {
 
-                var wrapper = new ChannelStuff();
+                var wrapper = new MockForChannels();
                 wrapper.stateChanged = update;
                 var establishChannels = {};
                 var chatChannels = {};
