@@ -8,10 +8,10 @@ define(["zepto", "q", "react", "bind", "components/channels/ChannelTestInfo",
 
         render: function () {
             var props = this.props;
-            var TlkeHandshakeChannelViews = {};
+            var tlkeChannelViews = {};
             var chatChannelViews = {};
             $.each(this.props.tlkeHandshakesInProgress, function (key, channelInfo) {
-                TlkeHandshakeChannelViews[key] = ChannelTestInfo({
+                tlkeChannelViews[key] = ChannelTestInfo({
                     channel: channelInfo,
                     generate: props.generate.bind(null, key),
                     accept: props.accept.bind(null, key),
@@ -28,7 +28,7 @@ define(["zepto", "q", "react", "bind", "components/channels/ChannelTestInfo",
 
             return React.DOM.div({id: "app"},
                 React.DOM.div({className: "default-background-dark wide"},
-                    TlkeHandshakeChannelViews,
+                    tlkeChannelViews,
                     React.DOM.div(null, React.DOM.button({onClick: this.props.addChannel}, "Add channel")),
                     React.DOM.div(null, chatChannelViews)
                 ));

@@ -1,4 +1,4 @@
-define(["zepto", "q", "react", "modules/channels/chatChannel", "modules/data-types/utf8string"], function ($, Q, React, ChatChannel, Utf8String) {
+define(["zepto", "q", "react", "modules/channels/genericChannel", "modules/data-types/utf8string"], function ($, Q, React, ChatChannel, Utf8String) {
     "use strict";
 
 

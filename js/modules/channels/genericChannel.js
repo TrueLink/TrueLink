@@ -1,13 +1,13 @@
 define(["modules/channels/channel",
     "zepto",
     "modules/cryptography/aes-sjcl",
-    "modules/channels/tlkeHandshakeChannel",
+    "modules/channels/tlkeChannel",
     "modules/data-types/bitArray",
     "modules/data-types/utf8string",
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-    ], function (Channel, $, Aes, TlkeHandshakeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+    ], function (Channel, $, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -15,14 +15,14 @@ define(["modules/channels/channel",
     }
 
     // tl channel that is established and ready to transmit POJOs
-    function ChatChannel() {}
+    function GenericChannel() {}
 
-    ChatChannel.prototype = new Channel();
-    $.extend(ChatChannel.prototype, {
+    GenericChannel.prototype = new Channel();
+    $.extend(GenericChannel.prototype, {
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof TlkeHandshakeChannel.NewChannelToken) {
+            if (token instanceof TlkeChannel.NewChannelToken) {
                 this._setupChannel(token.inId, token.outId, token.key);
             }
         },
@@ -33,7 +33,7 @@ define(["modules/channels/channel",
                 this._emitUserMessage(netMsg.c);
             } else {
                 console.error("Received a user message with wrong signature, rejected");
-                this._emitPrompt(new ChatChannel.WrongSignatureToken(netMsg.c));
+                this._emitPrompt(new GenericChannel.WrongSignatureToken(netMsg.c));
             }
         },
 
@@ -63,7 +63,7 @@ define(["modules/channels/channel",
             }
 
             var end = this.backHashEnd.as(Hex).value, i;
-            for (i = 0; i < ChatChannel.HashCount; i += 1) {
+            for (i = 0; i < GenericChannel.HashCount; i += 1) {
                 hx = hash(hx);
                 if (hx.as(Hex).value === end) {
                     return true;
@@ -74,17 +74,17 @@ define(["modules/channels/channel",
 
         _generateHashTail: function () {
             this.hashStart = this.random.bitArray(128);
-            this.hashCounter = ChatChannel.HashCount;
+            this.hashCounter = GenericChannel.HashCount;
             this._notifyDirty();
         },
 
         _sendHashTail: function () {
             var hashEnd = this.hashStart, i;
-            for (i = 0; i < ChatChannel.HashCount; i += 1) {
+            for (i = 0; i < GenericChannel.HashCount; i += 1) {
                 hashEnd = hash(hashEnd);
             }
             var netMessage = {
-                t: ChatChannel.MSG_TYPE_HASH,
+                t: GenericChannel.MSG_TYPE_HASH,
                 ht: hashEnd.as(Hex).value
             };
             console.info("sending hashtail", hashEnd.as(Hex).value);
@@ -94,7 +94,7 @@ define(["modules/channels/channel",
         // user submits message to send
         sendMessage: function (message) {
             var netMessage = {
-                t: ChatChannel.MSG_TYPE_USER,
+                t: GenericChannel.MSG_TYPE_USER,
                 c: message
             };
             this._sendMessage(netMessage);
@@ -126,10 +126,10 @@ define(["modules/channels/channel",
                 throw new Error("Could not parse packet from the network");
             }
             switch (netMessage.t) {
-            case ChatChannel.MSG_TYPE_USER:
+            case GenericChannel.MSG_TYPE_USER:
                 this.onUserMessage(hx, netMessage);
                 break;
-            case ChatChannel.MSG_TYPE_HASH:
+            case GenericChannel.MSG_TYPE_HASH:
                 this.onHashMessage(hx, netMessage);
                 break;
             default:
@@ -167,19 +167,19 @@ define(["modules/channels/channel",
 
     });
 
-    ChatChannel.MSG_TYPE_USER = "c";
-    ChatChannel.MSG_TYPE_HASH = "h";
-    ChatChannel.HashCount = 1000;
-    ChatChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
+    GenericChannel.MSG_TYPE_USER = "c";
+    GenericChannel.MSG_TYPE_HASH = "h";
+    GenericChannel.HashCount = 1000;
+    GenericChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
 
-    ChatChannel.deserialize = function (dto) {
+    GenericChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
-        var deserialized = new ChatChannel();
+        var deserialized = new GenericChannel();
         [].forEach(function (key) {
             this[key] = dto.getData(key);
         });
         return deserialized;
     };
 
-    return ChatChannel;
+    return GenericChannel;
 });

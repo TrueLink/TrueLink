@@ -1,6 +1,6 @@
 define([
-    "modules/channels/tlkeHandshakeChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
-], function (TlkeHandshakeChannel, MockForChannels, ChannelsTestAppPage, urandom, $, React) {
+    "modules/channels/tlkeChannel", "modules/mockForChannels", "components/ChannelsTestPage", "tools/urandom", "zepto", "react"
+], function (TlkeChannel, MockForChannels, ChannelsTestAppPage, urandom, $, React) {
     "use strict";
 
     function App(id) {
@@ -17,7 +17,7 @@ define([
     App.prototype = {
         getProps: function () {
             return {
-                addChannel: this.createTlkeHandshakeChannel.bind(this),
+                addChannel: this.createTlkeChannel.bind(this),
                 tlkeHandshakesInProgress: this.model.tlkeHandshakesInProgress,
                 chatChannels: this.model.chatChannels,
                 generate: this.generate.bind(this),
@@ -47,11 +47,11 @@ define([
             this.model = newModel;
             this.onStateChanged();
         },
-        createTlkeHandshakeChannel: function () {
+        createTlkeChannel: function () {
             var name = urandom.name(), chatChannels = this.chatChannels, wrapper = this.wrapper;
-            this.tlkeHandshakesInProgress[name] = this.wrapper.createTlkeHandshakeChannel();
+            this.tlkeHandshakesInProgress[name] = this.wrapper.createTlkeChannel();
             wrapper.addPromptListener(this.tlkeHandshakesInProgress[name], function (token, context) {
-                if (token instanceof TlkeHandshakeChannel.NewChannelToken) {
+                if (token instanceof TlkeChannel.NewChannelToken) {
                     // handshake produced keys and transport channel ids
                     chatChannels[name] = wrapper.createChatChannel();
                     chatChannels[name].enterToken(token);
@@ -62,7 +62,7 @@ define([
 
         generate: function (key) {
             try {
-                this.tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.GenerateToken());
+                this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.GenerateToken());
             } catch (ex) {
                 console.error(ex);
             }
@@ -70,7 +70,7 @@ define([
 
         accept: function (key, offer) {
             try {
-                this.tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.OfferToken(offer));
+                this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.OfferToken(offer));
             } catch (ex) {
                 console.error(ex);
             }
@@ -78,7 +78,7 @@ define([
 
         acceptAuth: function (key, auth, context) {
             try {
-                this.tlkeHandshakesInProgress[key].enterToken(new TlkeHandshakeChannel.AuthToken(auth));
+                this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.AuthToken(auth));
                 this.wrapper.removePrompt(context);
             } catch (ex) {
                 console.error(ex);
