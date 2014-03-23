@@ -6,7 +6,7 @@ define([
 ], function ($, TlkeChannel, GenericChannel, Hex) {
     "use strict";
 
-    function TlGateway() {
+    function ContactChannelGroup() {
         this.stateChanged = null;
 
         this.genericChannelTuples = [];
@@ -22,7 +22,7 @@ define([
         };
     }
 
-    $.extend(TlGateway.prototype, {
+    $.extend(ContactChannelGroup.prototype, {
         // openChannel(chId), sendPacket(chId, data), all multivalues
         setTransport: function (iTransport) { this.transport = iTransport; },
         processTransportPacket: function (chId, data) {
@@ -137,5 +137,5 @@ define([
         }
     });
 
-    return TlGateway;
+    return ContactChannelGroup;
 });
