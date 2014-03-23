@@ -13,10 +13,10 @@ define([
         render: function () {
 
             var apps = {};
-            $.each(this.props.apps, function (key, appProps) {
+            $.each(this.props.apps, function (key, app) {
                 apps[key] = React.DOM.div(null,
                     React.DOM.h1({className: "title"}, key),
-                    ChannelsTestPage(appProps));
+                    ChannelsTestPage(app.getProps()));
             });
 
             return React.DOM.div({id: "app"},

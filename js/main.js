@@ -39,11 +39,8 @@
             }
 
             function updateView() {
-                var appProps = {};
-                $.each(apps, function (key, app) {
-                    appProps[key] = app.getProps();
-                });
-                list.setProps({apps: appProps});
+
+                list.setProps({apps: apps});
             }
 
             var list = TestAppList({apps: {}, add: addApp});
