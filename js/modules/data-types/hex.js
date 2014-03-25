@@ -13,7 +13,14 @@ define(["modules/data-types/multivalue"], function (createType) {
         },
         toString: function () {
             return this.value;
+        },
+        serialize: function () {
+            return this.value;
         }
+    };
+
+    Hex.deserialize = function (str) {
+        return new Hex(str);
     };
     return createType(Hex, "hex", mixin);
 });
