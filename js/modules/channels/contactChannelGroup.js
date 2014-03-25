@@ -37,7 +37,11 @@ define([
         setRng: function (iRng) { this.random = iRng; },
 
 
-        sendMessage: function (bytes, channel) {
+        sendMessage: function (message, channel) {
+            if (!$.isPlainObject(message)) {
+                throw new Error("Argument exception. message should be the plain object");
+            }
+            var msg = new ChannelGroupMessage(ChannelGroupMessage.MSG_TYPE_USER, message);
             // channel = channel || random
             // channel.sendMessage({t: ContactChannelGroup.MSG_TYPE_USER, c: data})
         },
@@ -90,7 +94,36 @@ define([
         },
 
         // one of generic channels has issued the user message
+        // assume a wrapper containing user message or tlke packet
         onChannelProcessMessage: function (channel, message) {
+            var msg = ChannelGroupMessage.deserialize(message);
+            switch (msg.type) {
+            case ContactChannelGroup.MSG_TYPE_USER:
+                // emit this message to ContactChannelGroup user
+                this.onGenericMessage(msg.data, channel);
+                break;
+            case ContactChannelGroup.MSG_TYPE_WRAPPER:
+                // process this message by fake tlke channel as a packet
+                this.onTlkeMessage(msg.data, msg.context);
+                break;
+            }
+        },
+
+        // received user message via the specified channel
+        onGenericMessage: function (data, channel) {
+            if (this.msgProcessor && typeof this.msgProcessor.processMessage === "function") {
+                this.msgProcessor.processMessage(data);
+            }
+        },
+
+        // received a packet for fake tlke channel identified by the specified context
+        onTlkeMessage: function (data, context) {
+            var receiver = this._getTupleByContext(context);
+            if (receiver) {
+                receiver.processPacket(data);
+            } else {
+                console.warn("Generic channel message receiver not found");
+            }
         },
 
         // one of channels sends a packet
@@ -120,9 +153,17 @@ define([
         },
 
         _getTupleByChannel: function (ch) {
-            var found = this.genericChannelTuples.filter(function (tuple) {
+            return this._getTupleBy(function (tuple) {
                 return tuple.channel === ch;
             });
+        },
+        _getTupleByContext: function (context) {
+            return this._getTupleBy(function (tuple) {
+                return tuple.context === context;
+            });
+        },
+        _getTupleBy: function (fn) {
+            var found = this.genericChannelTuples.filter(fn);
             if (found.length) {
                 return found[0];
             }
@@ -134,6 +175,27 @@ define([
             }
         }
     });
+
+
+
+    function ChannelGroupMessage(type, data, context) {
+        this.type = type;
+        this.data = data;
+        this.context = context;
+    }
+    ChannelGroupMessage.prototype.serialize = function () {
+        return {
+            t: this.type,
+            c: this.context,
+            d: this.data
+        };
+    };
+    ChannelGroupMessage.deserialize = function (dto) {
+        return new ChannelGroupMessage(dto.t, dto.d, dto.c);
+    };
+
+    ChannelGroupMessage.MSG_TYPE_USER = "u";
+    ChannelGroupMessage.MSG_TYPE_WRAPPER = "w";
 
     return ContactChannelGroup;
 });

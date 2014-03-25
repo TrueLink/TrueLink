@@ -20,13 +20,12 @@ define(["modules/channels/channel",
     GenericChannel.prototype = new Channel();
     $.extend(GenericChannel.prototype, {
 
-        // user submits message to send
+        // user submits message to send, message should be plain object for now (kind of serializable in future)
         sendMessage: function (message) {
-            var netMessage = {
-                t: GenericChannel.MSG_TYPE_USER,
-                c: message
-            };
-            this._sendMessage(netMessage);
+            if (!$.isPlainObject(message)) {
+                throw new Error("Argument exception. message should be the plain object");
+            }
+            this._sendMessage(new GenericChannelMessage(GenericChannel.MSG_TYPE_USER, message));
         },
         // set user message receiver
         setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
@@ -45,21 +44,21 @@ define(["modules/channels/channel",
         },
 
         // user message container received from network
-        onUserMessage: function (hash, netMsg) {
+        onUserMessage: function (hash, message) {
             if (this._isHashValid(hash)) {
-                this._emitUserMessage(netMsg.c);
+                this._emitUserMessage(message.data);
             } else {
                 console.error("Received a user message with wrong signature, rejected");
-                this._emitPrompt(new GenericChannel.WrongSignatureToken(netMsg.c));
+                this._emitPrompt(new GenericChannel.WrongSignatureToken(message.data));
             }
         },
 
         // hashtail message container received from network
-        onHashMessage: function (hash, netMsg) {
-            console.info("receiving hashtail", netMsg.ht);
-            if (this._isHashValid(hash) !== false && netMsg.ht) {
-                console.log("Received hashtail " + netMsg.ht);
-                this.backHashEnd = new Hex(netMsg.ht);
+        // TODO changing hashTail anytime is still possible
+        onHashMessage: function (hash, message) {
+            if (this._isHashValid(hash) !== false && message.hashTail) {
+                console.log("Received hashtail " + message.hashTail.toString());
+                this.backHashEnd = message.hashTail;
                 this._notifyDirty();
             } else {
                 console.error("Received a new hashtail with wrong signature, rejected");
@@ -67,8 +66,8 @@ define(["modules/channels/channel",
         },
 
         // wtf received from network
-        onUnknownMessage: function (hash, netMsg) {
-            console.warn("Received message of unknown type " + netMsg.t + ": ", netMsg);
+        onUnknownMessage: function (hash, rawData) {
+            console.warn("Received message of unknown type: ", rawData);
         },
 
         // null if has not received the hashtail yet
@@ -100,15 +99,11 @@ define(["modules/channels/channel",
             for (i = 0; i < GenericChannel.HashCount; i += 1) {
                 hashEnd = hash(hashEnd);
             }
-            var netMessage = {
-                t: GenericChannel.MSG_TYPE_HASH,
-                ht: hashEnd.as(Hex).value
-            };
-            console.info("sending hashtail", hashEnd.as(Hex).value);
-            this._sendMessage(netMessage);
+            console.info("sending hashtail", hashEnd.as(Hex).toString());
+            this._sendMessage(new GenericChannelMessage(GenericChannel.MSG_TYPE_HASH, null, hashEnd));
         },
 
-        _sendMessage: function (netMessage) {
+        _sendMessage: function (message) {
             if (!this.hashCounter) {
                 throw new Error("This channel is expired");
             }
@@ -125,7 +120,7 @@ define(["modules/channels/channel",
             }
             this._notifyDirty();
 
-            var raw = new Utf8String(JSON.stringify(netMessage));
+            var raw = new Utf8String(JSON.stringify(message.serialize()));
             var encrypted = this._encrypt(hx.as(Bytes).concat(raw));
             this._sendPacket(encrypted);
         },
@@ -135,21 +130,23 @@ define(["modules/channels/channel",
             var decryptedData = this._decrypt(bytes);
             var hx = decryptedData.bitSlice(0, 128);
             var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
-            var netMessage;
+            var message, rawData;
             try {
-                netMessage = JSON.parse(netData.as(Utf8String).value);
+                rawData = JSON.parse(netData.as(Utf8String).value);
+                message = GenericChannelMessage.deserialize(rawData);
             } catch (ex) {
                 throw new Error("Could not parse packet from the network");
             }
-            switch (netMessage.t) {
+
+            switch (message.type) {
             case GenericChannel.MSG_TYPE_USER:
-                this.onUserMessage(hx, netMessage);
+                this.onUserMessage(hx, message);
                 break;
             case GenericChannel.MSG_TYPE_HASH:
-                this.onHashMessage(hx, netMessage);
+                this.onHashMessage(hx, message);
                 break;
             default:
-                this.onUnknownMessage(hx, netMessage);
+                this.onUnknownMessage(rawData);
                 break;
             }
         },
@@ -180,8 +177,38 @@ define(["modules/channels/channel",
 
     });
 
-    GenericChannel.MSG_TYPE_USER = "c";
-    GenericChannel.MSG_TYPE_HASH = "h";
+    function GenericChannelMessage(type, data, hashTail) {
+        this.type = type;
+        if (data) {
+            this.data = data;
+        }
+        if (hashTail) {
+            this.hashTail = hashTail;
+        }
+    }
+    // serialize message to a plain object
+    GenericChannelMessage.prototype.serialize = function () {
+        var dto = {
+            t: this.type
+        };
+        // TODO legacy support. we can replace this with another wrapper like ChannelGroupMessage
+        if (this.data) {
+            dto.c = this.data;
+        }
+        if (this.hashTail) {
+            dto.ht = this.hashTail.as(Hex).serialize();
+        }
+    };
+    // serialize message from a plain object
+    GenericChannelMessage.deserialize = function (dto) {
+        var data = dto.c || null;
+        var hashTail = dto.ht ? Hex.deserialize(dto.ht) : null;
+        return new GenericChannelMessage(dto.t, data, hashTail);
+    };
+
+    GenericChannelMessage.MSG_TYPE_USER = "c";
+    GenericChannelMessage.MSG_TYPE_HASH = "h";
+
     GenericChannel.HashCount = 1000;
     GenericChannel.HashExperiesCount = 10;
     GenericChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
