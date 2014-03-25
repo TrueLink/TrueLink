@@ -37,13 +37,9 @@ define([
         setRng: function (iRng) { this.random = iRng; },
 
 
-        sendMessage: function (bytes) {
-
-        },
-
-
-        enterToken: function (token, context) {
-
+        sendMessage: function (bytes, channel) {
+            // channel = channel || random
+            // channel.sendMessage({t: ContactChannelGroup.MSG_TYPE_USER, c: data})
         },
 
         getState: function () {
@@ -93,17 +89,19 @@ define([
             }
         },
 
+        // one of generic channels has issued the user message
         onChannelProcessMessage: function (channel, message) {
-
         },
 
+        // one of channels sends a packet
         onChannelSendPacket: function (channel, data) {
 
         },
 
         onChannelNotifyDirty: function (channel) {
-
+            this.onStateChanged();
         },
+
 
 
         _bindChannel: function (ch) {
