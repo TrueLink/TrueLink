@@ -1,5 +1,7 @@
-define(["modules/channels/channel",
+define([
     "zepto",
+    "modules/channels/channel",
+    "modules/channels/tokens",
     "modules/cryptography/aes-sjcl",
     "modules/channels/tlkeChannel",
     "modules/data-types/bitArray",
@@ -7,7 +9,7 @@ define(["modules/channels/channel",
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-    ], function (Channel, $, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+    ], function ($, Channel, tokens, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -38,7 +40,7 @@ define(["modules/channels/channel",
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof TlkeChannel.GenericChannelGeneratedToken) {
+            if (token instanceof tokens.TlkeChannel.GenericChannelGeneratedToken) {
                 this._setupChannel(token.key);
             }
         },
@@ -49,7 +51,7 @@ define(["modules/channels/channel",
                 this._emitUserMessage(message.data);
             } else {
                 console.error("Received a user message with wrong signature, rejected");
-                this._emitPrompt(new GenericChannel.WrongSignatureToken(message.data));
+                this._emitPrompt(new tokens.GenericChannel.WrongSignatureToken(message.data));
             }
         },
 
@@ -113,10 +115,10 @@ define(["modules/channels/channel",
             }
             this.hashCounter -= 1;
             if (this.hashCounter === GenericChannel.HashExperiesCount) {
-                this._emitPrompt(new GenericChannel.ExpiresToken());
+                this._emitPrompt(new tokens.GenericChannel.ExpiresToken());
             }
             if (this.hashCounter < 1) {
-                this._emitPrompt(new GenericChannel.ExpiredToken());
+                this._emitPrompt(new tokens.GenericChannel.ExpiredToken());
             }
             this._notifyDirty();
 
@@ -212,9 +214,6 @@ define(["modules/channels/channel",
 
     GenericChannel.HashCount = 1000;
     GenericChannel.HashExperiesCount = 10;
-    GenericChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
-    GenericChannel.ExpiresToken = function () {  };
-    GenericChannel.ExpiredToken = function () {  };
 
     GenericChannel.deserialize = function (dto) {
         throw new Error("Not implemented");

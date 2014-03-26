@@ -1,12 +1,8 @@
-define(["modules/channels/channel",
+define([
     "zepto",
-    "modules/channels/tlkeChannel",
-    "modules/data-types/hex",
-    "modules/data-types/bitArray",
-    "modules/data-types/bytes",
-    "modules/cryptography/aes-sjcl",
-    "modules/converters/customTypes"
-], function (Channel, $, TlkeChannel, Hex, BitArray, Bytes, Aes) {
+    "modules/channels/channel",
+    "modules/channels/tokens"
+], function ($, Channel, tokens) {
     "use strict";
 
 

@@ -1,5 +1,7 @@
-define(["modules/channels/channel",
+define([
     "zepto",
+    "modules/channels/channel",
+    "modules/channels/tokens",
     "modules/cryptography/diffie-hellman-leemon",
     "modules/data-types/hex",
     "modules/data-types/bitArray",
@@ -7,7 +9,7 @@ define(["modules/channels/channel",
     "modules/cryptography/sha1-crypto-js",
     "modules/cryptography/aes-sjcl",
     "modules/converters/customTypes"
-], function (Channel, $, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes) {
+], function ($, Channel, tokens, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes) {
     "use strict";
 
     var channelAesKeyEffectiveBitLength = 128;
@@ -26,11 +28,11 @@ define(["modules/channels/channel",
     TlkeChannel.prototype = new Channel();
     $.extend(TlkeChannel.prototype, {
         enterToken: function (token, context) {
-            if (token instanceof TlkeChannel.GenerateToken) {
+            if (token instanceof tokens.TlkeChannel.GenerateToken) {
                 this._generateOffer();
-            } else if (token instanceof TlkeChannel.OfferToken) {
+            } else if (token instanceof tokens.TlkeChannel.OfferToken) {
                 this._acceptOffer(token.offer);
-            } else if (token instanceof TlkeChannel.AuthToken) {
+            } else if (token instanceof tokens.TlkeChannel.AuthToken) {
                 this._acceptAuth(token.auth);
             }
             this._notifyDirty();
@@ -82,11 +84,11 @@ define(["modules/channels/channel",
             this.dhAesKey = dhAes;
             var outId = dhAes.bitSlice(0, 16);
             var inId = dhAes.bitSlice(16, 32);
-            this._emitPrompt(new TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
+            this._emitPrompt(new tokens.TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._onChangeState();
             this._sendPacket(this._getOfferData());
-            this._emitPrompt(new TlkeChannel.OfferToken(this.dhAesKey));
+            this._emitPrompt(new tokens.TlkeChannel.OfferToken(this.dhAesKey));
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -96,7 +98,7 @@ define(["modules/channels/channel",
             this.dhAesKey = dhAes;
             var inId = dhAes.bitSlice(0, 16);
             var outId = dhAes.bitSlice(16, 32);
-            this._emitPrompt(new TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
+            this._emitPrompt(new tokens.TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER;
             this._onChangeState();
         },
@@ -115,7 +117,7 @@ define(["modules/channels/channel",
             this.state = TlkeChannel.STATE_AWAITING_AUTH;
             this._onChangeState();
             this._sendPacket(this._getOfferResponse());
-            this._emitPrompt(new TlkeChannel.AuthToken(), null);
+            this._emitPrompt(new tokens.TlkeChannel.AuthToken(), null);
         },
 
         _getOfferResponse: function () {
@@ -134,7 +136,7 @@ define(["modules/channels/channel",
             this.state = TlkeChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._onChangeState();
             this._sendPacket(this._getAuthData());
-            this._emitPrompt(new TlkeChannel.AuthToken(this.auth));
+            this._emitPrompt(new tokens.TlkeChannel.AuthToken(this.auth));
         },
 
         _getAuthData: function () {
@@ -173,7 +175,7 @@ define(["modules/channels/channel",
             this._onChangeState();
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._emitPrompt(new TlkeChannel.GenericChannelGeneratedToken(
+            this._emitPrompt(new tokens.TlkeChannel.GenericChannelGeneratedToken(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
@@ -196,7 +198,7 @@ define(["modules/channels/channel",
             }
             this.state = TlkeChannel.STATE_CONNECTION_ESTABLISHED;
             this._onChangeState();
-            this._emitPrompt(new TlkeChannel.GenericChannelGeneratedToken(
+            this._emitPrompt(new tokens.TlkeChannel.GenericChannelGeneratedToken(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))
@@ -204,38 +206,12 @@ define(["modules/channels/channel",
         },
 
         _onChangeState: function () {
-            this._emitPrompt(new TlkeChannel.ChangeStateToken(this.state));
+            this._emitPrompt(new tokens.TlkeChannel.ChangeStateToken(this.state));
         }
     });
 
     TlkeChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
-    };
-
-    TlkeChannel.GenerateToken = function () {};
-    TlkeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
-    TlkeChannel.OfferToken.prototype.serialize = function () {
-        return this.offer.as(Hex).serialize();
-    };
-    TlkeChannel.OfferToken.deserialize = function (dto) {
-        return TlkeChannel.AuthToken(Hex.deserialize(dto));
-    };
-    TlkeChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
-    TlkeChannel.AuthToken.prototype.serialize = function () {
-        return this.auth.as(Hex).serialize();
-    };
-    TlkeChannel.AuthToken.deserialize = function (dto) {
-        return TlkeChannel.AuthToken(Hex.deserialize(dto));
-    };
-    TlkeChannel.ChangeStateToken = function (state) { this.state = state; };
-    TlkeChannel.TlkeChannelGeneratedToken = function (inId, outId) {
-        this.inId = inId;
-        this.outId = outId;
-    };
-    TlkeChannel.GenericChannelGeneratedToken = function (inId, outId, key) {
-        this.inId = inId;
-        this.outId = outId;
-        this.key = key;
     };
 
     TlkeChannel.STATE_NOT_STARTED = 1;
