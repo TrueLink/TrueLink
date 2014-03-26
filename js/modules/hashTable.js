@@ -12,12 +12,22 @@ define([], function () {
                 value: value
             });
         },
-        getItem: function (key) {
-            var index = this._getIndexByKey(key);
+        getItem: function (key, searchFunction) {
+            var index;
+            if (!searchFunction) {
+                index = this._getIndexByKey(key);
+            } else {
+                index = this._indexOf(searchFunction);
+            }
             return index === -1 ? undefined : this.items[index].value;
         },
-        removeItem: function (key) {
-            var index = this._getIndexByKey(key);
+        removeItem: function (key, searchFunction) {
+            var index;
+            if (!searchFunction) {
+                index = this._getIndexByKey(key);
+            } else {
+                index = this._indexOf(searchFunction);
+            }
             if (index !== -1) {
                 this.items.splice(index, 1);
             }
