@@ -210,16 +210,23 @@ define(["modules/channels/channel",
 
     TlkeChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
-        var deserialized = new TlkeChannel();
-        ["dh", "dhk", "dhAesKey", "inChannelName", "outChannelName", "state"].forEach(function (key) {
-            this[key] = dto.getData(key);
-        });
-        return deserialized;
     };
 
     TlkeChannel.GenerateToken = function () {};
     TlkeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
+    TlkeChannel.OfferToken.prototype.serialize = function () {
+        return this.offer.as(Hex).serialize();
+    };
+    TlkeChannel.OfferToken.deserialize = function (dto) {
+        return TlkeChannel.AuthToken(Hex.deserialize(dto));
+    };
     TlkeChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
+    TlkeChannel.AuthToken.prototype.serialize = function () {
+        return this.auth.as(Hex).serialize();
+    };
+    TlkeChannel.AuthToken.deserialize = function (dto) {
+        return TlkeChannel.AuthToken(Hex.deserialize(dto));
+    };
     TlkeChannel.ChangeStateToken = function (state) { this.state = state; };
     TlkeChannel.TlkeChannelGeneratedToken = function (inId, outId) {
         this.inId = inId;

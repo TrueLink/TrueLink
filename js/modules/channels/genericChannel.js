@@ -198,6 +198,7 @@ define(["modules/channels/channel",
         if (this.hashTail) {
             dto.ht = this.hashTail.as(Hex).serialize();
         }
+        return dto;
     };
     // serialize message from a plain object
     GenericChannelMessage.deserialize = function (dto) {
@@ -217,11 +218,6 @@ define(["modules/channels/channel",
 
     GenericChannel.deserialize = function (dto) {
         throw new Error("Not implemented");
-        var deserialized = new GenericChannel();
-        [].forEach(function (key) {
-            this[key] = dto.getData(key);
-        });
-        return deserialized;
     };
 
     return GenericChannel;

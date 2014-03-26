@@ -3,11 +3,11 @@ define(["zepto", "settings"], function ($, Settings) {
 
     // CouchTransport uses strings as channelName
     function CouchTransport(url, channels, prefix) {
+        this.handler = null;
         this.saveKey = (prefix || "") + "_lastSecFor_" + url;
         this.url = url;
         this.channels = channels || [];
         this.updateSeq = Settings.get(this.saveKey) || 0;
-        this.handler = function (channelName, data) {};
         this.pendingAjax = null;
         this.timeoutDefer = null;
         this.messages = [];
