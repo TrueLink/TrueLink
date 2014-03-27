@@ -32,14 +32,30 @@
 
 
             var apps = {};
-            function addApp(name) {
-                apps[name] = new TestApp(name);
-                apps[name].stateChanged = updateView;
+            function addApp(id) {
+                apps[id] = new TestApp(id);
+                apps[id].stateChanged = updateView;
                 updateView();
             }
 
             function updateView() {
-                list.setProps({apps: apps});
+                var models = {};
+                $.each(apps, function (id, app) {
+                    models[id] = createModel(app, id);
+                });
+                list.setProps({apps: models});
+            }
+
+            function createModel(app, id) {
+                var contactList = {};
+                $.each(app.contacts, function (name, chGroup) {
+                    contactList[name] = { /*contact model*/ };
+                });
+                return {
+                    id: id,
+                    contactList: contactList,
+                    addContact: app.addContact.bind(app)
+                };
             }
 
             var list = AppList({apps: {}, add: addApp});

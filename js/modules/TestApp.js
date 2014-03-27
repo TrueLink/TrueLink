@@ -122,9 +122,10 @@ define([
 
         addContact: function (name) {
             var contact = new ContactChannelGroup();
-            contact.stateChanged = this.handlers.contactStateChanged;
-            contact.channelOpened = this.handlers.contactOpenChannel.bind(this, name);
+            contact.stateChanged = this.onContactStateChanged.bind(this);
+            //contact.channelOpened = this.handlers.contactOpenChannel.bind(this, name);
             this.contacts[name] = contact;
+            this.onStateChanged();
         }
     };
     return App;

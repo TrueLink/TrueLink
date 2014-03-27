@@ -14,7 +14,7 @@ define([
 
             var apps = {};
             $.each(this.props.apps, function (key, app) {
-                apps[key] = App({model: {id: key}});
+                apps[key] = App({model: app});
             });
 
             return React.DOM.div({id: "app", className: "row"},

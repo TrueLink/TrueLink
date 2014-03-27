@@ -23,7 +23,7 @@ define(["zepto", "q", "react", "modules/data-types/utf8string"], function ($, Q,
                 messages["m_" + i] = React.DOM.li(null, messageData.text);
                 i += 1;
             });
-            return React.DOM.div({style: {float: "left", width: 250, "margin-left": 10 }},
+            return React.DOM.div({style: {float: "left", width: 250, "margin-left": 10}},
                 React.DOM.h5({className: ""}, model.name + ": "),
                 React.DOM.ul({style: {"list-style-type": "none"}}, messages),
                 React.DOM.div(null, React.DOM.form({onSubmit: this.send},
