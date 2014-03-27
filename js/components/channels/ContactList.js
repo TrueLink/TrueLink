@@ -5,8 +5,12 @@ define(["zepto", "q", "react", "tools/urandom"
     return React.createClass({
         displayName: "ContactList",
 
-        add: function () {
+        addContact: function () {
             this.props.addContact(urandom.name());
+        },
+
+        addDevice: function () {
+            throw new Error("Not implemented");
         },
 
         select: function (name) {
@@ -21,7 +25,9 @@ define(["zepto", "q", "react", "tools/urandom"
             });
             return React.DOM.div(null,
                 React.DOM.ul(null, contacts),
-                React.DOM.button({onClick: this.add}, "add contact"));
+                React.DOM.ul({className: "radius button-group"},
+                    React.DOM.li(null, React.DOM.a({className: "tiny button", onClick: this.addContact}, "Add contact")),
+                    React.DOM.li(null, React.DOM.a({className: "tiny button", onClick: this.addDevice}, "Add sync"))));
         }
     });
 });

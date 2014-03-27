@@ -5,8 +5,9 @@ define([
     "modules/channels/contactChannelGroup",
     "modules/channels/tlkeChannel",
     "modules/data-types/hex",
-    "modules/couchTransport"
-], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport) {
+    "modules/couchTransport",
+    "modules/hashTable"
+], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable) {
     "use strict";
 
     function App(id) {
@@ -15,16 +16,18 @@ define([
 
         this.transport = new CouchTransport("http://couch.ctx.im:5984/tl_channels", null, id);
         this.transport.handler = this.onTransportPacket.bind(this);
-        // name => contactChannelGroup
-        this.contacts = {};
+
+        // contact => {
+        //   name: "John Doe"
+        //   tokens: [{token: token, context: context}],
+        //   messages: [text: "bla"],
+        //   state: 1
+        // }
+        this.data = new HashTable();
+
         // id => contactChannelGroup (for incoming packet routing)
         this.channelIds = {};
 
-        // contactChannelGroup => [{token: token, context: context}]
-        this.contactPromts = new HashTable();
-
-        // contactChannelGroup => int
-        this.contactStates = new HashTable();
     }
 
     $.extend(App.prototype, {
@@ -76,12 +79,8 @@ define([
         generateTlkeFor: function (contact) {
             contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken.GenerateToken());
         },
-        getStateFor: function (contact) {
-
-        },
-        getPromptsFor: function (contact) {
-            var prompts = this.contactPromts.getItem(contact);
-            return prompts || [];
+        getDataFor: function (contact) {
+            return this.data.getItem(contact);
         },
 
 //
@@ -117,9 +116,9 @@ define([
         },
 
         addPrompt: function (contact, token, context) {
-            var prompts = this.contactPromts.getItem(contact) || [];
-            prompts.push({token: token, context: context});
-            this.contactPromts.setItem(contact, prompts);
+            var info = this.data.getItem(contact);
+            info.prompts.push({token: token, context: context});
+            this.data.setItem(contact, info);
             this.onStateChanged();
         },
         onContactPrompt: function (contact, token, context) {
@@ -130,9 +129,11 @@ define([
             } else if (token instanceof tokens.ContactChannelGroup.AuthToken) {
                 this.addPrompt(contact, token, context);
             } else if (token instanceof tokens.ContactChannelGroup.ChangeStateToken) {
-                this.contactStates.setItem(contact, token.state);
+                var info = this.data.getItem(contact);
+                info.state = token.state;
+                this.data.setItem(contact, info);
             }
-
+            this.onStateChanged();
         },
 
         onContactSendPacket: function (contact, packet) {
@@ -157,8 +158,13 @@ define([
             var contact = new ContactChannelGroup();
             this._setDirtyNotifier(contact, this.onContactStateChanged);
             this._setTokenPrompter(contact, this.onContactPrompt);
-            this.contacts[name] = contact;
-            this.contactStates.setItem(contact, TlkeChannel.STATE_NOT_STARTED);
+
+            this.data.setItem(contact, {
+                name: name,
+                prompts: [],
+                messages: [],
+                state: TlkeChannel.STATE_NOT_STARTED
+            });
             this.onStateChanged();
         }
     }, extensions);

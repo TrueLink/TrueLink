@@ -1,5 +1,13 @@
-define(["zepto", "q", "react", "bind", "components/channels/ContactList", "components/channels/ContactTlStatus", "components/channels/Dialog"
-    ], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog) {
+define([
+    "zepto",
+    "q",
+    "react",
+    "bind",
+    "components/channels/ContactList",
+    "components/channels/ContactTlStatus",
+    "components/channels/Dialog",
+    "modules/channels/contactChannelGroup"
+], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, ContactChannelGroup) {
     "use strict";
 
     return React.createClass({
@@ -18,26 +26,34 @@ define(["zepto", "q", "react", "bind", "components/channels/ContactList", "compo
         },
 
         selectContact: function (name) {
-            this.setState({currentContact: this.props.model.contactList[name]});
+            this.setState({
+                currentContact: this.props.model.contactList[name],
+                currentName: name
+            });
         },
 
         render: function () {
             var model = this.props.model;
-//            var props = this.props;
-//            $.each(this.props.tlkeHandshakesInProgress, function (key, channelInfo) {
-//                tlkeChannelViews[key] = ContactTlStatus({
-//                    channel: channelInfo,
-//                    generate: props.generate.bind(null, key),
-//                    accept: props.accept.bind(null, key),
-//                    acceptAuth: props.acceptAuth.bind(null, key)
-//                });
-//            });
-//            $.each(this.props.chatChannels, function (key, channelInfo) {
-//                chatChannelViews[key] = Dialog({
-//                    channel: channelInfo,
-//                    send: props.sendTextMessage.bind(null, key)
-//                });
-//            });
+            var current = this.state.currentContact;
+
+            var contactListComponent = React.DOM.div({className: "large-4 column right-border"},
+                React.DOM.h4(null, "Contacts"),
+                ContactList({
+                    addContact: this.addContact,
+                    selectContact: this.selectContact,
+                    model: {contacts: this.props.model.contactList }
+                }));
+
+            var dialogComponent = !(current && !current.isSync) ? null :
+                    React.DOM.div({className: "large-4 column left-border"},
+                        React.DOM.h4(null, "Dialog with " + this.state.currentName),
+                        Dialog({model: current}));
+
+            var tlstatusComponentWidth = dialogComponent ? "4" : "8";
+            var tlstatusComponent = !current ? null :
+                    React.DOM.div({className: "large-" + tlstatusComponentWidth + " column right-border"},
+                        React.DOM.h4(null, "Tl Status of " + this.state.currentName),
+                        ContactTlStatus({model: current}));
 
 
             return React.DOM.div({className: "row test-app"},
@@ -45,17 +61,9 @@ define(["zepto", "q", "react", "bind", "components/channels/ContactList", "compo
                     React.DOM.hr(null),
                     React.DOM.h3(null, model.id),
                     React.DOM.div({className: "row"},
-                        React.DOM.div({className: "large-4 column right-border"},
-                            React.DOM.h4(null, "Contacts"),
-                            ContactList({
-                                addContact: this.addContact,
-                                selectContact: this.selectContact,
-                                model: {contacts: this.props.model.contactList }
-                            })),
-                        React.DOM.div({className: "large-4 column right-border"},
-                            React.DOM.h4(null, "Tl Status")),
-                        React.DOM.div({className: "large-4 column left-border"},
-                            React.DOM.h4(null, "Dialog")))));
+                        contactListComponent,
+                        tlstatusComponent,
+                        dialogComponent)));
         }
     });
 });

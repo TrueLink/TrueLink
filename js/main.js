@@ -4,7 +4,7 @@
         baseUrl: "/js",
         paths: {
             "react": "lib/react",
-            "zepto": "lib/zepto.min",
+            "zepto": "lib/zepto",
             "zepto_fx": "lib/zepto.fx",
             "q": "lib/q",
             "es5Shim": "lib/es5-shim.min",
@@ -25,9 +25,9 @@
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
     require([
-        "zepto", "react", "modules/TestApp", "components/channels/AppList"
+        "zepto", "react", "modules/TestApp", "components/channels/AppList", "modules/channels/syncContactChannelGroup"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
-    ], function ($, React, TestApp, AppList) {
+    ], function ($, React, TestApp, AppList, SyncContactChannelGroup) {
         $(function () {
 
 
@@ -48,12 +48,13 @@
 
             function createAppModel(app, id) {
                 var contactList = {};
-                $.each(app.contacts, function (name, chGroup) {
-                    contactList[name] = {
+
+
+                app.data.each(function (chGroup, data) {
+                    contactList[data.name] = $.extend({
                         generateTlke: app.generateTlkeFor.bind(app, chGroup),
-                        state: app.getStateFor.bind(app, chGroup),
-                        prompts: app.getPromptsFor.bind(app, chGroup)
-                    };
+                        isSync: chGroup instanceof SyncContactChannelGroup
+                    }, data);
                 });
                 return {
                     id: id,
