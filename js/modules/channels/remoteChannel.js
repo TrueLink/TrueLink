@@ -6,20 +6,18 @@ define([
     "use strict";
 
 
-    function RemoteTlkeChannel() {
-    }
+    function RemoteTlkeChannel() {}
 
     RemoteTlkeChannel.prototype = new Channel();
     $.extend(RemoteTlkeChannel.prototype, {
         enterToken: function (token, context) {
-            // serialize token and send packet
+            this._sendPacket(tokens.serialize(token));
         },
-        processPacket: function (bytes) {
-            // deserialize token and prompt it
+        processPacket: function (packet) {
+            this._emitPrompt(tokens.deserialize(packet));
         },
 
         serialize: function () { throw new Error("Not implemented"); }
-
 
     });
 
