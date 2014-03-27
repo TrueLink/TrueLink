@@ -1,5 +1,4 @@
 define([
-    "components/ChannelsTestPage",
     "components/ContactsPage",
     "components/DialogsPage",
     "components/DocumentsPage",
@@ -9,7 +8,6 @@ define([
 
 
     var views = {
-        "channels": ChannelsTestPage,
         "contacts": ContactsPage,
         "dialogs": DialogsPage,
         "documents": DocumentsPage,

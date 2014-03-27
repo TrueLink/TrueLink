@@ -25,9 +25,9 @@
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
     require([
-        "zepto", "react", "modules/TestApp", "components/TestAppList"
+        "zepto", "react", "modules/TestApp", "components/channels/AppList"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
-    ], function ($, React, TestApp, TestAppList) {
+    ], function ($, React, TestApp, AppList) {
         $(function () {
 
 
@@ -39,11 +39,10 @@
             }
 
             function updateView() {
-
                 list.setProps({apps: apps});
             }
 
-            var list = TestAppList({apps: {}, add: addApp});
+            var list = AppList({apps: {}, add: addApp});
             React.renderComponent(list, document.body);
 
             //function startApp(rootEntity, rootData) {

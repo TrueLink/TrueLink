@@ -1,4 +1,4 @@
-define(["zepto", "q", "react", "bind", "components/ChannelsTestPage"], function ($, Q, React, bind, ChannelsTestPage) {
+define(["zepto", "q", "react", "bind"], function ($, Q, React, bind) {
 
     "use strict";
 

@@ -24,7 +24,7 @@ define(["zepto", "q", "react", "modules/data-types/utf8string"], function ($, Q,
                 i += 1;
             });
             return React.DOM.div({style: {float: "left", width: 250, "margin-left": 10 }},
-                React.DOM.h2({className: "title"}, model.name + ": "),
+                React.DOM.h5({className: ""}, model.name + ": "),
                 React.DOM.ul({style: {"list-style-type": "none"}}, messages),
                 React.DOM.div(null, React.DOM.form({onSubmit: this.send},
                     React.DOM.input({type: "text", ref: "messageText"}, React.DOM.input({type: "submit", value: "send"}))
