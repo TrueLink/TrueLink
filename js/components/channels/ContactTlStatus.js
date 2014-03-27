@@ -12,7 +12,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
     stateStatuses[TlkeChannel.STATE_CONNECTION_FAILED] =  "Failed";
 
     return React.createClass({
-        displayName: "ChannelTestInfo",
+        displayName: "ContactTlStatus",
 
         getInitialState: function () {
             return {};
@@ -42,13 +42,13 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
             this.props.acceptAuth(auth.as(Hex), context);
         },
         render: function () {
-            var channel = this.props.channel;
+            var model = this.props.model;
             var acceptAuth = this.acceptAuth;
-            var status = this.state.error || stateStatuses[channel.state];
+            var status = this.state.error || stateStatuses[model.state];
             var actions = {};
 
             var i = 0, elem;
-            if (channel.state === TlkeChannel.STATE_NOT_STARTED) {
+            if (model.state === TlkeChannel.STATE_NOT_STARTED) {
                 elem = React.DOM.div(null,
                     React.DOM.button({onClick: this.generate}, "Generate"),
                     React.DOM.input({ref: "offer"}),
@@ -56,8 +56,8 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
                 actions["a_" + i] = elem;
                 i += 1;
             }
-            if (channel.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
-                channel.prompts.forEach(function (prompt) {
+            if (model.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
+                model.prompts.forEach(function (prompt) {
                     elem = null;
                     if (prompt.token instanceof TlkeChannel.OfferToken) {
                         if (prompt.token.offer) {
@@ -80,7 +80,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
                 });
             }
 
-            return React.DOM.div(null, channel.name + ": ", status, actions);
+            return React.DOM.div(null, model.name + ": ", status, actions);
         }
     });
 });
