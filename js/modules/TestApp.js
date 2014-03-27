@@ -1,9 +1,12 @@
 define([
+    "zepto",
+    "modules/channels/channelExtensions",
+    "modules/channels/tokens",
     "modules/channels/contactChannelGroup",
+    "modules/channels/tlkeChannel",
     "modules/data-types/hex",
-    "modules/couchTransport",
-    "components/channels/AppList", "tools/urandom", "zepto", "react"
-], function (ContactChannelGroup, Hex, CouchTransport, AppList, urandom, $, React) {
+    "modules/couchTransport"
+], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport) {
     "use strict";
 
     function App(id) {
@@ -14,12 +17,17 @@ define([
         this.transport.handler = this.onTransportPacket.bind(this);
         // name => contactChannelGroup
         this.contacts = {};
-        // id => name (for incoming packet routing)
+        // id => contactChannelGroup (for incoming packet routing)
         this.channelIds = {};
 
+        // contactChannelGroup => [{token: token, context: context}]
+        this.contactPromts = new HashTable();
+
+        // contactChannelGroup => int
+        this.contactStates = new HashTable();
     }
 
-    App.prototype = {
+    $.extend(App.prototype, {
         //getProps: function () {
         //    return {
         //        addChannel: this.createTlkeChannel.bind(this),
@@ -64,14 +72,18 @@ define([
         //    });
         //    this.onChannelsChanged();
         //},
-//
-        //generate: function (key) {
-        //    try {
-        //        this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.GenerateToken());
-        //    } catch (ex) {
-        //        console.error(ex);
-        //    }
-        //},
+
+        generateTlkeFor: function (contact) {
+            contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken.GenerateToken());
+        },
+        getStateFor: function (contact) {
+
+        },
+        getPromptsFor: function (contact) {
+            var prompts = this.contactPromts.getItem(contact);
+            return prompts || [];
+        },
+
 //
         //accept: function (key, offer) {
         //    try {
@@ -104,30 +116,52 @@ define([
             this.onStateChanged();
         },
 
-        onContactSendPacket: function (contact, channelId, data) {
+        addPrompt: function (contact, token, context) {
+            var prompts = this.contactPromts.getItem(contact) || [];
+            prompts.push({token: token, context: context});
+            this.contactPromts.setItem(contact, prompts);
+            this.onStateChanged();
+        },
+        onContactPrompt: function (contact, token, context) {
+            if (token instanceof tokens.ContactChannelGroup.ChannelAddedToken) {
+                this.onContactOpenChannel(contact, token.inId);
+            } else if (token instanceof tokens.ContactChannelGroup.OfferToken) {
+                this.addPrompt(contact, token, context);
+            } else if (token instanceof tokens.ContactChannelGroup.AuthToken) {
+                this.addPrompt(contact, token, context);
+            } else if (token instanceof tokens.ContactChannelGroup.ChangeStateToken) {
+                this.contactStates.setItem(contact, token.state);
+            }
 
+        },
+
+        onContactSendPacket: function (contact, packet) {
+            this.transport.sendMessage(packet.receiver, packet.data);
         },
 
         onTransportPacket: function (chId, data) {
-            var contactName = this.channelIds[chId];
-            if (contactName) {
-                this.contacts[name].processPacket(Hex.deserialize(data));
+            var contact = this.channelIds[chId];
+            if (contact) {
+                contact.processPacket({receiver: chId, data: data});
+            } else {
+                console.warn("Could not find the receiver for transport packet");
             }
         },
-        onContactOpenChannel: function (name, contact, channelId) {
+        onContactOpenChannel: function (contact, channelId) {
             var chId = channelId.as(Hex).toString();
             this.transport.addChannel(chId);
-            this.channelIds[chId] = name;
+            this.channelIds[chId] = contact;
         },
 
         addContact: function (name) {
             var contact = new ContactChannelGroup();
-            contact.stateChanged = this.onContactStateChanged.bind(this);
-            //contact.channelOpened = this.handlers.contactOpenChannel.bind(this, name);
+            this._setDirtyNotifier(contact, this.onContactStateChanged);
+            this._setTokenPrompter(contact, this.onContactPrompt);
             this.contacts[name] = contact;
+            this.contactStates.setItem(contact, TlkeChannel.STATE_NOT_STARTED);
             this.onStateChanged();
         }
-    };
+    }, extensions);
     return App;
 
 });

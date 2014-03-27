@@ -41,15 +41,19 @@
             function updateView() {
                 var models = {};
                 $.each(apps, function (id, app) {
-                    models[id] = createModel(app, id);
+                    models[id] = createAppModel(app, id);
                 });
                 list.setProps({apps: models});
             }
 
-            function createModel(app, id) {
+            function createAppModel(app, id) {
                 var contactList = {};
                 $.each(app.contacts, function (name, chGroup) {
-                    contactList[name] = { /*contact model*/ };
+                    contactList[name] = {
+                        generateTlke: app.generateTlkeFor.bind(app, chGroup),
+                        state: app.getStateFor.bind(app, chGroup),
+                        prompts: app.getPromptsFor.bind(app, chGroup)
+                    };
                 });
                 return {
                     id: id,

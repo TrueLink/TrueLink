@@ -45,6 +45,7 @@ define(["modules/data-types/hex"], function (Hex) {
     tokens.ContactChannelGroup.OfferToken = function (offer) { this.offer = offer; };
     tokens.ContactChannelGroup.AuthToken = function (auth) { this.auth = auth; };
     tokens.ContactChannelGroup.ChannelAddedToken = function (inId) { this.inId = inId; };
+    tokens.ContactChannelGroup.ChangeStateToken = function (state) { this.state = state; };
 
     var types = {}, type, group;
     for (group in tokens) {

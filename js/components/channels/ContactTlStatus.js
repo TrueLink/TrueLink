@@ -19,7 +19,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
         },
 
         generate: function () {
-            this.props.generate();
+            this.props.model.generateTlke();
         },
         accept: function () {
             var offerText = this.refs.offer.getDOMNode().value;
