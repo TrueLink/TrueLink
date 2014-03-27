@@ -2,24 +2,28 @@ define([
     "zepto",
     "modules/hashTable",
     "modules/channels/channel",
+    "modules/channels/tokens",
     "modules/channels/channelExtensions",
     "modules/channels/tlkeChannel",
     "modules/channels/remoteChannel",
-    "modules/channels/genericChannel",
-    "modules/channels/remoteChannelList"
-], function ($, HashTable, Channel, extensions, TlkeChannel, RemoteChannel, GenericChannel, RemoteChannelList) {
+    "modules/channels/genericChannel"
+], function ($, HashTable, Channel, tokens, extensions, TlkeChannel, RemoteChannel, GenericChannel) {
     "use strict";
 
     function ContactChannelGroup() {
-        this.remoteChannelList = new RemoteChannelList();
-        this._setPacketSender(this.remoteChannelList, this.onRemoteChannelListSendPacket);
 
         this.channels = new HashTable();
+        this.remoteChannels = new HashTable();
         this.tlkeChannel = null;
 
-        this._setTokenHandler(ContactChannelGroup.GenerateTlkeToken, this.onTokenGenerateTlke);
-        this._setTokenHandler(ContactChannelGroup.OfferToken, this.onTokenOffer);
-        this._setTokenHandler(ContactChannelGroup.AuthToken, this.onTokenAuth);
+        // mirror of the contact's ContactChannelGroup to send tokens
+        this.remoteChannelGroup = new RemoteChannel();
+        this._addRemoteChannel(this.remoteChannelGroup, 0);
+        this.channels.setItem(this, {ref: 0});
+
+        this._setTokenHandler(tokens.ContactChannelGroup.GenerateTlkeToken, this.onTokenGenerateTlke);
+        this._setTokenHandler(tokens.ContactChannelGroup.OfferToken, this.onTokenOffer);
+        this._setTokenHandler(tokens.ContactChannelGroup.AuthToken, this.onTokenAuth);
     }
 
     ContactChannelGroup.prototype = new Channel();
@@ -48,9 +52,9 @@ define([
         // transport calls processPacket. Careful to the structure: { receiver: "BEEF", data: "1FAA..." }
         processPacket: function (packet) {
             var chIdStr = packet.receiver;
-            var receiver = this.channels.first(function (value) {return value.inId === chIdStr; });
-            if (receiver) {
-                receiver.processPacket(packet.data);
+            var receiverTuple = this.channels.first(function (value) {return value.inId === chIdStr; });
+            if (receiverTuple) {
+                receiverTuple.value.processPacket(packet.data);
             } else {
                 console.error("Could not find the receiver for packet ", packet, " Check packet.receiver property");
             }
@@ -63,15 +67,40 @@ define([
         //////////////////////////////
         //  Remote channels comms   //
         //////////////////////////////
-        // RemoteChannelList wants to send the token
-        onRemoteChannelListSendPacket: function (channel, packet) {
-            this._sendMessage(new ChannelGroupMessage(ChannelGroupMessage.MSG_TYPE_WRAPPER, packet));
+        // RemoteChannel wants to send the token
+        onRemoteChannelSendPacket: function (channel, packet) {
+            var sender = this.remoteChannels.getItem(channel);
+            this._sendMessage(new ChannelGroupMessage(ChannelGroupMessage.MSG_TYPE_WRAPPER, packet, sender.ref));
         },
         // the remote channel has issued the token
         onRemoteChannelToken: function (channel, token, context) {
 
+            var remoteChannelTuple = this.remoteChannels.getItem(channel);
+            var referencedChannelTuple = this.channels.first(function (value) {
+                return value.ref === remoteChannelTuple.value.ref;
+            });
+
+            if (token instanceof tokens.ContactChannelGroup.GenerateTlkeToken) {
+                // remote ContactChannelGroup has requested a new tlke channel creation with given reference
+                var newTlke = new TlkeChannel();
+                this._addChannel(newTlke);
+                var remoteTlke = new RemoteChannel();
+                this._addRemoteChannel(remoteTlke);
+            }
+
+            // if auth token etc
         },
-        // onChannelMessage will call remoteChannelList.processPacket(data)
+        // the packet received in a wrapper message from generic channel
+        onPacketForRemoteChannel: function (packet, ref) {
+            var remoteChannelTuple = this.remoteChannels.first(function (value) {
+                return value.ref === ref;
+            });
+            if (remoteChannelTuple) {
+                remoteChannelTuple.key.processPacket(packet);
+            } else {
+                console.warn("Remote channel with ref " + ref + " not found");
+            }
+        },
 
         //////////////////////////////
         //  Regular channels comms.
@@ -83,22 +112,22 @@ define([
             if (message.type === ChannelGroupMessage.MSG_TYPE_USER) {
                 this._emitUserMessage(message.data);
             } else if (message.type === ChannelGroupMessage.MSG_TYPE_WRAPPER) {
-                this.remoteChannelList.processPacket(message.data);
+                this.onPacketForRemoteChannel(message.data, message.ref);
             } else {
                 console.warn("Received a strange message: ", message);
             }
         },
         // one of regular channels has issued a token
         onChannelToken: function (channel, token, context) {
-            if (token instanceof TlkeChannel.TlkeChannelGeneratedToken) {
+            if (token instanceof tokens.TlkeChannel.TlkeChannelGeneratedToken) {
                 // notify the owner that it should listen more channelIds
-                this._emitPrompt(new ContactChannelGroup.ChannelAddedToken(token.inId));
-            } else if (channel === this.tlkeChannel && token instanceof TlkeChannel.OfferToken) {
+                this._emitPrompt(new tokens.ContactChannelGroup.ChannelAddedToken(token.inId));
+            } else if (channel === this.tlkeChannel && token instanceof tokens.TlkeChannel.OfferToken) {
                 // just mirror tlke offer token
-                this._emitPrompt(new ContactChannelGroup.OfferToken(token.offer));
-            } else if (channel === this.tlkeChannel && token instanceof TlkeChannel.AuthToken) {
+                this._emitPrompt(new tokens.ContactChannelGroup.OfferToken(token.offer));
+            } else if (channel === this.tlkeChannel && token instanceof tokens.TlkeChannel.AuthToken) {
                 // just mirror tlke auth token
-                this._emitPrompt(new ContactChannelGroup.AuthToken(token.auth));
+                this._emitPrompt(new tokens.ContactChannelGroup.AuthToken(token.auth));
             }
         },
         // channel sends a packet. Careful to the structure of the resulting packet: { receiver: "BEEF", data: "1FAA..." }
@@ -116,12 +145,14 @@ define([
         },
 
 
-        _addRemoteChannel: function (channel, context) {
-            this._setPacketSender(channel, this.onRemoteChannelToken);
-            this.remoteChannelList.add(channel, context);
+        _addRemoteChannel: function (channel, reference) {
+            this._setPacketSender(channel, this.onRemoteChannelSendPacket);
+            this._setTokenPrompter(channel, this.onRemoteChannelToken);
+
+            this.remoteChannels.setItem(channel, {ref: reference});
         },
 
-        _addChannel: function (channel) {
+        _addChannel: function (channel, reference) {
             this._setPacketSender(channel, this.onChannelSendPacket);
             this._setTokenPrompter(channel, this.onChannelToken);
             this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
@@ -129,6 +160,11 @@ define([
                 this._setMsgProcessor(channel, this.onChannelMessage);
             }
             channel.setRng(this.random);
+            this.channels.setItem(channel, {
+                inId: null,
+                outId: null,
+                ref: reference
+            });
         },
 
         _sendMessage: function (message, channel) {
@@ -141,29 +177,28 @@ define([
 
     }, extensions);
 
-    ContactChannelGroup.GenerateTlkeToken = function () {};
-    ContactChannelGroup.OfferToken = function (offer) { this.offer = offer; };
-    ContactChannelGroup.AuthToken = function (auth) { this.auth = auth; };
-    ContactChannelGroup.ChannelAddedToken = function (inId) { this.inId = inId; };
-
     // the message type to communicate between ChannelGroups via GenericChannels
     // it can wrap a user message or the RemoteChannelList packet
-    function ChannelGroupMessage(type, data) {
+    function ChannelGroupMessage(type, data, ref) {
         if (!$.isPlainObject(data)) {
             throw new Error("Only plain-object data is supported now");
         }
         this.type = type;
         this.data = data;
+        this.ref = parseInt(ref);
     }
     ChannelGroupMessage.prototype.serialize = function () {
         var dto = {
             t: this.type,
             d: this.data
         };
+        if (this.ref !== undefined) {
+            dto.r = this.ref;
+        }
         return dto;
     };
     ChannelGroupMessage.deserialize = function (dto) {
-        return new ChannelGroupMessage(dto.t, dto.d);
+        return new ChannelGroupMessage(dto.t, dto.d, dto.r);
     };
 
     ChannelGroupMessage.MSG_TYPE_USER = "u";
