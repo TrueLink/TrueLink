@@ -6,8 +6,9 @@ define([
     "components/channels/ContactList",
     "components/channels/ContactTlStatus",
     "components/channels/Dialog",
-    "modules/channels/contactChannelGroup"
-], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, ContactChannelGroup) {
+    "modules/channels/contactChannelGroup",
+    "modules/channels/tlkeChannel",
+], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, ContactChannelGroup, TlkeChannel) {
     "use strict";
 
     return React.createClass({
@@ -36,7 +37,7 @@ define([
             var model = this.props.model;
             var current = this.state.currentContact;
 
-            var contactListComponent = React.DOM.div({className: "large-4 column right-border"},
+            var contactListComponent = React.DOM.div({className: "large-4 column"},
                 React.DOM.h4(null, "Contacts"),
                 ContactList({
                     addContact: this.addContact,
@@ -44,7 +45,7 @@ define([
                     model: {contacts: this.props.model.contactList }
                 }));
 
-            var dialogComponent = !(current && !current.isSync) ? null :
+            var dialogComponent = (!(current && !current.isSync)) || (current && current.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) ? null :
                     React.DOM.div({className: "large-4 column left-border"},
                         React.DOM.h4(null, "Dialog with " + this.state.currentName),
                         Dialog({model: current}));

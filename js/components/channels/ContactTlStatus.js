@@ -25,7 +25,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
             var offerText = this.refs.offer.getDOMNode().value;
             var offer = DecBlocks.fromString(offerText);
             if (!offer) {
-                this.setState({error: "Wrong value"});
+                this.setState({error: "Wrong offer"});
                 return;
             }
             this.setState({error: null});
@@ -35,7 +35,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
             var authText = this.refs.auth.getDOMNode().value;
             var auth = DecBlocks.fromString(authText);
             if (!auth) {
-                this.setState({error: "Wrong value"});
+                this.setState({error: "Wrong auth"});
                 return;
             }
             this.setState({error: null});
@@ -44,21 +44,29 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
         render: function () {
             var model = this.props.model;
             var acceptAuth = this.acceptAuth;
-            var status = this.state.error || stateStatuses[model.state];
+            var labelClassName = "secondary";
+            if (model.state === TlkeChannel.STATE_CONNECTION_FAILED) { labelClassName = "alert"; }
+            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) { labelClassName = "success"; }
+            var status = this.state.error ? React.DOM.span({className: "alert radius label"}, this.state.error) :
+                    React.DOM.span({className: labelClassName + " radius label"}, stateStatuses[model.state]);
             var actions = {};
 
-            var i = 0, elem;
+            var i = 0, elem = null;
             if (model.state === TlkeChannel.STATE_NOT_STARTED) {
-                elem = React.DOM.div(null,
-                    React.DOM.button({onClick: this.generate}, "Generate"),
-                    React.DOM.input({ref: "offer"}),
-                    React.DOM.button({onClick: this.accept}, "Accept"));
+                elem = React.DOM.div({className: "row"},
+                        React.DOM.div({className: "small-12 columns"},
+                            React.DOM.input({ref: "offer", type: "text", placeholder: "Offer"})),
+                        React.DOM.div({className: "small-6 columns"},
+                            React.DOM.a({className: "expand button", onClick: this.generate}, "Generate")),
+                        React.DOM.div({className: "small-6 columns"},
+                            React.DOM.a({className: "expand button", onClick: this.accept}, "Accept")));
+
                 actions["a_" + i] = elem;
                 i += 1;
             }
             if (model.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
+
                 model.prompts.forEach(function (prompt) {
-                    elem = null;
                     if (prompt.token instanceof TlkeChannel.OfferToken) {
                         if (prompt.token.offer) {
                             elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.offer.as(DecBlocks).toString()});
@@ -68,19 +76,21 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
                         if (prompt.token.auth) {
                             elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.auth.as(DecBlocks).toString()});
                         } else {
-                            elem = React.DOM.div(null,
-                                React.DOM.input({ref: "auth"}),
-                                React.DOM.button({onClick: acceptAuth.bind(null, prompt.context)}, "Accept Auth"));
+                            elem = React.DOM.div({className: "row collapse"},
+                                    React.DOM.div({className: "small-8 columns"}, React.DOM.input({ref: "auth", type: "text", placeholder: "Auth"})),
+                                    React.DOM.div({className: "small-4 columns"}, React.DOM.a({className: "button postfix", onClick: acceptAuth.bind(null, prompt.context)}, "Accept Auth")));
                         }
                     }
                     if (elem) {
-                        actions["a_" + i] = elem;
+                        actions["a_" + i] = React.DOM.div({className: "row"}, React.DOM.div({className: "small-12 columns"}, elem));
                         i += 1;
                     }
+
                 });
+
             }
 
-            return React.DOM.div(null, model.name + ": ", status, actions);
+            return React.DOM.div(null, status, React.DOM.hr(null), actions);
         }
     });
 });
