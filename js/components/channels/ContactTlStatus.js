@@ -1,5 +1,5 @@
-define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-types/hex", "modules/data-types/decBlocks"
-], function ($, Q, React, TlkeChannel, Hex, DecBlocks) {
+define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels/tokens", "modules/data-types/hex", "modules/data-types/decBlocks"
+], function ($, Q, React, TlkeChannel, tokens, Hex, DecBlocks) {
     "use strict";
 
     var stateStatuses = {};
@@ -57,9 +57,9 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
                         React.DOM.div({className: "small-12 columns"},
                             React.DOM.input({ref: "offer", type: "text", placeholder: "Offer"})),
                         React.DOM.div({className: "small-6 columns"},
-                            React.DOM.a({className: "expand button", onClick: this.generate}, "Generate")),
+                            React.DOM.a({className: "expand radius button", onClick: this.generate}, "Generate")),
                         React.DOM.div({className: "small-6 columns"},
-                            React.DOM.a({className: "expand button", onClick: this.accept}, "Accept")));
+                            React.DOM.a({className: "expand radius button", onClick: this.accept}, "Accept")));
 
                 actions["a_" + i] = elem;
                 i += 1;
@@ -67,12 +67,12 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/data-typ
             if (model.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
 
                 model.prompts.forEach(function (prompt) {
-                    if (prompt.token instanceof TlkeChannel.OfferToken) {
+                    if (prompt.token instanceof tokens.TlkeChannel.OfferToken) {
                         if (prompt.token.offer) {
                             elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.offer.as(DecBlocks).toString()});
                         }
                     }
-                    if (prompt.token instanceof TlkeChannel.AuthToken) {
+                    if (prompt.token instanceof tokens.TlkeChannel.AuthToken) {
                         if (prompt.token.auth) {
                             elem = React.DOM.input({type: "text", readOnly: true, value: prompt.token.auth.as(DecBlocks).toString()});
                         } else {

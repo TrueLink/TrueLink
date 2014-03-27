@@ -6,8 +6,9 @@ define([
     "modules/channels/tlkeChannel",
     "modules/data-types/hex",
     "modules/couchTransport",
-    "modules/hashTable"
-], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable) {
+    "modules/hashTable",
+    "tools/random"
+], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable, random) {
     "use strict";
 
     function App(id) {
@@ -77,7 +78,7 @@ define([
         //},
 
         generateTlkeFor: function (contact) {
-            contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken.GenerateToken());
+            contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
         },
         getDataFor: function (contact) {
             return this.data.getItem(contact);
@@ -137,13 +138,18 @@ define([
         },
 
         onContactSendPacket: function (contact, packet) {
-            this.transport.sendMessage(packet.receiver, packet.data);
+            var chIdStr = packet.receiver.as(Hex).serialize();
+            var data = packet.data.as(Hex).serialize();
+            this.transport.sendMessage(chIdStr, data);
         },
 
         onTransportPacket: function (chId, data) {
             var contact = this.channelIds[chId];
             if (contact) {
-                contact.processPacket({receiver: chId, data: data});
+                contact.processPacket({
+                    receiver: Hex.deserialize(chId),
+                    data: Hex.deserialize(data)
+                });
             } else {
                 console.warn("Could not find the receiver for transport packet");
             }
@@ -158,7 +164,8 @@ define([
             var contact = new ContactChannelGroup();
             this._setDirtyNotifier(contact, this.onContactStateChanged);
             this._setTokenPrompter(contact, this.onContactPrompt);
-
+            this._setPacketSender(contact, this.onContactSendPacket);
+            contact.setRng(random);
             this.data.setItem(contact, {
                 name: name,
                 prompts: [],

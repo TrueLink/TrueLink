@@ -84,6 +84,7 @@ define([
             this.dhAesKey = dhAes;
             var outId = dhAes.bitSlice(0, 16);
             var inId = dhAes.bitSlice(16, 32);
+            // emit this token before any this._sendPacket() call to configure the appropriate transport behavior
             this._emitPrompt(new tokens.TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER_RESPONSE;
             this._onChangeState();

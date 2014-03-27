@@ -8,7 +8,7 @@ define(["modules/hashTable"], function (HashTable) {
             channel.setTokenPrompter({prompt: handler.bind(this)});
         },
         _setDirtyNotifier: function (channel, handler) {
-            channel.setPacketSender({notify: handler.bind(this)});
+            channel.setDirtyNotifier({notify: handler.bind(this)});
         },
         _setMsgProcessor: function (channel, handler) {
             channel.setMsgProcessor({processMessage: handler.bind(this)});

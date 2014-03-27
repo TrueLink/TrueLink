@@ -27,10 +27,12 @@ define(["modules/data-types/hex"], function (Hex) {
         return new tokens.TlkeChannel.AuthToken(Hex.deserialize(dto));
     };
     tokens.TlkeChannel.ChangeStateToken = function (state) { this.state = state; };
+    // do not change these properties! (kind of IChannelChangedIdsToken)
     tokens.TlkeChannel.TlkeChannelGeneratedToken = function (inId, outId) {
         this.inId = inId;
         this.outId = outId;
     };
+    // do not change these properties! (kind of IChannelChangedIdsToken)
     tokens.TlkeChannel.GenericChannelGeneratedToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
