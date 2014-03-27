@@ -12,6 +12,11 @@ define([], function () {
                 value: value
             });
         },
+        each: function (fn) {
+            this.items.forEach(function (item) {
+                fn(item.key, item.value);
+            });
+        },
         getItem: function (key, searchFunction) {
             var index;
             if (!searchFunction) {
