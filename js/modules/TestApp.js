@@ -22,60 +22,24 @@ define([
         //   name: "John Doe"
         //   tokens: [{token: token, context: context}],
         //   messages: [text: "bla"],
-        //   state: 1
+        //   state: 1,
+        //   error: Error
         // }
         this.data = new HashTable();
 
         // id => contactChannelGroup (for incoming packet routing)
         this.channelIds = {};
 
+        this.lastContactName = null;
+
     }
 
     $.extend(App.prototype, {
-        //getProps: function () {
-        //    return {
-        //        addChannel: this.createTlkeChannel.bind(this),
-        //        tlkeHandshakesInProgress: this.model.tlkeHandshakesInProgress,
-        //        chatChannels: this.model.chatChannels,
-        //        generate: this.generate.bind(this),
-        //        accept: this.accept.bind(this),
-        //        acceptAuth: this.acceptAuth.bind(this),
-        //        sendTextMessage: this.sendTextMessage.bind(this)
-        //    };
-        //},
         onStateChanged: function () {
             if (typeof this.stateChanged === "function") {
                 this.stateChanged();
             }
         },
-        //// mock will call this when it's time to rerender channels in ui
-        //onChannelsChanged: function () {
-        //    var newModel = {chatChannels: {}, tlkeHandshakesInProgress: {}};
-        //    var wrapper = this.wrapper;
-        //    $.each(this.tlkeHandshakesInProgress, function (key, channel) {
-        //        newModel.tlkeHandshakesInProgress[key] = wrapper.getChannelInfo(channel);
-        //        newModel.tlkeHandshakesInProgress[key].name = key;
-        //    });
-        //    $.each(this.chatChannels, function (key, channel) {
-        //        newModel.chatChannels[key] = wrapper.getChannelInfo(channel);
-        //        newModel.chatChannels[key].name = key;
-        //    });
-//
-        //    this.model = newModel;
-        //    this.onStateChanged();
-        //},
-        //createTlkeChannel: function () {
-        //    var name = urandom.name(), chatChannels = this.chatChannels, wrapper = this.wrapper;
-        //    this.tlkeHandshakesInProgress[name] = this.wrapper.createTlkeChannel();
-        //    wrapper.addPromptListener(this.tlkeHandshakesInProgress[name], function (token, context) {
-        //        if (token instanceof TlkeChannel.GenericChannelGeneratedToken) {
-        //            // handshake produced keys and transport channel ids
-        //            chatChannels[name] = wrapper.createChatChannel();
-        //            chatChannels[name].enterToken(token);
-        //        }
-        //    });
-        //    this.onChannelsChanged();
-        //},
 
         generateTlkeFor: function (contact) {
             contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
@@ -86,19 +50,13 @@ define([
         acceptTlkeAuthFor: function (contact, auth) {
             contact.enterToken(new tokens.ContactChannelGroup.AuthToken(auth));
         },
-        getDataFor: function (contact) {
-            return this.data.getItem(contact);
-        },
 
-        //sendTextMessage: function (key, messageData) {
-        //    try {
-        //        // to append this message to a sender channel as my message
-        //        this.wrapper.processMessage(this.chatChannels[key], messageData);
-        //        this.chatChannels[key].sendMessage(messageData);
-        //    } catch (ex) {
-        //        console.error(ex);
-        //    }
-        //},
+        getLastContactName: function () { return this.lastContactName; },
+
+        sendTextMessage: function (contact, messageData) {
+            this._addMessage(contact, messageData);
+            contact.sendMessage(messageData);
+        },
 
         onContactStateChanged: function (contact) {
             this.onStateChanged();
@@ -125,6 +83,10 @@ define([
             this.onStateChanged();
         },
 
+        onContactMessage: function (contact, message) {
+            this._addMessage(contact, message);
+        },
+
         onContactSendPacket: function (contact, packet) {
             var chIdStr = packet.receiver.as(Hex).serialize();
             var data = packet.data.as(Hex).serialize();
@@ -134,10 +96,18 @@ define([
         onTransportPacket: function (chId, data) {
             var contact = this.channelIds[chId];
             if (contact) {
-                contact.processPacket({
-                    receiver: Hex.deserialize(chId),
-                    data: Hex.deserialize(data)
-                });
+                try {
+                    contact.processPacket({
+                        receiver: Hex.deserialize(chId),
+                        data: Hex.deserialize(data)
+                    });
+                } catch (ex) {
+                    console.error(ex);
+                    var ownerInfo = this.data.getItem(contact);
+                    ownerInfo.error = ex;
+                    this.data.setItem(contact, ownerInfo);
+                    this.onStateChanged();
+                }
             } else {
                 console.warn("Could not find the receiver for transport packet");
             }
@@ -153,6 +123,7 @@ define([
             this._setDirtyNotifier(contact, this.onContactStateChanged);
             this._setTokenPrompter(contact, this.onContactPrompt);
             this._setPacketSender(contact, this.onContactSendPacket);
+            this._setMsgProcessor(contact, this.onContactMessage);
             contact.setRng(random);
             this.data.setItem(contact, {
                 name: name,
@@ -160,8 +131,16 @@ define([
                 messages: [],
                 state: TlkeChannel.STATE_NOT_STARTED
             });
+            this.lastContactName = name;
             this.onStateChanged();
-        }
+        },
+
+        _addMessage: function (contact, data) {
+            var info = this.data.getItem(contact);
+            info.messages.push(data);
+            this.data.setItem(contact, info);
+            this.onStateChanged();
+        },
     }, extensions);
     return App;
 

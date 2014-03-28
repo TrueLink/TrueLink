@@ -34,6 +34,7 @@ define([
     ContactChannelGroup.prototype = new Channel();
 
     $.extend(ContactChannelGroup.prototype, {
+        setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
 
         ////////////////////
         //  User comms    //
@@ -69,7 +70,7 @@ define([
             if (receiverTuple) {
                 receiverTuple.key.processPacket(packet.data);
             } else {
-                console.error("Could not find the receiver for packet ", packet, " Check packet.receiver property");
+                throw new Error("Could not find the receiver for packet ", packet, " Check packet.receiver property");
             }
         },
 
@@ -214,11 +215,24 @@ define([
         },
 
         _sendMessage: function (message, channel) {
-            channel = channel || null; // || random generic channel
-            if (!channel) { throw new Error("Not implemented"); }
+            if (!channel) {
+                this.channels.each(function (key, value) {
+                    // channel.isActive later
+                    if (key instanceof GenericChannel) {
+                        channel = key;
+                    }
+                });
+            }
+            if (!channel) { throw new Error("Didn't found channel to send a message"); }
             if (!(message instanceof ChannelGroupMessage)) {
                 throw new Error("Argument exception");
             }
+            channel.sendMessage(message.serialize());
+        },
+
+        _emitUserMessage: function (message) {
+            this._check("msgProcessor");
+            this.msgProcessor.processMessage(this, message);
         }
 
     }, extensions);
@@ -231,14 +245,16 @@ define([
         }
         this.type = type;
         this.data = data;
-        this.ref = parseInt(ref);
+        if (ref === 0 || ref) {
+            this.ref = parseInt(ref);
+        }
     }
     ChannelGroupMessage.prototype.serialize = function () {
         var dto = {
             t: this.type,
             d: this.data
         };
-        if (this.ref !== undefined) {
+        if (this.ref === 0 || this.ref) {
             dto.r = this.ref;
         }
         return dto;

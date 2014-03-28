@@ -27,7 +27,7 @@ define([
             if (!$.isPlainObject(message)) {
                 throw new Error("Argument exception. message should be the plain object");
             }
-            this._sendMessage(new GenericChannelMessage(GenericChannel.MSG_TYPE_USER, message));
+            this._sendMessage(new GenericChannelMessage(GenericChannelMessage.MSG_TYPE_USER, message));
         },
         // set user message receiver
         setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
@@ -102,7 +102,7 @@ define([
                 hashEnd = hash(hashEnd);
             }
             console.info("sending hashtail", hashEnd.as(Hex).toString());
-            this._sendMessage(new GenericChannelMessage(GenericChannel.MSG_TYPE_HASH, null, hashEnd));
+            this._sendMessage(new GenericChannelMessage(GenericChannelMessage.MSG_TYPE_HASH, null, hashEnd));
         },
 
         _sendMessage: function (message) {
@@ -141,10 +141,10 @@ define([
             }
 
             switch (message.type) {
-            case GenericChannel.MSG_TYPE_USER:
+            case GenericChannelMessage.MSG_TYPE_USER:
                 this.onUserMessage(hx, message);
                 break;
-            case GenericChannel.MSG_TYPE_HASH:
+            case GenericChannelMessage.MSG_TYPE_HASH:
                 this.onHashMessage(hx, message);
                 break;
             default:
