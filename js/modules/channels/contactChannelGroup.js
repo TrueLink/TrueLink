@@ -240,7 +240,7 @@ define([
                 if (!remoteChannelInfo) {
                     throw new Error("Cannot route the token over remote channel");
                 }
-                remoteChannelInfo.key.enterToken(new tokens.ContactChannelGroup.OfferToken(token.offer));
+                remoteChannelInfo.key.enterToken(new tokens.ContactChannelGroup.AuthToken(token.auth));
             }
         },
 
