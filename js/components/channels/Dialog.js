@@ -11,7 +11,7 @@ define(["zepto", "q", "react", "modules/data-types/utf8string"], function ($, Q,
             var messageData = {
                 text: node.value
             };
-            this.props.send(messageData);
+            this.props.model.sendTextMessage(messageData);
             node.value = "";
             return false;
         },

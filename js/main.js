@@ -48,20 +48,20 @@
 
             function createAppModel(app, id) {
                 var contactList = {};
-
-
                 app.data.each(function (chGroup, data) {
                     contactList[data.name] = $.extend({
                         generateTlke: app.generateTlkeFor.bind(app, chGroup),
                         acceptTlkeOffer: app.acceptTlkeOferFor.bind(app, chGroup),
                         acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
+                        sendTextMessage: app.sendTextMessage.bind(app, chGroup),
                         isSync: chGroup instanceof SyncContactChannelGroup
                     }, data);
                 });
                 return {
                     id: id,
                     contactList: contactList,
-                    addContact: app.addContact.bind(app)
+                    addContact: app.addContact.bind(app),
+                    currentContactName: app.getLastContactName()
                 };
             }
 

@@ -21,7 +21,7 @@ define([
                 React.DOM.div({className: "large-12 columns"}, React.DOM.h1(null, "Apps"),
                         apps,
                         React.DOM.div({className: "row"},
-                            React.DOM.div({className: "large-12 columns"}, React.DOM.a({onClick: this.addClick, className: "radius button"}, "Add app")))));
+                            React.DOM.div({className: "large-12 columns"}, React.DOM.a({onClick: this.addClick, className: "radius success button"}, "Add app")))));
         }
     });
 });

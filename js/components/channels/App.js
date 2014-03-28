@@ -16,7 +16,6 @@ define([
         mixins: [bind],
 
         getInitialState: function () {
-
             return {
                 currentContactName: null
             };
@@ -34,7 +33,7 @@ define([
 
         render: function () {
             var model = this.props.model;
-            var currentName = this.state.currentContactName;
+            var currentName = this.state.currentContactName || this.props.model.currentContactName;
             var current = currentName ? this.props.model.contactList[currentName] : null;
 
             var contactListComponent = React.DOM.div({className: "large-4 column"},
