@@ -1,6 +1,7 @@
 define(["zepto", "settings"], function ($, Settings) {
     "use strict";
 
+        var ajaxTimeout = 20000;
     // CouchTransport uses strings as channelName
     function CouchTransport(url, channels, prefix) {
         this.handler = null;
@@ -75,7 +76,7 @@ define(["zepto", "settings"], function ($, Settings) {
         _handleResult: function (data) {
             try {
                 if (!data || !data.last_seq) {
-                    throw new Error("wrong answer structure");
+                    throw new Error("Wrong answer structure");
                 }
                 this.updateSeq = data.last_seq;
                 Settings.set(this.saveKey, this.updateSeq);
@@ -107,9 +108,10 @@ define(["zepto", "settings"], function ($, Settings) {
             that.pendingAjax = $.ajax({
                 url: url,
                 dataType: "json",
+                timeout: ajaxTimeout,
                 success: function (data, status, xhr) { that._handleResult(data); },
                 error: function (xhr, errorType, error) {
-                    console.warn("Message sending failed: ", error || errorType);
+                    console.warn("Message polling failed: ", error || errorType);
                     that._deferredStart(5000);
                 }
             });
