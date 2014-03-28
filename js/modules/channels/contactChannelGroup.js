@@ -241,7 +241,9 @@ define([
     // it can wrap a user message or the RemoteChannelList packet
     function ChannelGroupMessage(type, data, ref) {
         if (!$.isPlainObject(data)) {
-            throw new Error("Only plain-object data is supported now");
+            var msg = "Could not create ChannelGroupMessage message from " + JSON.stringify(data) + ". ";
+            msg += "Only plain-object data is supported now";
+            throw new Error(msg);
         }
         this.type = type;
         this.data = data;
