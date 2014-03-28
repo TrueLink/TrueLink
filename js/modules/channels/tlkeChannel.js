@@ -111,7 +111,12 @@ define([
 
         // Bob 2.2.
         _acceptOfferData: function (bytes) {
-            var dhData = this._decrypt(bytes);
+            try {
+                var dhData = this._decrypt(bytes);
+            } catch (ex) {
+                console.warn("Received bad bytes.  " + ex.message);
+                return;
+            }
             var dhDataHex = dhData.as(Hex).value;
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
@@ -128,7 +133,12 @@ define([
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            var dhDataHex = this._decrypt(data).as(Hex).value;
+            try {
+                var dhDataHex = this._decrypt(data).as(Hex).value;
+            } catch (ex) {
+                console.warn("Received bad bytes.  " + ex.message);
+                return;
+            }
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
 
@@ -171,7 +181,12 @@ define([
             var bytes = this.authData;
             // todo check's checksum and ACHTUNG if not match
             var verified = this._getVerifiedDhk();
-            this.check = this._decrypt(bytes, verified);
+            try {
+                this.check = this._decrypt(bytes, verified);
+            } catch (ex) {
+                console.warn("Received bad bytes.  " + ex.message);
+                return;
+            }
             this.state = TlkeChannel.STATE_CONNECTION_ESTABLISHED;
             this._onChangeState();
             this._sendPacket(this._getAuthResponse());
@@ -191,7 +206,12 @@ define([
         // Alice 5
         _acceptAuthResponse: function (bytes) {
             var verified = this._getVerifiedDhk();
-            var hCheck = this._decrypt(bytes, verified);
+            try {
+                var hCheck = this._decrypt(bytes, verified);
+            } catch (ex) {
+                console.warn("Received bad bytes.  " + ex.message);
+                return;
+            }
             if (hash(this.check).as(Hex).value !== hCheck.as(Hex).value) {
                 this.state = TlkeChannel.STATE_CONNECTION_FAILED;
                 this._onChangeState();
