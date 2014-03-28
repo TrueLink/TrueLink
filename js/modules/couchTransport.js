@@ -112,7 +112,7 @@ define(["zepto", "settings"], function ($, Settings) {
                 success: function (data, status, xhr) { that._handleResult(data); },
                 error: function (xhr, errorType, error) {
                     console.warn("Message polling failed: ", error || errorType);
-                    that._deferredStart(5000);
+                    that._deferredStart(errorType === "timeout" ? null : 5000);
                 }
             });
         },

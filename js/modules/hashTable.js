@@ -38,6 +38,7 @@ define([], function () {
             }
         },
 
+        // todo: filter by fn({key, value})
         filter: function (valueFilterFn) {
             return this.items.filter(function (item) {
                 return valueFilterFn(item.value);

@@ -182,12 +182,13 @@ define([
             });
             var refChannel = overChannelItem ? overChannelItem.key : null;
 
-            // remote ContactChannelGroup has provided an offer to accept
             if ((token instanceof tokens.ContactChannelGroup.OfferToken) && ref === 0) {
+                // remote ContactChannelGroup has provided an offer to accept
                 this.onRemoteTokenOffer(token, refChannel);
+            } else if (token instanceof tokens.ContactChannelGroup.AuthToken) {
+                // remote ContactChannelGroup has provided an offer to accept
+                refChannel.enterToken(new tokens.TlkeChannel.AuthToken(token.auth));
             }
-
-            // if auth token etc
         },
         // the packet received in a wrapper message from generic channel
         onPacketForRemoteChannel: function (packet, ref) {
@@ -202,13 +203,12 @@ define([
         },
 
         // received the remote token to create new remote channel and accept offer
-        onRemoteTokenOffer: function (token, refChannel) {
+        onRemoteTokenOffer: function (token) {
             var overTlke = new TlkeChannel();
             this._addChannel(overTlke, token.ref);
             var remoteTlke = new RemoteChannel();
             this._addRemoteChannel(remoteTlke, token.ref);
-            console.info((this.iAmAlice ? "Alice" : "Bob") + " created remote tlke");
-            //overTlke.enterToken(new tokens.TlkeChannel.OfferToken(token.auth));
+            overTlke.enterToken(new tokens.TlkeChannel.OfferToken(token.offer));
         },
 
         //////////////////////////////
@@ -231,8 +231,16 @@ define([
             var ref = info.ref;
             if (token instanceof tokens.TlkeChannel.OfferToken && token.offer) {
                 // overTlkeChannel has generated an offer
-                // ask remote contact to accept it
+                // ask remote contact to create channel and accept the offer
                 this.remoteChannelGroup.enterToken(new tokens.ContactChannelGroup.OfferToken(token.offer, ref));
+            } else if (token instanceof tokens.TlkeChannel.AuthToken && token.auth) {
+                // overTlkeChannel has generated an auth
+                // ask remote channel to accept it
+                var remoteChannelInfo = this.remoteChannels.first(function (value) { return value.ref === ref; });
+                if (!remoteChannelInfo) {
+                    throw new Error("Cannot route the token over remote channel");
+                }
+                remoteChannelInfo.key.enterToken(new tokens.ContactChannelGroup.OfferToken(token.offer));
             }
         },
 

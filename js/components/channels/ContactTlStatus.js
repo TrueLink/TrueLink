@@ -43,6 +43,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
         },
 
         accept: function () {
+            this.setErrorMessage(null);
             var offerText = this.refs.offer.getDOMNode().value;
             var offer = DecBlocks.fromString(offerText);
             if (!offer) {
@@ -57,13 +58,13 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             }
         },
         acceptAuth: function (context) {
+            this.setErrorMessage(null);
             var authText = this.refs.auth.getDOMNode().value;
             var auth = DecBlocks.fromString(authText);
             if (!auth) {
                 this.setErrorMessage("Wrong auth");
                 return;
             }
-            this.setErrorMessage(null);
             try {
                 this.props.model.acceptTlkeAuth(auth.as(Hex), context);
             } catch (ex) {
@@ -127,7 +128,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
                 elem = React.DOM.div({className: "row"},
                     React.DOM.div({className: "small-12 columns"},
-                        React.DOM.a(null, {className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
+                        React.DOM.a({className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
 
                 actions["a_" + i] = elem;
                 i += 1;
