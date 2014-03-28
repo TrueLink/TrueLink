@@ -17,9 +17,19 @@ define(["zepto", "q", "react", "tools/urandom"
             this.props.selectContact(name);
         },
 
+        sort: function (elements) {
+            var sorted = {};
+            var sortedKeys = Object.keys(elements).sort();
+            sortedKeys.forEach(function (key) {
+                sorted[key] = elements[key];
+            });
+            return sorted;
+        },
+
         render: function () {
             var contacts = {}, select = this.select, that = this;
-            $.each(this.props.model.contacts, function (contactName, contactModel) {
+            var sorted = this.sort(this.props.model.contacts);
+            $.each(sorted, function (contactName, contactModel) {
                 contacts[contactName] = React.DOM.li(null,
                     React.DOM.a({onClick: select.bind(that, contactName)}, contactName));
             });
