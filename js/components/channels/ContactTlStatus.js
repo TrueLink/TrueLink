@@ -31,6 +31,17 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 this.setErrorMessage(ex.message || JSON.stringify(ex));
             }
         },
+
+        addOver: function () {
+            this.setErrorMessage(null);
+            try {
+                this.props.model.addOver();
+            } catch (ex) {
+                console.error(ex);
+                this.setErrorMessage(ex.message || JSON.stringify(ex));
+            }
+        },
+
         accept: function () {
             var offerText = this.refs.offer.getDOMNode().value;
             var offer = DecBlocks.fromString(offerText);
@@ -69,7 +80,9 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) { labelClassName = "success"; }
             var status = error ? React.DOM.span({className: "alert right radius label"}, error) :
                     React.DOM.span({className: labelClassName + " right radius label"}, stateStatuses[model.state]);
-            status = React.DOM.div({className: "row"}, React.DOM.div({className: "small-12 columns"}, status));
+            var overStatusSpan = !model.overChannelLastState ? null :
+                    React.DOM.span({className: "secondary right radius label"}, "OverChannels: " + stateStatuses[model.overChannelLastState]);
+            status = React.DOM.div({className: "row"}, React.DOM.div({className: "small-12 columns"}, status, overStatusSpan));
             var actions = {};
 
             var i = 0, elem = null;
@@ -110,6 +123,14 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
 
                 });
 
+            }
+            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
+                elem = React.DOM.div({className: "row"},
+                    React.DOM.div({className: "small-12 columns"},
+                        React.DOM.a(null, {className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
+
+                actions["a_" + i] = elem;
+                i += 1;
             }
 
             return React.DOM.div(null, actions, status);
