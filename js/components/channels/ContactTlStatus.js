@@ -8,7 +8,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
     stateStatuses[TlkeChannel.STATE_AWAITING_OFFER_RESPONSE] =  "Waiting for offer response";
     stateStatuses[TlkeChannel.STATE_AWAITING_AUTH] =  "Waiting for auth data";
     stateStatuses[TlkeChannel.STATE_AWAITING_AUTH_RESPONSE] =  "Waiting for auth response";
-    stateStatuses[TlkeChannel.STATE_CONNECTION_ESTABLISHED] =  "Done";
+    stateStatuses[TlkeChannel.STATE_CONNECTION_ESTABLISHED] =  "TLKE done";
     stateStatuses[TlkeChannel.STATE_CONNECTION_FAILED] =  "Failed";
 
     return React.createClass({
@@ -18,38 +18,57 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             return {};
         },
 
+        setErrorMessage: function (err) {
+            this.setState({error: err});
+        },
+
         generate: function () {
-            this.setState({error: null});
-            this.props.model.generateTlke();
+            this.setErrorMessage(null);
+            try {
+                this.props.model.generateTlke();
+            } catch (ex) {
+                console.error(ex);
+                this.setErrorMessage(ex.message || JSON.stringify(ex));
+            }
         },
         accept: function () {
             var offerText = this.refs.offer.getDOMNode().value;
             var offer = DecBlocks.fromString(offerText);
             if (!offer) {
-                this.setState({error: "Wrong offer"});
+                this.setErrorMessage("Wrong offer");
                 return;
             }
-            this.setState({error: null});
-            this.props.model.acceptTlkeOffer(offer.as(Hex));
+            try {
+                this.props.model.acceptTlkeOffer(offer.as(Hex));
+            } catch (ex) {
+                console.error(ex);
+                this.setErrorMessage(ex.message || JSON.stringify(ex));
+            }
         },
         acceptAuth: function (context) {
             var authText = this.refs.auth.getDOMNode().value;
             var auth = DecBlocks.fromString(authText);
             if (!auth) {
-                this.setState({error: "Wrong auth"});
+                this.setErrorMessage("Wrong auth");
                 return;
             }
-            this.setState({error: null});
-            this.props.model.acceptTlkeAuth(auth.as(Hex), context);
+            this.setErrorMessage(null);
+            try {
+                this.props.model.acceptTlkeAuth(auth.as(Hex), context);
+            } catch (ex) {
+                console.error(ex);
+                this.setErrorMessage(ex.message || JSON.stringify(ex));
+            }
         },
         render: function () {
             var model = this.props.model;
             var acceptAuth = this.acceptAuth;
             var labelClassName = "secondary";
+            var error = model.error ? (model.error.message || JSON.stringify(model.error)) : this.state.error;
             if (model.state === TlkeChannel.STATE_CONNECTION_FAILED) { labelClassName = "alert"; }
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) { labelClassName = "success"; }
-            var status = this.state.error ? React.DOM.span({className: "alert right label"}, this.state.error) :
-                    React.DOM.span({className: labelClassName + " right label"}, stateStatuses[model.state]);
+            var status = error ? React.DOM.span({className: "alert right radius label"}, error) :
+                    React.DOM.span({className: labelClassName + " right radius label"}, stateStatuses[model.state]);
             status = React.DOM.div({className: "row"}, React.DOM.div({className: "small-12 columns"}, status));
             var actions = {};
 
