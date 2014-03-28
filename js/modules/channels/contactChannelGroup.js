@@ -46,9 +46,8 @@ define([
         },
         // user calls enterToken with ContactChannelGroup.OfferToken argument
         onTokenOffer: function (token, context) {
-            if (!this.tlkeChannel) {
-                throw new Error("Tlke channel is not ready");
-            }
+            this.tlkeChannel = new TlkeChannel();
+            this._addChannel(this.tlkeChannel);
             this.tlkeChannel.enterToken(new tokens.TlkeChannel.OfferToken(token.offer));
         },
         // user calls enterToken with ContactChannelGroup.AuthToken argument
@@ -65,10 +64,10 @@ define([
         // transport calls processPacket. Careful to the structure: { receiver: "BEEF", data: "1FAA..." }
         processPacket: function (packet) {
             var receiverTuple = this.channels.first(function (value) {
-                return value.as(Hex).isEqualTo(packet.receiver);
+                return value.inId && value.inId.as(Hex).isEqualTo(packet.receiver);
             });
             if (receiverTuple) {
-                receiverTuple.value.processPacket(packet.data);
+                receiverTuple.key.processPacket(packet.data);
             } else {
                 console.error("Could not find the receiver for packet ", packet, " Check packet.receiver property");
             }
@@ -171,7 +170,7 @@ define([
         onNewGenericChannelKeysReady: function (token) {
             var newGeneric = new GenericChannel();
             this._addChannel(newGeneric);
-            this.onChannelNewIds(token);
+            this.onChannelNewIds(newGeneric, token);
             newGeneric.enterToken(token);
         },
         // channel sends a packet. Careful to the structure of the resulting packet: { receiver: "BEEF", data: "1FAA..." }

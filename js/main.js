@@ -53,6 +53,8 @@
                 app.data.each(function (chGroup, data) {
                     contactList[data.name] = $.extend({
                         generateTlke: app.generateTlkeFor.bind(app, chGroup),
+                        acceptTlkeOffer: app.acceptTlkeOferFor.bind(app, chGroup),
+                        acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
                         isSync: chGroup instanceof SyncContactChannelGroup
                     }, data);
                 });

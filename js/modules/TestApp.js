@@ -80,28 +80,16 @@ define([
         generateTlkeFor: function (contact) {
             contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
         },
+        acceptTlkeOferFor: function (contact, offer) {
+            contact.enterToken(new tokens.ContactChannelGroup.OfferToken(offer));
+        },
+        acceptTlkeAuthFor: function (contact, auth) {
+            contact.enterToken(new tokens.ContactChannelGroup.AuthToken(auth));
+        },
         getDataFor: function (contact) {
             return this.data.getItem(contact);
         },
 
-//
-        //accept: function (key, offer) {
-        //    try {
-        //        this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.OfferToken(offer));
-        //    } catch (ex) {
-        //        console.error(ex);
-        //    }
-        //},
-//
-        //acceptAuth: function (key, auth, context) {
-        //    try {
-        //        this.tlkeHandshakesInProgress[key].enterToken(new TlkeChannel.AuthToken(auth));
-        //        this.wrapper.removePrompt(context);
-        //    } catch (ex) {
-        //        console.error(ex);
-        //    }
-        //},
-//
         //sendTextMessage: function (key, messageData) {
         //    try {
         //        // to append this message to a sender channel as my message

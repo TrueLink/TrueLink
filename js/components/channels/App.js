@@ -18,7 +18,7 @@ define([
         getInitialState: function () {
 
             return {
-                currentContact: null
+                currentContactName: null
             };
         },
 
@@ -28,14 +28,14 @@ define([
 
         selectContact: function (name) {
             this.setState({
-                currentContact: this.props.model.contactList[name],
-                currentName: name
+                currentContactName: name
             });
         },
 
         render: function () {
             var model = this.props.model;
-            var current = this.state.currentContact;
+            var currentName = this.state.currentContactName;
+            var current = currentName ? this.props.model.contactList[currentName] : null;
 
             var contactListComponent = React.DOM.div({className: "large-4 column"},
                 React.DOM.h4(null, "Contacts"),
@@ -47,13 +47,13 @@ define([
 
             var dialogComponent = (!(current && !current.isSync)) || (current && current.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) ? null :
                     React.DOM.div({className: "large-4 column left-border"},
-                        React.DOM.h4(null, "Dialog with " + this.state.currentName),
+                        React.DOM.h4(null, "Dialog with " + currentName),
                         Dialog({model: current}));
 
             var tlstatusComponentWidth = dialogComponent ? "4" : "8";
             var tlstatusComponent = !current ? null :
                     React.DOM.div({className: "large-" + tlstatusComponentWidth + " column right-border"},
-                        React.DOM.h4(null, "Tl Status of " + this.state.currentName),
+                        React.DOM.h4(null, "Tl Status of " + currentName),
                         ContactTlStatus({model: current}));
 
 
