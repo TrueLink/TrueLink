@@ -10,6 +10,9 @@ define([
         addClick: function () {
             this.props.add(newUid());
         },
+        joinClick: function () {
+            //this.props.join(newUid());
+        },
         render: function () {
 
             var apps = {};
@@ -21,7 +24,10 @@ define([
                 React.DOM.div({className: "large-12 columns"}, React.DOM.h1(null, "Apps"),
                         apps,
                         React.DOM.div({className: "row"},
-                            React.DOM.div({className: "large-12 columns"}, React.DOM.a({onClick: this.addClick, className: "radius success button"}, "Add app")))));
+                            React.DOM.div({className: "large-12 columns"},
+                                React.DOM.ul({className: "radius button-group"},
+                                    React.DOM.li(null, React.DOM.a({onClick: this.addClick, className: "success button"}, "Add app")),
+                                    React.DOM.li(null, React.DOM.a({onClick: this.joinClick, className: "success button"}, "Join")))))));
         }
     });
 });
