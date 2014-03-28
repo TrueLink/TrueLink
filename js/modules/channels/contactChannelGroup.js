@@ -7,8 +7,9 @@ define([
     "modules/channels/tlkeChannel",
     "modules/channels/remoteChannel",
     "modules/channels/genericChannel",
-    "modules/data-types/hex"
-], function ($, HashTable, Channel, tokens, extensions, TlkeChannel, RemoteChannel, GenericChannel, Hex) {
+    "modules/data-types/hex",
+    "tools/urandom"
+], function ($, HashTable, Channel, tokens, extensions, TlkeChannel, RemoteChannel, GenericChannel, Hex, urandom) {
     "use strict";
 
     function ContactChannelGroup() {
@@ -20,6 +21,8 @@ define([
         this.channels = new HashTable();
         this.remoteChannels = new HashTable();
         this.tlkeChannel = null;
+        // alice generates offer, bob accepts
+        this.iAmAlice = null;
 
         // mirror of the contact's ContactChannelGroup to send tokens
         this.remoteChannelGroup = new RemoteChannel();
@@ -29,6 +32,7 @@ define([
         this._setTokenHandler(tokens.ContactChannelGroup.GenerateTlkeToken, this.onTokenGenerateTlke);
         this._setTokenHandler(tokens.ContactChannelGroup.OfferToken, this.onTokenOffer);
         this._setTokenHandler(tokens.ContactChannelGroup.AuthToken, this.onTokenAuth);
+        this._setTokenHandler(tokens.ContactChannelGroup.GenerateOverTlkeToken, this.requestCreateExtraGenericChannel);
     }
 
     ContactChannelGroup.prototype = new Channel();
@@ -41,12 +45,14 @@ define([
         ////////////////////
         // user calls enterToken with ContactChannelGroup.GenerateTlkeToken argument
         onTokenGenerateTlke: function (token, context) {
+            this.iAmAlice = true;
             this.tlkeChannel = new TlkeChannel();
             this._addChannel(this.tlkeChannel);
             this.tlkeChannel.enterToken(new tokens.TlkeChannel.GenerateToken());
         },
         // user calls enterToken with ContactChannelGroup.OfferToken argument
         onTokenOffer: function (token, context) {
+            this.iAmAlice = false;
             this.tlkeChannel = new TlkeChannel();
             this._addChannel(this.tlkeChannel);
             this.tlkeChannel.enterToken(new tokens.TlkeChannel.OfferToken(token.offer));
@@ -57,10 +63,6 @@ define([
                 throw new Error("Tlke channel is not ready");
             }
             this.tlkeChannel.enterToken(new tokens.TlkeChannel.AuthToken(token.auth));
-        },
-        // when received the remote token to create a new channel (using generic channel)
-        onTokenCreateRemoteTlkeChannel: function (token, context) {
-
         },
         // transport calls processPacket. Careful to the structure: { receiver: "BEEF", data: "1FAA..." }
         processPacket: function (packet) {
@@ -85,44 +87,6 @@ define([
         },
 
         //////////////////////////////
-        //  Remote channels comms   //
-        //////////////////////////////
-        // RemoteChannel wants to send the token
-        onRemoteChannelSendPacket: function (channel, packet) {
-            var sender = this.remoteChannels.getItem(channel);
-            this._sendMessage(new ChannelGroupMessage(ChannelGroupMessage.MSG_TYPE_WRAPPER, packet, sender.ref));
-        },
-        // the remote channel has issued the token
-        onRemoteChannelToken: function (channel, token, context) {
-
-            var remoteChannelTuple = this.remoteChannels.getItem(channel);
-            var referencedChannelTuple = this.channels.first(function (value) {
-                return value.ref === remoteChannelTuple.value.ref;
-            });
-
-            if (token instanceof tokens.ContactChannelGroup.GenerateTlkeToken) {
-                // remote ContactChannelGroup has requested a new tlke channel creation with given reference
-                var newTlke = new TlkeChannel();
-                this._addChannel(newTlke);
-                var remoteTlke = new RemoteChannel();
-                this._addRemoteChannel(remoteTlke);
-            }
-
-            // if auth token etc
-        },
-        // the packet received in a wrapper message from generic channel
-        onPacketForRemoteChannel: function (packet, ref) {
-            var remoteChannelTuple = this.remoteChannels.first(function (value) {
-                return value.ref === ref;
-            });
-            if (remoteChannelTuple) {
-                remoteChannelTuple.key.processPacket(packet);
-            } else {
-                console.warn("Remote channel with ref " + ref + " not found");
-            }
-        },
-
-        //////////////////////////////
         //  Regular channels comms.
         //  (regular channels communicate via packetSender that uses onChannelSendPacket())
         //////////////////////////////
@@ -138,14 +102,18 @@ define([
             }
         },
         // one of regular channels has issued a token
-        onChannelToken: function (channel, token, context) {
+        onChannelToken: function (isOverChannel, channel, token, context) {
 
             if (token instanceof tokens.TlkeChannel.TlkeChannelGeneratedToken) {
                 // learn new ids
                 this.onChannelNewIds(channel, token);
             } else if (token instanceof tokens.TlkeChannel.ChangeStateToken) {
-                // just mirror tlke offer token
-                this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(token.state));
+                // just mirror tlke change state token
+                if (isOverChannel) {
+                    this._emitPrompt(new tokens.ContactChannelGroup.OverChannelChangeStateToken(token.state));
+                } else {
+                    this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(token.state));
+                }
             } else if (token instanceof tokens.TlkeChannel.GenericChannelGeneratedToken) {
                 // create new generic channel
                 this.onNewGenericChannelKeysReady(token);
@@ -156,8 +124,14 @@ define([
                 // just mirror tlke auth token
                 this._emitPrompt(new tokens.ContactChannelGroup.AuthToken(token.auth));
             }
+
+            // handle additional overChannel tokens
+            if (isOverChannel) {
+                this.onOverChannelToken(channel, token, context);
+            }
         },
 
+        // new channel ids learned, add to routing
         onChannelNewIds: function (channel, token) {
             var info = this.channels.getItem(channel);
             info.inId = token.inId;
@@ -177,6 +151,9 @@ define([
         // channel sends a packet. Careful to the structure of the resulting packet: { receiver: "BEEF", data: "1FAA..." }
         onChannelSendPacket: function (channel, data) {
             var sender = this.channels.getItem(channel);
+            if (!sender.outId) {
+                throw new Error("The channel did not provide it's channel ids yet");
+            }
             var packet = {
                 receiver: sender.outId,
                 data: data
@@ -188,6 +165,81 @@ define([
             this._notifyDirty();
         },
 
+        //////////////////////////////
+        //  Remote channels comms   //
+        //////////////////////////////
+        // RemoteChannel wants to send the token
+        onRemoteChannelSendPacket: function (channel, packet) {
+            var sender = this.remoteChannels.getItem(channel);
+            this._sendMessage(new ChannelGroupMessage(ChannelGroupMessage.MSG_TYPE_WRAPPER, packet, sender.ref));
+        },
+        // the remote channel has issued the token
+        onRemoteChannelToken: function (channel, token, context) {
+            var remoteChannelInfo = this.remoteChannels.getItem(channel);
+            var ref = remoteChannelInfo.ref;
+            var overChannelItem = this.channels.first(function (value) {
+                return value.ref === remoteChannelInfo.ref;
+            });
+            var refChannel = overChannelItem ? overChannelItem.key : null;
+
+            // remote ContactChannelGroup has provided an offer to accept
+            if ((token instanceof tokens.ContactChannelGroup.OfferToken) && ref === 0) {
+                this.onRemoteTokenOffer(token, refChannel);
+            }
+
+            // if auth token etc
+        },
+        // the packet received in a wrapper message from generic channel
+        onPacketForRemoteChannel: function (packet, ref) {
+            var remoteChannelTuple = this.remoteChannels.first(function (value) {
+                return value.ref === ref;
+            });
+            if (remoteChannelTuple) {
+                remoteChannelTuple.key.processPacket(packet);
+            } else {
+                console.warn("Remote channel with ref " + ref + " not found");
+            }
+        },
+
+        // received the remote token to create new remote channel and accept offer
+        onRemoteTokenOffer: function (token, refChannel) {
+            var overTlke = new TlkeChannel();
+            this._addChannel(overTlke, token.ref);
+            var remoteTlke = new RemoteChannel();
+            this._addRemoteChannel(remoteTlke, token.ref);
+            console.info((this.iAmAlice ? "Alice" : "Bob") + " created remote tlke");
+            //overTlke.enterToken(new tokens.TlkeChannel.OfferToken(token.auth));
+        },
+
+        //////////////////////////////
+        //  OverChannels (channels that communicate via remote channels)
+        //////////////////////////////
+        // create additional generic channel
+        requestCreateExtraGenericChannel: function () {
+            var overTlkeChannel = new TlkeChannel();
+            var ref = urandom.int(1, 0xffffff);
+            var remoteTlke = new RemoteChannel();
+            this._addChannel(overTlkeChannel, ref);
+            this._addRemoteChannel(remoteTlke, ref);
+            console.info((this.iAmAlice ? "Alice" : "Bob") + " created remote tlke");
+            overTlkeChannel.enterToken(new tokens.TlkeChannel.GenerateToken());
+        },
+
+        // token from overChannel
+        onOverChannelToken: function (channel, token, context) {
+            var info = this.channels.getItem(channel);
+            var ref = info.ref;
+            if (token instanceof tokens.TlkeChannel.OfferToken && token.offer) {
+                // overTlkeChannel has generated an offer
+                // ask remote contact to accept it
+                this.remoteChannelGroup.enterToken(new tokens.ContactChannelGroup.OfferToken(token.offer, ref));
+            }
+        },
+
+
+        //////////////////////////////
+        //  Internal
+        //////////////////////////////
         // add remote channel and bind handlers
         _addRemoteChannel: function (channel, reference) {
             this._setPacketSender(channel, this.onRemoteChannelSendPacket);
@@ -199,8 +251,9 @@ define([
 
         // add regular channel and bind handlers
         _addChannel: function (channel, reference) {
+            var isAux = !!reference;
             this._setPacketSender(channel, this.onChannelSendPacket);
-            this._setTokenPrompter(channel, this.onChannelToken);
+            this._setTokenPrompter(channel, this.onChannelToken.bind(this, isAux));
             this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
             if (channel instanceof GenericChannel) {
                 this._setMsgProcessor(channel, this.onChannelMessage);
@@ -248,7 +301,7 @@ define([
         this.type = type;
         this.data = data;
         if (ref === 0 || ref) {
-            this.ref = parseInt(ref);
+            this.ref = parseInt(ref, 10);
         }
     }
     ChannelGroupMessage.prototype.serialize = function () {

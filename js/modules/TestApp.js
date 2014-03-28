@@ -23,6 +23,7 @@ define([
         //   tokens: [{token: token, context: context}],
         //   messages: [text: "bla"],
         //   state: 1,
+        //   overChannelLastState: 2
         //   error: Error
         // }
         this.data = new HashTable();
@@ -49,6 +50,10 @@ define([
         },
         acceptTlkeAuthFor: function (contact, auth) {
             contact.enterToken(new tokens.ContactChannelGroup.AuthToken(auth));
+        },
+
+        createOverChannel: function (contact) {
+            contact.enterToken(new tokens.ContactChannelGroup.GenerateOverTlkeToken());
         },
 
         getLastContactName: function () { return this.lastContactName; },
@@ -79,6 +84,10 @@ define([
                 var info = this.data.getItem(contact);
                 info.state = token.state;
                 this.data.setItem(contact, info);
+            } else if (token instanceof tokens.ContactChannelGroup.OverChannelChangeStateToken) {
+                var c = this.data.getItem(contact);
+                c.overChannelLastState = token.state;
+                this.data.setItem(contact, c);
             }
             this.onStateChanged();
         },
