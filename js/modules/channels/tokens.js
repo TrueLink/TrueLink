@@ -7,15 +7,6 @@ define(["modules/data-types/hex"], function (Hex) {
     };
     tokens.TlkeChannel.GenerateToken = function () {};
     tokens.TlkeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
-    tokens.TlkeChannel.OfferToken.prototype = {
-        serialize: function () {
-            return this.offer.as(Hex).serialize();
-        },
-        _typeName: "10"
-    };
-    tokens.TlkeChannel.OfferToken.deserialize = function (dto) {
-        return new tokens.TlkeChannel.OfferToken(Hex.deserialize(dto));
-    };
     tokens.TlkeChannel.AuthToken = function (authBytes) { this.auth = authBytes; };
     tokens.TlkeChannel.AuthToken.prototype = {
         serialize: function () {
@@ -43,11 +34,25 @@ define(["modules/data-types/hex"], function (Hex) {
     tokens.GenericChannel.ExpiresToken = function () {  };
     tokens.GenericChannel.ExpiredToken = function () {  };
 
-    tokens.ContactChannelGroup.GenerateTlkeToken = function (context) { this.context = context; };
-    tokens.ContactChannelGroup.OfferToken = function (offer) { this.offer = offer; };
+    tokens.ContactChannelGroup.GenerateTlkeToken = function () { };
+    tokens.ContactChannelGroup.OfferToken = function (offer, ref) { this.offer = offer; this.ref = ref; };
+    tokens.ContactChannelGroup.OfferToken.prototype = {
+        serialize: function () {
+            return this.offer.as(Hex).serialize();
+        },
+        _typeName: "10"
+    };
+    tokens.ContactChannelGroup.OfferToken.deserialize = function (dto) {
+        return new tokens.TlkeChannel.OfferToken(Hex.deserialize(dto));
+    };
     tokens.ContactChannelGroup.AuthToken = function (auth) { this.auth = auth; };
     tokens.ContactChannelGroup.ChannelAddedToken = function (inId) { this.inId = inId; };
     tokens.ContactChannelGroup.ChangeStateToken = function (state) { this.state = state; };
+    tokens.ContactChannelGroup.OverChannelChangeStateToken = function (state) { this.state = state; };
+
+    tokens.ContactChannelGroup.GenerateOverTlkeToken = function () { };
+
+
 
     var types = {}, type, group;
     for (group in tokens) {
