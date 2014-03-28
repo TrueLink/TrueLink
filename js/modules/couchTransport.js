@@ -15,15 +15,36 @@ define(["zepto", "settings"], function ($, Settings) {
     }
 
     $.extend(CouchTransport.prototype, {
-        addChannel: function (channelName, dontStart) {
+        addChannel: function (channelName) {
             if (!channelName) { return; }
             var i;
             for (i = 0; i < this.channels.length; i += 1) {
                 if (this.channels[i] === channelName) { return; }
             }
-            this._cancel();
-            this.channels.push(channelName);
-            if (!dontStart) { this._deferredStart(); }
+            this._addChannel(channelName);
+        },
+        _addChannel: function (channelName) {
+            var that = this;
+            var url = that.url +
+                "/_changes?feed=longpoll&filter=channels/do&Channel=" + channelName +
+                "&include_docs=true&since=0";
+            $.ajax({
+                url: url,
+                dataType: "json",
+                timeout: ajaxTimeout,
+                success: function (data, status, xhr) {
+                    that.channels.push(channelName);
+                    // will save last_seq and enqueue new start
+                    that._handleResult(data);
+                    // cancel current polling
+                    that._cancel();
+                },
+                error: function (xhr, errorType, error) {
+                    that.channels.push(channelName);
+                    console.warn("Shit happened. The further work may be unstable. ", error || errorType);
+                }
+            });
+
         },
         deleteChannel: function (channelName) {
             if (!channelName) { return; }
@@ -57,20 +78,18 @@ define(["zepto", "settings"], function ($, Settings) {
             if (!this.messages.length) { return; }
             var message = this.messages.pop(), that = this;
 
-            setTimeout(function () {
-                $.ajax({
-                    type: "POST",
-                    contentType: "application/json",
-                    url: that.url,
-                    data: JSON.stringify(message),
-                    success: function (data, status, xhr) { that._send(); },
-                    error: function (xhr, errorType, error) {
-                        console.warn("Message sending failed: ", error || errorType);
-                        that.messages.push(message);
-                        setTimeout(function () { that._send(); }, 5000);
-                    }
-                });
-            }, 500);
+            $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: that.url,
+                data: JSON.stringify(message),
+                success: function (data, status, xhr) { that._send(); },
+                error: function (xhr, errorType, error) {
+                    console.warn("Message sending failed: ", error || errorType);
+                    that.messages.push(message);
+                    setTimeout(function () { that._send(); }, 5000);
+                }
+            });
 
         },
         _handleResult: function (data) {
@@ -112,7 +131,9 @@ define(["zepto", "settings"], function ($, Settings) {
                 success: function (data, status, xhr) { that._handleResult(data); },
                 error: function (xhr, errorType, error) {
                     console.warn("Message polling failed: ", error || errorType);
-                    that._deferredStart(errorType === "timeout" ? null : 5000);
+                    if (errorType !== "abort") {
+                        that._deferredStart(errorType === "timeout" ? null : 5000);
+                    }
                 }
             });
         },
