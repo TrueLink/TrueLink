@@ -43,6 +43,16 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             }
         },
 
+        startSync: function () {
+            this.setErrorMessage(null);
+            try {
+                this.props.model.startSync();
+            } catch (ex) {
+                console.error(ex);
+                this.setErrorMessage(ex.message || JSON.stringify(ex));
+            }
+        },
+
         accept: function () {
             this.setErrorMessage(null);
             var offerText = this.refs.offer.getDOMNode().value;
@@ -129,7 +139,9 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED || model.state === TlkeChannel.STATE_CONNECTION_SYNCED) {
                 elem = React.DOM.div({className: "row"},
                     React.DOM.div({className: "small-12 columns"},
-                        React.DOM.a({className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
+                        model.isSync ?
+                                React.DOM.a({className: "tiny success radius button", onClick: this.startSync}, "Start sync") :
+                                React.DOM.a({className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
 
                 actions["a_" + i] = elem;
                 i += 1;

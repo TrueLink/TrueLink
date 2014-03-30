@@ -58,6 +58,7 @@
                         acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
                         sendTextMessage: app.sendTextMessage.bind(app, chGroup),
                         addOver: app.createOverChannel.bind(app, chGroup),
+                        startSync: app.startSync.bind(app, chGroup),
                         isSync: chGroup instanceof SyncContactChannelGroup,
                         // todo temp
                         channelsData: chGroup.getChannelInfos()

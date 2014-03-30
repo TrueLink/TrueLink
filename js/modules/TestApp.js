@@ -58,6 +58,10 @@ define([
             contact.enterToken(new tokens.ContactChannelGroup.GenerateOverTlkeToken());
         },
 
+        startSync: function (contact) {
+            alert(contact instanceof SyncContactChannelGroup);
+        },
+
         getLastContactName: function () { return this.lastContactName; },
 
         sendTextMessage: function (contact, messageData) {
