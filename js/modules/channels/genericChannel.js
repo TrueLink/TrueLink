@@ -152,7 +152,6 @@ define([
                 break;
             }
         },
-        serialize: function () { throw new Error("Not implemented"); },
 
         _setupChannel: function (key) {
             this.dhAesKey = key;
@@ -174,10 +173,26 @@ define([
             var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
             var aes = new Aes(customKey || this.dhAesKey);
             return aes.decryptCbc(encryptedData, iv);
+        },
+
+
+        serialize: function () {
+            return {
+                hashStart: this.hashStart ? this.hashStart.as(Hex).serialize() : null,
+                hashCounter: this.hashCounter,
+                dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
+                backHashEnd: this.backHashEnd ? this.backHashEnd.as(Hex).serialize() : null
+            };
         }
-
-
     });
+
+    GenericChannel.deserialize = function (dto) {
+        var ch = new GenericChannel();
+        ch.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
+        ch.hashCounter = dto.hashCounter;
+        ch.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
+        ch.backHashEnd = dto.backHashEnd ? Hex.deserialize(dto.backHashEnd) : null;
+    };
 
     function GenericChannelMessage(type, data, hashTail) {
         this.type = type;
@@ -215,9 +230,7 @@ define([
     GenericChannel.HashCount = 1000;
     GenericChannel.HashExperiesCount = 10;
 
-    GenericChannel.deserialize = function (dto) {
-        throw new Error("Not implemented");
-    };
+
 
     return GenericChannel;
 });
