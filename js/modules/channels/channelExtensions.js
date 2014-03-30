@@ -23,11 +23,11 @@ define(["modules/hashTable"], function (HashTable) {
                 console.warn("No token handler is found for the channel ", this);
                 return;
             }
-            handler(token, context);
+            handler.call(this, token, context);
         },
         _setTokenHandler: function (tokenType, handler) {
             this._tokenHandlers = this._tokenHandlers || new HashTable();
-            this._tokenHandlers.setItem(tokenType, handler.bind(this));
+            this._tokenHandlers.setItem(tokenType, handler);
         }
     };
 });
