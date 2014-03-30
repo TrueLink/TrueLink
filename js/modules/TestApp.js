@@ -59,7 +59,22 @@ define([
         },
 
         startSync: function (contact) {
-            alert(contact instanceof SyncContactChannelGroup);
+            if (!(contact instanceof SyncContactChannelGroup)) {
+                throw new Error("Wrong target");
+            }
+            var contacts = this.data.fullFilter(function (info) {
+                return info.key instanceof ContactChannelGroup;
+            });
+            var exportData = {};
+            contacts.forEach(function (info) {
+                // todo it seems that this call is temp: contact is a Channel in fact
+                exportData[info.value.name] = info.key.getChannelInfos();
+            });
+            contact.sendMessage(exportData);
+        },
+
+        onDeviceMessage: function (contact, message) {
+            console.log("Received contacts ", message);
         },
 
         getLastContactName: function () { return this.lastContactName; },
@@ -71,10 +86,6 @@ define([
 
         onContactStateChanged: function (contact) {
             this.onStateChanged();
-        },
-
-        onSyncMessage: function () {
-
         },
 
         addPrompt: function (contact, token, context) {
@@ -146,7 +157,8 @@ define([
             this._setDirtyNotifier(contact, this.onContactStateChanged);
             this._setTokenPrompter(contact, this.onContactPrompt);
             this._setPacketSender(contact, this.onContactSendPacket);
-            this._setMsgProcessor(contact, this.onContactMessage);
+            this._setMsgProcessor(contact, contact instanceof SyncContactChannelGroup ?
+                    this.onDeviceMessage : this.onContactMessage);
             contact.setRng(random);
             this.data.setItem(contact, {
                 name: name,
