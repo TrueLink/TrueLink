@@ -311,16 +311,15 @@ define([
         _addRemoteChannel: function (channel, reference) {
             this._setPacketSender(channel, this.onRemoteChannelSendPacket);
             this._setTokenPrompter(channel, this.onRemoteChannelToken);
-
             this.remoteChannels.setItem(channel, {ref: reference});
             this._notifyDirty();
         },
 
         // add regular channel and bind handlers
         _addChannel: function (channel, reference, canStart) {
-            var isAux = !!reference;
+            var isOverChannel = !!reference;
             this._setPacketSender(channel, this.onChannelSendPacket);
-            this._setTokenPrompter(channel, this.onChannelToken.bind(this, isAux));
+            this._setTokenPrompter(channel, this.onChannelToken.bind(this, isOverChannel));
             this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
             if (channel instanceof GenericChannel) {
                 this._setMsgProcessor(channel, this.onChannelMessage);
