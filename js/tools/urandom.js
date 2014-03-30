@@ -11,6 +11,7 @@ define([], function () {
     var colors = ["White", "Silver", "Gray", "Black", "Red", "Maroon", "Yellow", "Olive", "Lime", "Green", "Aqua", "Teal", "Blue", "Navy", "Fuchsia", "Purple"];
     var animals = ["Wolf", "Tiger", "Fox", "Bear", "Panther", "Panda", "Jaguar", "Dolphin", "Dog", "Otter", "Owl", "Koala", "Puma", "Cat", "Seal", "Bunny", "Kangaroo", "Giraffe", "Horse", "Eagle", "Rabbit", "Turtle", "Deer", "Coyote", "Whale", "Zebra", "Chipmunk", "Chinchilla", "Squirrel", "Hedgehog", "Ferret", "Raccoon", "Hippopotamus", "Hamster", "Wombat", "Salamander", "Opossum"];
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+    var answers = ["Not bad.", "He's doing well.", "Great!", "Fantastic!", "Wonderful!", "He can't complain.", "He's fine, thank you.", "Doing fine. And you?", "Couldn't be better.", "Lovin' life.", "He's life's great.", "Alright.", "Been better.", "Just fine, thanks.", "It's Monday.", "It's Friday!", "He's doing great!", "He's doing lousy - he's up to his eyeballs in work.", "So-so", "Hangin' in there."];
 
     function randomItem(list) {
         return list[Math.floor(Math.random() * list.length)];
@@ -45,6 +46,9 @@ define([], function () {
             var color = randomItem(colors);
             var animal = randomItem(animals);
             return color + " " + animal;
+        },
+        answer: function () {
+            return randomItem(answers);
         }
     };
 });
