@@ -8,8 +8,9 @@ define([
     "modules/couchTransport",
     "modules/hashTable",
     "tools/random",
+    "tools/urandom",
     "modules/channels/syncContactChannelGroup"
-], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable, random, SyncContactChannelGroup) {
+], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable, random, urandom, SyncContactChannelGroup) {
     "use strict";
 
     function App(id, isSync) {
@@ -62,19 +63,75 @@ define([
             if (!(contact instanceof SyncContactChannelGroup)) {
                 throw new Error("Wrong target");
             }
+
+            var message = this.getContactsData();
+            contact.sendMessage(message);
+        },
+
+        getContactsData: function () {
             var contacts = this.data.fullFilter(function (info) {
                 return info.key instanceof ContactChannelGroup;
             });
-            var exportData = {};
+            var contactsData = {};
             contacts.forEach(function (info) {
                 // todo it seems that this call is temp: contact is a Channel in fact
-                exportData[info.value.name] = info.key.getChannelInfos();
+                contactsData[info.value.name] = {channels: info.key.getChannelInfos()};
             });
-            contact.sendMessage(exportData);
+            return contactsData;
         },
 
         onDeviceMessage: function (contact, message) {
-            console.log("Received contacts ", message);
+            var response = {}, that = this;
+            var remoteContactsData = message;
+            var localContactsData = this.getContactsData();
+
+            function getById(id) {
+                return that.data.first(function (info) {
+                    return info.name === id;
+                });
+            }
+
+            $.each(remoteContactsData, function (key, value) {
+                var contactInfo;
+                console.log("- Do you know " + key + "?");
+                if (value === null && localContactsData[key]) {
+                    console.log("I'd like to meet him");
+                    contactInfo = getById(key);
+                    response[key] = {
+                        contactData: that.exportContact(contactInfo.value),
+                        yellowChannel: contactInfo.key.getYellowChannelInfo(),
+                        channels: contactInfo.key.getChannelInfos()
+                    };
+                } else if (!localContactsData[key]) {
+                    if (value.contactData && value.yellowChannel) {
+                        console.log("Here's his data: ", value.contactData);
+                        var imported = that.importContact(value.contactData);
+                        imported.createChannels(value.yellowChannel, value.channels);
+                        console.log("- Great, thanks");
+                    } else {
+                        console.log("- No. Introduce me please");
+                        // request to provide the contact data
+                        response[key] = null;
+                    }
+                } else {
+                    console.log("- Yes, how is he?");
+                    contactInfo = getById(key);
+                    contactInfo.key.updateChannels(value.channels);
+                    console.log("- " + urandom.answer());
+                }
+            });
+
+            if (Object.keys(response).length > 0) {
+                contact.sendMessage(response);
+            }
+
+        },
+
+        importContact: function (contactData) {
+            return this.addContact(contactData.name);
+        },
+        exportContact: function (contactInfo) {
+            return { name: contactInfo.name };
         },
 
         getLastContactName: function () { return this.lastContactName; },
@@ -151,6 +208,7 @@ define([
         addContact: function (name) {
             var contact = new ContactChannelGroup();
             this._addContact(name, contact);
+            return contact;
         },
 
         _addContact: function (name, contact) {

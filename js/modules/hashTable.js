@@ -6,6 +6,9 @@ define([], function () {
 
     HashTable.prototype = {
         setItem: function (key, value) {
+            if(key === undefined) {
+                throw new Error("key is undefined");
+            }
             this.removeItem(key);
             this.items.push({
                 key: key,

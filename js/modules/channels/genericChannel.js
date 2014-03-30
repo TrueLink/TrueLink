@@ -192,6 +192,7 @@ define([
         ch.hashCounter = dto.hashCounter;
         ch.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
         ch.backHashEnd = dto.backHashEnd ? Hex.deserialize(dto.backHashEnd) : null;
+        return ch;
     };
 
     function GenericChannelMessage(type, data, hashTail) {

@@ -272,38 +272,6 @@ define([
             return infos;
         },
 
-        _importChannel: function (canStart, channelInfo) {
-            var inId = channelInfo.valueData.inId;
-            var outId = channelInfo.valueData.outId;
-            var found = this.channels.first(function (itemInfo) {
-                return itemInfo.inId.as(Hex).isEqualTo(inId.as(Hex)) && itemInfo.outId.as(Hex).isEqualTo(outId.as(Hex));
-            });
-            if (!found) {
-                var newChannel = GenericChannel.deserialize(channelInfo.keyData);
-                this._addChannel(newChannel, null, canStart);
-                this.onChannelNewIds(newChannel, {
-                    inId: inId,
-                    outId: outId
-                });
-            }
-        },
-
-        //
-        createChannels: function (defaultChannel, updateChannels) {
-            this._importChannel(true, defaultChannel);
-            this.updateChannels(updateChannels);
-            // todo create some overchannels here
-            this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(TlkeChannel.STATE_CONNECTION_SYNCED));
-        },
-
-        getYellowChannel: function () {
-            var channel = this._getChannelToStart();
-            var channelInfo = this.channels.getItem(channel);
-            channelInfo.canStart = false;
-            this.channels.setItem(channel, channelInfo);
-            return channel;
-        },
-
         //////////////////////////////
         //  Internal
         //////////////////////////////
@@ -332,17 +300,6 @@ define([
                 canStart: canStart
             });
             this._notifyDirty();
-        },
-
-        // get one of not-started channels that i can start
-        _getChannelToStart: function () {
-            var channel;
-            this.channels.each(function (key, value) {
-                if (key instanceof GenericChannel && !value.isActive && value.canStart) {
-                    channel = key;
-                }
-            });
-            return channel;
         },
 
         _sendMessage: function (message, channel) {

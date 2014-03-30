@@ -278,7 +278,8 @@ define([
             var inId = Hex.deserialize(channelInfo.valueData.inId);
             var outId = Hex.deserialize(channelInfo.valueData.outId);
             var found = this.channels.first(function (itemInfo) {
-                return inId && inId.isEqualTo(itemInfo.inId.as(Hex)) && outId && outId.isEqualTo(itemInfo.outId.as(Hex));
+                return inId && itemInfo.inId && inId.isEqualTo(itemInfo.inId.as(Hex)) &&
+                    outId && itemInfo.outId && outId.isEqualTo(itemInfo.outId.as(Hex));
             });
             if (!found) {
                 var newChannel = GenericChannel.deserialize(channelInfo.keyData);
@@ -288,6 +289,7 @@ define([
                     outId: outId
                 });
             }
+            this._notifyDirty();
         },
 
         //
@@ -296,14 +298,22 @@ define([
             this.updateChannels(updateChannels);
             // todo create some overchannels here
             this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(TlkeChannel.STATE_CONNECTION_SYNCED));
+            this._notifyDirty();
         },
 
-        getYellowChannel: function () {
+        getYellowChannelInfo: function () {
             var channel = this._getChannelToStart();
             var channelInfo = this.channels.getItem(channel);
             channelInfo.canStart = false;
             this.channels.setItem(channel, channelInfo);
-            return channel;
+            this._notifyDirty();
+            return {
+                keyData: channel.serialize(),
+                valueData: {
+                    inId: channelInfo.inId ? channelInfo.inId.as(Hex).serialize() : null,
+                    outId: channelInfo.outId ? channelInfo.outId.as(Hex).serialize() : null,
+                }
+            };
         },
 
         //////////////////////////////
@@ -338,12 +348,15 @@ define([
 
         // get one of not-started channels that i can start
         _getChannelToStart: function () {
-            var channel;
+            var channel = null;
             this.channels.each(function (key, value) {
                 if (key instanceof GenericChannel && !value.isActive && value.canStart) {
                     channel = key;
                 }
             });
+            if (!channel) {
+                throw new Error("Out of channels");
+            }
             return channel;
         },
 
