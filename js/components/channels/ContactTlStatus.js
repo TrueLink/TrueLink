@@ -92,7 +92,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 elem = React.DOM.div({className: "row"},
                         React.DOM.div({className: "small-12 columns"},
                             React.DOM.label(null, "Offer", React.DOM.input({ref: "offer", type: "text", placeholder: "Offer digits"}))),
-                        React.DOM.div({className: "small-6 columns"},
+                        model.isSync ? null : React.DOM.div({className: "small-6 columns"},
                             React.DOM.a({className: "expand radius button", onClick: this.generate}, "Generate")),
                         React.DOM.div({className: "small-6 columns"},
                             React.DOM.a({className: "expand radius button", onClick: this.accept}, "Accept")));

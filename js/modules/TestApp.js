@@ -154,14 +154,16 @@ define([
             this.onStateChanged();
         },
 
-        addSync: function () {
+        addSync: function (isAccepting) {
             var length = this.data.length(function (info) {
                 return info.key instanceof SyncContactChannelGroup;
             });
             var name = "sync device " + (length + 1);
             var contact = new SyncContactChannelGroup();
             this._addContact(name, contact);
-            contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
+            if (!isAccepting) {
+                contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
+            }
         },
 
         _addMessage: function (contact, data) {

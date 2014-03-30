@@ -11,7 +11,7 @@ define([
             this.props.add(newUid());
         },
         joinClick: function () {
-            //this.props.join(newUid());
+            this.props.add(newUid(), true);
         },
         render: function () {
 

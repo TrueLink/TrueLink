@@ -35,6 +35,9 @@
             function addApp(id, isSync) {
                 apps[id] = new TestApp(id, isSync);
                 apps[id].stateChanged = updateView;
+                if (isSync) {
+                    apps[id].addSync(true);
+                }
                 updateView();
             }
 
@@ -55,7 +58,7 @@
                         acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
                         sendTextMessage: app.sendTextMessage.bind(app, chGroup),
                         addOver: app.createOverChannel.bind(app, chGroup),
-                        isSync: app instanceof SyncContactChannelGroup,
+                        isSync: chGroup instanceof SyncContactChannelGroup,
                         // todo temp
                         channelsData: chGroup.getChannelInfos()
                     }, data);
