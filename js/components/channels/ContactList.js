@@ -10,7 +10,7 @@ define(["zepto", "q", "react", "tools/urandom"
         },
 
         addDevice: function () {
-            throw new Error("Not implemented");
+            this.props.addSync();
         },
 
         select: function (name) {

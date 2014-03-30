@@ -137,9 +137,16 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
 
             var chInfos = {};
             model.channelsData.forEach(function (chInfo) {
+                var color = "red";
+                if (chInfo.valueData.canStart === true) {
+                    color = "green";
+                } else if (chInfo.valueData.canStart === false) {
+                    color = "yellow";
+                }
                 chInfos["i_" + i] = React.DOM.li(null,
-                    "in: ", chInfo.valueData.inId ? chInfo.valueData.inId.as(Hex).toString() : "not yet set",
-                    ", out: ", chInfo.valueData.outId ? chInfo.valueData.outId.as(Hex).toString() : "not yet set");
+                    React.DOM.span({style: {color: color}},
+                        "in: ", chInfo.valueData.inId ? chInfo.valueData.inId.as(Hex).toString() : "not yet set",
+                        ", out: ", chInfo.valueData.outId ? chInfo.valueData.outId.as(Hex).toString() : "not yet set"));
                 i += 1;
             });
             var chInfo = React.DOM.div({className: "row"},

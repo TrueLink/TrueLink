@@ -32,8 +32,8 @@
 
 
             var apps = {};
-            function addApp(id) {
-                apps[id] = new TestApp(id);
+            function addApp(id, isSync) {
+                apps[id] = new TestApp(id, isSync);
                 apps[id].stateChanged = updateView;
                 updateView();
             }
@@ -55,7 +55,7 @@
                         acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
                         sendTextMessage: app.sendTextMessage.bind(app, chGroup),
                         addOver: app.createOverChannel.bind(app, chGroup),
-                        isSync: chGroup instanceof SyncContactChannelGroup,
+                        isSync: app instanceof SyncContactChannelGroup,
                         // todo temp
                         channelsData: chGroup.getChannelInfos()
                     }, data);
@@ -64,6 +64,7 @@
                     id: id,
                     contactList: contactList,
                     addContact: app.addContact.bind(app),
+                    addSync: app.addSync.bind(app),
                     currentContactName: app.getLastContactName()
                 };
             }

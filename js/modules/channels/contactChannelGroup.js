@@ -263,7 +263,8 @@ define([
                         keyData: key.serialize(),
                         valueData: {
                             inId: value.inId,
-                            outId: value.outId
+                            outId: value.outId,
+                            canStart: value.canStart
                         }
                     });
                 }

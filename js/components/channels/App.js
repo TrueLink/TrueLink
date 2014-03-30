@@ -31,6 +31,10 @@ define([
             });
         },
 
+        addSync: function () {
+            this.props.model.addSync();
+        },
+
         render: function () {
             var model = this.props.model;
             var currentName = this.state.currentContactName || this.props.model.currentContactName;
@@ -41,6 +45,7 @@ define([
                 ContactList({
                     addContact: this.addContact,
                     selectContact: this.selectContact,
+                    addSync: this.addSync,
                     model: {contacts: this.props.model.contactList }
                 }));
 

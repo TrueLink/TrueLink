@@ -7,13 +7,15 @@ define([
     "modules/data-types/hex",
     "modules/couchTransport",
     "modules/hashTable",
-    "tools/random"
-], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable, random) {
+    "tools/random",
+    "modules/channels/syncContactChannelGroup"
+], function ($, extensions, tokens, ContactChannelGroup, TlkeChannel, Hex, CouchTransport, HashTable, random, SyncContactChannelGroup) {
     "use strict";
 
-    function App(id) {
+    function App(id, isSync) {
 
         this.stateChanged = null;
+        this.isSync = isSync;
 
         this.transport = new CouchTransport("http://couch.ctx.im:5984/tl_channels", null, id);
         this.transport.handler = this.onTransportPacket.bind(this);
@@ -65,6 +67,10 @@ define([
 
         onContactStateChanged: function (contact) {
             this.onStateChanged();
+        },
+
+        onSyncMessage: function () {
+
         },
 
         addPrompt: function (contact, token, context) {
@@ -129,6 +135,10 @@ define([
 
         addContact: function (name) {
             var contact = new ContactChannelGroup();
+            this._addContact(name, contact);
+        },
+
+        _addContact: function (name, contact) {
             this._setDirtyNotifier(contact, this.onContactStateChanged);
             this._setTokenPrompter(contact, this.onContactPrompt);
             this._setPacketSender(contact, this.onContactSendPacket);
@@ -144,12 +154,22 @@ define([
             this.onStateChanged();
         },
 
+        addSync: function () {
+            var length = this.data.length(function (info) {
+                return info.key instanceof SyncContactChannelGroup;
+            });
+            var name = "sync device " + (length + 1);
+            var contact = new SyncContactChannelGroup();
+            this._addContact(name, contact);
+            contact.enterToken(new tokens.ContactChannelGroup.GenerateTlkeToken());
+        },
+
         _addMessage: function (contact, data) {
             var info = this.data.getItem(contact);
             info.messages.push(data);
             this.data.setItem(contact, info);
             this.onStateChanged();
-        },
+        }
     }, extensions);
     return App;
 
