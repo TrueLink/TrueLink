@@ -241,6 +241,7 @@ define([
     TlkeChannel.STATE_AWAITING_AUTH = 4;
     TlkeChannel.STATE_AWAITING_AUTH_RESPONSE = 5;
     TlkeChannel.STATE_CONNECTION_ESTABLISHED = 6;
+    TlkeChannel.STATE_CONNECTION_SYNCED = 7;
     TlkeChannel.STATE_CONNECTION_FAILED = -1;
 
     return TlkeChannel;

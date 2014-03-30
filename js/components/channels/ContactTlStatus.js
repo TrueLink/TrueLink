@@ -9,6 +9,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
     stateStatuses[TlkeChannel.STATE_AWAITING_AUTH] =  "Waiting for auth data";
     stateStatuses[TlkeChannel.STATE_AWAITING_AUTH_RESPONSE] =  "Waiting for auth response";
     stateStatuses[TlkeChannel.STATE_CONNECTION_ESTABLISHED] =  "TLKE done";
+    stateStatuses[TlkeChannel.STATE_CONNECTION_SYNCED] =  "Contact received via sync";
     stateStatuses[TlkeChannel.STATE_CONNECTION_FAILED] =  "Failed";
 
     return React.createClass({
@@ -78,7 +79,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             var labelClassName = "secondary";
             var error = model.error ? (model.error.message || JSON.stringify(model.error)) : this.state.error;
             if (model.state === TlkeChannel.STATE_CONNECTION_FAILED) { labelClassName = "alert"; }
-            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) { labelClassName = "success"; }
+            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED || model.state === TlkeChannel.STATE_CONNECTION_SYNCED) { labelClassName = "success"; }
             var status = error ? React.DOM.span({className: "alert right radius label"}, error) :
                     React.DOM.span({className: labelClassName + " right radius label"}, stateStatuses[model.state]);
             var overStatusSpan = !model.overChannelLastState ? null :
@@ -99,7 +100,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 actions["a_" + i] = elem;
                 i += 1;
             }
-            if (model.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
+            if (model.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED && model.state !== TlkeChannel.STATE_CONNECTION_SYNCED) {
 
                 model.prompts.forEach(function (prompt) {
                     elem = null;
@@ -125,7 +126,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 });
 
             }
-            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED) {
+            if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED || model.state === TlkeChannel.STATE_CONNECTION_SYNCED) {
                 elem = React.DOM.div({className: "row"},
                     React.DOM.div({className: "small-12 columns"},
                         React.DOM.a({className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));

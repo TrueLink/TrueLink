@@ -143,8 +143,9 @@ define([
         },
         // tlke channel has generated new keys for generic channel
         onNewGenericChannelKeysReady: function (token) {
+            // todo remove tlke from lists and clear this.tlkeChannel
             var newGeneric = new GenericChannel();
-            this._addChannel(newGeneric);
+            this._addChannel(newGeneric, null, true);
             this.onChannelNewIds(newGeneric, token);
             newGeneric.enterToken(token);
         },
@@ -244,6 +245,47 @@ define([
             }
         },
 
+        //////////////////////////////
+        //  Sync
+        //////////////////////////////
+        // just add new channels if don't have ones (distinguished by inId/outId)
+        //
+        updateChannels: function (updateChannels) {
+            if (!updateChannels) { return; }
+            updateChannels.forEach(this._importChannel.bind(this, false));
+        },
+
+        _importChannel: function (canStart, channelInfo) {
+            var inId = channelInfo.valueData.inId;
+            var outId = channelInfo.valueData.outId;
+            var found = this.channels.first(function (itemInfo) {
+                return itemInfo.inId.as(Hex).isEqualTo(inId.as(Hex)) && itemInfo.outId.as(Hex).isEqualTo(outId.as(Hex));
+            });
+            if (!found) {
+                var newChannel = GenericChannel.deserialize(channelInfo.keyData);
+                this._addChannel(newChannel, null, canStart);
+                this.onChannelNewIds(newChannel, {
+                    inId: inId,
+                    outId: outId
+                });
+            }
+        },
+
+        //
+        createChannels: function (defaultChannel, updateChannels) {
+            this._importChannel(true, defaultChannel);
+            this.updateChannels(updateChannels);
+            // todo create some overchannels here
+            this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(TlkeChannel.STATE_CONNECTION_SYNCED));
+        },
+
+        getDedicatedChannel: function () {
+            var channel = this._getChannelToStart();
+            var channelInfo = this.channels.getItem(channel);
+            channelInfo.canStart = false;
+            this.channels.setItem(channel, channelInfo);
+            return channel;
+        },
 
         //////////////////////////////
         //  Internal
@@ -258,7 +300,7 @@ define([
         },
 
         // add regular channel and bind handlers
-        _addChannel: function (channel, reference) {
+        _addChannel: function (channel, reference, canStart) {
             var isAux = !!reference;
             this._setPacketSender(channel, this.onChannelSendPacket);
             this._setTokenPrompter(channel, this.onChannelToken.bind(this, isAux));
@@ -270,9 +312,21 @@ define([
             this.channels.setItem(channel, {
                 inId: null,
                 outId: null,
-                ref: reference
+                ref: reference,
+                canStart: canStart
             });
             this._notifyDirty();
+        },
+
+        // get one of not-started channels that i can start
+        _getChannelToStart: function () {
+            var channel;
+            this.channels.each(function (key, value) {
+                if (key instanceof GenericChannel && !value.isActive && value.canStart) {
+                    channel = key;
+                }
+            });
+            return channel;
         },
 
         _sendMessage: function (message, channel) {
