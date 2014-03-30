@@ -41,7 +41,11 @@ define(["zepto", "settings"], function ($, Settings) {
                 },
                 error: function (xhr, errorType, error) {
                     that.channels.push(channelName);
-                    console.warn("Shit happened. The further work may be unstable. ", error || errorType);
+                    if (errorType !== "timeout") {
+                        console.warn("Shit happened. The further work may be unstable. ", error || errorType);
+                    }
+                    this._deferredStart();
+                    that._cancel();
                 }
             });
 
