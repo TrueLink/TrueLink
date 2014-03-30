@@ -50,7 +50,9 @@ define([], function () {
             return found.length > 0 ? found[0] : undefined;
         },
 
-        length: function () { return this.items.length; },
+        length: function (filterFn) {
+            return filterFn ? this.items.filter(filterFn).length : this.items.length;
+        },
 
         _getIndexByKey: function (key) {
             return this._indexOf(function (item) { return item.key === key; });
