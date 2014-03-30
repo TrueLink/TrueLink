@@ -259,11 +259,13 @@ define([
             var infos = [];
             this.channels.each(function (key, value) {
                 if (key instanceof GenericChannel) {
+                    // TODO if state == established || state == synced
+                    // export only established ones
                     infos.push({
                         keyData: key.serialize(),
                         valueData: {
-                            inId: value.inId,
-                            outId: value.outId,
+                            inId: value.inId ? value.inId.as(Hex).serialize() : null,
+                            outId: value.outId ? value.outId.as(Hex).serialize() : null,
                             canStart: value.canStart
                         }
                     });
@@ -273,10 +275,10 @@ define([
         },
 
         _importChannel: function (canStart, channelInfo) {
-            var inId = channelInfo.valueData.inId;
-            var outId = channelInfo.valueData.outId;
+            var inId = Hex.deserialize(channelInfo.valueData.inId);
+            var outId = Hex.deserialize(channelInfo.valueData.outId);
             var found = this.channels.first(function (itemInfo) {
-                return itemInfo.inId.as(Hex).isEqualTo(inId.as(Hex)) && itemInfo.outId.as(Hex).isEqualTo(outId.as(Hex));
+                return inId && inId.isEqualTo(itemInfo.inId.as(Hex)) && outId && outId.isEqualTo(itemInfo.outId.as(Hex));
             });
             if (!found) {
                 var newChannel = GenericChannel.deserialize(channelInfo.keyData);

@@ -157,8 +157,8 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 }
                 chInfos["i_" + i] = React.DOM.li(null,
                     React.DOM.span({style: {color: color}},
-                        "in: ", chInfo.valueData.inId ? chInfo.valueData.inId.as(Hex).toString() : "not yet set",
-                        ", out: ", chInfo.valueData.outId ? chInfo.valueData.outId.as(Hex).toString() : "not yet set"));
+                        "in: ", chInfo.valueData.inId || "not yet set",
+                        ", out: ", chInfo.valueData.outId || "not yet set"));
                 i += 1;
             });
             var chInfo = React.DOM.div({className: "row"},

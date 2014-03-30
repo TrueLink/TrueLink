@@ -20,7 +20,7 @@ define(["modules/data-types/multivalue"], function (createType) {
     };
 
     Hex.deserialize = function (str) {
-        return new Hex(str);
+        return str ? new Hex(str) : null;
     };
     return createType(Hex, "hex", mixin);
 });

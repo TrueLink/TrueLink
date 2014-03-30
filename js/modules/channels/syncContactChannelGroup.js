@@ -262,8 +262,8 @@ define([
                     infos.push({
                         keyData: key.serialize(),
                         valueData: {
-                            inId: value.inId,
-                            outId: value.outId,
+                            inId: value.inId ? value.inId.as(Hex).serialize() : null,
+                            outId: value.outId ? value.outId.as(Hex).serialize() : null,
                             canStart: value.canStart
                         }
                     });
