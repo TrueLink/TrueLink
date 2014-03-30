@@ -44,7 +44,7 @@ define(["zepto", "settings"], function ($, Settings) {
                     if (errorType !== "timeout") {
                         console.warn("Shit happened. The further work may be unstable. ", error || errorType);
                     }
-                    this._deferredStart();
+                    that._deferredStart();
                     that._cancel();
                 }
             });
