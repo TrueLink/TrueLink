@@ -255,6 +255,22 @@ define([
             updateChannels.forEach(this._importChannel.bind(this, false));
         },
 
+        getChannelInfos: function () {
+            var infos = [];
+            this.channels.each(function (key, value) {
+                if (key instanceof GenericChannel) {
+                    infos.push({
+                        keyData: key.serialize(),
+                        valueData: {
+                            inId: value.inId,
+                            outId: value.outId
+                        }
+                    });
+                }
+            });
+            return infos;
+        },
+
         _importChannel: function (canStart, channelInfo) {
             var inId = channelInfo.valueData.inId;
             var outId = channelInfo.valueData.outId;
@@ -279,7 +295,7 @@ define([
             this._emitPrompt(new tokens.ContactChannelGroup.ChangeStateToken(TlkeChannel.STATE_CONNECTION_SYNCED));
         },
 
-        getDedicatedChannel: function () {
+        getYellowChannel: function () {
             var channel = this._getChannelToStart();
             var channelInfo = this.channels.getItem(channel);
             channelInfo.canStart = false;

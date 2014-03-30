@@ -135,7 +135,17 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 i += 1;
             }
 
-            return React.DOM.div(null, actions, status);
+            var chInfos = {};
+            model.channelsData.forEach(function (chInfo) {
+                chInfos["i_" + i] = React.DOM.li(null,
+                    "in: ", chInfo.valueData.inId ? chInfo.valueData.inId.as(Hex).toString() : "not yet set",
+                    ", out: ", chInfo.valueData.outId ? chInfo.valueData.outId.as(Hex).toString() : "not yet set");
+                i += 1;
+            });
+            var chInfo = React.DOM.div({className: "row"},
+                React.DOM.div({className: "small-12 columns"}, React.DOM.ul(null, chInfos)));
+
+            return React.DOM.div(null, actions, status, chInfo);
         }
     });
 });

@@ -55,7 +55,9 @@
                         acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
                         sendTextMessage: app.sendTextMessage.bind(app, chGroup),
                         addOver: app.createOverChannel.bind(app, chGroup),
-                        isSync: chGroup instanceof SyncContactChannelGroup
+                        isSync: chGroup instanceof SyncContactChannelGroup,
+                        // todo temp
+                        channelsData: chGroup.getChannelInfos()
                     }, data);
                 });
                 return {

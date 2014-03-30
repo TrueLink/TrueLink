@@ -7,7 +7,7 @@ define([
     "components/channels/ContactTlStatus",
     "components/channels/Dialog",
     "modules/channels/contactChannelGroup",
-    "modules/channels/tlkeChannel",
+    "modules/channels/tlkeChannel"
 ], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, ContactChannelGroup, TlkeChannel) {
     "use strict";
 
