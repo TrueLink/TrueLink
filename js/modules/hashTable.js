@@ -45,6 +45,10 @@ define([], function () {
             });
         },
 
+        fullFilter: function (fullFilterFn) {
+            return this.items.filter(fullFilterFn);
+        },
+
         first: function (valueFilterFn) {
             var found = this.filter(valueFilterFn);
             return found.length > 0 ? found[0] : undefined;
