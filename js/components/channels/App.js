@@ -49,10 +49,13 @@ define([
                     model: {contacts: this.props.model.contactList }
                 }));
 
-            var dialogComponent = (!(current && !current.isSync)) || (current && current.state !== TlkeChannel.STATE_CONNECTION_ESTABLISHED) ? null :
-                    React.DOM.div({className: "large-4 column left-border"},
-                        React.DOM.h4(null, "Dialog with " + currentName),
-                        Dialog({model: current}));
+            var dialogComponent = (!(current && !current.isSync)) ||
+                (current &&
+                    !(current.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED ||
+                     current.state === TlkeChannel.STATE_CONNECTION_SYNCED)) ? null :
+                        React.DOM.div({className: "large-4 column left-border"},
+                            React.DOM.h4(null, "Dialog with " + currentName),
+                            Dialog({model: current}));
 
             var tlstatusComponentWidth = dialogComponent ? "4" : "8";
             var tlstatusComponent = !current ? null :
