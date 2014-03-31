@@ -16,6 +16,13 @@ define(["modules/data-types/multivalue"], function (createType) {
         },
         serialize: function () {
             return this.value;
+        },
+        expand: function (bitLength) {
+            var length = bitLength / 4;
+            while (this.value.length < length) {
+                this.value = "0" + this.value;
+            }
+            return this;
         }
     };
 
