@@ -25,8 +25,9 @@ define(["modules/data-types/multivalue"], function (createType) {
         return generateDamm(input) === "0";
     }
 
-    var DecBlocks = function (str) {
+    var DecBlocks = function (str, minBitLength) {
         this.value = str;
+        this.minBitLength = minBitLength;
     };
     var mixin = {
         toString: function () {
@@ -35,7 +36,7 @@ define(["modules/data-types/multivalue"], function (createType) {
         }
     };
     var Fn = createType(DecBlocks, "decBlocks", mixin);
-    Fn.fromString = function (string) {
+    Fn.fromString = function (string, minBitLength) {
         if (!string) {
             return null;
         }
@@ -43,7 +44,7 @@ define(["modules/data-types/multivalue"], function (createType) {
         if (!verifyDamm(numStr)) {
             return null;
         }
-        return new Fn(numStr.substring(0, numStr.length - 1));
+        return new Fn(numStr.substring(0, numStr.length - 1), minBitLength);
     };
     return Fn;
 });

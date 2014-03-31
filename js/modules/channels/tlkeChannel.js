@@ -12,8 +12,6 @@ define([
 ], function ($, Channel, tokens, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes) {
     "use strict";
 
-    var channelAesKeyEffectiveBitLength = 128;
-    var authBitLength = 16;
     var dhPrivBitLength = 160;
 
     function hash(value) {
@@ -24,6 +22,9 @@ define([
     function TlkeChannel() {
         this.state = TlkeChannel.STATE_NOT_STARTED;
     }
+
+    TlkeChannel.authBitLength = 16;
+    TlkeChannel.offerBitLength = 128;
 
     TlkeChannel.prototype = new Channel();
     $.extend(TlkeChannel.prototype, {
@@ -80,7 +81,7 @@ define([
                 throw new Error("No valid rng is set");
             }
             this.dh = new DiffieHellman(dhPrivBitLength, this.random);
-            var dhAes = this.random.bitArray(channelAesKeyEffectiveBitLength);
+            var dhAes = this.random.bitArray(TlkeChannel.offerBitLength);
             this.dhAesKey = dhAes;
             var outId = dhAes.bitSlice(0, 16);
             var inId = dhAes.bitSlice(16, 32);
@@ -142,7 +143,7 @@ define([
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
 
-            this.auth = this.random.bitArray(authBitLength);
+            this.auth = this.random.bitArray(TlkeChannel.authBitLength);
             this.check = this.random.bitArray(128);
             this.state = TlkeChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._onChangeState();

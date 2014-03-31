@@ -56,7 +56,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
         accept: function () {
             this.setErrorMessage(null);
             var offerText = this.refs.offer.getDOMNode().value;
-            var offer = DecBlocks.fromString(offerText);
+            var offer = DecBlocks.fromString(offerText, TlkeChannel.offerBitLength);
             if (!offer) {
                 this.setErrorMessage("Wrong offer");
                 return;
@@ -71,7 +71,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
         acceptAuth: function (context) {
             this.setErrorMessage(null);
             var authText = this.refs.auth.getDOMNode().value;
-            var auth = DecBlocks.fromString(authText);
+            var auth = DecBlocks.fromString(authText, TlkeChannel.authBitLength);
             if (!auth) {
                 this.setErrorMessage("Wrong auth");
                 return;
