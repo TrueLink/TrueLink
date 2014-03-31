@@ -18,6 +18,8 @@ define(["modules/data-types/multivalue"], function (createType) {
             return this.value;
         },
         expand: function (bitLength) {
+            if (bitLength < 0 || bitLength % 4 != 0) { throw new Error('Invalid new length ' + bitLength); }
+            if (this.value.length < 0 || this.value.length % 4 != 0) { throw new Error('Invalid old length ' + this.value.length); }
             var length = bitLength / 4;
             while (this.value.length < length) {
                 this.value = "0" + this.value;
