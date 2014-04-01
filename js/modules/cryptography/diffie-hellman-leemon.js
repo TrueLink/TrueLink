@@ -1,6 +1,8 @@
 define([
+    "zepto",
+    "tools/invariant",
     "modules/data-types/hex",
-    "modules/leemon/BigInt"], function (Hex, lemon) {
+    "modules/leemon/BigInt"], function ($, invariant, Hex, lemon) {
     "use strict";
 
     /*
@@ -28,9 +30,6 @@ define([
     }
 
     function genPrivKey(bitLength, random) {
-        if (!random || typeof random.bitArray !== "function") {
-            throw new Error("No valid rng provided");
-        }
         var rndHex = random.bitArray(bitLength).as(Hex).value;
         return lemon.str2bigInt(rndHex, 16);
     }
@@ -43,24 +42,16 @@ define([
         return str;
     }
 
-    function DiffieHellman(privKeyBitLength, rnd) {
-        if (privKeyBitLength) {
-            this._initialize(genP(), genG(), genPrivKey(privKeyBitLength, rnd));
-        }
-    }
+    function DiffieHellman() { }
 
     DiffieHellman.prototype = {
-        _initialize: function (p, g, a) {
+        initialize: function (p, g, a) {
             this.p = p;
             this.g = g;
             this.a = a;
         },
-        exportData: function () {
-            return {/* we use static:
-             p: bigInt2str(this.p),
-             g: bigInt2str(this.g),*/
-                a: bigInt2str(this.a)
-            };
+        serialize: function () {
+            throw new Error("Not implemented");
         },
         createKeyExchange: function () {
             var keyEx = lemon.powMod(this.g, this.a, this.p);
@@ -72,15 +63,16 @@ define([
             return bigInt2str(dhKey);
         }
     };
-
-    DiffieHellman.fromData = function (dhData) {
+    DiffieHellman.generate = function (privKeyBitLength, rnd) {
+        invariant(rnd, "No rng provided");
+        invariant($.isFunction(rnd.bitArray), "No valid rng provided");
         var dh = new DiffieHellman();
-        dh._initialize(
-            dhData.p ? lemon.str2bigInt(dhData.p, 16) : genP(),
-            dhData.g ? lemon.str2bigInt(dhData.g, 16) : genG(),
-            lemon.str2bigInt(dhData.a, 16)
-        );
+        dh.initialize(genP(), genG(), genPrivKey(privKeyBitLength, rnd));
         return dh;
+    };
+
+    DiffieHellman.deserialize = function (dto) {
+        throw new Error("Not implemented");
     };
 
     return DiffieHellman;
