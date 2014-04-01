@@ -12,22 +12,6 @@ define(["modules/hashTable"], function (HashTable) {
         },
         _setMsgProcessor: function (channel, handler) {
             channel.setMsgProcessor({processMessage: handler.bind(this)});
-        },
-        _enterToken: function (token, context) {
-            if (!this._tokenHandlers) {
-                console.warn("No token handler is set for the channel ", this);
-                return;
-            }
-            var handler = this._tokenHandlers.getItem(null, function (item) { return token instanceof item.key; });
-            if (!handler) {
-                console.warn("No token handler is found for the channel ", this);
-                return;
-            }
-            handler.call(this, token, context);
-        },
-        _setTokenHandler: function (tokenType, handler) {
-            this._tokenHandlers = this._tokenHandlers || new HashTable();
-            this._tokenHandlers.setItem(tokenType, handler);
         }
     };
 });
