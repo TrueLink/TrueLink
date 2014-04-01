@@ -17,17 +17,17 @@ define([
     }
 
     // tl channel that is established and ready to transmit POJOs
-    function GenericChannel() {}
+    function TlChannel() {}
 
-    GenericChannel.prototype = new Channel();
-    $.extend(GenericChannel.prototype, {
+    TlChannel.prototype = new Channel();
+    $.extend(TlChannel.prototype, {
 
         // user submits message to send, message should be plain object for now (kind of serializable in future)
         sendMessage: function (message) {
             if (!$.isPlainObject(message)) {
                 throw new Error("Argument exception. message should be the plain object");
             }
-            this._sendMessage(new GenericChannelMessage(GenericChannelMessage.MSG_TYPE_USER, message));
+            this._sendMessage(new TlChannelMessage(TlChannelMessage.MSG_TYPE_USER, message));
         },
         // set user message receiver
         setMsgProcessor: function (iMsgProcessor) { this.msgProcessor = iMsgProcessor; },
@@ -81,7 +81,7 @@ define([
             }
 
             var end = this.backHashEnd.as(Hex).value, i;
-            for (i = 0; i < GenericChannel.HashCount; i += 1) {
+            for (i = 0; i < TlChannel.HashCount; i += 1) {
                 hx = hash(hx);
                 if (hx.as(Hex).value === end) {
                     return true;
@@ -92,17 +92,17 @@ define([
 
         _generateHashTail: function () {
             this.hashStart = this.random.bitArray(128);
-            this.hashCounter = GenericChannel.HashCount;
+            this.hashCounter = TlChannel.HashCount;
             this._notifyDirty();
         },
 
         _sendHashTail: function () {
             var hashEnd = this.hashStart, i;
-            for (i = 0; i < GenericChannel.HashCount; i += 1) {
+            for (i = 0; i < TlChannel.HashCount; i += 1) {
                 hashEnd = hash(hashEnd);
             }
             console.info("sending hashtail", hashEnd.as(Hex).toString());
-            this._sendMessage(new GenericChannelMessage(GenericChannelMessage.MSG_TYPE_HASH, null, hashEnd));
+            this._sendMessage(new TlChannelMessage(TlChannelMessage.MSG_TYPE_HASH, null, hashEnd));
         },
 
         _sendMessage: function (message) {
@@ -114,7 +114,7 @@ define([
                 hx = hash(hx);
             }
             this.hashCounter -= 1;
-            if (this.hashCounter === GenericChannel.HashExperiesCount) {
+            if (this.hashCounter === TlChannel.HashExperiesCount) {
                 this._emitPrompt(new tokens.GenericChannel.ExpiresToken());
             }
             if (this.hashCounter < 1) {
@@ -135,16 +135,16 @@ define([
             var message, rawData;
             try {
                 rawData = JSON.parse(netData.as(Utf8String).value);
-                message = GenericChannelMessage.deserialize(rawData);
+                message = TlChannelMessage.deserialize(rawData);
             } catch (ex) {
                 throw new Error("Could not parse packet from the network");
             }
 
             switch (message.type) {
-            case GenericChannelMessage.MSG_TYPE_USER:
+            case TlChannelMessage.MSG_TYPE_USER:
                 this.onUserMessage(hx, message);
                 break;
-            case GenericChannelMessage.MSG_TYPE_HASH:
+            case TlChannelMessage.MSG_TYPE_HASH:
                 this.onHashMessage(hx, message);
                 break;
             default:
@@ -186,8 +186,8 @@ define([
         }
     });
 
-    GenericChannel.deserialize = function (dto) {
-        var ch = new GenericChannel();
+    TlChannel.deserialize = function (dto) {
+        var ch = new TlChannel();
         ch.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
         ch.hashCounter = dto.hashCounter;
         ch.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
@@ -195,7 +195,7 @@ define([
         return ch;
     };
 
-    function GenericChannelMessage(type, data, hashTail) {
+    function TlChannelMessage(type, data, hashTail) {
         this.type = type;
         if (data) {
             this.data = data;
@@ -205,7 +205,7 @@ define([
         }
     }
     // serialize message to a plain object
-    GenericChannelMessage.prototype.serialize = function () {
+    TlChannelMessage.prototype.serialize = function () {
         var dto = {
             t: this.type
         };
@@ -219,19 +219,19 @@ define([
         return dto;
     };
     // serialize message from a plain object
-    GenericChannelMessage.deserialize = function (dto) {
+    TlChannelMessage.deserialize = function (dto) {
         var data = dto.c || null;
         var hashTail = dto.ht ? Hex.deserialize(dto.ht) : null;
-        return new GenericChannelMessage(dto.t, data, hashTail);
+        return new TlChannelMessage(dto.t, data, hashTail);
     };
 
-    GenericChannelMessage.MSG_TYPE_USER = "c";
-    GenericChannelMessage.MSG_TYPE_HASH = "h";
+    TlChannelMessage.MSG_TYPE_USER = "c";
+    TlChannelMessage.MSG_TYPE_HASH = "h";
 
-    GenericChannel.HashCount = 1000;
-    GenericChannel.HashExperiesCount = 10;
+    TlChannel.HashCount = 1000;
+    TlChannel.HashExperiesCount = 10;
 
 
 
-    return GenericChannel;
+    return TlChannel;
 });

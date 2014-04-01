@@ -6,10 +6,10 @@ define([
     "modules/channels/channelExtensions",
     "modules/channels/tlkeChannel",
     "modules/channels/remoteChannel",
-    "modules/channels/genericChannel",
+    "modules/channels/tlChannel",
     "modules/data-types/hex",
     "tools/urandom"
-], function ($, HashTable, Channel, tokens, extensions, TlkeChannel, RemoteChannel, GenericChannel, Hex, urandom) {
+], function ($, HashTable, Channel, tokens, extensions, TlkeChannel, RemoteChannel, TlChannel, Hex, urandom) {
     "use strict";
 
     function ContactChannelGroup() {
@@ -32,7 +32,7 @@ define([
         this._setTokenHandler(tokens.ContactChannelGroup.GenerateTlkeToken, this.onTokenGenerateTlke);
         this._setTokenHandler(tokens.ContactChannelGroup.OfferToken, this.onTokenOffer);
         this._setTokenHandler(tokens.ContactChannelGroup.AuthToken, this.onTokenAuth);
-        this._setTokenHandler(tokens.ContactChannelGroup.GenerateOverTlkeToken, this.requestCreateExtraGenericChannel);
+        this._setTokenHandler(tokens.ContactChannelGroup.GenerateOverTlkeToken, this.requestCreateExtraTlChannel);
     }
 
     ContactChannelGroup.prototype = new Channel();
@@ -116,7 +116,7 @@ define([
                 }
             } else if (token instanceof tokens.TlkeChannel.GenericChannelGeneratedToken) {
                 // create new generic channel
-                this.onNewGenericChannelKeysReady(token);
+                this.onNewTlChannelKeysReady(token);
             } else if (channel === this.tlkeChannel && token instanceof tokens.TlkeChannel.OfferToken) {
                 // just mirror tlke offer token
                 this._emitPrompt(new tokens.ContactChannelGroup.OfferToken(token.offer));
@@ -142,9 +142,9 @@ define([
             this._notifyDirty();
         },
         // tlke channel has generated new keys for generic channel
-        onNewGenericChannelKeysReady: function (token) {
+        onNewTlChannelKeysReady: function (token) {
             // todo remove tlke from lists and clear this.tlkeChannel
-            var newGeneric = new GenericChannel();
+            var newGeneric = new TlChannel();
             this._addChannel(newGeneric, null, true);
             this.onChannelNewIds(newGeneric, token);
             newGeneric.enterToken(token);
@@ -216,7 +216,7 @@ define([
         //  OverChannels (channels that communicate via remote channels)
         //////////////////////////////
         // create additional generic channel
-        requestCreateExtraGenericChannel: function () {
+        requestCreateExtraTlChannel: function () {
             var overTlkeChannel = new TlkeChannel();
             var ref = urandom.int(1, 0xffffff);
             var remoteTlke = new RemoteChannel();
@@ -258,7 +258,7 @@ define([
         getChannelInfos: function () {
             var infos = [];
             this.channels.each(function (key, value) {
-                if (key instanceof GenericChannel) {
+                if (key instanceof TlChannel) {
                     // TODO if state == established || state == synced
                     // export only established ones
                     infos.push({
@@ -282,7 +282,7 @@ define([
                     outId && itemInfo.outId && outId.isEqualTo(itemInfo.outId.as(Hex));
             });
             if (!found) {
-                var newChannel = GenericChannel.deserialize(channelInfo.keyData);
+                var newChannel = TlChannel.deserialize(channelInfo.keyData);
                 this._addChannel(newChannel, null, canStart);
                 this.onChannelNewIds(newChannel, {
                     inId: inId,
@@ -333,7 +333,7 @@ define([
             this._setPacketSender(channel, this.onChannelSendPacket);
             this._setTokenPrompter(channel, this.onChannelToken.bind(this, isOverChannel));
             this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
-            if (channel instanceof GenericChannel) {
+            if (channel instanceof TlChannel) {
                 this._setMsgProcessor(channel, this.onChannelMessage);
             }
             channel.setRng(this.random);
@@ -350,7 +350,7 @@ define([
         _getChannelToStart: function () {
             var channel = null;
             this.channels.each(function (key, value) {
-                if (key instanceof GenericChannel && !value.isActive && value.canStart) {
+                if (key instanceof TlChannel && !value.isActive && value.canStart) {
                     channel = key;
                 }
             });
@@ -364,7 +364,7 @@ define([
             if (!channel) {
                 this.channels.each(function (key, value) {
                     // channel.isActive later
-                    if (key instanceof GenericChannel) {
+                    if (key instanceof TlChannel) {
                         channel = key;
                     }
                 });
@@ -383,7 +383,7 @@ define([
 
     }, extensions);
 
-    // the message type to communicate between ChannelGroups via GenericChannels
+    // the message type to communicate between ChannelGroups via TlChannels
     // it can wrap a user message or the RemoteChannelList packet
     function ChannelGroupMessage(type, data, ref) {
         if (!$.isPlainObject(data)) {
