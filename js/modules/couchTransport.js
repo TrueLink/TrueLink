@@ -1,9 +1,10 @@
-define(["zepto", "settings"], function ($, Settings) {
+define(["zepto", "settings", "tools/invariant"], function ($, Settings, invariant) {
     "use strict";
 
-        var ajaxTimeout = 20000;
+    var ajaxTimeout = 20000;
     // CouchTransport uses strings as channelName
     function CouchTransport(url, channels, prefix) {
+        invariant(url && (typeof url === "string"), "url must be a string");
         this.handler = null;
         this.saveKey = (prefix || "") + "_lastSecFor_" + url;
         this.url = url;
@@ -16,7 +17,7 @@ define(["zepto", "settings"], function ($, Settings) {
 
     $.extend(CouchTransport.prototype, {
         addChannel: function (channelName) {
-            if (!channelName) { return; }
+            invariant(channelName && (typeof channelName === "string"), "channelName must be a string");
             var i;
             for (i = 0; i < this.channels.length; i += 1) {
                 if (this.channels[i] === channelName) { return; }
@@ -51,7 +52,7 @@ define(["zepto", "settings"], function ($, Settings) {
 
         },
         deleteChannel: function (channelName) {
-            if (!channelName) { return; }
+            invariant(channelName && (typeof channelName === "string"), "channelName must be a string");
             var i;
             for (i = 0; i < this.channels.length; i += 1) {
                 if (this.channels[i] === channelName) {
@@ -63,6 +64,7 @@ define(["zepto", "settings"], function ($, Settings) {
             }
         },
         setHandler: function (cb) {
+            invariant(data && $.isFunction(cb), "callback must be a function");
             this.handler = cb;
         },
         stop: function () {
@@ -70,6 +72,8 @@ define(["zepto", "settings"], function ($, Settings) {
             this._cancel();
         },
         sendMessage: function (chId, data) {
+            invariant(chId && (typeof chId === "string"), "chId must be a string");
+            invariant(data && (typeof data === "string"), "data must be a string");
             this.messages.unshift({
                 ChannelId: chId,
                 DataString: data
@@ -97,6 +101,7 @@ define(["zepto", "settings"], function ($, Settings) {
 
         },
         _handleResult: function (data) {
+            invariant(this.handler, "handler is not set");
             try {
                 if (!data || !data.last_seq) {
                     throw new Error("Wrong answer structure");
