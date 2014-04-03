@@ -8,8 +8,9 @@ define([
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js",
     "modules/cryptography/aes-sjcl",
-    "modules/converters/customTypes"
-], function ($, Channel, tokens, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes) {
+    "modules/converters/customTypes",
+    "tools/invariant"
+], function ($, Channel, tokens, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant) {
     "use strict";
 
     var dhPrivBitLength = 160;
@@ -21,6 +22,9 @@ define([
     // tl channel that is used during key exchange (while channel is being set up)
     function TlkeChannel() {
         this.state = TlkeChannel.STATE_NOT_STARTED;
+        this._setTokenHandler(tokens.TlkeChannel.GenerateToken, this.onTokenGenerate);
+        this._setTokenHandler(tokens.TlkeChannel.OfferToken, this.onTokenOffer);
+        this._setTokenHandler(tokens.TlkeChannel.AuthToken, this.onTokenAuth);
     }
 
     TlkeChannel.authBitLength = 16;
@@ -28,16 +32,23 @@ define([
 
     TlkeChannel.prototype = new Channel();
     $.extend(TlkeChannel.prototype, {
-        enterToken: function (token, context) {
-            if (token instanceof tokens.TlkeChannel.GenerateToken) {
-                this._generateOffer();
-            } else if (token instanceof tokens.TlkeChannel.OfferToken) {
-                this._acceptOffer(token.offer);
-            } else if (token instanceof tokens.TlkeChannel.AuthToken) {
-                this._acceptAuth(token.auth);
-            }
-            this._notifyDirty();
+
+        onTokenGenerate: function (token, context) {
+            invariant(this.state === TlkeChannel.STATE_NOT_STARTED,
+                "Can't accept this token being in a state %s", this.state);
+            this._generateOffer();
         },
+        onTokenOffer: function (token, context) {
+            invariant(this.state === TlkeChannel.STATE_NOT_STARTED,
+                "Can't accept this token being in a state %s", this.state);
+            invariant(token.offer, "Received an empty offer");
+            this._acceptOffer(token.offer);
+        },
+        onTokenAuth: function (token, context) {
+            invariant(token.auth, "Received an empty auth");
+            this._acceptAuth(token.auth);
+        },
+
         processPacket: function (bytes) {
             switch (this.state) {
             case TlkeChannel.STATE_AWAITING_OFFER_RESPONSE:
@@ -58,10 +69,8 @@ define([
             this._notifyDirty();
         },
 
-        serialize: function () { throw new Error("Not implemented"); },
-
         _encrypt: function (bytes, customKey) {
-            var iv = this.random.bitArray(128);
+            var iv = this._getRandomBytes(128);
             var aes = new Aes(customKey || this.dhAesKey);
             var encryptedData = aes.encryptCbc(bytes, iv);
             return iv.as(Bytes).concat(encryptedData);
@@ -77,11 +86,8 @@ define([
 
         // Alice 1.1 (instantiation)
         _generateOffer: function () {
-            if (!this.random || typeof this.random.bitArray !== "function") {
-                throw new Error("No valid rng is set");
-            }
-            this.dh = new DiffieHellman(dhPrivBitLength, this.random);
-            var dhAes = this.random.bitArray(TlkeChannel.offerBitLength);
+            this.dh = DiffieHellman.generate(dhPrivBitLength, this.random);
+            var dhAes = this._getRandomBytes(TlkeChannel.offerBitLength);
             this.dhAesKey = dhAes;
             var outId = dhAes.bitSlice(0, 16);
             var inId = dhAes.bitSlice(16, 32);
@@ -91,11 +97,12 @@ define([
             this._onChangeState();
             this._sendPacket(this._getOfferData());
             this._emitPrompt(new tokens.TlkeChannel.OfferToken(this.dhAesKey));
+            this._notifyDirty();
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
         _acceptOffer: function (offer) {
-            this.dh = new DiffieHellman(dhPrivBitLength, this.random);
+            this.dh = DiffieHellman.generate(dhPrivBitLength, this.random);
             var dhAes = offer.as(Hex).as(BitArray);
             this.dhAesKey = dhAes;
             var inId = dhAes.bitSlice(0, 16);
@@ -103,6 +110,7 @@ define([
             this._emitPrompt(new tokens.TlkeChannel.TlkeChannelGeneratedToken(inId, outId));
             this.state = TlkeChannel.STATE_AWAITING_OFFER;
             this._onChangeState();
+            this._notifyDirty();
         },
 
         _getOfferData: function () {
@@ -143,8 +151,8 @@ define([
             var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
             this.dhk = new Hex(dhkHex);
 
-            this.auth = this.random.bitArray(TlkeChannel.authBitLength);
-            this.check = this.random.bitArray(128);
+            this.auth = this._getRandomBytes(TlkeChannel.authBitLength);
+            this.check = this._getRandomBytes(128);
             this.state = TlkeChannel.STATE_AWAITING_AUTH_RESPONSE;
             this._onChangeState();
             this._sendPacket(this._getAuthData());
@@ -175,6 +183,7 @@ define([
             if (this.authData) {
                 this._acceptAuthAndData();
             }
+            this._notifyDirty();
         },
 
         // Bob 4.3 (4.1 + 4.2)
@@ -197,6 +206,7 @@ define([
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
             ));
+            this._notifyDirty();
         },
 
         _getAuthResponse: function () {
@@ -229,7 +239,9 @@ define([
 
         _onChangeState: function () {
             this._emitPrompt(new tokens.TlkeChannel.ChangeStateToken(this.state));
-        }
+        },
+
+        serialize: function () { throw new Error("Not implemented"); }
     });
 
     TlkeChannel.deserialize = function (dto) {
