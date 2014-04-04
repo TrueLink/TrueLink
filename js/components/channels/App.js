@@ -49,7 +49,7 @@ define([
                     model: {contacts: this.props.model.contactList }
                 }));
 
-            var dialogComponent = (!(current && !current.isSync)) ||
+            var dialogComponent = (!(current && !current.isSyncApp)) ||
                 (current &&
                     !(current.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED ||
                      current.state === TlkeChannel.STATE_CONNECTION_SYNCED)) ? null :

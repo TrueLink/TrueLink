@@ -102,7 +102,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
                 elem = React.DOM.div({className: "row"},
                         React.DOM.div({className: "small-12 columns"},
                             React.DOM.label(null, "Offer", React.DOM.input({ref: "offer", type: "text", placeholder: "Offer digits"}))),
-                        model.isSync ? null : React.DOM.div({className: "small-6 columns"},
+                        model.isSyncApp ? null : React.DOM.div({className: "small-6 columns"},
                             React.DOM.a({className: "expand radius button", onClick: this.generate}, "Generate")),
                         React.DOM.div({className: "small-6 columns"},
                             React.DOM.a({className: "expand radius button", onClick: this.accept}, "Accept")));
@@ -114,12 +114,12 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
 
                 model.prompts.forEach(function (prompt) {
                     elem = null;
-                    if (prompt.token instanceof tokens.ContactChannelGroup.OfferToken) {
+                    if (prompt.token instanceof tokens.TlkeChannel.OfferToken) {
                         if (prompt.token.offer) {
                             elem = React.DOM.label(null, "Offer", React.DOM.input({type: "text", readOnly: true, value: prompt.token.offer.as(DecBlocks).toString()}));
                         }
                     }
-                    if (prompt.token instanceof tokens.ContactChannelGroup.AuthToken) {
+                    if (prompt.token instanceof tokens.TlkeChannel.AuthToken) {
                         if (prompt.token.auth) {
                             elem = React.DOM.label(null, "Auth", React.DOM.input({type: "text", readOnly: true, value: prompt.token.auth.as(DecBlocks).toString()}));
                         } else {
@@ -139,7 +139,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED || model.state === TlkeChannel.STATE_CONNECTION_SYNCED) {
                 elem = React.DOM.div({className: "row"},
                     React.DOM.div({className: "small-12 columns"},
-                        model.isSync ?
+                        model.isSyncApp ?
                                 React.DOM.a({className: "tiny success radius button", onClick: this.startSync}, "Start sync") :
                                 React.DOM.a({className: "tiny radius button", onClick: this.addOver}, "Add channel over channel")));
 

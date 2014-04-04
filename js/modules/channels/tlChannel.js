@@ -40,8 +40,8 @@ define([
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof tokens.TlkeChannel.TlChannelGeneratedToken) {
-                this._setupChannel(token.key);
+            if (token instanceof tokens.TlChannel.InitToken) {
+                //this._setupChannel(token.key);
             }
         },
 
