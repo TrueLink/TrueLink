@@ -4,17 +4,10 @@ define([
     "tools/invariant",
     "modules/channels/tokens",
     "modules/channels/tlkeChannel",
-    "modules/channels/tlChannel",
+    "modules/channels/htChannel",
     "tools/urandom"
-], function ($, Dictionary, invariant, tokens, TlkeChannel, TlChannel, urandom) {
+], function ($, Dictionary, invariant, tokens, TlkeChannel, HtChannel, urandom) {
     "use strict";
-
-
-    //   tokens: [{token: token, context: context}],
-    //   messages: [text: "bla"],
-    //   state: 1,
-    //   overChannelLastState: 2
-    //   error: Error
 
     function Contact() {
         this.messages = [];
@@ -35,6 +28,11 @@ define([
             this.notifier = notifier;
         },
 
+        setTokenPrompter: function (prompter) {
+            invariant($.isFunction(prompter.prompt), "prompter is not implementing ITokenPrompter");
+            this.prompter = prompter;
+        },
+
         // IChannelRouter:
         // void addChannel(Channel channel, multivalue inId, multivalue outId)
         // void removeChannel(Channel channel)
@@ -44,30 +42,26 @@ define([
             this.packetRouter = router;
         },
 
-        // ITokenSender:
+        // IMessageSender:
         // void sendInternalMessage(Contact sender, PlainObject data)
-        setTokenSender: function (sender) {
-            invariant(sender && $.isFunction(sender.sendInternalMessage), "sender is not implementing ITokenSender");
-            this.tokenSender = sender;
+        setMessageSender: function (sender) {
+            invariant(sender && $.isFunction(sender.sendMessage), "sender is not implementing IMessageSender");
+            this.messageSender = sender;
         },
 
-        _sendToken: function (token, context) {
-            invariant(this.tokenSender, "tokenSender is not set");
-            //{
-            //  "ct" = "classname",           // command type: text (for deserialization purposes)
-            //  "c" = 123456,                 // context: object or random int (for internal use)
-            //  "d" = { /* plain object */ }  // data: serialized command data
-            //}
-            var msg = $.extend({
-                c: context
-            }, token.serialize());
-            this.tokenSender.sendInternalMessage(this, msg);
+        //the message received via TlChannel
+        processMessage: function (msgData) {
+            var message = ContactMessage.deserialize(msgData);
+            if (message.type === ContactMessage.MSG_TYPE_USER) {
+                this.messages.push(message.data);
+                this._notifyDirty();
+            } else if (message.type === ContactMessage.MSG_TYPE_WRAPPER) {
+                this.processTokenMessage(tokens.deserialize(message.data), message.context);
+            }
         },
 
-        // process internal message received via TlChannel
-        processMessage: function (msg) {
-            var token = tokens.deserialize(msg);
-            var context = msg.c;
+        // process token from the message received via TlChannel
+        processTokenMessage: function (token, context) {
             var found = this.channels.first(function (item) { return item.context === context; });
             if (!found && !(token instanceof tokens.TlkeChannel.OfferToken)) {
                 console.warn("could not find a receiver for the token");
@@ -116,7 +110,7 @@ define([
 
             if (token instanceof tokens.TlkeChannel.TlkeChannelGeneratedToken) {
                 // learn new ids
-                this.onChannelNewIds(channel, token);
+                this.onChannelNewIds(channel, token.inId, token.outId);
             } else if (token instanceof tokens.TlkeChannel.ChangeStateToken) {
                 if (info.context) {
                     this.lastLevel2ChannelState = token.state;
@@ -124,7 +118,7 @@ define([
                     this.state = token.state;
                 }
                 this._notifyDirty();
-            } else if (token instanceof tokens.TlkeChannel.TlChannelGeneratedToken) {
+            } else if (token instanceof tokens.HtChannel.InitToken) {
                 // create new generic channel
                 this.onNewTlChannelKeysReady(token);
             }
@@ -138,6 +132,21 @@ define([
             }
         },
 
+        onChannelNewIds: function (channel, inId, outId) {
+            invariant(this.packetRouter, "packetRouter is not set");
+            this.packetRouter.addChannel(channel, inId, outId);
+        },
+
+        onNewTlChannelKeysReady: function (token) {
+            var htChannel = new HtChannel();
+            this._setTokenPrompter(htChannel, function (token) {
+                if (token instanceof tokens.TlChannel.InitToken) {
+                    this._emitToken(token);
+                }
+            });
+            this.onChannelNewIds(htChannel, token.inId, token.outId);
+        },
+
 
         onLevel2ChannelToken: function (channel, token, context) {
             if ((token instanceof tokens.TlkeChannel.OfferToken) && token.offer) {
@@ -148,16 +157,13 @@ define([
         },
 
 
-        onChannelNotifyDirty: function () {
+        onChannelNotifyDirty: function (channel) {
             this._notifyDirty();
         },
 
         _addChannel: function (channel, reference) {
             this._setTokenPrompter(channel, this.onChannelToken);
             this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
-            if (channel instanceof TlChannel) {
-                this._setMsgProcessor(channel, this.onChannelMessage);
-            }
             channel.setRng(this.random);
             this.channels.setItem(channel, {
                 context: reference
@@ -169,8 +175,39 @@ define([
             if (this.notifier) {
                 this.notifier.notify(this);
             }
+        },
+
+        _emitToken: function (token) {
+            invariant(this.prompter, "tokenPrompter is not set");
+            this.prompter.prompt(this, token);
+        },
+
+        _sendToken: function (token, context) {
+            invariant(this.messageSender, "messageSender is not set");
+            var message = new ContactMessage(ContactMessage.MSG_TYPE_WRAPPER, token.serialize(), context);
+            this.messageSender.sendMessage(this, messageData);
         }
     });
+
+    function ContactMessage(type, data, context) {
+        this.data = data;
+        this.type = type;
+        this.context = context;
+    }
+    ContactMessage.prototype.serialize = function () {
+        var serialized = {
+            t: this.type,
+            d: this.data
+        };
+        if (this.context !== undefined) {
+            serialized.c = this.context;
+        }
+    };
+    ContactMessage.deserialize = function (dto) {
+        return new ContactMessage(dto.t, dto.d, dto.c);
+    };
+    ContactMessage.MSG_TYPE_USER = "u";
+    ContactMessage.MSG_TYPE_WRAPPER = "c";
 
     return Contact;
 });
