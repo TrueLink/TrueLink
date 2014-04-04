@@ -201,7 +201,7 @@ define([
             this._onChangeState();
             this._sendPacket(this._getAuthResponse());
             var hCheck = hash(this.check);
-            this._emitPrompt(new tokens.TlkeChannel.TlChannelGeneratedToken(
+            this._emitPrompt(new tokens.HtChannel.InitToken(
                 hCheck.bitSlice(0, 16),
                 hCheck.bitSlice(16, 32),
                 hash(this.check.as(Bytes).concat(verified))
@@ -230,7 +230,7 @@ define([
             }
             this.state = TlkeChannel.STATE_CONNECTION_ESTABLISHED;
             this._onChangeState();
-            this._emitPrompt(new tokens.TlkeChannel.TlChannelGeneratedToken(
+            this._emitPrompt(new tokens.HtChannel.InitToken(
                 hCheck.bitSlice(16, 32),
                 hCheck.bitSlice(0, 16),
                 hash(this.check.as(Bytes).concat(verified))

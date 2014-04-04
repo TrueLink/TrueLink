@@ -3,7 +3,7 @@ define(["modules/data-types/hex"], function (Hex) {
     var tokens = {
         TlkeChannel: {},
         TlChannel: {},
-        ContactChannelGroup: {}
+        HtChannel: {}
     };
     tokens.TlkeChannel.GenerateToken = function () {};
     tokens.TlkeChannel.OfferToken = function (offerBytes) { this.offer = offerBytes; };
@@ -38,10 +38,17 @@ define(["modules/data-types/hex"], function (Hex) {
         this.inId = inId;
         this.outId = outId;
     };
-    tokens.TlkeChannel.TlChannelGeneratedToken = function (inId, outId, key) {
+    tokens.HtChannel.InitToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;
+    };
+
+    tokens.TlChannel.InitToken = function (inId, outId, key, ht) {
+        this.inId = inId;
+        this.outId = outId;
+        this.key = key;
+        this.hashTail = ht;
     };
 
     tokens.TlChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
