@@ -9,7 +9,7 @@ define([
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-    ], function ($, Channel, tokens, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+], function ($, Channel, tokens, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -40,7 +40,7 @@ define([
 
         // token received from user
         enterToken: function (token, context) {
-            if (token instanceof tokens.TlkeChannel.GenericChannelGeneratedToken) {
+            if (token instanceof tokens.TlkeChannel.TlChannelGeneratedToken) {
                 this._setupChannel(token.key);
             }
         },
@@ -51,7 +51,7 @@ define([
                 this._emitUserMessage(message.data);
             } else {
                 console.error("Received a user message with wrong signature, rejected");
-                this._emitPrompt(new tokens.GenericChannel.WrongSignatureToken(message.data));
+                this._emitPrompt(new tokens.TlChannel.WrongSignatureToken(message.data));
             }
         },
 
@@ -115,10 +115,10 @@ define([
             }
             this.hashCounter -= 1;
             if (this.hashCounter === TlChannel.HashExperiesCount) {
-                this._emitPrompt(new tokens.GenericChannel.ExpiresToken());
+                this._emitPrompt(new tokens.TlChannel.ExpiresToken());
             }
             if (this.hashCounter < 1) {
-                this._emitPrompt(new tokens.GenericChannel.ExpiredToken());
+                this._emitPrompt(new tokens.TlChannel.ExpiredToken());
             }
             this._notifyDirty();
 
