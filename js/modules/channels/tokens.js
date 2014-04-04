@@ -44,11 +44,12 @@ define(["modules/data-types/hex"], function (Hex) {
         this.key = key;
     };
 
-    tokens.TlChannel.InitToken = function (inId, outId, key, ht) {
+    tokens.TlChannel.InitToken = function (inId, outId, key, hashStart, hashTail) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;
-        this.hashTail = ht;
+        this.hashStart = hashStart;
+        this.hashTail = hashTail;
     };
 
     tokens.TlChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
