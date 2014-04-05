@@ -43,7 +43,7 @@ define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/he
                 console.warn("Could not found any route for the channel. Ensure addRoute() calls");
                 return;
             }
-            var outIdStr = route.outId.toString();
+            var outIdStr = route.value.outId.toString();
             var dataStr = packetData.as(Hex).toString();
             this.transport.sendMessage(outIdStr, dataStr);
         },

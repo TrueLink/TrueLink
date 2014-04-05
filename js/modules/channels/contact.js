@@ -29,6 +29,12 @@ define([
             throw new Error("not implemented");
         },
 
+        // IRng: multivalue bitArray(bitLength)
+        setRng: function (rng) {
+            invariant(rng && $.isFunction(rng.bitArray), "rng is not implementing IRng");
+            this.random = rng;
+        },
+
         // IContactDirtyNotifier notifier:
         // void notifyContactDirty(Contact contact, Channel channel);
         setDirtyNotifier: function (notifier) {
@@ -99,7 +105,7 @@ define([
             try {
                 this.tlkeChannel = new TlkeChannel();
                 this._addChannel(this.tlkeChannel);
-                this.tlkeChannel.enterToken(tokens.tlkeChannel.GenerateToken());
+                this.tlkeChannel.enterToken(new tokens.TlkeChannel.GenerateToken());
             } catch (ex) {
                 this._setError(ex);
             }
@@ -208,6 +214,8 @@ define([
         },
 
         _addChannel: function (channel, reference) {
+            invariant(this.packetRouter, "packetRouter is not set");
+            invariant(this.random, "rng is not set");
             channel.setTokenPrompter(this);
             channel.setDirtyNotifier(this);
             channel.setPacketSender(this.packetRouter);

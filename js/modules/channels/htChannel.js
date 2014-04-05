@@ -32,7 +32,7 @@ define([
         _emitTlSetupToken: function (hashtail) {
             invariant(hashtail && $.isFunction(hashtail.as), "hashtail must be multivalue");
             invariant(this.dhAesKey && this.inId && this.outId && this.hashStart, "channel is not configured");
-            this._emitPrompt(tokens.TlChannel.InitToken(this.inId, this.outId, this.dhAesKey, this.hashStart, hashtail));
+            this._emitPrompt(new tokens.TlChannel.InitToken(this.inId, this.outId, this.dhAesKey, this.hashStart, hashtail));
         },
 
         _setupChannel: function (token) {

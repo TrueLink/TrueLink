@@ -40,6 +40,7 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
             this._tokenHandlers.item(tokenType, handler);
         },
         _enterToken: function (token, context) {
+            invariant(token, "Token can not be empty");
             if (!this._tokenHandlers) {
                 console.warn("No token handler is set for the channel ", this);
                 return;

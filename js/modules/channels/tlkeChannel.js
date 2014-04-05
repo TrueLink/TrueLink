@@ -8,8 +8,8 @@ define([
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js",
     "modules/cryptography/aes-sjcl",
-    "modules/converters/customTypes",
-    "tools/invariant"
+    "tools/invariant",
+    "modules/converters/customTypes"
 ], function ($, Channel, tokens, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant) {
     "use strict";
 

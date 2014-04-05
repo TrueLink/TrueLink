@@ -7,9 +7,8 @@ define([
     "modules/data-types/hex",
     "modules/couchTransport",
     "modules/dictionary",
-    "tools/random",
-    "tools/urandom"
-], function ($, tokens, Contact, TlkeChannel, PacketRouter, Hex, CouchTransport, Dictionary, random, urandom) {
+    "tools/random"
+], function ($, tokens, Contact, TlkeChannel, PacketRouter, Hex, CouchTransport, Dictionary, random) {
     "use strict";
 
     function App(id, isSync) { // : ITlChannelOwner, IContactDirtyNotifier, IMessageSender
@@ -80,7 +79,7 @@ define([
             contact.setMessageSender(this);
             contact.setPacketRouter(this.packetRouter);
             contact.setTlChannelOwner(this);
-
+            contact.setRng(random);
             this.onStateChanged();
         },
 
