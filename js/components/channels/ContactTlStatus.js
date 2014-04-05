@@ -25,7 +25,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
 
         setError: function (err) {
             console.error(err);
-            this.setErrorMessage(ex.message || JSON.stringify(err));
+            this.setErrorMessage(err.message || JSON.stringify(err));
         },
 
         generate: function () {
@@ -89,13 +89,13 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             var model = this.props.model;
             var acceptAuth = this.acceptAuth;
             var labelClassName = "secondary";
-            var error = model.error ? (model.error.message || JSON.stringify(model.error)) : this.state.error;
+            var error = model.lastError ? (model.lastError.message || JSON.stringify(model.lastError)) : this.state.error;
             if (model.state === TlkeChannel.STATE_CONNECTION_FAILED) { labelClassName = "alert"; }
             if (model.state === TlkeChannel.STATE_CONNECTION_ESTABLISHED || model.state === TlkeChannel.STATE_CONNECTION_SYNCED) { labelClassName = "success"; }
             var status = error ? React.DOM.span({className: "alert right radius label"}, error) :
                     React.DOM.span({className: labelClassName + " right radius label"}, stateStatuses[model.state]);
-            var overStatusSpan = !model.overChannelLastState ? null :
-                    React.DOM.span({className: "secondary right radius label"}, "OverChannels: " + stateStatuses[model.overChannelLastState]);
+            var overStatusSpan = !model.lastLevel2ChannelState ? null :
+                    React.DOM.span({className: "secondary right radius label"}, "OverChannels: " + stateStatuses[model.lastLevel2ChannelState]);
             status = React.DOM.div({className: "row"}, React.DOM.div({className: "small-12 columns"}, status, overStatusSpan));
             var actions = {};
 

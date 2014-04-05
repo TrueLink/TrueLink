@@ -6,7 +6,7 @@ define(["zepto", "modules/channels/channel"], function (Channel) {
     $.extend(MessagingChannel.prototype, {
         // IMessageProcessor: void processChannelMessage(MessagingChannel channel, PlainObject data)
         setMessageProcessor: function (messageProcessor) {
-            invariant($.isFunction(messageProcessor.processChannelMessage), "messageProcessor is not implementing IMessageProcessor");
+            invariant(messageProcessor && $.isFunction(messageProcessor.processChannelMessage), "messageProcessor is not implementing IMessageProcessor");
             this.messageProcessor = messageProcessor;
         },
         // data: plain object

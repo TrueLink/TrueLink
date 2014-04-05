@@ -25,6 +25,10 @@ define([
 
     $.extend(Contact.prototype, {
 
+        sendUserMessage: function () {
+            throw new Error("not implemented");
+        },
+
         // IContactDirtyNotifier notifier:
         // void notifyContactDirty(Contact contact, Channel channel);
         setDirtyNotifier: function (notifier) {
@@ -245,7 +249,8 @@ define([
             this.tlOwner.createTlChannel(token.inId, token.outId, token.key, token.hashStart, token.backHashEnd);
         },
         _setError: function (ex) {
-            this.lastError = ex.message || JSON.stringify(ex);
+            console.error(ex);
+            this.lastError = ex;
             this._notifyDirty();
         }
     }, bind);

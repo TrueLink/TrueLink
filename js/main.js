@@ -53,23 +53,23 @@
                 app.contacts.items().forEach(function (item) {
                     var name = item.value.name;
                     var contact = item.key;
-                    contactList[name] = $.extend({
+                    contactList[name] = {
                         channelsData: [],
                         startSync: function () {
                             throw new Error("not implemented");
-                        }
-                    }, contact);
+                        },
+                        generateTlke: contact.generateTlke.bind(contact),
+                        acceptTlkeOffer: contact.acceptTlkeOffer.bind(contact),
+                        acceptTlkeAuth: contact.acceptTlkeAuth.bind(contact),
+                        sendTextMessage: contact.sendUserMessage.bind(contact),
+                        generateNewChannel: contact.generateNewChannel.bind(contact),
 
-//                        $.extend({
-//                        generateTlke: app.generateTlkeFor.bind(app, chGroup),
-//                        acceptTlkeOffer: app.acceptTlkeOferFor.bind(app, chGroup),
-//                        acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
-//                        sendTextMessage: app.sendTextMessage.bind(app, chGroup),
-//                        addOver: app.createOverChannel.bind(app, chGroup),
-//                        startSync: app.startSync.bind(app, chGroup),
-//                        isSync: chGroup instanceof Contact,
-//                        // todo temp
-//                    });
+                        lastError: contact.lastError,
+                        lastLevel2ChannelState: contact.lastLevel2ChannelState,
+                        state: contact.state,
+                        prompts: contact.prompts,
+                        messages: contact.messages
+                    };
                 });
                 return {
                     id: id,

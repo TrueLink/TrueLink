@@ -14,7 +14,7 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
 
         // ITokenPrompter: void promptChannelToken(Channel channel, Token token, Object context)
         setTokenPrompter: function (prompter) {
-            invariant($.isFunction(prompter.promptChannelToken), "prompter is not implementing ITokenPrompter");
+            invariant(prompter && $.isFunction(prompter.promptChannelToken), "prompter is not implementing ITokenPrompter");
             this.tokenPrompter = prompter;
         },
         // by default: search for token handlers set by this._setTokenHandler()
@@ -22,12 +22,12 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
 
         // IDirtyNotifier: void notifyChannelDirty(Channel channel)
         setDirtyNotifier: function (dirtyNotifier) {
-            invariant($.isFunction(dirtyNotifier.notifyChannelDirty), "dirtyNotifier is not implementing IDirtyNotifier");
+            invariant(dirtyNotifier && $.isFunction(dirtyNotifier.notifyChannelDirty), "dirtyNotifier is not implementing IDirtyNotifier");
             this.dirtyNotifier = dirtyNotifier;
         },
         // IRng: multivalue bitArray(bitLength)
         setRng: function (rng) {
-            invariant($.isFunction(rng.bitArray), "rng is not implementing IRng");
+            invariant(rng && $.isFunction(rng.bitArray), "rng is not implementing IRng");
             this.random = rng;
         },
 
