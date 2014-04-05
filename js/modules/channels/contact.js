@@ -25,30 +25,31 @@ define([
 
     $.extend(Contact.prototype, {
 
-        // IContactDirtyNotifier:
+        // IContactDirtyNotifier notifier:
         // void notifyContactDirty(Contact contact, Channel channel);
         setDirtyNotifier: function (notifier) {
             invariant($.isFunction(notifier.notifyContactDirty), "notifier is not implementing IContactDirtyNotifier");
             this.dirtyNotifier = notifier;
         },
 
-        // ITlChannelOwner:
+        // ITlChannelOwner tlOwner:
         // void createTlChannel(inId, outId, key, hashStart, backHashEnd)
         setTlChannelOwner: function (tlOwner) {
             invariant($.isFunction(tlOwner.createTlChannel), "tlOwner is not implementing ITlChannelOwner");
             this.tlOwner = tlOwner;
         },
 
-        // IChannelRouter:
-        // void addChannel(Channel channel, multivalue inId, multivalue outId)
-        // void removeChannel(Channel channel)
+        // IChannelRouter, IPacketSender router:
+        // void addRoute(IPacketProcessor packetReceiver, Channel channel, multivalue inId, multivalue outId)
+        // void removeRoute(Channel channel)
         setPacketRouter: function (router) {
-            invariant($.isFunction(router.addChannel), "router is not implementing IChannelRouter");
-            invariant($.isFunction(router.removeChannel), "router is not implementing IChannelRouter");
+            invariant($.isFunction(router.addRoute), "router is not implementing IChannelRouter");
+            invariant($.isFunction(router.removeRoute), "router is not implementing IChannelRouter");
+            invariant($.isFunction(router.sendChannelPacket), "router is not implementing IPacketSender");
             this.packetRouter = router;
         },
 
-        // IMessageSender:
+        // IMessageSender sender:
         // void sendInternalMessage(Contact sender, PlainObject data)
         setMessageSender: function (sender) {
             invariant(sender && $.isFunction(sender.sendMessage), "sender is not implementing IMessageSender");
@@ -69,6 +70,23 @@ define([
                 channel.enterToken(new tokens.HtChannel.HtToken(ht));
             }
         },
+
+        // packet from packetRouter
+        processPacket: function (channel, packetData) {
+            invariant(packetData && packetData.as, "packetData must be multivalue");
+            try {
+                var htChannelFound = this.channels.item(channel);
+                if (htChannelFound) {
+                    channel.processPacket(data);
+                } else {
+                    console.warn("could not find the channel packet receiver");
+                }
+            } catch (ex) {
+                this.lastError = ex.message;
+                this._notifyDirty();
+            }
+        },
+
 
         generateTlke: function () {
             this.tlkeChannel = new TlkeChannel();
@@ -142,13 +160,11 @@ define([
 
         _notifyChannelNewIds: function (channel, inId, outId) {
             invariant(this.packetRouter, "packetRouter is not set");
-            this.packetRouter.addChannel(channel, inId, outId);
+            this.packetRouter.addRoute(this, channel, inId, outId);
         },
 
         _createHtChannel: function (token) {
-            // todo store htChannels
             var htChannel = new HtChannel();
-
             var prompter = this.bind(function (token) {
                 if (token instanceof tokens.HtChannel.HtToken) {
                     this._sendHt(htChannel, token.ht);
@@ -158,6 +174,7 @@ define([
             });
             htChannel.setTokenPrompter(prompter);
             htChannel.setMessageProcessor(this);
+            this.channels.item(htChannel, {});
             this._notifyChannelNewIds(htChannel, token.inId, token.outId);
         },
 
@@ -172,7 +189,7 @@ define([
             channel.setDirtyNotifier(this);
             channel.setPacketSender(this.packetRouter);
             channel.setRng(this.random);
-            this.channels.setItem(channel, {
+            this.channels.item(channel, {
                 context: reference
             });
             this._notifyDirty();
