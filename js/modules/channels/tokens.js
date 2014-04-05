@@ -44,6 +44,10 @@ define(["modules/data-types/hex"], function (Hex) {
         this.key = key;
     };
 
+    tokens.HtChannel.HtToken = function (ht) {
+        this.ht = ht;
+    };
+
     tokens.TlChannel.InitToken = function (inId, outId, key, hashStart, hashTail) {
         this.inId = inId;
         this.outId = outId;

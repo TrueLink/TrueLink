@@ -5,8 +5,10 @@ define([
     "modules/channels/tokens",
     "modules/channels/tlkeChannel",
     "modules/channels/htChannel",
-    "tools/urandom"
-], function ($, Dictionary, invariant, tokens, TlkeChannel, HtChannel, urandom) {
+    "tools/urandom",
+    "tools/bind",
+    "modules/data-types/hex"
+], function ($, Dictionary, invariant, tokens, TlkeChannel, HtChannel, urandom, bind, Hex) {
     "use strict";
 
     function Contact() {
@@ -50,13 +52,15 @@ define([
         },
 
         //the message received via TlChannel
-        processMessage: function (msgData) {
+        processMessage: function (channel, msgData) {
             var message = ContactMessage.deserialize(msgData);
             if (message.type === ContactMessage.MSG_TYPE_USER) {
                 this.messages.push(message.data);
                 this._notifyDirty();
             } else if (message.type === ContactMessage.MSG_TYPE_WRAPPER) {
                 this.processTokenMessage(tokens.deserialize(message.data), message.context);
+            } else if (message.type === ContactMessage.MSG_TYPE_HASH) {
+                this.onHashMessage(channel, message.data);
             }
         },
 
@@ -119,7 +123,6 @@ define([
                 }
                 this._notifyDirty();
             } else if (token instanceof tokens.HtChannel.InitToken) {
-                // create new generic channel
                 this.onNewTlChannelKeysReady(token);
             }
 
@@ -138,13 +141,23 @@ define([
         },
 
         onNewTlChannelKeysReady: function (token) {
+            // todo store htChannels
             var htChannel = new HtChannel();
-            this._setTokenPrompter(htChannel, function (token) {
-                if (token instanceof tokens.TlChannel.InitToken) {
+            this._setTokenPrompter(htChannel, this.bind(function (token) {
+                if (token instanceof tokens.HtChannel.HtToken) {
+                    this._sendHt(htChannel, token.ht);
+                } else if (token instanceof tokens.TlChannel.InitToken) {
                     this._emitToken(token);
                 }
-            });
+            }));
+            htChannel.setMsgProcessor({processMessage: function()});
             this.onChannelNewIds(htChannel, token.inId, token.outId);
+        },
+
+        _sendHt: function (channel, ht) {
+            var messageData = ht.as(Hex).serialize();
+            var message = new ContactMessage(ContactMessage.MSG_TYPE_HASH, ht);
+            channel.sendMessage(message.serialize());
         },
 
 
@@ -185,9 +198,9 @@ define([
         _sendToken: function (token, context) {
             invariant(this.messageSender, "messageSender is not set");
             var message = new ContactMessage(ContactMessage.MSG_TYPE_WRAPPER, token.serialize(), context);
-            this.messageSender.sendMessage(this, messageData);
+            this.messageSender.sendMessage(this, message.serialize());
         }
-    });
+    }, bind);
 
     function ContactMessage(type, data, context) {
         this.data = data;
@@ -208,6 +221,7 @@ define([
     };
     ContactMessage.MSG_TYPE_USER = "u";
     ContactMessage.MSG_TYPE_WRAPPER = "c";
+    ContactMessage.MSG_TYPE_HASH = "h";
 
     return Contact;
 });
