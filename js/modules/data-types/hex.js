@@ -29,7 +29,17 @@ define(["modules/data-types/multivalue"], function (createType) {
     };
 
     Hex.deserialize = function (str) {
-        return str ? new Hex(str) : null;
+        if (!str) {
+            throw new Error("Cannot deserialize from empty string");
+        }
+        return new Hex(str);
+    };
+
+    Hex.fromString = function (str) {
+        if (!str) {
+            throw new Error("Cannot create Hex from empty string");
+        }
+        return new Hex(str);
     };
     return createType(Hex, "hex", mixin);
 });

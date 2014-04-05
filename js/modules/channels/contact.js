@@ -114,6 +114,8 @@ define([
         acceptTlkeOffer: function (offer) {
             invariant(offer && $.isFunction(offer.as), "offer must be multivalue");
             try {
+                this.tlkeChannel = new TlkeChannel();
+                this._addChannel(this.tlkeChannel);
                 this.tlkeChannel.enterToken(new tokens.TlkeChannel.OfferToken(offer));
             } catch (ex) {
                 this._setError(ex);
@@ -194,13 +196,13 @@ define([
 
         _createHtChannel: function (token) {
             var htChannel = new HtChannel();
-            var prompter = this.bind(function (token) {
+            var prompter = {promptChannelToken: this.bind(function (token) {
                 if (token instanceof tokens.HtChannel.HtToken) {
                     this._sendHt(htChannel, token.ht);
                 } else if (token instanceof tokens.TlChannel.InitToken) {
                     this._notifyTlReady(token);
                 }
-            });
+            })};
             htChannel.setTokenPrompter(prompter);
             htChannel.setMessageProcessor(this);
             this.channels.item(htChannel, {});
