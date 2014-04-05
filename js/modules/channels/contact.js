@@ -59,54 +59,73 @@ define([
         // IMessageProcessor
         //the message received via TlChannel
         processChannelMessage: function (channel, msgData) {
-            var message = ContactMessage.deserialize(msgData);
-            if (message.type === ContactMessage.MSG_TYPE_USER) {
-                this.messages.push(message.data);
-                this._notifyDirty();
-            } else if (message.type === ContactMessage.MSG_TYPE_WRAPPER) {
-                this._processTokenMessage(tokens.deserialize(message.data), message.context);
-            } else if (message.type === ContactMessage.MSG_TYPE_HASH) {
-                var ht = Hex.serialize(message.data);
-                channel.enterToken(new tokens.HtChannel.HtToken(ht));
+            try {
+                var message = ContactMessage.deserialize(msgData);
+                if (message.type === ContactMessage.MSG_TYPE_USER) {
+                    this.messages.push(message.data);
+                    this._notifyDirty();
+                } else if (message.type === ContactMessage.MSG_TYPE_WRAPPER) {
+                    this._processTokenMessage(tokens.deserialize(message.data), message.context);
+                } else if (message.type === ContactMessage.MSG_TYPE_HASH) {
+                    var ht = Hex.serialize(message.data);
+                    channel.enterToken(new tokens.HtChannel.HtToken(ht));
+                }
+            } catch (ex) {
+                this._setError(ex);
             }
         },
 
-        // packet from packetRouter
+        // IPacketProcessor:
+        // (packet from packetRouter)
         processPacket: function (channel, packetData) {
             invariant(packetData && packetData.as, "packetData must be multivalue");
             try {
                 var htChannelFound = this.channels.item(channel);
                 if (htChannelFound) {
-                    channel.processPacket(data);
+                    channel.processPacket(packetData);
                 } else {
                     console.warn("could not find the channel packet receiver");
                 }
             } catch (ex) {
-                this.lastError = ex.message;
-                this._notifyDirty();
+                this._setError(ex);
             }
         },
 
-
         generateTlke: function () {
-            this.tlkeChannel = new TlkeChannel();
-            this._addChannel(this.tlkeChannel);
-            this.tlkeChannel.enterToken(tokens.tlkeChannel.GenerateToken());
+            try {
+                this.tlkeChannel = new TlkeChannel();
+                this._addChannel(this.tlkeChannel);
+                this.tlkeChannel.enterToken(tokens.tlkeChannel.GenerateToken());
+            } catch (ex) {
+                this._setError(ex);
+            }
         },
 
         acceptTlkeOffer: function (offer) {
             invariant(offer && $.isFunction(offer.as), "offer must be multivalue");
-            this.tlkeChannel.enterToken(new tokens.TlkeChannel.OfferToken(offer));
+            try {
+                this.tlkeChannel.enterToken(new tokens.TlkeChannel.OfferToken(offer));
+            } catch (ex) {
+                this._setError(ex);
+            }
         },
         acceptTlkeAuth: function (auth) {
             invariant(auth && $.isFunction(auth.as), "auth must be multivalue");
-            this.tlkeChannel.enterToken(new tokens.TlkeChannel.AuthToken(auth));
+            try {
+                this.tlkeChannel.enterToken(new tokens.TlkeChannel.AuthToken(auth));
+            } catch (ex) {
+                this._setError(ex);
+            }
         },
 
         generateNewChannel: function () {
-            var newTlke = new TlkeChannel();
-            this._addChannel(newTlke, urandom.int(1, 0xffffff));
-            newTlke.enterToken(new tokens.TlkeChannel.GenerateToken());
+            try {
+                var newTlke = new TlkeChannel();
+                this._addChannel(newTlke, urandom.int(1, 0xffffff));
+                newTlke.enterToken(new tokens.TlkeChannel.GenerateToken());
+            } catch (ex) {
+                this._setError(ex);
+            }
         },
 
         // ITokenPrompter:
@@ -224,6 +243,10 @@ define([
         _notifyTlReady: function (token) {
             invariant(this.tlOwner, "tlOwner is not set");
             this.tlOwner.createTlChannel(token.inId, token.outId, token.key, token.hashStart, token.backHashEnd)
+        },
+        _setError: function (ex) {
+            this.lastError = ex.message || JSON.stringify(ex);
+            this._notifyDirty();
         }
     }, bind);
 
