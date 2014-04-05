@@ -53,7 +53,7 @@ define(["modules/data-types/hex"], function (Hex) {
         this.outId = outId;
         this.key = key;
         this.hashStart = hashStart;
-        this.hashTail = hashTail;
+        this.backHashEnd = hashTail;
     };
 
     tokens.TlChannel.WrongSignatureToken = function (msg) { this.msg = msg; };
