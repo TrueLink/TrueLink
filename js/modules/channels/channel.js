@@ -4,19 +4,25 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
     // tl channel base
     function Channel() { }
     Channel.prototype = {
-        // IPacketSender: void sendPacket(Channel channel, Multivalue bytes)
+        // IPacketSender: void sendChannelPacket(Channel channel, Multivalue bytes)
         setPacketSender: function (packetSender) {
-            invariant($.isFunction(packetSender.sendPacket), "packetSender is not implementing IPacketSender");
+            invariant($.isFunction(packetSender.sendChannelPacket), "packetSender is not implementing IPacketSender");
             this.packetSender = packetSender;
         },
-        // ITokenPrompter: void prompt(Channel channel, Token token, Object context)
+        // bytes: multivalue
+        processPacket: function (bytes) { throw new Error("Not implemented"); },
+
+        // ITokenPrompter: void promptChannelToken(Channel channel, Token token, Object context)
         setTokenPrompter: function (prompter) {
-            invariant($.isFunction(prompter.prompt), "prompter is not implementing ITokenPrompter");
+            invariant($.isFunction(prompter.promptChannelToken), "prompter is not implementing ITokenPrompter");
             this.tokenPrompter = prompter;
         },
-        // IDirtyNotifier: void notify(Channel channel)
+        // by default: search for token handlers set by this._setTokenHandler()
+        enterToken: function (token, context) { this._enterToken(token, context); },
+
+        // IDirtyNotifier: void notifyChannelDirty(Channel channel)
         setDirtyNotifier: function (dirtyNotifier) {
-            invariant($.isFunction(dirtyNotifier.notify), "dirtyNotifier is not implementing IDirtyNotifier");
+            invariant($.isFunction(dirtyNotifier.notifyChannelDirty), "dirtyNotifier is not implementing IDirtyNotifier");
             this.dirtyNotifier = dirtyNotifier;
         },
         // IRng: multivalue bitArray(bitLength)
@@ -25,15 +31,11 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
             this.random = rng;
         },
 
-        // by default: search for token handlers set by this._setTokenHandler()
-        enterToken: function (token, context) { this._enterToken(token, context); },
-
-        processPacket: function (bytes) { throw new Error("Not implemented"); },
         serialize: function () { throw new Error("Not implemented"); },
 
         _setTokenHandler: function (tokenType, handler) {
-            invariant($.isFunction(tokenType), "tokenType should be a token constructor");
-            invariant($.isFunction(handler), "handler should be a function");
+            invariant($.isFunction(tokenType), "tokenType must be a token constructor");
+            invariant($.isFunction(handler), "handler must be a function");
             this._tokenHandlers = this._tokenHandlers || new Dictionary();
             this._tokenHandlers.item(tokenType, handler);
         },
@@ -54,16 +56,16 @@ define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictiona
         },
         _notifyDirty: function () {
             this._check("dirtyNotifier");
-            this.dirtyNotifier.notify(this);
+            this.dirtyNotifier.notifyChannelDirty(this);
         },
         _sendPacket: function (bytes) {
             this._check("packetSender");
-            this.packetSender.sendPacket(this, bytes);
+            this.packetSender.sendChannelPacket(this, bytes);
         },
         _emitPrompt: function (token, context) {
             context = context || {};
             this._check("tokenPrompter");
-            this.tokenPrompter.prompt(this, token, context);
+            this.tokenPrompter.promptChannelToken(this, token, context);
         },
         _getRandomBytes: function (bitLength) {
             this._check("random");

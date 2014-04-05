@@ -11,7 +11,7 @@ define([
 ], function ($, Dictionary, invariant, tokens, TlkeChannel, HtChannel, urandom, bind, Hex) {
     "use strict";
 
-    function Contact() {
+    function Contact() { // : IPacketSender, ITokenPrompter, IDirtyNotifier, IMessageProcessor
         this.messages = [];
         this.tokens = [];
         this.state = null;
@@ -52,7 +52,7 @@ define([
         },
 
         //the message received via TlChannel
-        processMessage: function (channel, msgData) {
+        processChannelMessage: function (channel, msgData) {
             var message = ContactMessage.deserialize(msgData);
             if (message.type === ContactMessage.MSG_TYPE_USER) {
                 this.messages.push(message.data);
@@ -60,7 +60,8 @@ define([
             } else if (message.type === ContactMessage.MSG_TYPE_WRAPPER) {
                 this.processTokenMessage(tokens.deserialize(message.data), message.context);
             } else if (message.type === ContactMessage.MSG_TYPE_HASH) {
-                this.onHashMessage(channel, message.data);
+                var ht = Hex.serialize(message.data);
+                channel.enterToken(new tokens.HtChannel.HtToken(ht));
             }
         },
 
@@ -107,7 +108,8 @@ define([
             newTlke.enterToken(new tokens.TlkeChannel.GenerateToken());
         },
 
-        onChannelToken: function (channel, token, context) {
+        // ITokenPrompter:
+        promptChannelToken: function (channel, token, context) {
             var info = this.channels.item(channel);
             // channel was removed from this.channels
             if (!info) { return; }
@@ -135,32 +137,6 @@ define([
             }
         },
 
-        onChannelNewIds: function (channel, inId, outId) {
-            invariant(this.packetRouter, "packetRouter is not set");
-            this.packetRouter.addChannel(channel, inId, outId);
-        },
-
-        onNewTlChannelKeysReady: function (token) {
-            // todo store htChannels
-            var htChannel = new HtChannel();
-            this._setTokenPrompter(htChannel, this.bind(function (token) {
-                if (token instanceof tokens.HtChannel.HtToken) {
-                    this._sendHt(htChannel, token.ht);
-                } else if (token instanceof tokens.TlChannel.InitToken) {
-                    this._emitToken(token);
-                }
-            }));
-            htChannel.setMsgProcessor({processMessage: function()});
-            this.onChannelNewIds(htChannel, token.inId, token.outId);
-        },
-
-        _sendHt: function (channel, ht) {
-            var messageData = ht.as(Hex).serialize();
-            var message = new ContactMessage(ContactMessage.MSG_TYPE_HASH, ht);
-            channel.sendMessage(message.serialize());
-        },
-
-
         onLevel2ChannelToken: function (channel, token, context) {
             if ((token instanceof tokens.TlkeChannel.OfferToken) && token.offer) {
                 this._sendToken(token, context);
@@ -169,14 +145,42 @@ define([
             }
         },
 
+        onChannelNewIds: function (channel, inId, outId) {
+            invariant(this.packetRouter, "packetRouter is not set");
+            this.packetRouter.addChannel(channel, inId, outId);
+        },
 
-        onChannelNotifyDirty: function (channel) {
+        onNewTlChannelKeysReady: function (token) {
+            // todo store htChannels
+            var htChannel = new HtChannel();
+
+            var prompter = this.bind(function (token) {
+                if (token instanceof tokens.HtChannel.HtToken) {
+                    this._sendHt(htChannel, token.ht);
+                } else if (token instanceof tokens.TlChannel.InitToken) {
+                    this._emitToken(token);
+                }
+            });
+            htChannel.setTokenPrompter(prompter);
+            htChannel.setMessageProcessor(this);
+            this.onChannelNewIds(htChannel, token.inId, token.outId);
+        },
+
+        _sendHt: function (channel, ht) {
+            var messageData = ht.as(Hex).serialize();
+            var message = new ContactMessage(ContactMessage.MSG_TYPE_HASH, messageData);
+            channel.sendMessage(message.serialize());
+        },
+
+
+        notifyChannelDirty: function (channel) {
             this._notifyDirty();
         },
 
         _addChannel: function (channel, reference) {
-            this._setTokenPrompter(channel, this.onChannelToken);
-            this._setDirtyNotifier(channel, this.onChannelNotifyDirty);
+            channel.setTokenPrompter(this);
+            channel.setDirtyNotifier(this);
+            channel.setPacketSender(this.packetRouter);
             channel.setRng(this.random);
             this.channels.setItem(channel, {
                 context: reference

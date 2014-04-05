@@ -1,6 +1,6 @@
 define([
     "zepto",
-    "modules/channels/channel",
+    "modules/channels/messagingChannel",
     "modules/channels/tokens",
     "modules/cryptography/aes-sjcl",
     "modules/channels/tlChannel",
@@ -10,7 +10,7 @@ define([
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js",
     "tools/invariant"
-], function ($, Channel, tokens, Aes, TlChannel, BitArray, Utf8String, Hex, Bytes, SHA1, invariant) {
+], function ($, MessagingChannel, tokens, Aes, TlChannel, BitArray, Utf8String, Hex, Bytes, SHA1, invariant) {
     "use strict";
 
     function hash(value) {
@@ -19,7 +19,7 @@ define([
 
     function HtChannel() {}
 
-    HtChannel.prototype = new Channel();
+    HtChannel.prototype = new MessagingChannel();
     $.extend(HtChannel.prototype, {
         enterToken: function (token, context) {
             if (token instanceof tokens.HtChannel.InitToken) {
@@ -72,13 +72,7 @@ define([
             } catch (ex) {
                 throw new Error("Could not parse packet from the network");
             }
-            this._emitUserMessage(message);
-        },
-
-        // emit user message to this.msgProcessor
-        _emitUserMessage: function (message) {
-            this._check("msgProcessor");
-            this.msgProcessor.processMessage(this, message);
+            this._emitMessage(message);
         },
 
         _encrypt: function (bytes) {
