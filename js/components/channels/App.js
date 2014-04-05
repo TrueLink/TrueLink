@@ -2,13 +2,12 @@ define([
     "zepto",
     "q",
     "react",
-    "bind",
+    "tools/bind",
     "components/channels/ContactList",
     "components/channels/ContactTlStatus",
     "components/channels/Dialog",
-    "modules/channels/contactChannelGroup",
     "modules/channels/tlkeChannel"
-], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, ContactChannelGroup, TlkeChannel) {
+], function ($, Q, React, bind, ContactList, ContactTlStatus, Dialog, TlkeChannel) {
     "use strict";
 
     return React.createClass({

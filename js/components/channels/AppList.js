@@ -1,5 +1,5 @@
 define([
-    "zepto", "q", "react", "bind", "components/channels/App", "tools/uuid"
+    "zepto", "q", "react", "tools/bind", "components/channels/App", "tools/uuid"
 ], function ($, Q, React, bind, App, newUid) {
     "use strict";
 

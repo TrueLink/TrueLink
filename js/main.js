@@ -12,7 +12,6 @@
             "dbJs": "lib/db",
             "whenAll": "tools/resolve",
             "linkDb": "modules/linkDb",
-            "bind": "tools/bind",
             "db": "services/db",
             "settings": "services/settings"
         },
@@ -25,9 +24,9 @@
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
     require([
-        "zepto", "react", "modules/TestApp", "components/channels/AppList", "modules/channels/syncContactChannelGroup"
+        "zepto", "react", "modules/TestApp", "components/channels/AppList", "modules/channels/contact"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
-    ], function ($, React, TestApp, AppList, SyncContactChannelGroup) {
+    ], function ($, React, TestApp, AppList, Contact) {
         $(function () {
 
 
@@ -51,18 +50,23 @@
 
             function createAppModel(app, id) {
                 var contactList = {};
-                app.data.each(function (chGroup, data) {
-                    contactList[data.name] = $.extend({
-                        generateTlke: app.generateTlkeFor.bind(app, chGroup),
-                        acceptTlkeOffer: app.acceptTlkeOferFor.bind(app, chGroup),
-                        acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
-                        sendTextMessage: app.sendTextMessage.bind(app, chGroup),
-                        addOver: app.createOverChannel.bind(app, chGroup),
-                        startSync: app.startSync.bind(app, chGroup),
-                        isSync: chGroup instanceof SyncContactChannelGroup,
-                        // todo temp
-                        channelsData: chGroup.getChannelInfos()
-                    }, data);
+                app.contacts.items().forEach(function (item) {
+                    var name = item.value.name;
+                    var contact = item.key;
+                    contactList[name] = $.extend({
+                        channelsData: []
+                    }, contact);
+
+//                        $.extend({
+//                        generateTlke: app.generateTlkeFor.bind(app, chGroup),
+//                        acceptTlkeOffer: app.acceptTlkeOferFor.bind(app, chGroup),
+//                        acceptTlkeAuth: app.acceptTlkeAuthFor.bind(app, chGroup),
+//                        sendTextMessage: app.sendTextMessage.bind(app, chGroup),
+//                        addOver: app.createOverChannel.bind(app, chGroup),
+//                        startSync: app.startSync.bind(app, chGroup),
+//                        isSync: chGroup instanceof Contact,
+//                        // todo temp
+//                    });
                 });
                 return {
                     id: id,

@@ -1,7 +1,7 @@
 define(["zepto",
     "q",
     "react",
-    "bind",
+    "tools/bind",
     "components/AppWindow",
     "components/Menu",
     "views"

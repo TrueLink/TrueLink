@@ -1,4 +1,4 @@
-define(["zepto", "q", "react", "bind"], function ($, Q, React, bind) {
+define(["zepto", "q", "react", "tools/bind"], function ($, Q, React, bind) {
 
     "use strict";
 

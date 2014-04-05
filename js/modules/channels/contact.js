@@ -13,8 +13,8 @@ define([
 
     function Contact() { // : ITokenPrompter, IDirtyNotifier, IMessageProcessor
         this.messages = [];
-        this.tokens = [];
-        this.state = null;
+        this.prompts = [];
+        this.state = TlkeChannel.STATE_NOT_STARTED;
         this.lastError = null;
         this.lastLevel2ChannelState = null;
 
@@ -76,7 +76,7 @@ define([
         },
 
         // IPacketProcessor:
-        // (packet from packetRouter)
+        // process packet from packetRouter
         processPacket: function (channel, packetData) {
             invariant(packetData && packetData.as, "packetData must be multivalue");
             try {
@@ -150,7 +150,7 @@ define([
 
             if (!info.context) {
                 // first tlke channel
-                this.tokens.push({token: token, context: context});
+                this.prompts.push({token: token, context: context});
                 this._notifyDirty();
             } else {
                 // tlke channels over tl channels
@@ -242,7 +242,7 @@ define([
 
         _notifyTlReady: function (token) {
             invariant(this.tlOwner, "tlOwner is not set");
-            this.tlOwner.createTlChannel(token.inId, token.outId, token.key, token.hashStart, token.backHashEnd)
+            this.tlOwner.createTlChannel(token.inId, token.outId, token.key, token.hashStart, token.backHashEnd);
         },
         _setError: function (ex) {
             this.lastError = ex.message || JSON.stringify(ex);
