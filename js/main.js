@@ -54,7 +54,10 @@
                     var name = item.value.name;
                     var contact = item.key;
                     contactList[name] = $.extend({
-                        channelsData: []
+                        channelsData: [],
+                        startSync: function () {
+                            throw new Error("not implemented");
+                        }
                     }, contact);
 
 //                        $.extend({

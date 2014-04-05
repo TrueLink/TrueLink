@@ -1,6 +1,6 @@
 define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/hex"], function ($, Dictionary, invariant, Hex) {
     "use strict";
-    function PacketRouter() {
+    function PacketRouter() { // : IPacketSender, IPacketRouter
         this.routes = new Dictionary();
         this.transport = null;
     }
@@ -13,6 +13,8 @@ define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/he
                 && $.isFunction(transport.addChannel), "transport is not implementing ITransport");
             this.transport = transport;
         },
+
+        // IPacketRouter
         // (IPacketProcessor packetReceiver, Channel channel, multivalue inId, multivalue outId)
         addRoute: function (packetReceiver, channel, inId, outId) {
             invariant(packetReceiver && $.isFunction(packetReceiver.processPacket), "packetReceiver is not implementing IPacketProcessor");
@@ -27,9 +29,12 @@ define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/he
             });
             this.transport.addChannel(inId.as(Hex).toString());
         },
+        // IPacketRouter
         removeRoute: function () {
             throw new Error("not implemented");
         },
+
+        // IPacketSender
         sendChannelPacket: function (channel, packetData) {
             invariant(packetData && $.isFunction(packetData.as), "packetData must be multivalue");
             this._checkTransport();
@@ -42,6 +47,7 @@ define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/he
             var dataStr = packetData.as(Hex).toString();
             this.transport.sendMessage(outIdStr, dataStr);
         },
+        // packet received from transport
         routePacket: function (chIdStr, packetStr) {
             var inId = Hex.fromString(chIdStr);
             var data = Hex.fromString(packetStr);

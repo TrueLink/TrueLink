@@ -39,12 +39,12 @@ define([
             this.tlOwner = tlOwner;
         },
 
-        // IChannelRouter, IPacketSender router:
+        // IPacketRouter, IPacketSender router:
         // void addRoute(IPacketProcessor packetReceiver, Channel channel, multivalue inId, multivalue outId)
         // void removeRoute(Channel channel)
         setPacketRouter: function (router) {
-            invariant($.isFunction(router.addRoute), "router is not implementing IChannelRouter");
-            invariant($.isFunction(router.removeRoute), "router is not implementing IChannelRouter");
+            invariant($.isFunction(router.addRoute), "router is not implementing IPacketRouter");
+            invariant($.isFunction(router.removeRoute), "router is not implementing IPacketRouter");
             invariant($.isFunction(router.sendChannelPacket), "router is not implementing IPacketSender");
             this.packetRouter = router;
         },

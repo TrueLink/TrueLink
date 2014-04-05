@@ -12,7 +12,7 @@ define([
 ], function ($, tokens, Contact, TlkeChannel, PacketRouter, Hex, CouchTransport, Dictionary, random, urandom) {
     "use strict";
 
-    function App(id, isSync) {
+    function App(id, isSync) { // : ITlChannelOwner, IContactDirtyNotifier, IMessageSender
 
         this.stateChanged = null;
         this.isSyncApp = isSync;
@@ -52,19 +52,40 @@ define([
 
         getLastContactName: function () { return this.lastContactName; },
 
-        onContactStateChanged: function (contact) {
+        // IContactDirtyNotifier
+        // contact's state changed
+        notifyContactDirty: function (contact) {
             this.onStateChanged();
         },
+
+        // ITlChannelOwner
+        // contact has generated info for new TlChannel
+        createTlChannel: function (inId, outId, key, hashStart, backHashEnd) {
+            console.info("new tl channel generated!");
+        },
+
+        // IMessageSender
+        // contact wants to send a message
+        sendMessage: function (contact, messageData) {
+            throw new Error("not implemented");
+        },
+
 
         addContact: function (name) {
             var contact = new Contact();
             this.contacts.item(contact, {
                 name: name
             });
+            contact.setDirtyNotifier(this);
+            contact.setMessageSender(this);
+            contact.setPacketRouter(this.packetRouter);
+            contact.setTlChannelOwner(this);
+
             this.onStateChanged();
         },
 
         addSync: function (isAccepting) {
+            throw new Error("not implemented");
 //            var length = this.data.length(function (info) {
 //                return info.key instanceof SyncContactChannelGroup;
 //            });

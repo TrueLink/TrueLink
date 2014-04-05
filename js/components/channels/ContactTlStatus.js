@@ -23,23 +23,26 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             this.setState({error: err});
         },
 
+        setError: function (err) {
+            console.error(err);
+            this.setErrorMessage(ex.message || JSON.stringify(err));
+        },
+
         generate: function () {
             this.setErrorMessage(null);
             try {
                 this.props.model.generateTlke();
             } catch (ex) {
-                console.error(ex);
-                this.setErrorMessage(ex.message || JSON.stringify(ex));
+                this.setError(ex);
             }
         },
 
         addOver: function () {
             this.setErrorMessage(null);
             try {
-                this.props.model.addOver();
+                this.props.model.generateNewChannel();
             } catch (ex) {
-                console.error(ex);
-                this.setErrorMessage(ex.message || JSON.stringify(ex));
+                this.setError(ex);
             }
         },
 
@@ -48,8 +51,7 @@ define(["zepto", "q", "react", "modules/channels/tlkeChannel", "modules/channels
             try {
                 this.props.model.startSync();
             } catch (ex) {
-                console.error(ex);
-                this.setErrorMessage(ex.message || JSON.stringify(ex));
+                this.setError(ex);
             }
         },
 
