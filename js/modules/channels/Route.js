@@ -14,7 +14,7 @@ define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/da
         processPacket: function (packet) {
             invariant(this.addr, "addr is not set. Ensure to call setAddr() before processPacket()");
             invariant(isMultivalue(packet), "packet must be multivalue");
-            this.fireEvent("networkPacket", {
+            this.fire("networkPacket", {
                 addr: this.addr.outId,
                 data: packet
             });

@@ -43,12 +43,17 @@
             alice.on("offer", bob.enterOffer, bob);
             alice.on("auth", bob.enterAuth, bob);
             alice.on("addr", aliceRoute.setAddr, aliceRoute);
-            alice.on("packet", bob.processPacket, bob);
+            alice.on("packet", aliceRoute.processPacket, aliceRoute);
             alice.on("keyReady", function (args) {console.log("alice key generated:\t%s, in: %s, out: %s", args.key.as(Hex), args.inId.as(Hex), args.outId.as(Hex)); });
+            aliceRoute.on("packet", alice.processPacket, alice);
+
+            aliceRoute.on("networkPacket", bobRoute.processNetworkPacket, bobRoute);
+            bobRoute.on("networkPacket", aliceRoute.processNetworkPacket, aliceRoute);
 
 
-            bob.on("addr", function (args) {console.log("bob generated addr:\tin: %s, out: %s", args.inId.as(Hex), args.outId.as(Hex)); });
-            bob.on("packet", alice.processPacket, alice);
+            bobRoute.on("packet", bob.processPacket, bob);
+            bob.on("addr", bobRoute.setAddr, bobRoute);
+            bob.on("packet", bobRoute.processPacket, bobRoute);
             bob.on("keyReady", function (args) {console.log("bob key generated:\t%s, in: %s, out: %s", args.key.as(Hex), args.inId.as(Hex), args.outId.as(Hex)); });
 
             alice.generate();
