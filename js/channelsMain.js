@@ -23,10 +23,10 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["modules/channels/tlke", "tools/random", "modules/data-types/Hex",
-        "zepto", "react", "modules/TestApp", "components/channels/AppList", "modules/channels/contact"
+    require(["modules/channels/tlke", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
+        "zepto"//, "react", "modules/TestApp", "components/channels/AppList", "modules/channels/contact"
         //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
-    ], function (Tlke, random, Hex, $, React, TestApp, AppList, Contact) {
+    ], function (Tlke, random, Hex, Route, $, React, TestApp, AppList, Contact) {
         $(function () {
 
             var alice = new Tlke();
@@ -37,9 +37,12 @@
             alice.setRng(random);
             bob.setRng(random);
 
+            var aliceRoute = new Route();
+            var bobRoute = new Route();
+
             alice.on("offer", bob.enterOffer, bob);
             alice.on("auth", bob.enterAuth, bob);
-            alice.on("addr", function (args) { console.log("alice generated addr:\tin: %s, out: %s", args.inId.as(Hex), args.outId.as(Hex)); });
+            alice.on("addr", aliceRoute.setAddr, aliceRoute);
             alice.on("packet", bob.processPacket, bob);
             alice.on("keyReady", function (args) {console.log("alice key generated:\t%s, in: %s, out: %s", args.key.as(Hex), args.inId.as(Hex), args.outId.as(Hex)); });
 

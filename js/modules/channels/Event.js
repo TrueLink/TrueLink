@@ -4,7 +4,7 @@ define(["zepto", "tools/invariant"], function ($, invariant) {
         this.handlers = [];
     }
     Event.prototype = {
-        fire: function (sender, args) {
+        fire: function (args, sender) {
             this.handlers.forEach(function (item) {
                 try {
                     item.callback.call(item.context, args, sender);

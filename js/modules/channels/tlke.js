@@ -1,6 +1,6 @@
 define([
     "zepto",
-    "modules/channels/eventEmitter",
+    "modules/channels/EventEmitter",
     "modules/cryptography/diffie-hellman-leemon",
     "modules/data-types/hex",
     "modules/data-types/bitArray",
@@ -8,8 +8,9 @@ define([
     "modules/cryptography/sha1-crypto-js",
     "modules/cryptography/aes-sjcl",
     "tools/invariant",
+    "modules/data-types/isMultivalue",
     "modules/converters/customTypes"
-], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant) {
+], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue) {
     "use strict";
 
     var dhPrivBitLength = 160;
@@ -42,17 +43,20 @@ define([
             this._generateOffer();
         },
         enterOffer: function (offer) {
+            invariant(isMultivalue(offer), "offer must be multivalue");
             invariant(this.state === Tlke.STATE_NOT_STARTED,
                 "Can't accept offer being in a state %s", this.state);
             invariant(offer, "Received an empty offer");
             this._acceptOffer(offer);
         },
         enterAuth: function (auth) {
+            invariant(isMultivalue(auth), "offer must be multivalue");
             invariant(auth, "Received an empty auth");
             this._acceptAuth(auth);
         },
 
         processPacket: function (bytes) {
+            invariant(isMultivalue(bytes), "bytes must be multivalue");
             switch (this.state) {
             case Tlke.STATE_AWAITING_OFFER_RESPONSE:
                 this._acceptOfferResponse(bytes);

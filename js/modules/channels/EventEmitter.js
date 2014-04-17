@@ -1,4 +1,4 @@
-define(["./Event"], function (Event) {
+define(["./Event", "tools/invariant"], function (Event, invariant) {
     "use strict";
     function EventEmitter() {}
 
@@ -7,17 +7,20 @@ define(["./Event"], function (Event) {
             this.events = this.events || {};
             this.events[name] = new Event();
         },
+        _checkEvent: function (name) {
+            invariant(this.events[name], "No %s event defined for this emitter", name);
+        },
         on: function (name, cb, context) {
-            if (!this.events[name]) { return; }
+            this._checkEvent(name);
             this.events[name].addHandler(cb, context);
         },
         off: function (name, cb) {
-            if (!this.events[name]) { return; }
+            this._checkEvent(name);
             this.events[name].removeHandler(cb);
         },
         fire: function (name, args) {
-            if (!this.events[name]) { return; }
-            this.events[name].fire(this, args);
+            this._checkEvent(name);
+            this.events[name].fire(args, this);
         }
     };
     return EventEmitter;
