@@ -38,11 +38,13 @@ define([
     $.extend(Tlke.prototype, {
 
         generate: function () {
+            this.checkEventHandlers();
             invariant(this.state === Tlke.STATE_NOT_STARTED,
                 "Can't generate offer being in a state %s", this.state);
             this._generateOffer();
         },
         enterOffer: function (offer) {
+            this.checkEventHandlers();
             invariant(isMultivalue(offer), "offer must be multivalue");
             invariant(this.state === Tlke.STATE_NOT_STARTED,
                 "Can't accept offer being in a state %s", this.state);

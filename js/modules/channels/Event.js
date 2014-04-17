@@ -24,6 +24,9 @@ define(["zepto", "tools/invariant"], function ($, invariant) {
             if (index !== -1) {
                 this.handlers.splice(index, 1);
             }
+        },
+        hasHandlers: function () {
+            return this.handlers.length > 0;
         }
     };
 

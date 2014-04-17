@@ -21,6 +21,17 @@ define(["./Event", "tools/invariant"], function (Event, invariant) {
         fire: function (name, args) {
             this._checkEvent(name);
             this.events[name].fire(args, this);
+        },
+        checkEventHandlers: function () {
+            var unhandled = [], name;
+            for (name in this.events) {
+                if (this.events.hasOwnProperty(name) && !this.events[name].hasHandlers()) {
+                    unhandled.push(name);
+                }
+            }
+            if (unhandled.length > 0) {
+                console.warn("No one is listening for events %s of ", unhandled.join(", "), this);
+            }
         }
     };
     return EventEmitter;
