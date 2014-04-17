@@ -26,7 +26,7 @@ define(["./Event", "tools/invariant"], function (Event, invariant) {
             var unhandled = [], name;
             for (name in this.events) {
                 if (this.events.hasOwnProperty(name) && !this.events[name].hasHandlers()) {
-                    unhandled.push(name);
+                    unhandled.push('"' + name + '"');
                 }
             }
             if (unhandled.length > 0) {

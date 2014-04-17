@@ -1,15 +1,13 @@
 define([
     "zepto",
-    "modules/channels/messagingChannel",
-    "modules/channels/tokens",
     "modules/cryptography/aes-sjcl",
-    "modules/channels/tlkeChannel",
+    "modules/channels/tlke",
     "modules/data-types/bitArray",
     "modules/data-types/utf8string",
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-], function ($, MessagingChannel, tokens, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+], function ($, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -19,7 +17,9 @@ define([
     // tl channel that is established and ready to transmit POJOs
     function TlChannel() {}
 
-    TlChannel.prototype = new MessagingChannel();
+    TlChannel.HashCount = 1000;
+
+    //TlChannel.prototype = new MessagingChannel();
     $.extend(TlChannel.prototype, {
 
         // token received from user
