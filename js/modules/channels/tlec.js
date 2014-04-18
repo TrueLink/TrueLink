@@ -1,13 +1,13 @@
 define([
     "zepto",
+    "modules/channels/EventEmitter",
     "modules/cryptography/aes-sjcl",
-    "modules/channels/tlke",
     "modules/data-types/bitArray",
     "modules/data-types/utf8string",
     "modules/data-types/hex",
     "modules/data-types/bytes",
     "modules/cryptography/sha1-crypto-js"
-], function ($, Aes, TlkeChannel, BitArray, Utf8String, Hex, Bytes, SHA1) {
+], function ($, EventEmitter, Aes, BitArray, Utf8String, Hex, Bytes, SHA1) {
     "use strict";
 
     function hash(value) {
@@ -15,12 +15,12 @@ define([
     }
 
     // tl channel that is established and ready to transmit POJOs
-    function TlChannel() {}
+    function Tlec() { }
 
-    TlChannel.HashCount = 1000;
+    Tlec.HashCount = 1000;
 
-    //TlChannel.prototype = new MessagingChannel();
-    $.extend(TlChannel.prototype, {
+    Tlec.prototype = new EventEmitter();
+    $.extend(Tlec.prototype, {
 
         // token received from user
         enterToken: function (token, context) {
@@ -41,7 +41,7 @@ define([
                 hx = hash(hx);
             }
             this.hashCounter -= 1;
-            if (this.hashCounter === TlChannel.HashExperiesCount) {
+            if (this.hashCounter === Tlec.HashExperiesCount) {
                 this._emitPrompt(new tokens.TlChannel.ExpiresToken());
             }
             if (this.hashCounter < 1) {
@@ -69,7 +69,7 @@ define([
             // check hash
             // this._emitMessage
 //      console.error("Received a user message with wrong signature, rejected");
-//      this._emitPrompt(new tokens.TlChannel.WrongSignatureToken(message.data));
+//      this._emitPrompt(new tokens.Tlec.WrongSignatureToken(message.data));
 
         },
 
@@ -81,7 +81,7 @@ define([
         //    }
 //
         //    var end = this.backHashEnd.as(Hex).value, i;
-        //    for (i = 0; i < TlChannel.HashCount; i += 1) {
+        //    for (i = 0; i < Tlec.HashCount; i += 1) {
         //        hx = hash(hx);
         //        if (hx.as(Hex).value === end) {
         //            return true;
@@ -116,8 +116,8 @@ define([
         }
     });
 
-    TlChannel.deserialize = function (dto) {
-        var ch = new TlChannel();
+    Tlec.deserialize = function (dto) {
+        var ch = new Tlec();
         ch.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
         ch.hashCounter = dto.hashCounter;
         ch.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
@@ -126,5 +126,5 @@ define([
     };
 
 
-    return TlChannel;
+    return Tlec;
 });
