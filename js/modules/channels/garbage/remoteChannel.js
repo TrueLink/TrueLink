@@ -1,7 +1,7 @@
 define([
     "zepto",
     "modules/channels/channel",
-    "modules/channels/tokens"
+    "tokens"
 ], function ($, Channel, tokens) {
     "use strict";
 

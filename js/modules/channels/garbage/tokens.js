@@ -1,4 +1,4 @@
-define(["modules/data-types/hex"], function (Hex) {
+define(["../../data-types/hex"], function (Hex) {
     "use strict";
     var tokens = {
         TlkeChannel: {},
@@ -34,11 +34,11 @@ define(["modules/data-types/hex"], function (Hex) {
     };
 
     tokens.TlkeChannel.ChangeStateToken = function (state) { this.state = state; };
-    tokens.TlkeChannel.TlkeChannelGeneratedToken = function (inId, outId) {
+    tokens.TlkeChannel.AddrToken = function (inId, outId) {
         this.inId = inId;
         this.outId = outId;
     };
-    tokens.HtChannel.InitToken = function (inId, outId, key) {
+    tokens.HtChannel.KeyReadyToken = function (inId, outId, key) {
         this.inId = inId;
         this.outId = outId;
         this.key = key;

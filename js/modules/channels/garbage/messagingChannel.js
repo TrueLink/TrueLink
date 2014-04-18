@@ -1,4 +1,4 @@
-define(["zepto", "modules/channels/channel", "tools/invariant"], function ($, Channel, invariant) {
+define(["zepto", "modules/channels/channel", "../../../tools/invariant"], function ($, Channel, invariant) {
     "use strict";
     function MessagingChannel() { }
 

@@ -3,8 +3,8 @@ define([
     "modules/dictionary",
     "tools/invariant",
     "modules/channels/tokens",
-    "modules/channels/tlkeChannel",
-    "modules/channels/htChannel",
+    "modules/channels/tlke",
+    "../tlht",
     "tools/urandom",
     "tools/bind",
     "modules/data-types/hex"
@@ -146,7 +146,7 @@ define([
             // channel was removed from this.channels
             if (!info) { return; }
 
-            if (token instanceof tokens.TlkeChannel.TlkeChannelGeneratedToken) {
+            if (token instanceof tokens.TlkeChannel.AddrToken) {
                 // learn new ids
                 this._notifyChannelNewIds(channel, token.inId, token.outId);
             } else if (token instanceof tokens.TlkeChannel.ChangeStateToken) {
@@ -156,7 +156,7 @@ define([
                     this.state = token.state;
                 }
                 this._notifyDirty();
-            } else if (token instanceof tokens.HtChannel.InitToken) {
+            } else if (token instanceof tokens.HtChannel.KeyReadyToken) {
                 this._createHtChannel(token);
             }
 

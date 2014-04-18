@@ -1,4 +1,4 @@
-define(["zepto", "modules/dictionary", "tools/invariant", "modules/data-types/hex"], function ($, Dictionary, invariant, Hex) {
+define(["zepto", "../../dictionary", "tools/invariant", "modules/data-types/hex"], function ($, Dictionary, invariant, Hex) {
     "use strict";
     function PacketRouter() { // : IPacketSender, IPacketRouter
         this.routes = new Dictionary();

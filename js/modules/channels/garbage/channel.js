@@ -1,4 +1,4 @@
-define(["zepto", "modules/dictionary", "tools/invariant"], function ($, Dictionary, invariant) {
+define(["zepto", "../../dictionary", "tools/invariant"], function ($, Dictionary, invariant) {
     "use strict";
 
     // tl channel base

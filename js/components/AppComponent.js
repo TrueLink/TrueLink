@@ -1,11 +1,10 @@
 define(["zepto",
-    "q",
     "react",
     "tools/bind",
     "components/AppWindow",
     "components/Menu",
     "views"
-    ], function ($, Q, React, bind, AppWindow, Menu, views) {
+    ], function ($, React, bind, AppWindow, Menu) {
     "use strict";
 
 
