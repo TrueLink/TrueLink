@@ -17,14 +17,14 @@ define([
         return SHA1(value.as(Hex)).as(BitArray).bitSlice(0, 128);
     }
 
-    function HtChannel() {
+    function Tlht() {
         this._defineEvent("htReady");
         this._defineEvent("packet");
         this._defineEvent("dirty");
     }
 
-    HtChannel.prototype = new EventEmitter();
-    $.extend(HtChannel.prototype, {
+    Tlht.prototype = new EventEmitter();
+    $.extend(Tlht.prototype, {
         init: function (key) {
             invariant(isMultivalue(key), "key must be multivalue");
             invariant(this.random, "rng is not set");
@@ -116,5 +116,5 @@ define([
 
     });
 
-    return HtChannel;
+    return Tlht;
 });
