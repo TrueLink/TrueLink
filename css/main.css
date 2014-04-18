@@ -74,6 +74,38 @@ h2.title {
     position: relative;
 }
 
+.header, .footer, .content {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.header, .footer {
+    height: 54px;
+}
+
+.header {
+    top: 0;
+}
+
+.content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    top: 0;
+    bottom: 0;
+}
+
+.content.has-footer {
+    top: 54px;
+}
+.content.has-header {
+    bottom: 54px;
+}
+
+.footer {
+    bottom: 0;
+}
+
 /* --- MENU --- */
 .app-menu {
     background-color: #383838;
@@ -115,6 +147,9 @@ h2.title {
     height: 100%;
     padding: 20px;
 }
+
+/* --- HOME --- */
+
 
 /* --- MISC --- */
 .stretch-background{
