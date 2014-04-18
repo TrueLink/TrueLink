@@ -2,7 +2,7 @@ define([
     "zepto",
     "modules/channels/EventEmitter",
     "modules/cryptography/aes-sjcl",
-    "modules/channels/tlChannel",
+    "modules/channels/tlec",
     "modules/data-types/bitArray",
     "modules/data-types/utf8string",
     "modules/data-types/hex",
@@ -30,7 +30,10 @@ define([
             invariant(this.random, "rng is not set");
             this.checkEventHandlers();
             this.dhAesKey = key;
+            this._onDirty();
+        },
 
+        generate: function () {
             this.hashStart = this.random.bitArray(128);
             var hashEnd = this.hashStart, i;
             for (i = 0; i < TlChannel.HashCount; i += 1) {
@@ -42,6 +45,9 @@ define([
                 "d": hashEnd.as(Hex).serialize()
             };
             this._sendMessage(messageData);
+            if (this.hashEnd) {
+                this._onHashReady();
+            }
             this._onDirty();
         },
 
@@ -64,11 +70,10 @@ define([
                 throw new Error("Could not parse packet from the network");
             }
             if (message.t === "h" && message.d) {
-                var hashEnd = Hex.deserialize(message.d);
-                this.fire("htReady", {
-                    hashStart: this.hashStart,
-                    hashEnd: hashEnd
-                });
+                this.hashEnd = Hex.deserialize(message.d);
+                if (this.hashStart) {
+                    this._onHashReady();
+                }
             }
         },
 
@@ -89,6 +94,12 @@ define([
             return aes.decryptCbc(encryptedData, iv);
         },
 
+        _onHashReady: function () {
+            this.fire("htReady", {
+                hashStart: this.hashStart,
+                hashEnd: this.hashEnd
+            });
+        },
         _onDirty: function () {
             this.fire("dirty");
         },

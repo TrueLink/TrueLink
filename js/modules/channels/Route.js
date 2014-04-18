@@ -7,6 +7,7 @@ define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/da
         this._defineEvent("packet");
         // from me to the network
         this._defineEvent("networkPacket");
+        this._defineEvent("addrIn");
     }
 
     Route.prototype = new EventEmitter();
@@ -35,6 +36,7 @@ define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/da
                 inId: addr.inId.as(Hex),
                 outId: addr.outId.as(Hex)
             };
+            this.fire("addrIn", this.addr.inId);
         }
     });
 
