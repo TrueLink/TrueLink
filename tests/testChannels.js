@@ -9,7 +9,7 @@ define([
     "zepto",
 ], function (random, Hex, EventEmitter, Tlke, Tlht, Transport, Route, $) {
 
-    xdescribe("True Link Key Exchange", function() {
+    describe("True Link Key Exchange", function() {
 
         function Builder(name) {
             this.name = name;
@@ -239,10 +239,7 @@ define([
         $.extend(TlhtBuilder.prototype, {
             build: function(args) {
                 var tlht = this.tlht = new Tlht();
-                tlht.setRng(random);
-                tlht.init(args.key);
                 var route = this.route = new Route();
-                route.setAddr(args);
                 var transport = this.transport;
 
                 route.on("packet", tlht.processPacket, tlht);
@@ -254,15 +251,20 @@ define([
                 transport.on("networkPacket", route.processNetworkPacket, route);
                 tlht.on("htReady", this.on_htReady, this);
 
+                tlht.setRng(random);
+                tlht.init(args.key);
+                route.setAddr(args);
                 tlht.generate();
             },
             on_htReady: function(args) {
                 this._log("on_htReady", args);
                 this.hashStart = args.hashStart;
                 this.hashEnd = args.hashEnd;
+                this._log("hashStart", args.hashStart.as(Hex));
+                this._log("hashEnd", args.hashEnd.as(Hex));
             },
             _log: function() {
-                console.log(this.name, arguments);
+                //console.log(this.name, arguments);
             }
         });
 
@@ -285,7 +287,7 @@ define([
                 aliceTlke.generate();
             });
 
-            xit("alice hash tails are ready", function() {
+            it("alice hash tails are ready", function() {
                 expect(this.aliceTlth.hashStart).not.toBeUndefined();
                 expect(this.aliceTlth.hashEnd).not.toBeUndefined();
             });
@@ -293,17 +295,6 @@ define([
             it("bob hash tails are ready", function() {
                 expect(this.bobTlht.hashStart).not.toBeUndefined();
                 expect(this.bobTlht.hashEnd).not.toBeUndefined();
-            });
-
-            xit("channel hash tails matched", function() {
-                expect(
-                    this.aliceTlth.hashStart.as(Hex).isEqualTo(
-                    this.bobTlht.hashStart.as(Hex)
-                    )).toBe(true);
-                expect(
-                    this.aliceTlth.hashEnd.as(Hex).isEqualTo(
-                    this.bobTlht.hashEnd.as(Hex)
-                    )).toBe(true);
             });
 
         });
