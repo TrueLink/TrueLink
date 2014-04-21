@@ -17,12 +17,15 @@ define(["modules/channels/EventEmitter",
 
         openAddr: function (addr) {
             this.checkEventHandlers();
+//            console.log("opening addr: %s", addr.as(Hex));
             invariant(isMultivalue(addr), "addr must be multivalue");
-            //this.buffer._items[2].key.isEqualTo(addr.as(Hex))
             var bufItem = this.buffer.first(function (item) { return item.key.isEqualTo(addr.as(Hex)); });
             var that = this;
             if (bufItem) {
-                bufItem.value.forEach(function (item) {
+                var buf = bufItem.value;
+                bufItem.value = [];
+//                console.log("found %s sent packets", bufItem.value.length);
+                buf.forEach(function (item) {
                     that._onNetworkPacket(addr, item);
                 });
             }
@@ -45,6 +48,7 @@ define(["modules/channels/EventEmitter",
             this._onNetworkPacket(addr, packet);
         },
         _onNetworkPacket: function (addr, packet) {
+//            console.log("firing networkPacket, addr: %s, packet: %s", addr.as(Hex), packet.as(Hex));
             this.fire("networkPacket", {
                 addr: addr,
                 data: packet
