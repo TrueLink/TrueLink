@@ -1,12 +1,12 @@
 define([
-    "tools/random", 
-    "modules/data-types/Hex", 
+    "tools/random",
+    "modules/data-types/Hex",
     "modules/channels/EventEmitter",
-    "modules/channels/tlke", 
+    "modules/channels/tlke",
     "modules/channels/tlht",
     "modules/channels/TestTransport",
     "modules/channels/Route",
-    "zepto",
+    "zepto"
 ], function (random, Hex, EventEmitter, Tlke, Tlht, Transport, Route, $) {
 
     var logfunc = function() {
@@ -14,7 +14,7 @@ define([
         //console.log.apply(console, args);
     }
 
-    describe("True Link Key Exchange", function() {
+    describe("True Link Key Exchange", function () {
 
         function Builder(name) {
             this.name = name;
@@ -25,7 +25,7 @@ define([
         }
         Builder.prototype = new EventEmitter();
         $.extend(Builder.prototype, {
-            build: function() {
+            build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
                 var route = this.route = new Route();
@@ -40,51 +40,51 @@ define([
                 tlke.on("offer", this.on_requestOffer, this);
                 tlke.on("auth", this.on_requestAuth, this);
             },
-            processNetworkPacket: function(packet) {
+            processNetworkPacket: function (packet) {
                 this._log("processNetworkPacket", packet);
                 this.route.processNetworkPacket(packet);
             },
-            generate: function() {
+            generate: function () {
                 this._log("generate");
                 this.tlke.generate();
             },
-            keyReady: function(args) {
+            keyReady: function (args) {
                 this._log("keyReady", args);
                 this.inId = args.inId;
                 this.outId = args.outId;
                 this.key = args.key;
             },
-            enterOffer: function(offer) {
+            enterOffer: function (offer) {
                 this._log("enterOffer", offer);
                 this.tlke.enterOffer(offer);
             },
-            enterAuth: function(auth) {
+            enterAuth: function (auth) {
                 this._log("enterAuth", auth);
                 this.tlke.enterAuth(auth);
             },
-            on_sendPacket: function(packet) {
+            on_sendPacket: function (packet) {
                 this._log("on_sendPacket", packet);
                 this.fire("networkPacket", packet);
             },
-            on_requestOffer: function(offer) {
+            on_requestOffer: function (offer) {
                 this._log("on_requestOffer", offer);
                 this.fire("offer", offer);
             },
-            on_requestAuth: function(auth) {
+            on_requestAuth: function (auth) {
                 this._log("on_requestAuth", auth);
                 if (auth) {
                     this.fire("auth", auth);
                 }
             },
-            on_addrIn: function(addr) {
+            on_addrIn: function (addr) {
                 this._log("on_addrIn", addr);
                 this.fire("addrIn", addr);
             },
             _log: logfunc
         });
 
-        describe("with route short-circuited", function() {
-            beforeEach(function() {
+        describe("with route short-circuited", function () {
+            beforeEach(function () {
                 var alice = this.alice = new Builder("Alice");
                 var bob = this.bob = new Builder("Bob");
                 alice.on("networkPacket", bob.processNetworkPacket, bob);
@@ -98,30 +98,30 @@ define([
                 alice.generate();
             });
 
-            it("alice key is ready", function() {
+            it("alice key is ready", function () {
                 expect(this.alice.inId).not.toBeUndefined();
                 expect(this.alice.outId).not.toBeUndefined();
                 expect(this.alice.key).not.toBeUndefined();
             });
 
-            it("bob key is ready", function() {
+            it("bob key is ready", function () {
                 expect(this.bob.inId).not.toBeUndefined();
                 expect(this.bob.outId).not.toBeUndefined();
                 expect(this.bob.key).not.toBeUndefined();
             });
 
-            it("channel ids matched", function() {
+            it("channel ids matched", function () {
                 expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).toBe(true);
                 expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).toBe(true);
             });
 
-            it("keys are the same", function() {
+            it("keys are the same", function () {
                 expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).toBe(true);
             });
         });
 
-        describe("with transport", function() {
-            beforeEach(function() {
+        describe("with transport", function () {
+            beforeEach(function () {
                 var transport = this.transport = new Transport();
                 var alice = this.alice = new Builder("Alice");
                 var bob = this.bob = new Builder("Bob");
@@ -142,24 +142,24 @@ define([
                 alice.generate();
             });
 
-            it("alice key is ready", function() {
+            it("alice key is ready", function () {
                 expect(this.alice.inId).not.toBeUndefined();
                 expect(this.alice.outId).not.toBeUndefined();
                 expect(this.alice.key).not.toBeUndefined();
             });
 
-            it("bob key is ready", function() {
+            it("bob key is ready", function () {
                 expect(this.bob.inId).not.toBeUndefined();
                 expect(this.bob.outId).not.toBeUndefined();
                 expect(this.bob.key).not.toBeUndefined();
             });
 
-            it("channel ids matched", function() {
+            it("channel ids matched", function () {
                 expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).toBe(true);
                 expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).toBe(true);
             });
 
-            it("keys are the same", function() {
+            it("keys are the same", function () {
                 expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).toBe(true);
             });
 
@@ -167,7 +167,7 @@ define([
 
     });
 
-    describe("True Link Hash Tail Exchange", function() {
+    describe("True Link Hash Tail Exchange", function () {
 
         function TlkeBuilder(name, transport) {
             this.name = "TlkeBuilder" + name;
@@ -178,7 +178,7 @@ define([
         }
         TlkeBuilder.prototype = new EventEmitter();
         $.extend(TlkeBuilder.prototype, {
-            build: function() {
+            build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
                 var route = this.route = new Route();
@@ -196,35 +196,35 @@ define([
 
                 transport.on("networkPacket", route.processNetworkPacket, route);
             },
-            generate: function() {
+            generate: function () {
                 this._log("generate");
                 this.tlke.generate();
             },
-            keyReady: function(args) {
+            keyReady: function (args) {
                 this._log("keyReady", args);
                 this.inId = args.inId;
                 this.outId = args.outId;
                 this.key = args.key;
             },
-            enterOffer: function(offer) {
+            enterOffer: function (offer) {
                 this._log("enterOffer", offer);
                 this.tlke.enterOffer(offer);
             },
-            enterAuth: function(auth) {
+            enterAuth: function (auth) {
                 this._log("enterAuth", auth);
                 this.tlke.enterAuth(auth);
             },
-            on_requestOffer: function(offer) {
+            on_requestOffer: function (offer) {
                 this._log("on_requestOffer", offer);
                 this.fire("offer", offer);
             },
-            on_requestAuth: function(auth) {
+            on_requestAuth: function (auth) {
                 this._log("on_requestAuth", auth);
                 if (auth) {
                     this.fire("auth", auth);
                 }
             },
-            on_keyReady: function(args) {
+            on_keyReady: function (args) {
                 this._log("on_keyReady", args);
                 this.fire("done", args);
             },
@@ -238,7 +238,7 @@ define([
         }
         TlhtBuilder.prototype = new EventEmitter();
         $.extend(TlhtBuilder.prototype, {
-            build: function(args) {
+            build: function (args) {
                 var tlht = this.tlht = new Tlht();
                 var route = this.route = new Route();
                 var transport = this.transport;
@@ -257,7 +257,7 @@ define([
                 route.setAddr(args);
                 tlht.generate();
             },
-            on_htReady: function(args) {
+            on_htReady: function (args) {
                 this._log("on_htReady", args);
                 this.hashStart = args.hashStart;
                 this.hashEnd = args.hashEnd;
@@ -267,8 +267,8 @@ define([
             _log: logfunc
         });
 
-        describe("with transport", function() {
-            beforeEach(function() {
+        describe("with transport", function () {
+            beforeEach(function () {
                 var transport = this.transport = new Transport();
                 var aliceTlke = this.aliceTlke = new TlkeBuilder("Alice", transport);
                 var bobTlke = this.bobTlke = new TlkeBuilder("Bob", transport);
@@ -286,12 +286,12 @@ define([
                 aliceTlke.generate();
             });
 
-            it("alice hash tails are ready", function() {
+            it("alice hash tails are ready", function () {
                 expect(this.aliceTlth.hashStart).not.toBeUndefined();
                 expect(this.aliceTlth.hashEnd).not.toBeUndefined();
             });
 
-            it("bob hash tails are ready", function() {
+            it("bob hash tails are ready", function () {
                 expect(this.bobTlht.hashStart).not.toBeUndefined();
                 expect(this.bobTlht.hashEnd).not.toBeUndefined();
             });
