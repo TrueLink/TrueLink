@@ -79,18 +79,8 @@ define([
                 this.sendMessageFromAlice("Why?");
                 this.sendMessageFromBob("Because our conversation now is more secured than ever");
 
+                expect(this.aliceHistory).toEqual(this.bobHistory);
                 expect(this.aliceHistory).toEqual([
-                    "Hi, Bob.", 
-                    "Hi, Alice.", 
-                    "How are you doing, Bob?", 
-                    "I'm sending messages to you over TLEC!!!", 
-                    "Wow, and how is it?", 
-                    "It is awesome!!!", 
-                    "Why?", 
-                    "Because our conversation now is more secured than ever" 
-                    ]);
-
-                expect(this.bobHistory).toEqual([
                     "Hi, Bob.", 
                     "Hi, Alice.", 
                     "How are you doing, Bob?", 
