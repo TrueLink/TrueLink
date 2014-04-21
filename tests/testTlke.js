@@ -3,10 +3,11 @@ define([
     "modules/data-types/Hex",
     "modules/channels/EventEmitter",
     "modules/channels/tlke",
+    "modules/channels/tlkeBuilder",
     "modules/channels/TestTransport",
     "modules/channels/Route",
     "zepto"
-], function (random, Hex, EventEmitter, Tlke, Transport, Route, $) {
+], function (random, Hex, EventEmitter, Tlke, TlkeBuilder, Transport, Route, $) {
 
     var logfunc = function() {
         var args = [this.name].concat(arguments);
@@ -160,6 +161,51 @@ define([
 
             it("keys are the same", function () {
                 expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).toBe(true);
+            });
+
+        });
+
+        describe("with real builder", function () {
+            beforeEach(function () {
+                var transport = this.transport = new Transport();
+                var alice = this.alice = new TlkeBuilder(transport, random);
+                var bob = this.bob = new TlkeBuilder(transport, random);
+
+                alice.on("offer", bob.enterOffer, bob);
+                alice.on("auth", bob.enterAuth, bob);
+
+                alice.on("done", function(args) {
+                    this.aliceResult = args;
+                }, this);
+
+                bob.on("done", function(args) {
+                    this.bobResult = args;
+                }, this);
+
+                alice.build();
+                bob.build();
+                alice.generate();
+            });
+
+            it("alice key is ready", function () {
+                expect(this.aliceResult.inId).not.toBeUndefined();
+                expect(this.aliceResult.outId).not.toBeUndefined();
+                expect(this.aliceResult.key).not.toBeUndefined();
+            });
+
+            it("bob key is ready", function () {
+                expect(this.bobResult.inId).not.toBeUndefined();
+                expect(this.bobResult.outId).not.toBeUndefined();
+                expect(this.bobResult.key).not.toBeUndefined();
+            });
+
+            it("channel ids matched", function () {
+                expect(this.aliceResult.inId.as(Hex).isEqualTo(this.bobResult.outId.as(Hex))).toBe(true);
+                expect(this.aliceResult.outId.as(Hex).isEqualTo(this.bobResult.inId.as(Hex))).toBe(true);
+            });
+
+            it("keys are the same", function () {
+                expect(this.aliceResult.key.as(Hex).isEqualTo(this.bobResult.key.as(Hex))).toBe(true);
             });
 
         });
