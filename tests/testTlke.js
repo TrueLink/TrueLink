@@ -15,15 +15,15 @@ define([
 
     describe("True Link Key Exchange", function () {
 
-        function Builder(name) {
+        function TlkeTestBuilder(name) {
             this.name = name;
             this._defineEvent("networkPacket");
             this._defineEvent("offer");
             this._defineEvent("auth");
             this._defineEvent("addrIn");
         }
-        Builder.prototype = new EventEmitter();
-        $.extend(Builder.prototype, {
+        TlkeTestBuilder.prototype = new EventEmitter();
+        $.extend(TlkeTestBuilder.prototype, {
             build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
@@ -84,8 +84,8 @@ define([
 
         describe("with route short-circuited", function () {
             beforeEach(function () {
-                var alice = this.alice = new Builder("Alice");
-                var bob = this.bob = new Builder("Bob");
+                var alice = this.alice = new TlkeTestBuilder("Alice");
+                var bob = this.bob = new TlkeTestBuilder("Bob");
                 alice.on("networkPacket", bob.processNetworkPacket, bob);
                 bob.on("networkPacket", alice.processNetworkPacket, alice);
 
@@ -122,8 +122,8 @@ define([
         describe("with transport", function () {
             beforeEach(function () {
                 var transport = this.transport = new Transport();
-                var alice = this.alice = new Builder("Alice");
-                var bob = this.bob = new Builder("Bob");
+                var alice = this.alice = new TlkeTestBuilder("Alice");
+                var bob = this.bob = new TlkeTestBuilder("Bob");
                 alice.on("networkPacket", transport.sendNetworkPacket, transport);
                 bob.on("networkPacket", transport.sendNetworkPacket, transport);
 

@@ -78,13 +78,13 @@ define([
             _log: logfunc
         });
 
-        function TlhtBuilder(name, transport) {
-            this.name = "TlhtBuilder::" + name;
+        function TlhtTestBuilder(name, transport) {
+            this.name = "TlhtTestBuilder::" + name;
             this._defineEvent("done");
             this.transport = transport;
         }
-        TlhtBuilder.prototype = new EventEmitter();
-        $.extend(TlhtBuilder.prototype, {
+        TlhtTestBuilder.prototype = new EventEmitter();
+        $.extend(TlhtTestBuilder.prototype, {
             build: function (args) {
                 var tlht = this.tlht = new Tlht();
                 var route = this.route = new Route();
@@ -119,8 +119,8 @@ define([
                 var transport = this.transport = new Transport();
                 var aliceTlke = this.aliceTlke = new TlkeBuilder("Alice", transport);
                 var bobTlke = this.bobTlke = new TlkeBuilder("Bob", transport);
-                var aliceTlth = this.aliceTlth = new TlhtBuilder("Alice", transport);
-                var bobTlht = this.bobTlht = new TlhtBuilder("Bob", transport);
+                var aliceTlth = this.aliceTlth = new TlhtTestBuilder("Alice", transport);
+                var bobTlht = this.bobTlht = new TlhtTestBuilder("Bob", transport);
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
                 aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
