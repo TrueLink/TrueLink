@@ -172,7 +172,11 @@ define([
                 var bob = this.bob = new TlkeBuilder(transport, random);
 
                 alice.on("offer", bob.enterOffer, bob);
-                alice.on("auth", bob.enterAuth, bob);
+                alice.on("auth", function (auth) {
+                    if (auth) {
+                        bob.enterAuth(auth);
+                    }
+                }, null);
 
                 alice.on("done", function(args) {
                     this.aliceResult = args;

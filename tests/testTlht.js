@@ -156,7 +156,11 @@ define([
                 var bobTlht = this.bobTlht = new TlhtBuilder(transport, random);
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
-                aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
+                aliceTlke.on("auth", function (auth) {
+                    if (auth) {
+                        bobTlke.enterAuth(auth);
+                    }
+                }, null);
 
                 aliceTlke.on("done", aliceTlth.build, aliceTlth);
                 bobTlke.on("done", bobTlht.build, bobTlht);
