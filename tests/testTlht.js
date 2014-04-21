@@ -16,15 +16,15 @@ define([
 
     describe("True Link Hash Tail Exchange", function () {
 
-        function TlkeBuilder(name, transport) {
-            this.name = "TlkeBuilder" + name;
+        function TlkeTestBuilder(name, transport) {
+            this.name = "TlkeTestBuilder" + name;
             this._defineEvent("offer");
             this._defineEvent("auth");
             this._defineEvent("done");
             this.transport = transport;
         }
-        TlkeBuilder.prototype = new EventEmitter();
-        $.extend(TlkeBuilder.prototype, {
+        TlkeTestBuilder.prototype = new EventEmitter();
+        $.extend(TlkeTestBuilder.prototype, {
             build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
@@ -117,8 +117,8 @@ define([
         describe("with transport", function () {
             beforeEach(function () {
                 var transport = this.transport = new Transport();
-                var aliceTlke = this.aliceTlke = new TlkeBuilder("Alice", transport);
-                var bobTlke = this.bobTlke = new TlkeBuilder("Bob", transport);
+                var aliceTlke = this.aliceTlke = new TlkeTestBuilder("Alice", transport);
+                var bobTlke = this.bobTlke = new TlkeTestBuilder("Bob", transport);
                 var aliceTlth = this.aliceTlth = new TlhtTestBuilder("Alice", transport);
                 var bobTlht = this.bobTlht = new TlhtTestBuilder("Bob", transport);
 
