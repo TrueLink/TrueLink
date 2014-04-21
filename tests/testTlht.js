@@ -3,11 +3,13 @@ define([
     "modules/data-types/Hex",
     "modules/channels/EventEmitter",
     "modules/channels/tlke",
+    "modules/channels/tlkeBuilder",
     "modules/channels/tlht",
+    "modules/channels/tlhtBuilder",
     "modules/channels/TestTransport",
     "modules/channels/Route",
     "zepto"
-], function (random, Hex, EventEmitter, Tlke, Tlht, Transport, Route, $) {
+], function (random, Hex, EventEmitter, Tlke, TlkeBuilder, Tlht, TlhtBuilder, Transport, Route, $) {
 
     var logfunc = function() {
         var args = [this.name].concat(arguments);
@@ -143,6 +145,43 @@ define([
                 expect(this.bobTlht.hashEnd).not.toBeUndefined();
             });
 
+        });
+
+        describe("with builder", function () {
+            beforeEach(function () {
+                var transport = this.transport = new Transport();
+                var aliceTlke = this.aliceTlke = new TlkeBuilder(transport, random);
+                var bobTlke = this.bobTlke = new TlkeBuilder(transport, random);
+                var aliceTlth = this.aliceTlth = new TlhtBuilder(transport, random);
+                var bobTlht = this.bobTlht = new TlhtBuilder(transport, random);
+
+                aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
+                aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
+
+                aliceTlke.on("done", aliceTlth.build, aliceTlth);
+                bobTlke.on("done", bobTlht.build, bobTlht);
+
+                aliceTlth.on("done", function(args) {
+                    this.aliceResult = args;
+                }, this);
+                bobTlht.on("done", function(args) {
+                    this.bobResult = args;
+                }, this);
+
+                aliceTlke.build();
+                bobTlke.build();
+                aliceTlke.generate();
+            });
+
+            it("alice hash tails are ready", function () {
+                expect(this.aliceResult.hashStart).not.toBeUndefined();
+                expect(this.aliceResult.hashEnd).not.toBeUndefined();
+            });
+
+            it("bob hash tails are ready", function () {
+                expect(this.bobResult.hashStart).not.toBeUndefined();
+                expect(this.bobResult.hashEnd).not.toBeUndefined();
+            });            
         });
 
     });
