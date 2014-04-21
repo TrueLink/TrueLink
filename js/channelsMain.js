@@ -23,81 +23,49 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["modules/channels/tlke", "modules/channels/tlht", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
-        "zepto", "modules/channels/TestTransport"//, "react", "modules/TestApp", "components/channels/AppList", "modules/channels/contact"
-        //"components/App", "components/LoginPage", "db", "services/crypto", "settings", "addons"
-    ], function (Tlke, Tlht, random, Hex, Route, $, TestTransport, React, TestApp, AppList, Contact) {
+    require(["modules/channels/tlkeBuilder", "modules/channels/tlhtBuilder", "modules/channels/tlecBuilder", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
+        "zepto", "modules/channels/TestTransport", "modules/data-types/utf8string"
+    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, random, Hex, Route, $, TestTransport, Utf8String) {
         $(function () {
-
-            var aliceTlke = new Tlke();
-            var aliceTlht = new Tlht();
-            var bobTlke = new Tlke();
-            var bobTlht = new Tlht();
-
             var transport = new TestTransport();
+            var aliceTlkeb = new TlkeBuilder(transport, random);
+            var bobTlkeb = new TlkeBuilder(transport, random);
+            var aliceTltheb = new TlhtBuilder(transport, random);
+            var bobTlhteb = new TlhtBuilder(transport, random);
+            var aliceTlecb = new TlecBuilder(transport, random);
+            var bobTlecb = new TlecBuilder(transport, random);
 
 
-            aliceTlke.setRng(random);
-            bobTlke.setRng(random);
-            aliceTlht.setRng(random);
-            bobTlht.setRng(random);
+            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
+            aliceTlkeb.on("auth", function (auth) {
+                if (auth) {
+                    bobTlkeb.enterAuth(auth);
+                }
+            }, null);
 
-            var aliceTlkeRoute = new Route();
-            var aliceTlhtRoute = new Route();
-            var bobTlkeRoute = new Route();
-            var bobTlhtRoute = new Route();
+            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
+            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
+            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
+            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
 
-            aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
-            aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
-            aliceTlke.on("addr", aliceTlkeRoute.setAddr, aliceTlkeRoute);
-            aliceTlke.on("packet", aliceTlkeRoute.processPacket, aliceTlkeRoute);
-            aliceTlht.on("packet", aliceTlhtRoute.processPacket, aliceTlhtRoute);
-            aliceTlke.on("keyReady", function (args) {
-                console.log("aliceTlke key generated: %s, in: %s, out: %s", args.key.as(Hex), args.inId.as(Hex), args.outId.as(Hex));
-                aliceTlht.init(args.key);
-                aliceTlhtRoute.setAddr(args); // interface is ok
-                aliceTlht.generate();
+
+            window.str = Utf8String;
+            aliceTlecb.on("done", function (args) {
+                window.alice = args;
+                window.alice.on("message", function (msg) {
+                    console.log(msg.as(Utf8String), "to alice");
+                });
+            });
+            bobTlecb.on("done", function (args) {
+                window.bob = args;
+                window.bob.on("message", function (msg) {
+                    console.log(msg.as(Utf8String), "to bob");
+                });
             });
 
-
-            aliceTlkeRoute.on("packet", aliceTlke.processPacket, aliceTlke);
-            aliceTlhtRoute.on("packet", aliceTlht.processPacket, aliceTlht);
-            aliceTlkeRoute.on("addrIn", transport.openAddr, transport);
-            aliceTlhtRoute.on("addrIn", transport.openAddr, transport);
-
-            aliceTlkeRoute.on("networkPacket", transport.sendNetworkPacket, transport);
-            bobTlkeRoute.on("networkPacket", transport.sendNetworkPacket, transport);
-            aliceTlhtRoute.on("networkPacket", transport.sendNetworkPacket, transport);
-            bobTlhtRoute.on("networkPacket", transport.sendNetworkPacket, transport);
-
-            transport.on("networkPacket", aliceTlkeRoute.processNetworkPacket, aliceTlkeRoute);
-            transport.on("networkPacket", bobTlkeRoute.processNetworkPacket, bobTlkeRoute);
-            transport.on("networkPacket", aliceTlhtRoute.processNetworkPacket, aliceTlhtRoute);
-            transport.on("networkPacket", bobTlhtRoute.processNetworkPacket, bobTlhtRoute);
-
-            bobTlkeRoute.on("packet", bobTlke.processPacket, bobTlke);
-            bobTlhtRoute.on("packet", bobTlht.processPacket, bobTlht);
-            bobTlkeRoute.on("addrIn", transport.openAddr, transport);
-            bobTlhtRoute.on("addrIn", transport.openAddr, transport);
-
-            bobTlke.on("addr", bobTlkeRoute.setAddr, bobTlkeRoute);
-            bobTlke.on("packet", bobTlkeRoute.processPacket, bobTlkeRoute);
-            bobTlht.on("packet", bobTlhtRoute.processPacket, bobTlhtRoute);
-            bobTlke.on("keyReady", function (args) {
-                console.log("bobTlke key generated:   %s, in: %s, out: %s", args.key.as(Hex), args.inId.as(Hex), args.outId.as(Hex));
-                bobTlht.init(args.key);
-                bobTlhtRoute.setAddr(args); // interface is ok
-                bobTlht.generate();
-            });
-
-            bobTlht.on("htReady", function (args) {
-                console.log("bob hashes ready:\tstart: %s, end: %s", args.hashStart.as(Hex), args.hashEnd.as(Hex));
-            });
-            aliceTlht.on("htReady", function (args) {
-                console.log("alice hashes ready:\tstart: %s, end: %s", args.hashStart.as(Hex), args.hashEnd.as(Hex));
-            });
-
-            aliceTlke.generate();
+            aliceTlkeb.build();
+            bobTlkeb.build();
+            aliceTlkeb.generate();
 //            var apps = {};
 //            function addApp(id, isSync) {
 //                apps[id] = new TestApp(id, isSync);

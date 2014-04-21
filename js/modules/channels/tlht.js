@@ -10,7 +10,7 @@ define([
     "modules/data-types/isMultivalue",
     "modules/cryptography/sha1-crypto-js",
     "tools/invariant"
-], function ($, EventEmitter, Aes, TlChannel, BitArray, Utf8String, Hex, Bytes, isMultivalue, SHA1, invariant) {
+], function ($, EventEmitter, Aes, Tlec, BitArray, Utf8String, Hex, Bytes, isMultivalue, SHA1, invariant) {
     "use strict";
 
     function hash(value) {
@@ -36,7 +36,7 @@ define([
         generate: function () {
             this.hashStart = this.random.bitArray(128);
             var hashEnd = this.hashStart, i;
-            for (i = 0; i < TlChannel.HashCount; i += 1) {
+            for (i = 0; i < Tlec.HashCount; i += 1) {
                 hashEnd = hash(hashEnd);
             }
 
@@ -67,11 +67,13 @@ define([
             try {
                 message = JSON.parse(netData.as(Utf8String).value);
             } catch (ex) {
-                throw new Error("Could not parse packet from the network");
+                // not for me
+                return;
             }
             if (message.t === "h" && message.d) {
                 this.hashEnd = Hex.deserialize(message.d);
                 if (this.hashStart) {
+                    console.log("hashes ready");
                     this._onHashReady();
                 }
             }
@@ -95,10 +97,13 @@ define([
         },
 
         _onHashReady: function () {
+            if (this.readyCalled) { return; }
+            this.readyCalled = true;
             this.fire("htReady", {
                 hashStart: this.hashStart,
                 hashEnd: this.hashEnd
             });
+            this._onDirty();
         },
         _onDirty: function () {
             this.fire("dirty");
