@@ -23,9 +23,9 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["modules/channels/tlkeBuilder", "modules/channels/tlhtBuilder", "modules/channels/tlecBuilder", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
+    require(["modules/channels/tlkeBuilder", "modules/channels/tlhtBuilder", "modules/channels/tlecBuilder", "modules/channels/overTlecBuilder", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
         "zepto", "modules/channels/TestTransport", "modules/data-types/utf8string"
-    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, random, Hex, Route, $, TestTransport, Utf8String) {
+    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String) {
         $(function () {
             var transport = new TestTransport();
             var aliceTlkeb = new TlkeBuilder(transport, random);
@@ -50,17 +50,28 @@
 
 
             window.str = Utf8String;
-            aliceTlecb.on("done", function (args) {
-                window.alice = args;
-                window.alice.on("message", function (msg) {
-                    console.log(msg.as(Utf8String), "to alice");
+            aliceTlecb.on("done", function (tlec) {
+                var over = new OverTlecBuilder(transport, random);
+                tlec.on("message", function (bytes) {
+                    var msg = JSON.parse(bytes.as(Utf8String).value);
+                    over.processMessage(msg);
                 });
+                over.on("message", function (msg) {
+                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                });
+                window.over = over;
             });
-            bobTlecb.on("done", function (args) {
-                window.bob = args;
-                window.bob.on("message", function (msg) {
-                    console.log(msg.as(Utf8String), "to bob");
+            bobTlecb.on("done", function (tlec) {
+                var over = new OverTlecBuilder(transport, random);
+                tlec.on("message", function (bytes) {
+                    var msg = JSON.parse(bytes.as(Utf8String).value);
+                    over.processMessage(msg);
                 });
+                over.on("message", function (msg) {
+                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                });
+                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
+                over.build(false);
             });
 
             aliceTlkeb.build();

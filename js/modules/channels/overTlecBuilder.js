@@ -1,26 +1,37 @@
 define(["modules/channels/tlkeBuilder",
     "modules/channels/tlhtBuilder",
     "modules/channels/tlecBuilder",
-    "modules/data-types/hex"
-], function (TlkeBuilder, TlhtBuilder, TlecBuilder, Hex) {
+    "modules/channels/EventEmitter",
+    "modules/data-types/hex",
+    "zepto"
+], function (TlkeBuilder, TlhtBuilder, TlecBuilder, EventEmitter, Hex, $) {
     "use strict";
 
     function OverTlecBuilder(transport, random) {
         this._defineEvent("message");
-        var tlkeBuilder = this.tlkeBuilder = new TlkeBuilder(transport, random);
-        tlkeBuilder.on("offer", this.onTlkeOffer, this);
-        tlkeBuilder.on("auth", this.onTlkeAuth, this);
-
-        var tlhtBuilder = new TlhtBuilder(transport, random);
-        var tlecBuilder = new TlecBuilder(transport, random);
-
-        tlkeBuilder.on("done", tlhtBuilder.build, tlhtBuilder);
-
-        tlhtBuilder.on("done", tlecBuilder.build, tlecBuilder);
-        tlecBuilder.on("done", this.onTlecReady, this);
+        this._defineEvent("done");
+        this.transport = transport;
+        this.random = random;
     }
 
-    OverTlecBuilder.prototype = {
+    OverTlecBuilder.prototype = new EventEmitter;
+    $.extend(OverTlecBuilder.prototype, {
+        build: function (gen) {
+            var tlkeBuilder = this.tlkeBuilder = new TlkeBuilder(this.transport, this.random);
+            tlkeBuilder.on("offer", this.onTlkeOffer, this);
+            tlkeBuilder.on("auth", this.onTlkeAuth, this);
+
+            var tlhtBuilder = new TlhtBuilder(this.transport, this.random);
+            var tlecBuilder = new TlecBuilder(this.transport, this.random);
+
+            tlkeBuilder.on("done", tlhtBuilder.build, tlhtBuilder);
+
+            tlhtBuilder.on("done", tlecBuilder.build, tlecBuilder);
+            tlecBuilder.on("done", this.onTlecReady, this);
+
+            tlkeBuilder.build();
+            if (gen) { tlkeBuilder.generate(); }
+        },
         onTlkeOffer: function (offer) {
             this._sendMessage({t: "o", o: offer.as(Hex).serialize() });
         },
@@ -42,7 +53,7 @@ define(["modules/channels/tlkeBuilder",
                 this.tlkeBuilder.enterAuth(Hex.deserialize(msg.a));
             }
         }
-    };
+    });
 
     return OverTlecBuilder;
 });
