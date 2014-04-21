@@ -23,8 +23,17 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
-    require(["modules/channels/tlkeBuilder", "modules/channels/tlhtBuilder", "modules/channels/tlecBuilder", "modules/channels/overTlecBuilder", "tools/random", "modules/data-types/Hex", "modules/channels/Route",
-        "zepto", "modules/channels/TestTransport", "modules/data-types/utf8string"
+    require([
+        "modules/channels/tlkeBuilder", 
+        "modules/channels/tlhtBuilder", 
+        "modules/channels/tlecBuilder", 
+        "modules/channels/overTlecBuilder", 
+        "tools/random", 
+        "modules/data-types/Hex", 
+        "modules/channels/Route",
+        "zepto", 
+        "modules/channels/TestTransport", 
+        "modules/data-types/utf8string"
     ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String) {
         $(function () {
             var transport = new TestTransport();
