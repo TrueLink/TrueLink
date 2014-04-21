@@ -9,6 +9,11 @@ define([
     "zepto",
 ], function (random, Hex, EventEmitter, Tlke, Tlht, Transport, Route, $) {
 
+    var logfunc = function() {
+        var args = [this.name].concat(arguments);
+        //console.log.apply(console, args);
+    }
+
     describe("True Link Key Exchange", function() {
 
         function Builder(name) {
@@ -75,9 +80,7 @@ define([
                 this._log("on_addrIn", addr);
                 this.fire("addrIn", addr);
             },
-            _log: function() {
-                //console.log(this.name, arguments);
-            }
+            _log: logfunc
         });
 
         describe("with route short-circuited", function() {
@@ -225,9 +228,7 @@ define([
                 this._log("on_keyReady", args);
                 this.fire("done", args);
             },
-            _log: function() {
-                //console.log(this.name, arguments);
-            }
+            _log: logfunc
         });
 
         function TlhtBuilder(name, transport) {
@@ -263,9 +264,7 @@ define([
                 this._log("hashStart", args.hashStart.as(Hex));
                 this._log("hashEnd", args.hashEnd.as(Hex));
             },
-            _log: function() {
-                //console.log(this.name, arguments);
-            }
+            _log: logfunc
         });
 
         describe("with transport", function() {
