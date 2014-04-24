@@ -14,7 +14,7 @@ define(["modules/channels/tlkeBuilder",
         this.random = random;
     }
 
-    OverTlecBuilder.prototype = new EventEmitter;
+    OverTlecBuilder.prototype = new EventEmitter();
     $.extend(OverTlecBuilder.prototype, {
         build: function (gen) {
             var tlkeBuilder = this.tlkeBuilder = new TlkeBuilder(this.transport, this.random);
