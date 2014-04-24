@@ -15,16 +15,50 @@ define(["zepto",
         this._defineEvent("offer");
         this._defineEvent("auth");
         this._defineEvent("done");
+
+        this.isLinked = false;
     }
 
     TlkeBuilder.prototype = new EventEmitter();
 
     $.extend(TlkeBuilder.prototype, {
+
         build: function () {
-            var tlke = this.tlke = new Tlke();
-            tlke.setRng(this.random);
-            var route = this.route = new Route();
+            this.tlke = new Tlke();
+            this.route = new Route();
+            this.link();
+        },
+
+
+        _deserialize: function (packet, context) {
+            this.isLinked = packet.getData().isLinked;
+            if (this.isLinked) {
+                this.tlke = Tlke.deserialize(packet.getLinks().tlke, context);
+                this.route = Route.deserialize(packet.getLinks().route, context);
+                this.link();
+            }
+        },
+
+        serialize: function (context) {
+            return context.getPacket(this) || (function () {
+                var packet = new SerializationPacket();
+                packet.setData({
+                    isLinked: this.isLinked
+                });
+                packet.setLinks({
+                    tlke: this.tlke.serialize(context),
+                    route: this.route.serialize(context)
+                });
+                context.setPacket(this, packet);
+                return packet;
+            }());
+        },
+
+        link: function () {
+            this.tlke.setRng(this.random);
             var transport = this.transport;
+            var route = this.route;
+            var tlke = this.tlke;
 
             route.on("packet", tlke.processPacket, tlke);
             route.on("networkPacket", transport.sendNetworkPacket, transport);
@@ -37,6 +71,9 @@ define(["zepto",
             tlke.on("auth", this.onTlkeAuth, this);
 
             transport.on("networkPacket", route.processNetworkPacket, route);
+
+            this.isLinked = true;
+            this._onDirty();
         },
 
         generate: function () {
@@ -56,9 +93,23 @@ define(["zepto",
         },
         onTlkeKeyReady: function (args) {
             this.fire("done", args);
+        },
+        _onDirty: function () {
+            this.fire("dirty");
         }
 
     });
+
+    TlkeBuilder.deserialize = function (packet, context, transport, random) {
+        invariant(packet, "packet is empty");
+        invariant(context, "context is empty");
+        return context.getObject(packet) || (function () {
+            var tlkeBuilder = new TlkeBuilder(transport, random);
+            tlkeBuilder._deserialize(packet, context);
+            context.setObject(packet, tlkeBuilder);
+            return tlkeBuilder;
+        }());
+    };
 
     return TlkeBuilder;
 });
