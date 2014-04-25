@@ -9,8 +9,9 @@ define([
     "modules/cryptography/aes-sjcl",
     "tools/invariant",
     "modules/data-types/isMultivalue",
+    "modules/serialization/packet",
     "modules/converters/customTypes"
-], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue) {
+], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue, SerializationPacket) {
     "use strict";
 
     var dhPrivBitLength = 160;
@@ -262,9 +263,51 @@ define([
         setRng: function (rng) {
             invariant(rng && $.isFunction(rng.bitArray), "rng is not implementing IRng");
             this.random = rng;
+        },
+
+        _deserialize: function (packet, context) {
+            var dto = packet.getData();
+            this.state = dto.state;
+            this.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
+            this.dhk = dto.dhk ? Hex.deserialize(dto.dhk) : null;
+            this.dh = dto.dh ? DiffieHellman.deserialize(dto.dh) : null;
+            this.auth = dto.auth ? Hex.deserialize(dto.auth) : null;
+            this.check = dto.check ? Hex.deserialize(dto.check) : null;
+            this.authData = dto.authData ? Hex.deserialize(dto.authData) : null;
+        },
+
+        serialize: function (context) {
+            return context.getPacket(this) || (function () {
+                var packet = new SerializationPacket();
+                packet.setData({
+                    state: this.state,
+                    dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
+                    dhk: this.dhk ? this.dhk.as(Hex).serialize() : null,
+                    dh: this.dh ? this.dh.serialize() : null,
+                    auth: this.auth ? this.auth.as(Hex).serialize() : null,
+                    check: this.check ? this.check.as(Hex).serialize() : null,
+                    authData: this.authData ? this.authData.as(Hex).serialize() : null
+                });
+                context.setPacket(this, packet);
+                return packet;
+            }());
         }
 
     });
+
+    Tlke.deserialize = function (packet, context, random) {
+        invariant(packet, "packet is empty");
+        invariant(context, "context is empty");
+        invariant(random, "random is empty");
+        return context.getObject(packet) || (function () {
+            var tlke = new Tlke();
+            tlke.setRng(random);
+            tlke._deserialize(packet, context);
+            context.setObject(packet, tlke);
+            return tlke;
+        }());
+    };
+
     Tlke.STATE_NOT_STARTED = 1;
     Tlke.STATE_AWAITING_OFFER = 2;
     Tlke.STATE_AWAITING_OFFER_RESPONSE = 3;

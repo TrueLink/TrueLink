@@ -35,6 +35,7 @@ define([
     }
 
     function bigInt2str(bi) {
+        if (!bi) { return null; }
         var str = lemon.bigInt2str(bi, 16);
         if (str.length % 2) {
             str = "0" + str;
@@ -51,7 +52,16 @@ define([
             this.a = a;
         },
         serialize: function () {
-            throw new Error("Not implemented");
+            return {
+                p: bigInt2str(this.p),
+                g: bigInt2str(this.g),
+                a: bigInt2str(this.a)
+            };
+        },
+        _deserialize: function (dto) {
+            this.p = dto.p ? lemon.str2bigInt(dto.p, 16) : null;
+            this.g = dto.g ? lemon.str2bigInt(dto.g, 16) : null;
+            this.a = dto.a ? lemon.str2bigInt(dto.a, 16) : null;
         },
         createKeyExchange: function () {
             var keyEx = lemon.powMod(this.g, this.a, this.p);
@@ -72,7 +82,9 @@ define([
     };
 
     DiffieHellman.deserialize = function (dto) {
-        throw new Error("Not implemented");
+        var dh = new DiffieHellman();
+        dh._deserialize(dto);
+        return dh;
     };
 
     return DiffieHellman;

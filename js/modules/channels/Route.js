@@ -1,5 +1,10 @@
-define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/data-types/isMultivalue", "modules/data-types/hex"
-], function ($, EventEmitter, invariant, isMultivalue, Hex) {
+define(["zepto",
+    "modules/channels/EventEmitter",
+    "tools/invariant",
+    "modules/data-types/isMultivalue",
+    "modules/data-types/hex",
+    "modules/serialization/packet"
+], function ($, EventEmitter, invariant, isMultivalue, Hex, SerializationPacket) {
     "use strict";
     function Route() {
         this.addr = null;
@@ -20,6 +25,33 @@ define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/da
                 data: packet
             });
         },
+
+        _deserialize: function (packet, context) {
+            var addr = packet.getData().addr;
+            if (addr) {
+                this.addr = {
+                    inId: Hex.deserialize(addr.inId),
+                    outId: Hex.deserialize(addr.inId)
+                };
+            }
+        },
+
+        serialize: function (context) {
+            return context.getPacket(this) || (function () {
+                var packet = new SerializationPacket();
+                if (this.addr) {
+                    packet.setData({
+                        addr: {
+                            inId: this.add.inId.as(Hex).serialize(),
+                            outId: this.add.outId.as(Hex).serialize()
+                        }
+                    });
+                }
+                context.setPacket(this, packet);
+                return packet;
+            }());
+        },
+
         processNetworkPacket: function (networkPacket) {
             invariant(networkPacket
                 && isMultivalue(networkPacket.addr)
@@ -39,6 +71,17 @@ define(["zepto", "modules/channels/EventEmitter", "tools/invariant", "modules/da
             this.fire("addrIn", this.addr.inId);
         }
     });
+
+    Route.deserialize = function (packet, context) {
+        invariant(packet, "packet is empty");
+        invariant(context, "context is empty");
+        return context.getObject(packet) || (function () {
+            var route = new Route();
+            route._deserialize(packet, context);
+            context.setObject(packet, route);
+            return route;
+        }());
+    };
 
     return Route;
 });
