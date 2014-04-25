@@ -24,68 +24,84 @@
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
     require([
-        "modules/channels/tlkeBuilder", 
-        "modules/channels/tlhtBuilder", 
-        "modules/channels/tlecBuilder", 
-        "modules/channels/overTlecBuilder", 
-        "tools/random", 
-        "modules/data-types/Hex", 
+        "modules/channels/tlkeBuilder",
+        "modules/channels/tlhtBuilder",
+        "modules/channels/tlecBuilder",
+        "modules/channels/overTlecBuilder",
+        "tools/random",
+        "modules/data-types/Hex",
         "modules/channels/Route",
-        "zepto", 
-        "modules/channels/TestTransport", 
-        "modules/data-types/utf8string"
-    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String) {
+        "zepto",
+        "modules/channels/TestTransport",
+        "modules/data-types/utf8string",
+        "modules/serialization/context",
+        "modules/serialization/log"
+    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String, SerializationContext, log) {
         $(function () {
+
             var transport = new TestTransport();
-            var aliceTlkeb = new TlkeBuilder(transport, random);
-            var bobTlkeb = new TlkeBuilder(transport, random);
-            var aliceTltheb = new TlhtBuilder(transport, random);
-            var bobTlhteb = new TlhtBuilder(transport, random);
-            var aliceTlecb = new TlecBuilder(transport, random);
-            var bobTlecb = new TlecBuilder(transport, random);
+            var tlkeb = new TlkeBuilder(transport, random);
+
+            tlkeb.build();
+            tlkeb.generate();
+            var context = new SerializationContext();
+            var t = tlkeb.serialize(context);
 
 
-            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
-            aliceTlkeb.on("auth", function (auth) {
-                if (auth) {
-                    bobTlkeb.enterAuth(auth);
-                }
-            }, null);
-
-            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
-            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
-            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
-            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
+            log(t);
+            console.log(context);
 
 
-            window.str = Utf8String;
-            aliceTlecb.on("done", function (tlec) {
-                var over = new OverTlecBuilder(transport, random);
-                tlec.on("message", function (bytes) {
-                    var msg = JSON.parse(bytes.as(Utf8String).value);
-                    over.processMessage(msg);
-                });
-                over.on("message", function (msg) {
-                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-                });
-                window.over = over;
-            });
-            bobTlecb.on("done", function (tlec) {
-                var over = new OverTlecBuilder(transport, random);
-                tlec.on("message", function (bytes) {
-                    var msg = JSON.parse(bytes.as(Utf8String).value);
-                    over.processMessage(msg);
-                });
-                over.on("message", function (msg) {
-                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-                });
-                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
-                over.build(false);
-            });
+//            var transport = new TestTransport();
+//            var aliceTlkeb = new TlkeBuilder(transport, random);
+//            var bobTlkeb = new TlkeBuilder(transport, random);
+//            var aliceTltheb = new TlhtBuilder(transport, random);
+//            var bobTlhteb = new TlhtBuilder(transport, random);
+//            var aliceTlecb = new TlecBuilder(transport, random);
+//            var bobTlecb = new TlecBuilder(transport, random);
+//
+//
+//            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
+//            aliceTlkeb.on("auth", function (auth) {
+//                if (auth) {
+//                    bobTlkeb.enterAuth(auth);
+//                }
+//            }, null);
+//
+//            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
+//            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
+//            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
+//            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
+//
+//
+//            window.str = Utf8String;
+//            aliceTlecb.on("done", function (tlec) {
+//                var over = new OverTlecBuilder(transport, random);
+//                tlec.on("message", function (bytes) {
+//                    var msg = JSON.parse(bytes.as(Utf8String).value);
+//                    over.processMessage(msg);
+//                });
+//                over.on("message", function (msg) {
+//                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+//                });
+//                window.over = over;
+//            });
+//            bobTlecb.on("done", function (tlec) {
+//                var over = new OverTlecBuilder(transport, random);
+//                tlec.on("message", function (bytes) {
+//                    var msg = JSON.parse(bytes.as(Utf8String).value);
+//                    over.processMessage(msg);
+//                });
+//                over.on("message", function (msg) {
+//                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+//                });
+//                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
+//                over.build(false);
+//            });
 
-            aliceTlkeb.build();
-            bobTlkeb.build();
-            aliceTlkeb.generate();
+//            aliceTlkeb.build();
+//            bobTlkeb.build();
+//            aliceTlkeb.generate();
 //            var apps = {};
 //            function addApp(id, isSync) {
 //                apps[id] = new TestApp(id, isSync);

@@ -10,8 +10,9 @@ define([
     "tools/invariant",
     "modules/data-types/isMultivalue",
     "modules/serialization/packet",
+    "tools/bind",
     "modules/converters/customTypes"
-], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue, SerializationPacket) {
+], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue, SerializationPacket, bind) {
     "use strict";
 
     var dhPrivBitLength = 160;
@@ -277,7 +278,7 @@ define([
         },
 
         serialize: function (context) {
-            return context.getPacket(this) || (function () {
+            return context.getPacket(this) || this.bind(function () {
                 var packet = new SerializationPacket();
                 packet.setData({
                     state: this.state,
@@ -290,10 +291,10 @@ define([
                 });
                 context.setPacket(this, packet);
                 return packet;
-            }());
+            })();
         }
 
-    });
+    }, bind);
 
     Tlke.deserialize = function (packet, context, random) {
         invariant(packet, "packet is empty");
