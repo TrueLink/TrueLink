@@ -29,6 +29,7 @@ define(["zepto",
             this.tlke = new Tlke();
             this.route = new Route();
             this.link();
+            this._onDirty();
         },
 
 

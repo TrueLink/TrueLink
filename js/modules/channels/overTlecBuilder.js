@@ -29,6 +29,7 @@ define(["modules/channels/tlkeBuilder",
 
             this.tlkeBuilder.build();
             if (gen) { this.tlkeBuilder.generate(); }
+            this._onDirty();
         },
 
         link: function () {
@@ -43,6 +44,10 @@ define(["modules/channels/tlkeBuilder",
 
             tlhtBuilder.on("done", tlecBuilder.build, tlecBuilder);
             tlecBuilder.on("done", this.onTlecReady, this);
+
+            tlkeBuilder.on("dirty", this._onDirty, this);
+            tlhtBuilder.on("dirty", this._onDirty, this);
+            tlecBuilder.on("dirty", this._onDirty, this);
 
             this.linked = true;
         },
@@ -96,7 +101,9 @@ define(["modules/channels/tlkeBuilder",
             } else if (msg.t === "a" && msg.a) {
                 this.tlkeBuilder.enterAuth(Hex.deserialize(msg.a));
             }
-        }
+        },
+
+        _onDirty: function () { this.fire("dirty"); }
     });
 
     OverTlecBuilder.deserialize = function (packet, context, transport, random) {

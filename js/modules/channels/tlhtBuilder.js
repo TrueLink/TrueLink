@@ -14,6 +14,7 @@ define(["zepto",
         this.transport = transport;
         this.random = random;
         this._defineEvent("done");
+        this._defineEvent("dirty");
         this.isLinked = false;
     }
 
@@ -33,6 +34,7 @@ define(["zepto",
             this.outId = args.outId;
             this.route.setAddr(args);
             this.tlht.generate();
+            this.fire("dirty");
         },
 
         link: function (args) {

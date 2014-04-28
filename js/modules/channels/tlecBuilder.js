@@ -13,6 +13,7 @@ define(["zepto",
         this.transport = transport;
         this.random = random;
         this._defineEvent("done");
+        this._defineEvent("dirty");
         this.isLinked = true;
     }
 
@@ -25,6 +26,7 @@ define(["zepto",
             this.link();
             this.tlec.init(args);
             this.route.setAddr(args);
+            this.fire("dirty");
             this.fire("done", this);
         },
 
