@@ -8,8 +8,9 @@ define([
     "modules/data-types/bytes",
     "modules/data-types/isMultivalue",
     "tools/invariant",
-    "modules/cryptography/sha1-crypto-js"
-], function ($, EventEmitter, Aes, BitArray, Utf8String, Hex, Bytes, isMultivalue, invariant, SHA1) {
+    "modules/cryptography/sha1-crypto-js",
+    "modules/serialization/packet"
+], function ($, EventEmitter, Aes, BitArray, Utf8String, Hex, Bytes, isMultivalue, invariant, SHA1, SerializationPacket) {
     "use strict";
 
     function hash(value) {
@@ -44,6 +45,26 @@ define([
             this.hashCounter = Tlec.HashCount - 1;
             this.checkEventHandlers();
             this._onDirty();
+        },
+
+        serialize: function (context) {
+            var packet = context.getPacket(this) || new SerializationPacket();
+            packet.setData({
+                dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
+                hashStart:  this.hashStart ? this.hashStart.as(Hex).serialize() : null,
+                hashEnd:  this.backHashEnd ? this.backHashEnd.as(Hex).serialize() : null,
+                hashCounter: this.hashCounter
+            });
+            context.setPacket(this, packet);
+            return packet;
+        },
+
+        _deserialize: function (packet, context) {
+            var dto = packet.getData();
+            this.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
+            this.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
+            this.backHashEnd = dto.hashEnd ? Hex.deserialize(dto.hashEnd) : null;
+            this.hashCounter = dto.hashCounter;
         },
 
         sendMessage: function (message) {
@@ -111,15 +132,6 @@ define([
         },
 
 
-        serialize: function () {
-            return {
-                hashStart: this.hashStart ? this.hashStart.as(Hex).serialize() : null,
-                hashCounter: this.hashCounter,
-                dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
-                backHashEnd: this.backHashEnd ? this.backHashEnd.as(Hex).serialize() : null
-            };
-        },
-
         _onDirty: function () {
             this.fire("dirty");
         },
@@ -135,13 +147,17 @@ define([
         }
     });
 
-    Tlec.deserialize = function (dto) {
-        var ch = new Tlec();
-        ch.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
-        ch.hashCounter = dto.hashCounter;
-        ch.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
-        ch.backHashEnd = dto.backHashEnd ? Hex.deserialize(dto.backHashEnd) : null;
-        return ch;
+    Tlec.deserialize = function (packet, context, random) {
+        invariant(packet, "packet is empty");
+        invariant(context, "context is empty");
+        invariant(random, "random is empty");
+        return context.getObject(packet) || (function () {
+            var tlec = new Tlke();
+            tlec.setRng(random);
+            tlec._deserialize(packet, context);
+            context.setObject(packet, tlec);
+            return tlec;
+        }());
     };
 
 

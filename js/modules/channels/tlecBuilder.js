@@ -2,8 +2,9 @@ define(["zepto",
     "tools/invariant",
     "modules/channels/EventEmitter",
     "modules/channels/Tlec",
-    "modules/channels/Route"
-], function ($, invariant, EventEmitter, Tlec, Route) {
+    "modules/channels/Route",
+    "modules/serialization/packet"
+], function ($, invariant, EventEmitter, Tlec, Route, SerializationPacket) {
     "use strict";
     function TlecBuilder(transport, random) {
 

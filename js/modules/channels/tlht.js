@@ -9,8 +9,9 @@ define([
     "modules/data-types/bytes",
     "modules/data-types/isMultivalue",
     "modules/cryptography/sha1-crypto-js",
-    "tools/invariant"
-], function ($, EventEmitter, Aes, Tlec, BitArray, Utf8String, Hex, Bytes, isMultivalue, SHA1, invariant) {
+    "tools/invariant",
+    "modules/serialization/packet"
+], function ($, EventEmitter, Aes, Tlec, BitArray, Utf8String, Hex, Bytes, isMultivalue, SHA1, invariant, SerializationPacket) {
     "use strict";
 
     function hash(value) {
@@ -49,6 +50,24 @@ define([
                 this._onHashReady();
             }
             this._onDirty();
+        },
+
+        serialize: function (context) {
+            var packet = context.getPacket(this) || new SerializationPacket();
+            packet.setData({
+                dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
+                hashStart:  this.hashStart ? this.hashStart.as(Hex).serialize() : null,
+                hashEnd:  this.hashEnd ? this.hashEnd.as(Hex).serialize() : null
+            });
+            context.setPacket(this, packet);
+            return packet;
+        },
+
+        _deserialize: function (packet, context) {
+            var dto = packet.getData();
+            this.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
+            this.hashStart = dto.hashStart ? Hex.deserialize(dto.hashStart) : null;
+            this.hashEnd = dto.hashEnd ? Hex.deserialize(dto.hashEnd) : null;
         },
 
         _sendMessage: function (messageData) {
@@ -120,6 +139,19 @@ define([
         }
 
     });
+
+    Tlht.deserialize = function (packet, context, random) {
+        invariant(packet, "packet is empty");
+        invariant(context, "context is empty");
+        invariant(random, "random is empty");
+        return context.getObject(packet) || (function () {
+            var tlht = new Tlht();
+            tlht.setRng(random);
+            tlht._deserialize(packet, context);
+            context.setObject(packet, tlht);
+            return tlht;
+        }());
+    };
 
     return Tlht;
 });
