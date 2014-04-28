@@ -40,16 +40,22 @@
         $(function () {
 
             var transport = new TestTransport();
-            var tlkeb = new TlkeBuilder(transport, random);
+
+            var tlkeb = new TlkeBuilder(transport, random), lastPacket;
+
+            tlkeb.on("dirty", function () {
+                lastPacket = tlkeb.serialize(new SerializationContext());
+                log(lastPacket);
+            }, null);
 
             tlkeb.build();
             tlkeb.generate();
-            var context = new SerializationContext();
-            var t = tlkeb.serialize(context);
+
+            setTimeout(function () {
+                console.log(TlkeBuilder.deserialize(lastPacket, new SerializationContext(), transport, random));
+            });
 
 
-            log(t);
-            console.log(context);
 
 
 //            var transport = new TestTransport();
