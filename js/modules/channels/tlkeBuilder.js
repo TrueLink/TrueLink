@@ -3,9 +3,8 @@ define(["zepto",
     "modules/channels/EventEmitter",
     "modules/channels/Tlke",
     "modules/channels/Route",
-    "modules/serialization/packet",
-    "tools/bind"
-], function ($, invariant, EventEmitter, Tlke, Route, SerializationPacket, bind) {
+    "modules/serialization/packet"
+], function ($, invariant, EventEmitter, Tlke, Route, SerializationPacket) {
     "use strict";
     function TlkeBuilder(transport, random) {
 
@@ -43,20 +42,18 @@ define(["zepto",
         },
 
         serialize: function (context) {
-            return context.getPacket(this) || this.bind(function () {
-                var packet = new SerializationPacket();
-                packet.setData({
-                    isLinked: this.isLinked
+            var packet = context.getPacket(this) || new SerializationPacket();
+            packet.setData({
+                isLinked: this.isLinked
+            });
+            if (this.isLinked) {
+                packet.setLinks({
+                    tlke: this.tlke.serialize(context),
+                    route: this.route.serialize(context)
                 });
-                if (this.isLinked) {
-                    packet.setLinks({
-                        tlke: this.tlke.serialize(context),
-                        route: this.route.serialize(context)
-                    });
-                }
-                context.setPacket(this, packet);
-                return packet;
-            })();
+            }
+            context.setPacket(this, packet);
+            return packet;
         },
 
         link: function () {
@@ -104,7 +101,7 @@ define(["zepto",
             this.fire("dirty");
         }
 
-    }, bind);
+    });
 
     TlkeBuilder.deserialize = function (packet, context, transport, random) {
         invariant(packet, "packet is empty");

@@ -3,9 +3,8 @@ define(["zepto",
     "tools/invariant",
     "modules/data-types/isMultivalue",
     "modules/data-types/hex",
-    "modules/serialization/packet",
-    "tools/bind"
-], function ($, EventEmitter, invariant, isMultivalue, Hex, SerializationPacket, bind) {
+    "modules/serialization/packet"
+], function ($, EventEmitter, invariant, isMultivalue, Hex, SerializationPacket) {
     "use strict";
     function Route() {
         this.addr = null;
@@ -38,19 +37,18 @@ define(["zepto",
         },
 
         serialize: function (context) {
-            return context.getPacket(this) || this.bind(function () {
-                var packet = new SerializationPacket();
-                if (this.addr) {
-                    packet.setData({
-                        addr: {
-                            inId: this.addr.inId.as(Hex).serialize(),
-                            outId: this.addr.outId.as(Hex).serialize()
-                        }
-                    });
-                }
-                context.setPacket(this, packet);
-                return packet;
-            })();
+            var packet = context.getPacket(this) || new SerializationPacket();
+
+            if (this.addr) {
+                packet.setData({
+                    addr: {
+                        inId: this.addr.inId.as(Hex).serialize(),
+                        outId: this.addr.outId.as(Hex).serialize()
+                    }
+                });
+            }
+            context.setPacket(this, packet);
+            return packet;
         },
 
         processNetworkPacket: function (networkPacket) {
@@ -71,7 +69,7 @@ define(["zepto",
             };
             this.fire("addrIn", this.addr.inId);
         }
-    }, bind);
+    });
 
     Route.deserialize = function (packet, context) {
         invariant(packet, "packet is empty");
