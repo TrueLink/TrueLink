@@ -34,7 +34,7 @@ define(["zepto",
             this.outId = args.outId;
             this.route.setAddr(args);
             this.tlht.generate();
-            this.fire("dirty");
+            this._onDirty();
         },
 
         link: function (args) {
@@ -49,10 +49,15 @@ define(["zepto",
             route.on("addrIn", transport.openAddr, transport);
 
             tlht.on("packet", route.processPacket, route);
+            tlht.on("dirty", this._onDirty, this);
 
             transport.on("networkPacket", route.processNetworkPacket, route);
             tlht.on("htReady", this.on_htReady, this);
             this.isLinked = true;
+        },
+
+        _onDirty: function () {
+            this.fire("dirty");
         },
 
         serialize: function (context) {

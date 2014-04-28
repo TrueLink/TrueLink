@@ -11,6 +11,7 @@ define(["modules/channels/tlkeBuilder",
     function OverTlecBuilder(transport, random) {
         this._defineEvent("message");
         this._defineEvent("done");
+        this._defineEvent("dirty");
         this.transport = transport;
         this.random = random;
         this.isLinked = false;

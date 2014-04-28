@@ -14,6 +14,8 @@ define(["zepto",
         this.random = random;
         this._defineEvent("done");
         this._defineEvent("dirty");
+        this._defineEvent("message");
+        this._defineEvent("expired");
         this.isLinked = true;
     }
 
@@ -26,7 +28,7 @@ define(["zepto",
             this.link();
             this.tlec.init(args);
             this.route.setAddr(args);
-            this.fire("dirty");
+            this._onDirty();
             this.fire("done", this);
         },
 
@@ -38,9 +40,26 @@ define(["zepto",
             route.on("networkPacket", transport.sendNetworkPacket, transport);
             route.on("addrIn", transport.openAddr, transport);
             tlec.on("packet", route.processPacket, route);
+            tlec.on("message", this.onTlecMessage, this);
+            tlec.on("dirty", this._onDirty, this);
             transport.on("networkPacket", route.processNetworkPacket, route);
             tlec.setRng(this.random);
             this.isLinked = true;
+        },
+
+        onTlecExpired: function () {
+            this.fire("expired");
+        },
+        onTlecMessage: function (netData) {
+            this.fire("message", netData);
+        },
+
+        sendMessage: function (data) {
+            this.tlec.sendMessage(data);
+        },
+
+        _onDirty: function () {
+            this.fire("dirty");
         },
 
         serialize: function (context) {

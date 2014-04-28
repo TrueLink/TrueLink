@@ -39,75 +39,78 @@
     ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String, SerializationContext, log) {
         $(function () {
 
-            var transport = new TestTransport();
-
-            var tlkeb = new TlkeBuilder(transport, random), lastPacket;
-
-            tlkeb.on("dirty", function () {
-                lastPacket = tlkeb.serialize(new SerializationContext());
-                log(lastPacket);
-            }, null);
-
-            tlkeb.build();
-            tlkeb.generate();
-
-            setTimeout(function () {
-                console.log(TlkeBuilder.deserialize(lastPacket, new SerializationContext(), transport, random));
-            });
-
-
-
-
 //            var transport = new TestTransport();
-//            var aliceTlkeb = new TlkeBuilder(transport, random);
-//            var bobTlkeb = new TlkeBuilder(transport, random);
-//            var aliceTltheb = new TlhtBuilder(transport, random);
-//            var bobTlhteb = new TlhtBuilder(transport, random);
-//            var aliceTlecb = new TlecBuilder(transport, random);
-//            var bobTlecb = new TlecBuilder(transport, random);
+
+//            var tlkeb = new TlkeBuilder(transport, random), lastPacket;
 //
-//
-//            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
-//            aliceTlkeb.on("auth", function (auth) {
-//                if (auth) {
-//                    bobTlkeb.enterAuth(auth);
-//                }
+//            tlkeb.on("dirty", function () {
+//                lastPacket = tlkeb.serialize(new SerializationContext());
+//                log(lastPacket);
 //            }, null);
 //
-//            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
-//            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
-//            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
-//            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
+//            tlkeb.build();
+//            tlkeb.generate();
 //
-//
-//            window.str = Utf8String;
-//            aliceTlecb.on("done", function (tlec) {
-//                var over = new OverTlecBuilder(transport, random);
-//                tlec.on("message", function (bytes) {
-//                    var msg = JSON.parse(bytes.as(Utf8String).value);
-//                    over.processMessage(msg);
-//                });
-//                over.on("message", function (msg) {
-//                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-//                });
-//                window.over = over;
-//            });
-//            bobTlecb.on("done", function (tlec) {
-//                var over = new OverTlecBuilder(transport, random);
-//                tlec.on("message", function (bytes) {
-//                    var msg = JSON.parse(bytes.as(Utf8String).value);
-//                    over.processMessage(msg);
-//                });
-//                over.on("message", function (msg) {
-//                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-//                });
-//                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
-//                over.build(false);
+//            setTimeout(function () {
+//                console.log(TlkeBuilder.deserialize(lastPacket, new SerializationContext(), transport, random));
 //            });
 
-//            aliceTlkeb.build();
-//            bobTlkeb.build();
-//            aliceTlkeb.generate();
+
+
+
+            var transport = new TestTransport();
+            var aliceTlkeb = new TlkeBuilder(transport, random);
+            var bobTlkeb = new TlkeBuilder(transport, random);
+            var aliceTltheb = new TlhtBuilder(transport, random);
+            var bobTlhteb = new TlhtBuilder(transport, random);
+            var aliceTlecb = new TlecBuilder(transport, random);
+            var bobTlecb = new TlecBuilder(transport, random);
+
+
+            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
+            aliceTlkeb.on("auth", function (auth) {
+                if (auth) {
+                    bobTlkeb.enterAuth(auth);
+                }
+            }, null);
+
+            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
+            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
+            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
+            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
+
+
+            window.str = Utf8String;
+            aliceTlecb.on("done", function (tlec) {
+                var over = new OverTlecBuilder(transport, random);
+                tlec.on("message", function (bytes) {
+                    var msg = JSON.parse(bytes.as(Utf8String).value);
+                    over.processMessage(msg);
+                });
+                over.on("message", function (msg) {
+                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                });
+                window.over = over;
+            });
+            bobTlecb.on("done", function (tlec) {
+                var over = new OverTlecBuilder(transport, random);
+                tlec.on("message", function (bytes) {
+                    var msg = JSON.parse(bytes.as(Utf8String).value);
+                    over.processMessage(msg);
+                });
+                over.on("message", function (msg) {
+                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                });
+                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
+                over.build(false);
+            });
+
+            aliceTlkeb.build();
+            bobTlkeb.build();
+            aliceTlkeb.generate();
+
+
+
 //            var apps = {};
 //            function addApp(id, isSync) {
 //                apps[id] = new TestApp(id, isSync);
