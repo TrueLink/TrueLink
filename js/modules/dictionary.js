@@ -46,6 +46,18 @@ define([], function () {
 
         count: function (filterFn) {
             return filterFn ? this.where(filterFn).length : this._items.length;
+        },
+
+        keys: function () {
+            return this._items.map(function (item) {
+                return item.key;
+            });
+        },
+
+        values: function () {
+            return this._items.map(function (item) {
+                return item.value;
+            });
         }
     };
 
