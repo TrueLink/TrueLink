@@ -74,8 +74,10 @@
         "zepto",
         "modules/channels/TestTransport",
         "modules/serialization/SerializationContext",
-        "modules/serialization/log"
-    ], function (TlkeBuilderUser, random, Hex, $, TestTransport, SerializationContext, log) {
+        "modules/serialization/log",
+        "tools/uuid",
+        "modules/dictionary"
+    ], function (TlkeBuilderUser, random, Hex, $, TestTransport, SerializationContext, log, newUid, Dictionary) {
         $(function () {
 
             var a = new A();
@@ -86,11 +88,40 @@
             a.c = c;
 
 
+            var saved = {
+                data: {},
+                links: {}
+            };
+
+            var idReg = new Dictionary();
+
+            // first pass
+            function saveData(packet) {
+                var data = $.extend({}, packet.getData());
+
+                data.id = newUid();
+                idReg.item(packet, data.id);
+
+                saved.data[data.id] = data;
+            }
+
+            // second pass
+            function saveLinks(packet) {
+                var linkedPackets = packet.getLinkedPackets(), linkName;
+                for (linkName in linkedPackets) {
+                    saved.links[linkName] = {
+                        from: idReg.item(packet),
+                        to: idReg.item(linkedPackets[linkName]),
+                        type: linkName
+                    };
+                }
+            }
+
             var ctx = new SerializationContext();
             ctx.saveCb = function (packets) {
-                console.group("dump");
-                packets.forEach(log);
-                console.groupEnd();
+                packets.forEach(saveData);
+                packets.forEach(saveLinks);
+                console.log(saved);
             };
 
             ctx.serialize(a);
