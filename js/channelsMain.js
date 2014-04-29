@@ -23,153 +23,79 @@
 
     define("addons", ["zepto_fx", "lib/es5-shim.min", "lib/idb-shim.min", "tools/resolve"], function () {});
 
+
+    function A() {
+        this.name = "A";
+        this.c = null;
+    }
+    A.prototype = {
+        serialize: function (packet) {
+            console.log("ser A");
+            packet.setData({
+                name: this.name.charCodeAt(0)
+            });
+            packet.setLink("c", this.c);
+        }
+    };
+
+    function B() {
+        this.name = "B";
+        this.a = null;
+    }
+    B.prototype = {
+        serialize: function (packet) {
+            console.log("ser B");
+            packet.setData({
+                name: this.name.charCodeAt(0)
+            });
+            packet.setLink("a", this.a);
+        }
+    };
+
+    function C() {
+        this.name = "C";
+        this.b = null;
+    }
+    C.prototype = {
+        serialize: function (packet) {
+            console.log("ser C");
+            packet.setData({
+                name: this.name.charCodeAt(0)
+            });
+            packet.setLink("b", this.b);
+        }
+    };
+
+
     require([
-        "modules/channels/tlkeBuilder",
-        "modules/channels/tlhtBuilder",
-        "modules/channels/tlecBuilder",
-        "modules/channels/overTlecBuilder",
+        "modules/channels/tlkeBuilderUser",
         "tools/random",
         "modules/data-types/Hex",
-        "modules/channels/Route",
         "zepto",
         "modules/channels/TestTransport",
-        "modules/data-types/utf8string",
-        "modules/serialization/context",
+        "modules/serialization/SerializationContext",
         "modules/serialization/log"
-    ], function (TlkeBuilder, TlhtBuilder, TlecBuilder, OverTlecBuilder, random, Hex, Route, $, TestTransport, Utf8String, SerializationContext, log) {
+    ], function (TlkeBuilderUser, random, Hex, $, TestTransport, SerializationContext, log) {
         $(function () {
 
-//            var transport = new TestTransport();
-
-//            var tlkeb = new TlkeBuilder(transport, random), lastPacket;
-//
-//            tlkeb.on("dirty", function () {
-//                lastPacket = tlkeb.serialize(new SerializationContext());
-//                log(lastPacket);
-//            }, null);
-//
-//            tlkeb.build();
-//            tlkeb.generate();
-//
-//            setTimeout(function () {
-//                console.log(TlkeBuilder.deserialize(lastPacket, new SerializationContext(), transport, random));
-//            });
+            var a = new A();
+            var b = new B();
+            var c = new C();
+            b.a = a;
+            c.b = b;
+            a.c = c;
 
 
+            var ctx = new SerializationContext();
+            ctx.saveCb = function (packets) {
+                console.group("dump");
+                packets.forEach(log);
+                console.groupEnd();
+            };
 
-
-            var transport = new TestTransport();
-            var aliceTlkeb = new TlkeBuilder(transport, random);
-            var bobTlkeb = new TlkeBuilder(transport, random);
-            var aliceTltheb = new TlhtBuilder(transport, random);
-            var bobTlhteb = new TlhtBuilder(transport, random);
-            var aliceTlecb = new TlecBuilder(transport, random);
-            var bobTlecb = new TlecBuilder(transport, random);
-
-
-            aliceTlkeb.on("offer", bobTlkeb.enterOffer, bobTlkeb);
-            aliceTlkeb.on("auth", function (auth) {
-                if (auth) {
-                    bobTlkeb.enterAuth(auth);
-                }
-            }, null);
-
-            aliceTlkeb.on("done", aliceTltheb.build, aliceTltheb);
-            aliceTltheb.on("done", aliceTlecb.build, aliceTlecb);
-            bobTlkeb.on("done", bobTlhteb.build, bobTlhteb);
-            bobTlhteb.on("done", bobTlecb.build, bobTlecb);
-
-
-            window.str = Utf8String;
-            aliceTlecb.on("done", function (tlec) {
-                var over = new OverTlecBuilder(transport, random);
-                tlec.on("message", function (bytes) {
-                    var msg = JSON.parse(bytes.as(Utf8String).value);
-                    over.processMessage(msg);
-                });
-                over.on("message", function (msg) {
-                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-                });
-                window.over = over;
-            });
-            bobTlecb.on("done", function (tlec) {
-                var over = new OverTlecBuilder(transport, random);
-                tlec.on("message", function (bytes) {
-                    var msg = JSON.parse(bytes.as(Utf8String).value);
-                    over.processMessage(msg);
-                });
-                over.on("message", function (msg) {
-                    tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
-                });
-                over.on("done", function (tlec2) { console.log("fuck yeah", tlec2); });
-                over.build(false);
-            });
-
-            aliceTlkeb.build();
-            bobTlkeb.build();
-            aliceTlkeb.generate();
-
-
-
-//            var apps = {};
-//            function addApp(id, isSync) {
-//                apps[id] = new TestApp(id, isSync);
-//                apps[id].stateChanged = updateView;
-//                if (isSync) {
-//                    apps[id].addSync(true);
-//                }
-//                updateView();
-//            }
-//
-//            function updateView() {
-//                var models = {};
-//                $.each(apps, function (id, app) {
-//                    models[id] = createAppModel(app, id);
-//                });
-//                list.setProps({apps: models});
-//            }
-//
-//            function createAppModel(app, id) {
-//                var contactList = {};
-//                app.contacts.items().forEach(function (item) {
-//                    var name = item.value.name;
-//                    var contact = item.key;
-//                    contactList[name] = {
-//                        channelsData: [],
-//                        startSync: function () {
-//                            throw new Error("not implemented");
-//                        },
-//                        generateTlke: contact.generateTlke.bind(contact),
-//                        acceptTlkeOffer: contact.acceptTlkeOffer.bind(contact),
-//                        acceptTlkeAuth: contact.acceptTlkeAuth.bind(contact),
-//                        sendTextMessage: contact.sendUserMessage.bind(contact),
-//                        generateNewChannel: contact.generateNewChannel.bind(contact),
-//
-//                        lastError: contact.lastError,
-//                        lastLevel2ChannelState: contact.lastLevel2ChannelState,
-//                        state: contact.state,
-//                        prompts: contact.prompts,
-//                        messages: contact.messages
-//                    };
-//                });
-//                return {
-//                    id: id,
-//                    contactList: contactList,
-//                    addContact: app.addContact.bind(app),
-//                    addSync: app.addSync.bind(app),
-//                    currentContactName: app.getLastContactName()
-//                };
-//            }
-//
-//            var list = AppList({apps: {}, add: addApp});
-//            React.renderComponent(list, document.body);
-
-            //function startApp(rootEntity, rootData) {
-            //    settings.set("root", rootData);
-            //    db.init(rootEntity);
-            //    React.renderComponent(App({rootEntity: rootEntity}), document.body);
-            //}
-            //React.renderComponent(LoginPage({login: startApp, db: db, crypto: crypto, rootData: settings.get("root")}), document.body);
+            ctx.serialize(a);
+            ctx.serialize(b);
+            ctx.serialize(c);
         });
     });
 }(require, window.document));
