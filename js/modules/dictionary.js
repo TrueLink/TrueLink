@@ -10,7 +10,8 @@ define([], function () {
                 throw new Error("key is undefined");
             }
             if (value === undefined) {
-                return this.first(function (item) { return item.key === key; });
+                var found = this.first(function (item) { return item.key === key; });
+                return found ? found.value : undefined;
             }
             this.remove(key);
             this._items.push({
