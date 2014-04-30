@@ -1,14 +1,17 @@
-define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto"], function (Dictionary, invariant, SerializationPacket, $) {
+define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto", "modules/channels/EventEmitter"
+], function (Dictionary, invariant, SerializationPacket, $, EventEmitter) {
     "use strict";
     function SerializationContext() {
         // packet => obj
         this._objregistry = new Dictionary();
-        this.saveCb = function () {};
         this.timeout = null;
+        this._defineEvent("serialized");
     }
 
-    SerializationContext.prototype = {
-        _getObject: function (packet) {
+    SerializationContext.prototype = new EventEmitter();
+
+    $.extend(SerializationContext.prototype, {
+        getObject: function (packet) {
             return this._objregistry.item(packet);
         },
         _setObject: function (packet, obj) {
@@ -22,15 +25,22 @@ define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto
             this._setObject(packet, obj);
         },
 
-        getPackets: function () {
-            return this._objregistry.keys();
-        },
+
         serialize: function (obj) {
-            invariant(obj && $.isFunction(obj.serialize), "obj must be serializable");
+            if (obj === null || obj === undefined) {
+                return SerializationPacket.nullPacket;
+            }
+            if ($.isArray(obj)) {
+                return obj.map(this.serialize.bind(this));
+            }
+            invariant($.isFunction(obj.serialize), "obj must be serializable");
             var packet = this._getPacket(obj);
             if (!packet) {
                 packet = new SerializationPacket();
                 this._setPacket(obj, packet);
+            }
+            if (!packet.isSerialized) {
+                packet.isSerialized = true;
                 obj.serialize(packet, this);
             }
             if (!this.timeout) {
@@ -39,19 +49,9 @@ define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto
             return packet;
         },
 
-        _resolveLinks: function (objRegItem) {
-            var packet = objRegItem.key, linkName;
-            var linkedObjects = packet.getLinkedObjs();
-            for (linkName in linkedObjects) {
-                if (linkedObjects.hasOwnProperty(linkName)) {
-                    packet.setLinkedPacket(linkName, this._getPacket(linkedObjects[linkName]));
-                }
-            }
-        },
-
         _serializeAll: function () {
-            this._objregistry.items().forEach(this._resolveLinks.bind(this));
-            this.saveCb(this._objregistry.keys());
+            this.fire("serialized", this._objregistry.keys());
+            this._objregistry = null;
         },
 
 
@@ -60,7 +60,7 @@ define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto
         }
 
 
-    };
+    });
 
     return SerializationContext;
 });

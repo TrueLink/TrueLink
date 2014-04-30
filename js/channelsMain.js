@@ -25,46 +25,29 @@
 
 
     function A() {
-        this.name = "A";
-        this.c = null;
+        this.name = null;
+        this.links = [];
+        this.oneLink = null;
     }
     A.prototype = {
-        serialize: function (packet) {
-            console.log("ser A");
+        serialize: function (packet, context) {
+            console.log("ser " + this.name);
             packet.setData({
-                name: this.name.charCodeAt(0)
+                name: "+" + this.name + "+"
             });
-            packet.setLink("c", this.c);
+
+            packet.setLink("l1", context.serialize(this.links));
+            packet.setLink("l2", context.serialize(this.oneLink));
+        },
+
+        deserialize: function (packet, context) {
+            console.log("deser A");
+            this.name = String.fromCharCode(packet.getData().name);
+            this.links = context.deserialize(packet.getLink("l1"), A);
+            this.oneLink = context.deserialize(packet.getLink("l2"), A);
         }
     };
 
-    function B() {
-        this.name = "B";
-        this.a = null;
-    }
-    B.prototype = {
-        serialize: function (packet) {
-            console.log("ser B");
-            packet.setData({
-                name: this.name.charCodeAt(0)
-            });
-            packet.setLink("a", this.a);
-        }
-    };
-
-    function C() {
-        this.name = "C";
-        this.b = null;
-    }
-    C.prototype = {
-        serialize: function (packet) {
-            console.log("ser C");
-            packet.setData({
-                name: this.name.charCodeAt(0)
-            });
-            packet.setLink("b", this.b);
-        }
-    };
 
 
     require([
@@ -74,59 +57,75 @@
         "zepto",
         "modules/channels/TestTransport",
         "modules/serialization/SerializationContext",
+        "modules/serialization/SerializationPacket",
         "modules/serialization/log",
-        "tools/uuid",
-        "modules/dictionary"
-    ], function (TlkeBuilderUser, random, Hex, $, TestTransport, SerializationContext, log, newUid, Dictionary) {
+        "tools/uuid"
+    ], function (TlkeBuilderUser, random, Hex, $, TestTransport, SerializationContext, SerializationPacket, log, newUid) {
         $(function () {
 
-            var a = new A();
-            var b = new B();
-            var c = new C();
-            b.a = a;
-            c.b = b;
-            a.c = c;
+
+            var level1 = new A();
+            level1.name = "1";
+
+            var level2_1 = new A();
+            level2_1.name = "2_1";
+
+            var level2_2 = new A();
+            level2_2.name = "2_2";
 
 
-            var saved = {
-                data: {},
-                links: {}
-            };
+            level1.links.push(level2_1);
+            level1.links.push(level2_2);
 
-            var idReg = new Dictionary();
+            var level3 = new A();
+            level3.name = "3";
 
-            // first pass
-            function saveData(packet) {
-                var data = $.extend({}, packet.getData());
+            level3.links.push(level1);
+            level2_1.links.push(level3);
+            level2_2.links.push(level3);
 
-                data.id = newUid();
-                idReg.item(packet, data.id);
+            var ctx = new SerializationContext();
+            ctx.on("serialized", dump, null);
 
-                saved.data[data.id] = data;
-            }
+            function dump(packets, context) {
 
-            // second pass
-            function saveLinks(packet) {
-                var linkedPackets = packet.getLinkedPackets(), linkName;
-                for (linkName in linkedPackets) {
-                    saved.links[linkName] = {
-                        from: idReg.item(packet),
-                        to: idReg.item(linkedPackets[linkName]),
+                function getObjectId(packet) {
+                    if (packet === SerializationPacket.nullPacket) {
+                        return null;
+                    }
+                    var obj = context.getObject(packet);
+                    obj.id = obj.id || newUid();
+                    return obj.id;
+                }
+
+                function createLink(packet, linkName, link) {
+                    return {
+                        from: getObjectId(packet),
+                        to: getObjectId(link),
                         type: linkName
                     };
                 }
+
+                var data = {};
+                var links = [];
+
+                packets.forEach(function (packet) {
+                    data[getObjectId(packet)] = packet.getData();
+                    var l = packet.getLinks(), linkName;
+                    for (linkName in l) {
+                        links = links.concat([].concat(l[linkName]).map(createLink.bind(null, packet, linkName)));
+                    }
+                });
+
+                console.log(data);
+                console.log(links);
             }
 
-            var ctx = new SerializationContext();
-            ctx.saveCb = function (packets) {
-                packets.forEach(saveData);
-                packets.forEach(saveLinks);
-                console.log(saved);
-            };
+            ctx.serialize(level1);
+            ctx.serialize(level2_1);
+            ctx.serialize(level2_2);
+            ctx.serialize(level3);
 
-            ctx.serialize(a);
-            ctx.serialize(b);
-            ctx.serialize(c);
         });
     });
 }(require, window.document));

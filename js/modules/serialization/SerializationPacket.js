@@ -1,9 +1,25 @@
 define(["tools/invariant", "zepto"], function (invariant, $) {
     "use strict";
+
+    function isPacketOrList (link) {
+        if (link instanceof SerializationPacket) {
+            return true;
+        }
+        if ($.isArray(link)) {
+            for (var i = 0; i < link.length; i += 1) {
+                if (!(link[i] instanceof SerializationPacket)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     function SerializationPacket() {
         this._data = {};
         this._links = {};
-        this._linkedObjs = {};
+        this.isSerialized = false;
     }
     SerializationPacket.prototype = {
         getData: function () {
@@ -13,28 +29,20 @@ define(["tools/invariant", "zepto"], function (invariant, $) {
             invariant($.isPlainObject(data), "data must be plain object");
             this._data = data;
         },
-//        getLink: function (name) {
-//            invariant(name, "missing link name");
-//            return this._links[name];
-//        },
-        getLinkedObjs: function () {
-            return this._linkedObjs;
+        getLink: function (linkName) {
+            invariant(linkName, "missing linkName");
+            return this._links[linkName];
         },
-        setLink: function (name, linkObj) {
-            invariant(name, "missing link name");
-            this._linkedObjs[name] = linkObj;
+        setLink: function (linkName, link) {
+            invariant(linkName, "missing linkName");
+            invariant(isPacketOrList(link), "link should be SerializationPacket or SerializationPacket[]");
+            this._links[linkName] = link;
         },
 
-        setLinkedPacket: function (name, packet) {
-            this._links[name] = packet;
-        },
+        getLinks: function () { return this._links; }
 
-        getLinkedPackets: function () {
-            return this._links;
-        }
     };
-
-    SerializationPacket.empty = new SerializationPacket();
+    SerializationPacket.nullPacket = new SerializationPacket();
 
     return SerializationPacket;
 });
