@@ -39,7 +39,22 @@ define(["tools/invariant", "zepto"], function (invariant, $) {
             this._links[linkName] = link;
         },
 
-        getLinks: function () { return this._links; }
+        getLinks: function () {
+            var links = {}, linkName;
+            for (linkName in this._links) {
+                if ($.isArray(this._links[linkName])) {
+                    var serialized = this._links[linkName].filter(function (l) { return l.isSerialized; });
+                    if (serialized.length > 0) {
+                        links[linkName] = serialized;
+                    }
+                } else {
+                    if (this._links[linkName].isSerialized) {
+                        links[linkName] = this._links[linkName];
+                    }
+                }
+            }
+            return links
+        }
 
     };
     SerializationPacket.nullPacket = new SerializationPacket();

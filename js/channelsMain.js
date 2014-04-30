@@ -36,8 +36,8 @@
                 name: "+" + this.name + "+"
             });
 
-            packet.setLink("l1", context.serialize(this.links));
-            packet.setLink("l2", context.serialize(this.oneLink));
+            packet.setLink("arr", context.serializeLink(this.links));
+            packet.setLink("single", context.serializeLink(this.oneLink));
         },
 
         deserialize: function (packet, context) {
@@ -95,14 +95,18 @@
                     }
                     var obj = context.getObject(packet);
                     obj.id = obj.id || newUid();
-                    return obj.id;
+                    return obj.id + "(" + obj.name + ")";
                 }
 
-                function createLink(packet, linkName, link) {
+                // isExclusive (1-1): object can have only one linked object of this type. Any existing link must be deleted
+                // all not-exclusive (1-∞) links that can be found in the db by group(from, type) but are not present in this list
+                // must also be deleted
+                function createLink(packet, linkName, isExclusive, link) {
                     return {
                         from: getObjectId(packet),
                         to: getObjectId(link),
-                        type: linkName
+                        type: linkName,
+                        exclusive: isExclusive
                     };
                 }
 
@@ -113,7 +117,7 @@
                     data[getObjectId(packet)] = packet.getData();
                     var l = packet.getLinks(), linkName;
                     for (linkName in l) {
-                        links = links.concat([].concat(l[linkName]).map(createLink.bind(null, packet, linkName)));
+                        links = links.concat([].concat(l[linkName]).map(createLink.bind(null, packet, linkName, !$.isArray(l[linkName]))));
                     }
                 });
 
@@ -122,7 +126,7 @@
             }
 
             ctx.serialize(level1);
-            ctx.serialize(level2_1);
+//            ctx.serialize(level2_1);
             ctx.serialize(level2_2);
             ctx.serialize(level3);
 
