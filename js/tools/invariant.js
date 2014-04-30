@@ -11,6 +11,7 @@ define([], function () {
             var error = new Error(
                 "Invariant Violation: " + format.replace(/%s/g, function () { return args[argIndex++]; })
             );
+            debugger;
             throw error;
         }
     };
