@@ -125,9 +125,9 @@
                 console.log(links);
             }
 
-            ctx.serialize(level1);
+//            ctx.serialize(level1);
 //            ctx.serialize(level2_1);
-            ctx.serialize(level2_2);
+//            ctx.serialize(level2_2);
             ctx.serialize(level3);
 
         });

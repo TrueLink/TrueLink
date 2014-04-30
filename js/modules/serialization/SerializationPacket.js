@@ -58,6 +58,7 @@ define(["tools/invariant", "zepto"], function (invariant, $) {
 
     };
     SerializationPacket.nullPacket = new SerializationPacket();
+    SerializationPacket.nullPacket.isSerialized = true;
 
     return SerializationPacket;
 });
