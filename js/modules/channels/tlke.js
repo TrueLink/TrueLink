@@ -1,20 +1,15 @@
-define([
-    "zepto",
-    "modules/channels/EventEmitter",
-    "modules/cryptography/diffie-hellman-leemon",
-    "modules/data-types/hex",
-    "modules/data-types/bitArray",
-    "modules/data-types/bytes",
-    "modules/cryptography/sha1-crypto-js",
-    "modules/cryptography/aes-sjcl",
-    "tools/invariant",
-    "modules/data-types/isMultivalue",
-    "modules/serialization/packet",
-    "modules/converters/customTypes"
-], function ($, EventEmitter, DiffieHellman, Hex, BitArray, Bytes, SHA1, Aes, invariant, isMultivalue, SerializationPacket) {
+define(function (require, exports, module) {
     "use strict";
 
-    var dhPrivBitLength = 160;
+    var $ = require("zepto");
+    var SHA1 = require("modules/cryptography/sha1-crypto-js");
+    var DiffieHellman = require("modules/cryptography/diffie-hellman-leemon");
+    var Hex = require("modules/data-types/hex");
+    var BitArray = require("modules/data-types/bitArray");
+    var Bytes = require("modules/data-types/bytes");
+    var Aes = require("modules/cryptography/aes-sjcl");
+    var Random = require("modules/cryptography/random");
+
 
     function hash(value) {
         return SHA1(value.as(Hex)).as(BitArray).bitSlice(0, 128);
@@ -34,10 +29,14 @@ define([
 
     Tlke.authBitLength = 16;
     Tlke.offerBitLength = 128;
+    Tlke.dhPrivBitLength = 160;
+
+    var EventEmitter = require("modules/channels/EventEmitter");
+    var invariant = require("tools/invariant");
+    var isMultivalue = require("modules/data-types/isMultivalue");
 
     Tlke.prototype = new EventEmitter();
     $.extend(Tlke.prototype, {
-
         generate: function () {
             this.checkEventHandlers();
             invariant(this.state === Tlke.STATE_NOT_STARTED,
@@ -96,7 +95,7 @@ define([
 
         // Alice 1.1 (instantiation)
         _generateOffer: function () {
-            this.dh = DiffieHellman.generate(dhPrivBitLength, this.random);
+            this.dh = DiffieHellman.generate(Tlke.dhPrivBitLength, this.random);
             var dhAes = this._getRandomBytes(Tlke.offerBitLength);
             this.dhAesKey = dhAes;
             var outId = dhAes.bitSlice(0, 16);
@@ -112,7 +111,7 @@ define([
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
         _acceptOffer: function (offer) {
-            this.dh = DiffieHellman.generate(dhPrivBitLength, this.random);
+            this.dh = DiffieHellman.generate(Tlke.dhPrivBitLength, this.random);
             var dhAes = offer.as(Hex).as(BitArray);
             this.dhAesKey = dhAes;
             var inId = dhAes.bitSlice(0, 16);
@@ -261,11 +260,11 @@ define([
         },
         // IRng: multivalue bitArray(bitLength)
         setRng: function (rng) {
-            invariant(rng && $.isFunction(rng.bitArray), "rng is not implementing IRng");
+            invariant(rng instanceof Random, "rng must be instanceof Random");
             this.random = rng;
         },
 
-        _deserialize: function (packet, context) {
+        deserialize: function (packet, context) {
             var dto = packet.getData();
             this.state = dto.state;
             this.dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
@@ -274,10 +273,10 @@ define([
             this.auth = dto.auth ? Hex.deserialize(dto.auth) : null;
             this.check = dto.check ? Hex.deserialize(dto.check) : null;
             this.authData = dto.authData ? Hex.deserialize(dto.authData) : null;
+            this.random = context.deserialize(packet.getLink("random"));
         },
 
-        serialize: function (context) {
-            var packet = context.getPacket(this) || new SerializationPacket();
+        serialize: function (packet, context) {
             packet.setData({
                 state: this.state,
                 dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
@@ -287,24 +286,12 @@ define([
                 check: this.check ? this.check.as(Hex).serialize() : null,
                 authData: this.authData ? this.authData.as(Hex).serialize() : null
             });
-            context.setPacket(this, packet);
+            packet.setLink("random", context.serialize(this.random));
             return packet;
         }
 
     });
 
-    Tlke.deserialize = function (packet, context, random) {
-        invariant(packet, "packet is empty");
-        invariant(context, "context is empty");
-        invariant(random, "random is empty");
-        return context.getObject(packet) || (function () {
-            var tlke = new Tlke();
-            tlke.setRng(random);
-            tlke._deserialize(packet, context);
-            context.setObject(packet, tlke);
-            return tlke;
-        }());
-    };
 
     Tlke.STATE_NOT_STARTED = 1;
     Tlke.STATE_AWAITING_OFFER = 2;
@@ -315,5 +302,5 @@ define([
     Tlke.STATE_CONNECTION_SYNCED = 7;
     Tlke.STATE_CONNECTION_FAILED = -1;
 
-    return Tlke;
+    module.exports = Tlke;
 });
