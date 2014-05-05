@@ -20,6 +20,7 @@ define(["tools/invariant", "zepto"], function (invariant, $) {
         this._data = {};
         this._links = {};
         this.isSerialized = false;
+        this.isDeserialized = false;
     }
     SerializationPacket.prototype = {
         getData: function () {

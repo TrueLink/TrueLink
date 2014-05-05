@@ -76,7 +76,29 @@ define(["modules/dictionary", "tools/invariant", "./SerializationPacket", "zepto
 
 
         deserialize: function (packet, constructor) {
+            if ($.isArray(packet)) {
+                return packet.map((function (p) {
+                    return this.deserialize(p, constructor);
+                }).bind(this));
+            }
+            return this._getOrCreateObject(packet, constructor);
+        },
 
+        _getOrCreateObject: function (packet, constructor) {
+            invariant(packet instanceof SerializationPacket, "packet must be SerializationPacket");
+            if (packet === SerializationPacket.nullPacket) { return null; }
+            var object = this.getObject(packet);
+            if (!object) {
+                object = new constructor();
+                this._setObject(packet, object);
+                invariant(packet.id, "packet should have an id");
+                object.id = packet.id;
+                if (!packet.isDeserialized) {
+                    packet.isDeserialized = true;
+                    object.deserialize(packet, this);
+                }
+            }
+            return object;
         }
 
 

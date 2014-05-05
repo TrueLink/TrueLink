@@ -41,10 +41,10 @@
         },
 
         deserialize: function (packet, context) {
-            console.log("deser A");
-            this.name = String.fromCharCode(packet.getData().name);
-            this.links = context.deserialize(packet.getLink("l1"), A);
-            this.oneLink = context.deserialize(packet.getLink("l2"), A);
+            console.log("deser " + packet.getData().name);
+            this.name = packet.getData().name.replace(/\+/g, "");
+            this.links = context.deserialize(packet.getLink("arr"), A);
+            this.oneLink = context.deserialize(packet.getLink("single"), A);
         }
     };
 
@@ -84,8 +84,15 @@
             level2_1.links.push(level3);
             level2_2.links.push(level3);
 
+            level1.oneLink = level3;
+
             var ctx = new SerializationContext();
             ctx.on("serialized", dump, null);
+
+            var fakeDb = {
+                data: {},
+                links: []
+            };
 
             function dump(packets, context) {
 
@@ -95,7 +102,7 @@
                     }
                     var obj = context.getObject(packet);
                     obj.id = obj.id || newUid();
-                    return obj.id + "(" + obj.name + ")";
+                    return obj.id;
                 }
 
                 // isExclusive (1-1): object can have only one linked object of this type. Any existing link must be deleted
@@ -110,24 +117,52 @@
                     };
                 }
 
-                var data = {};
-                var links = [];
-
-                packets.forEach(function (packet) {
-                    data[getObjectId(packet)] = packet.getData();
+                function storePacket(packet) {
+                    fakeDb.data[getObjectId(packet)] = packet.getData();
                     var l = packet.getLinks(), linkName;
                     for (linkName in l) {
-                        links = links.concat([].concat(l[linkName]).map(createLink.bind(null, packet, linkName, !$.isArray(l[linkName]))));
+                        fakeDb.links = fakeDb.links.concat([].concat(l[linkName]).map(createLink.bind(null, packet, linkName, !$.isArray(l[linkName]))));
                     }
-                });
+                }
 
-                console.log(data);
-                console.log(links);
+                packets.forEach(storePacket);
+
+                deserialize();
             }
 
-//            ctx.serialize(level1);
-//            ctx.serialize(level2_1);
-//            ctx.serialize(level2_2);
+            function deserialize() {
+
+                var db = $.extend(true, {}, fakeDb);
+                //level1.id;
+
+                var packets = {};
+                for (var id in db.data) {
+                    packets[id] = new SerializationPacket();
+                    packets[id].id = id;
+                    packets[id].setData(db.data[id]);
+                }
+
+                for(var i = 0; i < db.links.length; i++) {
+                    var link = db.links[i];
+                    var linkedPacket = link.to ? packets[link.to] : SerializationPacket.nullPacket;
+                    if (link.exclusive) {
+                        packets[link.from].setLink(link.type, linkedPacket);
+                    } else  {
+                        var links = packets[link.from].getLink(link.type) || [];
+                        links.push(linkedPacket);
+                        packets[link.from].setLink(link.type, links);
+                    }
+                }
+
+
+                var dctx = new SerializationContext();
+                var deserialized = dctx.deserialize(packets[level1.id], A);
+                console.log(deserialized);
+            }
+
+            ctx.serialize(level1);
+            ctx.serialize(level2_1);
+            ctx.serialize(level2_2);
             ctx.serialize(level3);
 
         });
