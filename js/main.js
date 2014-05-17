@@ -31,7 +31,7 @@
     ], function () {
 
         var $ = require("zepto");
-        var Application = require("js/ui/AppComponent");
+        var Application = require("js/models/App");
         var Factory = require("js/serialization/factory");
         var query = require("js/serialization/appQuery");
         var serializer = require("js/serialization/serializer");
