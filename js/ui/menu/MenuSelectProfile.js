@@ -3,7 +3,7 @@ define(["react"], function (React) {
 
     return React.createClass({
         displayName: "MenuSelectProfile",
-
+        getInitialState: function () {  },
         componentDidMount: function () {
             this.refs.select.getDOMNode().blur();
         },
