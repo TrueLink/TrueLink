@@ -1,0 +1,6 @@
+.project
+.settings
+node_modules
+.tmp_*
+.DS_Store
+sauce_connect.log
