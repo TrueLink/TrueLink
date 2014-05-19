@@ -8,6 +8,8 @@
             "uuid": "../../../../js/tools/uuid",
             "extend": "../../../../js/tools/extend",
             "js": "../../../../js",
+            "ui": "../../../../js/ui",
+            "tools": "../../../../js/tools",
             "mixins": "../../../../js/mixins",
             "invariant": "invariant/invariant",
             "urandom": "urandom/urandom",
@@ -26,7 +28,7 @@
         "js/serialization/factory",
         "js/serialization/appQuery",
         "js/serialization/serializer",
-        "js/ui/AppComponent",
+        "ui/AppComponent",
         "react"
     ], function () {
 
@@ -36,7 +38,7 @@
         var query = require("js/serialization/appQuery");
         var serializer = require("js/serialization/serializer");
 
-        var AppComponent = require("js/ui/AppComponent");
+        var AppComponent = require("ui/AppComponent");
         var React = require("react");
 
         $(function () {
@@ -49,10 +51,11 @@
                 app = serializer.deserialize(appPacket, factory.createApp.bind(factory));
             } else {
                 app = factory.createApp();
+                app.init();
                 serializer.serialize(app);
             }
 
-            React.renderComponent(AppComponent({app: app}), document.body);
+            React.renderComponent(AppComponent({model: app}), document.body);
 
         });
     });
