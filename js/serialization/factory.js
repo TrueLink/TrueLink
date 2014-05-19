@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     var Transport = require("js/models/Transport");
     var Profile = require("js/models/Profile");
     var App = require("js/models/App");
+    var Menu = require("js/models/Menu");
 
     function Factory(serializer) {
         invariant(serializer, "serializer must be provided");
@@ -22,6 +23,9 @@ define(function (require, exports, module) {
                 this.transport = this._observed(new Transport(this));
             }
             return this.transport;
+        },
+        createMenu: function () {
+            return this._observed(new Menu(this));
         },
 
         _observed: function (obj) {
