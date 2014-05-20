@@ -32,9 +32,9 @@ define(function (require, exports, module) {
                     className: "profile-selector",
                     profiles: this.state.profiles,
                     currentProfile: this.state.currentProfile,
-                    selectProfile: this.handleSelectProfile
-                })), React.DOM.a({onClick: this.handleAddProfile, style: {color: "white"}, href: ""}, "Add profile")
-                );
+                    selectProfile: this.handleSelectProfile,
+                    addProfile: this.handleAddProfile
+                })));
         }
     });
 });
