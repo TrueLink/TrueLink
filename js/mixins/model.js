@@ -9,7 +9,7 @@ define(function (require, exports, module) {
             this.onChanged();
         },
         get: function (name) { return this[name]; },
-        forceSerialize: function () {
+        serializationNeeded: function () {
             return !this.getMeta() || !this.getMeta().id;
         }
     };
