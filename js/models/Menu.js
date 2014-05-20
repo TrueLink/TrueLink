@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("events/eventEmitter");
     var serializable = require("serialization/serializable");
-    var onChanged = require("mixins/onChanged");
+    var model = require("mixins/model");
     var fixedId = require("mixins/fixedId");
     var bind = require("mixins/bind");
 
@@ -15,12 +15,12 @@ define(function (require, exports, module) {
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";
     }
 
-    extend(Menu.prototype, eventEmitter, serializable, fixedId, onChanged, bind, {
+    extend(Menu.prototype, eventEmitter, serializable, fixedId, model, bind, {
         serialize: function (packet, context) {
-
+            console.log("serializing Menu (NOP)");
         },
         deserialize: function (packet, context) {
-
+            console.log("deserializing Menu (NOP)");
         },
 
         getCurrentProfile: function () {
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
 
         setApp: function (app) {
             this.app = app;
-            app.off("changed", this._onAppChanged, this);
+            app.on("changed", this._onAppChanged, this);
         },
 
         _onAppChanged: function () {

@@ -5,7 +5,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("events/eventEmitter");
     var serializable = require("serialization/serializable");
     var fixedId = require("mixins/fixedId");
-    var onChanged = require("mixins/onChanged");
+    var model = require("mixins/model");
 
 
     function Transport(factory) {
@@ -15,7 +15,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
     }
 
-    extend(Transport.prototype, eventEmitter, serializable, fixedId, onChanged, {
+    extend(Transport.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
             console.log("serializing Transport");
             packet.setData({name: "TransportPacket"});

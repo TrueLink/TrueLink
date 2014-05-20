@@ -17,7 +17,7 @@ define(function (require, exports, module) {
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
         render: function () {
             return React.DOM.div({id: "app"},
-                MenuComponent({model: this.props.model.menu}));
+                MenuComponent({model: this.props.model.menu, className: "app-menu"}));
 //            var currentProfile = this.props.model.currentProfile;
 //            var pageCustomClass = !currentProfile ? "" :
 //                " stretch-background user-background-" + currentProfile.getData("bg");

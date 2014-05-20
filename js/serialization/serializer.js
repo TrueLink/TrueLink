@@ -68,22 +68,29 @@ define(function (require, exports, module) {
         return obj;
     }
 
+    function _storeLinks(packet, linkName, linkedPackets) {
+        db.removeLinks(packet.getMetaData().id, linkName);
+        var linkedArr = [].concat(linkedPackets);
 
+        linkedArr.forEach(function (linkedPacket) {
+            if (linkedPacket === SerializationPacket.nullPacket) { return; }
+            db.addLink(packet.getMetaData().id, linkedPacket.getMetaData().id, linkName);
+        });
+    }
+
+    // recursively update all link info
     function storeLinks(packet, seen) {
         if (isArray(packet)) {
-            packet.forEach(function (p) { storeLinks(p, seen) });
+            packet.forEach(function (p) { storeLinks(p, seen); });
             return;
         }
         if (seen.indexOf(packet) !== -1) { return; }
         seen.push(packet);
+        // packet was not changed
+        if (!packet.isSerialized) { return; }
         var links = packet.getLinks(), linkName;
         for (linkName in links) {
-            db.removeLinks(packet.getMetaData().id, linkName);
-            var linkedArr = [].concat(links[linkName]);
-            linkedArr.forEach(function (link) {
-                if (link === SerializationPacket.nullPacket || !link.isSerialized) { return; }
-                db.addLink(packet.getMetaData().id, link.getMetaData().id, linkName);
-            });
+            _storeLinks(packet, linkName, links[linkName]);
             storeLinks(links[linkName], seen);
         }
     }
@@ -92,6 +99,7 @@ define(function (require, exports, module) {
         console.log("store context");
         var packets = context.getPackets();
         packets.forEach(function (packet) {
+            if (!packet.isSerialized) { return; }
             var meta = packet.getMetaData();
             if (!meta.id) {
                 meta.id = meta.fixedId || newUuid();
@@ -119,23 +127,15 @@ define(function (require, exports, module) {
             setTimeout(storeRunningContext, 4);
         }
         runningContext.serialize(obj);
-        var t = 1;
     }
 
     function listen(obj) {
         obj.on("changed", onObjectChanged, null);
     }
 
-    function serialize(obj) {
-        var context = new SerializationContext();
-        context.deepSerialize(obj);
-        storeContext(context);
-    }
-
     module.exports = {
         createPacket: createPacket,
         deserialize: deserialize,
-        serialize: serialize,
         listen: listen
     };
 });

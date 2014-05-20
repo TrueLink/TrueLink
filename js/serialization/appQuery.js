@@ -5,6 +5,7 @@ define(function (require, exports, module) {
         profiles: [{
             contacts: [{}]
         }],
+        currentProfile: {},
         transport: {}
     };
 });

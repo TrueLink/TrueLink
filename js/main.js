@@ -52,7 +52,6 @@
             } else {
                 app = factory.createApp();
                 app.init();
-                serializer.serialize(app);
             }
 
             React.renderComponent(AppComponent({model: app}), document.body);

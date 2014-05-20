@@ -5,8 +5,19 @@ define(function (require, exports, module) {
 
     module.exports = React.createClass({
         displayName: "MenuSelectProfile",
+
+        handleSelectProfile: function (profile) {
+            this.props.selectProfile(profile);
+        },
         render: function () {
-            return React.DOM.div(null, "profile selector");
+            var profiles = {}, index = 0;
+            var selected = this.props.currentProfile;
+            var that = this;
+            this.props.profiles.forEach(function (p) {
+                profiles["profile-" + (index++)] = React.DOM.li({onClick: that.handleSelectProfile.bind(that, p)}, p.name, selected === p ? " *" : null);
+            });
+
+            return React.DOM.ul(null, profiles);
         }
 //        getInitialState: function () {  },
 //        componentDidMount: function () {

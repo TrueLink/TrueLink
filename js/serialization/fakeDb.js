@@ -24,21 +24,22 @@ define(function (require, exports, module) {
         });
     }
 
-    function getIndexesByFromID(id, type) {
-        var i, results = [];
-        for (i = 0; i < lnks.length; i++) {
-            if (lnks[i].fromId === id && lnks[i].type === type) {
-                results.push(i);
+    function indexOfLink(fromId, type) {
+        var i;
+        for (i = 0; i < lnks.length; i += 1) {
+            if (lnks[i].fromId === fromId && lnks[i].type === type) {
+                return i;
             }
         }
-        return results;
+        return -1;
     }
 
 
     function removeLinks(fromId, linkName) {
-        getIndexesByFromID(fromId, linkName).forEach(function (index) {
+        var index;
+        while ((index = indexOfLink(fromId, linkName)) !== -1) {
             lnks.splice(index, 1);
-        });
+        }
         dump();
     }
 
