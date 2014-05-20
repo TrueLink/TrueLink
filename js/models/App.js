@@ -17,6 +17,7 @@ define(function (require, exports, module) {
         this.menu = null;
         this.profiles = [];
         this.currentProfile = null;
+        this.router = null;
     }
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
@@ -27,6 +28,7 @@ define(function (require, exports, module) {
             packet.setLink("profiles", context.getPacket(this.profiles));
             packet.setLink("currentProfile", context.getPacket(this.currentProfile));
             packet.setLink("menu", context.getPacket(this.menu));
+            packet.setLink("router", context.getPacket(this.router));
 
         },
         deserialize: function (packet, context) {
@@ -37,13 +39,22 @@ define(function (require, exports, module) {
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
             this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory));
             this.menu.setApp(this);
+
+            this.router = context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory));
+            this.router.on("changed", this.onChanged, this);
+
         },
 
         init: function () {
-            console.log("init");
+            console.log("app init");
 //            this.transport = this.factory.createTransport();
-            this.set("menu", this.factory.createMenu());
-            this.get("menu").setApp(this);
+            this.menu = this.factory.createMenu();
+            this.menu.setApp(this);
+            this.router = this.factory.createRouter();
+            this.router.on("changed", this.onChanged, this);
+            this.onChanged();
+            this.addProfile();
+            this.router.navigate("home", this);
         },
 
         getProfiles: function () {

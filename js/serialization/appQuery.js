@@ -6,6 +6,9 @@ define(function (require, exports, module) {
             contacts: [{}]
         }],
         currentProfile: {},
-        transport: {}
+        transport: {},
+        router: {
+            model: {}
+        }
     };
 });
