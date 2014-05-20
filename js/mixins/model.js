@@ -8,6 +8,9 @@ define(function (require, exports, module) {
             this[name] = value;
             this.onChanged();
         },
-        get: function (name) { return this[name]; }
+        get: function (name) { return this[name]; },
+        forceSerialize: function () {
+            return !this.getMeta() || !this.getMeta().id;
+        }
     };
 });
