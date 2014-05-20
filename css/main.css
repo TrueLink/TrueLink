@@ -27,7 +27,7 @@ input[type="text"], input[type="password"] {
 #app {
     font-family: 'Open Sans' , sans-serif;
     font-size: 16px;
-    color: #fff;
+    /* color: #fff; */
     max-width: 900px;
     margin: 0 auto;
     overflow: hidden;

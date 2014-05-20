@@ -9,15 +9,21 @@ define(function (require, exports, module) {
         },
         _getState: function () {
             var model = this.props.model;
-
-            return {};
+            return {
+                menu: model.menu,
+                router: model.router,
+                currentPage: model.router.currentPage
+            };
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
         render: function () {
+            var router = this.state.router;
             return React.DOM.div({id: "app"},
-                MenuComponent({model: this.props.model.menu, className: "app-menu"}));
+                MenuComponent({model: this.state.menu, className: "app-menu", router: router}),
+                React.DOM.div({className: "app-page" + " todo-custom-class"},
+                    this.state.currentPage));
 //            var currentProfile = this.props.model.currentProfile;
 //            var pageCustomClass = !currentProfile ? "" :
 //                " stretch-background user-background-" + currentProfile.getData("bg");

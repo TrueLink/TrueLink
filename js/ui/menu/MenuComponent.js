@@ -34,7 +34,7 @@ define(function (require, exports, module) {
                     currentProfile: this.state.currentProfile,
                     selectProfile: this.handleSelectProfile,
                     addProfile: this.handleAddProfile
-                })));
+                })), React.DOM.a({href: "", onClick: this.props.router.createNavigateHandler("home2", this.props.model.app)}, "go home2"));
         }
     });
 });

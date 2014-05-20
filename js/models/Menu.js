@@ -13,6 +13,7 @@ define(function (require, exports, module) {
         this.factory = factory;
         this._defineEvent("changed");
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";
+        this.app = null;
     }
 
     extend(Menu.prototype, eventEmitter, serializable, fixedId, model, bind, {
@@ -37,6 +38,10 @@ define(function (require, exports, module) {
 
         addProfile: function () {
             this.app.addProfile();
+        },
+
+        navigate: function (pageName, pageModel) {
+            this.app.router.navigate(pageName, pageModel);
         },
 
         setApp: function (app) {
