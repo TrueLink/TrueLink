@@ -13,12 +13,20 @@ define(function (require, exports, module) {
             };
         },
         addDocument: function () {
-
+            var doc = this.props.model.createDocument();
+            //this.props.router
+            return false;
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
+        _appendDocComponent: function (components, document) {
+            components[document.name] = React.DOM.div({className: "generic-block"}, document.name);
+        },
         render: function () {
+            var profile = this.state.profile;
+            var documents = {};
+            profile.documents.forEach(this._appendDocComponent.bind(this, documents));
             return React.DOM.div({className: "documents-page"},
                 React.DOM.div({className: "app-page-title"},
                     React.DOM.a({
@@ -33,7 +41,7 @@ define(function (require, exports, module) {
                             href: "",
                             onClick: this.addDocument
                         }, "Add document")),
-                    React.DOM.div({className: "generic-block"}, "one document")
+                    documents
                     ));
 
             // React.DOM.div(null, "Documents: " + this.state.profile.name);

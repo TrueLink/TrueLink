@@ -33,7 +33,7 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
-            this.documents = context.deserialize(packet.getLink("documents"), factory.createProfile.bind(factory));
+            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory));
 
         },
         createDocument: function () {
