@@ -135,6 +135,10 @@ h2.title {
     padding: 14px;
     text-decoration: none;
 }
+.app-menu a.menu-item:hover {
+    background: #6A6A6A;
+}
+
 .app-menu a.last {
     border-bottom: 1px solid #313131;
 }

@@ -9,12 +9,15 @@ define(function (require, exports, module) {
         _getState: function () {
             var model = this.props.model;
 
+            return {
+                profile: model
+            };
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
         render: function () {
-            return React.DOM.div(null, "Dialogs Page");
+            return React.DOM.div(null, "Dialogs Page: " + this.state.profile.name);
         }
     });
 });
