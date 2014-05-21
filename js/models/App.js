@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var serializable = require("serialization/serializable");
     var fixedId = require("mixins/fixedId");
     var model = require("mixins/model");
-
+    var urandom = require("urandom");
 
     function Application(factory) {
         invariant(factory, "Can be constructed only with factory");
@@ -22,7 +22,7 @@ define(function (require, exports, module) {
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
-            console.log("serializing App");
+            //console.log("serializing App");
             packet.setData({});
 //            packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("profiles", context.getPacket(this.profiles));
@@ -90,6 +90,7 @@ define(function (require, exports, module) {
 
         addProfile: function () {
             var profile = this.factory.createProfile();
+            profile.set("name", urandom.name());
             this.currentProfile = profile;
             this.profiles.push(profile);
             this.onChanged();

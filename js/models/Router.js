@@ -26,7 +26,7 @@ define(function (require, exports, module) {
     extend(Router.prototype, eventEmitter, serializable, model, {
 
         serialize: function (packet, context) {
-            console.log("serialize Router");
+            //console.log("serialize Router");
             packet.setData({
                 pageName: this.currentPageName
             });
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
             packet.setLink("model", context.getPacket(this.currentPageModel));
         },
         deserialize: function (packet, context) {
-            console.log("deserialize Router");
+            //console.log("deserialize Router");
             var data = packet.getData();
             this.currentPageName = data.pageName;
             var factory = this.factory;

@@ -18,10 +18,10 @@ define(function (require, exports, module) {
 
     extend(Menu.prototype, eventEmitter, serializable, fixedId, model, bind, {
         serialize: function (packet, context) {
-            console.log("serializing Menu (NOP)");
+            //console.log("serializing Menu (NOP)");
         },
         deserialize: function (packet, context) {
-            console.log("deserializing Menu (NOP)");
+            //console.log("deserializing Menu (NOP)");
         },
 
         getCurrentProfile: function () {

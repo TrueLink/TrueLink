@@ -42,10 +42,9 @@
         var React = require("react");
 
         $(function () {
-
+            console.log(navigator.userAgent);
+            console.log("Starting app...");
             var factory = new Factory(serializer);
-
-
             var appPacket = serializer.createPacket(Application.id, query), app;
             if (appPacket) {
                 app = serializer.deserialize(appPacket, factory.createApp.bind(factory));
