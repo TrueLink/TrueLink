@@ -13,10 +13,22 @@ define(function (require, exports, module) {
             var router = this.props.router;
             var currentProfile = model.app.currentProfile;
             return {
-                "Documents": router.createNavigateHandler("documents", currentProfile),
-                "Dialogs": router.createNavigateHandler("dialogs", currentProfile),
-                "Contacts": router.createNavigateHandler("contacts", currentProfile),
-                "Profile settings": router.createNavigateHandler("profile", currentProfile)
+                "Documents": {
+                    handler: router.createNavigateHandler("documents", currentProfile),
+                    className: "menu-item"
+                },
+                "Dialogs": {
+                    handler: router.createNavigateHandler("dialogs", currentProfile),
+                    className: "menu-item"
+                },
+                "Contacts": {
+                    handler: router.createNavigateHandler("contacts", currentProfile),
+                    className: "menu-item last"
+                },
+                "Profile settings": {
+                    handler: router.createNavigateHandler("profile", currentProfile),
+                    className: "menu-item secondary"
+                }
             };
         },
         _getState: function () {
@@ -43,10 +55,16 @@ define(function (require, exports, module) {
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
         render: function () {
-            var menuItems = {}, items = this.getMenuItems();
-            for (var title in items) {
-                menuItems[title] = React.DOM.a({href:"", className: "menu-item", onClick: items[title]}, title);
+            var menuItems = {}, items = this.getMenuItems(), title, item;
+            for (title in items) {
+                item = items[title];
+                menuItems[title] = React.DOM.a({
+                    href: "",
+                    className: item.className,
+                    onClick: item.handler
+                }, title);
             }
+
             return React.DOM.div({className: this.props.className},
                 (!this.state.profiles ? null : MenuSelectProfile({
                     className: "profile-selector",

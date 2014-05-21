@@ -27,7 +27,7 @@ input[type="text"], input[type="password"] {
 #app {
     font-family: 'Open Sans' , sans-serif;
     font-size: 16px;
-    color: #fff;
+    color: #282828;
     max-width: 900px;
     margin: 0 auto;
     overflow: hidden;
@@ -46,12 +46,11 @@ select, option, input {
 
 
 .title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: normal;
 }
-
-h2.title {
-    font-size: 22px;
+a.title {
+    text-decoration: none;
 }
 
 .default-background-light {
@@ -66,6 +65,20 @@ h2.title {
     height: 100%;
     overflow: hidden;
     position: relative;
+}
+
+.app-page-title {
+    background: #8AB1D3;
+    height: 50px;
+}
+
+.app-page-title .title{ font-size: 22px; }
+
+
+.app-page-title a.title {
+    color: #282828;
+    line-height: 50px;
+    margin-left: 10px;
 }
 
 .wide {
@@ -108,14 +121,13 @@ h2.title {
 
 /* --- MENU --- */
 .app-menu {
-    background-color: #383838;
+    background-color: #C6C6C6;
     float: left;
     width: 250px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 .app-menu .title {
-    color: #F8A25B;
     width: 100%;
     padding: 5px;
 }
@@ -123,24 +135,23 @@ h2.title {
 
 }
 .app-menu .profile-selector select{
-    background: #383838;
+    background: #C6C6C6;
     border: none;
 }
 .app-menu .profile-selector option {
 }
 .app-menu a.menu-item {
-    border-top: 1px solid #313131;
-    color: #FFFFFF;
+    color: #282828;
     display: block;
     padding: 14px;
     text-decoration: none;
 }
 .app-menu a.menu-item:hover {
-    background: #6A6A6A;
+    background: #CCC;
 }
-
+.app-menu a.secondary { font-size: 14px; }
 .app-menu a.last {
-    border-bottom: 1px solid #313131;
+    border-bottom: 1px solid #A0A0A0;
 }
 .app-menu p {
     margin: 14px 0 0 14px;
@@ -154,8 +165,30 @@ h2.title {
 
 /* --- HOME --- */
 
+/* --- DOCUMENTS --- */
+.documents-page .app-page-content {
+    padding: 0 10px;
+}
 
 /* --- MISC --- */
+.generic-block {
+    border: 1px solid #282828;
+    background: #fff;
+    margin-top: 10px;
+}
+
+a.button {
+    color: #282828;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    padding: 5px;
+    background-color: #F9F9F9;
+}
+a.button:hover {
+    background-color: #F3F3F3;
+}
+
 .stretch-background{
     background: no-repeat center center;
     -webkit-background-size: cover;
