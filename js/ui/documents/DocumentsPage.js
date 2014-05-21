@@ -25,6 +25,7 @@ define(function (require, exports, module) {
         },
         render: function () {
             var profile = this.state.profile;
+            var router = this.props.router;
             var documents = {};
             profile.documents.forEach(this._appendDocComponent.bind(this, documents));
             return React.DOM.div({className: "documents-page"},
@@ -32,7 +33,7 @@ define(function (require, exports, module) {
                     React.DOM.a({
                         className: "title",
                         href: "",
-                        onClick: function () {}
+                        onClick: router.createNavigateHandler("home", profile.app)
                     }, "Documents")),
                 React.DOM.div({className: "app-page-content"},
                     React.DOM.div({className: "generic-block"},
