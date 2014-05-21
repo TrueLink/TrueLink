@@ -37,24 +37,42 @@ define(function (require, exports, module) {
 //            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
-            this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory));
-            this.menu.setApp(this);
 
-            this.router = context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory));
-            this.router.on("changed", this.onChanged, this);
+            try {
+                this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory));
+                this.menu.setApp(this);
+            } catch (ex) {
+                this.menu = this._createMentu();
+            }
 
+            try {
+                this.router = context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory));
+                this.router.on("changed", this.onChanged, this);
+            } catch (ex) {
+                this.router = this._createRouter();
+            }
+
+        },
+
+        _createRouter: function () {
+            var router = this.factory.createRouter();
+            router.on("changed", this.onChanged, this);
+            router.navigate("home", this);
+            return router;
+        },
+
+        _createMentu: function () {
+            var menu =  this.factory.createMenu();
+            menu.setApp(this);
+            return menu;
         },
 
         init: function () {
             console.log("app init");
 //            this.transport = this.factory.createTransport();
 
-            var menu = this.menu = this.factory.createMenu();
-            menu.setApp(this);
-
-            var router = this.router = this.factory.createRouter();
-            router.on("changed", this.onChanged, this);
-            router.setDefaultPage("home", this);
+            this.menu = this._createMentu();
+            this.router = this._createRouter();
             this.addProfile();
         },
 
