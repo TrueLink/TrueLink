@@ -10,10 +10,12 @@ define(function (require, exports, module) {
     var Transport = require("js/models/Transport");
     var Menu = require("js/models/Menu");
     var Profile = require("js/models/Profile");
+    var Document = require("js/models/Document");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
     resolver.item(1, Profile);
+    resolver.item(2, Document);
 
     function Factory(serializer) {
         invariant(serializer, "serializer must be provided");
@@ -28,6 +30,9 @@ define(function (require, exports, module) {
         },
         createProfile: function () {
             return this._observed(new Profile(this));
+        },
+        createDocument: function () {
+            return this._observed(new Document(this));
         },
         createTransport: function () {
             if (!this.transport) {

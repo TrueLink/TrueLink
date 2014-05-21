@@ -27,7 +27,7 @@ input[type="text"], input[type="password"] {
 #app {
     font-family: 'Open Sans' , sans-serif;
     font-size: 16px;
-    /* color: #fff; */
+    color: #fff;
     max-width: 900px;
     margin: 0 auto;
     overflow: hidden;
@@ -162,4 +162,17 @@ h2.title {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+}
+
+.user-background-0 {
+    background-image: url("/img/bgs/bkgLeaf.jpg");
+}
+.user-background-1 {
+    background-image: url("/img/bgs/bkgCity.jpg");
+}
+.user-background-2 {
+    background-image: url("/img/bgs/bkgEarth.jpg");
+}
+.user-background-3 {
+    background-image: url("/img/bgs/bkgWood.jpg");
 }

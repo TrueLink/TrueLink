@@ -21,10 +21,13 @@ define(function (require, exports, module) {
             var profileComponents = {};
             var model = this.props.model;
             this.state.profiles.forEach(function (p) {
-                profileComponents[p.name] = React.DOM.p({onClick: model.setCurrentProfile.bind(model, p)}, p.name);
+                profileComponents[p.name] = React.DOM.li({
+                    onClick: model.setCurrentProfile.bind(model, p),
+                    style: { cursor: "pointer", "margin-left": 20 }
+                }, p.name);
             });
             return React.DOM.div(null, "Home page: " + this.state.currentProfile.name,
-                profileComponents);
+                React.DOM.ul(null, profileComponents));
         }
     });
 });

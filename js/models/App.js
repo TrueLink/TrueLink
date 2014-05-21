@@ -8,6 +8,8 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var urandom = require("urandom");
 
+    var maxBgIndex = 3;
+
     function Application(factory) {
         invariant(factory, "Can be constructed only with factory");
         this.factory = factory;
@@ -89,8 +91,16 @@ define(function (require, exports, module) {
 
 
         addProfile: function () {
+            var nextBgIndex = 0;
+            this.profiles.forEach(function (profile) {
+                if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
+                if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
+            });
             var profile = this.factory.createProfile();
-            profile.set("name", urandom.name());
+            profile.set({
+                name: urandom.name(),
+                bg: nextBgIndex
+            });
             this.currentProfile = profile;
             this.profiles.push(profile);
             this.onChanged();
