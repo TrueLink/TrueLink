@@ -48,13 +48,14 @@ define(function (require, exports, module) {
         init: function () {
             console.log("app init");
 //            this.transport = this.factory.createTransport();
-            this.menu = this.factory.createMenu();
-            this.menu.setApp(this);
-            this.router = this.factory.createRouter();
-            this.router.on("changed", this.onChanged, this);
-            this.onChanged();
+
+            var menu = this.menu = this.factory.createMenu();
+            menu.setApp(this);
+
+            var router = this.router = this.factory.createRouter();
+            router.on("changed", this.onChanged, this);
+            router.setDefaultPage("home", this);
             this.addProfile();
-            this.router.navigate("home", this);
         },
 
         getProfiles: function () {

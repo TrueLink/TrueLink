@@ -8,15 +8,23 @@ define(function (require, exports, module) {
         },
         _getState: function () {
             var model = this.props.model;
-            return {};
+
+            return {
+                profiles: model.profiles,
+                currentProfile: model.currentProfile
+            };
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
         componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
         render: function () {
-            return React.DOM.div(null, "Home page",
-                React.DOM.a({href: "", onClick: this.props.router.createNavigateHandler("home2", this.props.model)}, "go home 2"
-                    ));
+            var profileComponents = {};
+            var model = this.props.model;
+            this.state.profiles.forEach(function (p) {
+                profileComponents[p.name] = React.DOM.p({onClick: model.setCurrentProfile.bind(model, p)}, p.name);
+            });
+            return React.DOM.div(null, "Home page: " + this.state.currentProfile.name,
+                profileComponents);
         }
     });
 });
