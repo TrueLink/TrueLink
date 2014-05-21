@@ -8,12 +8,14 @@ define(function (require, exports, module) {
     var fixedId = require("mixins/fixedId");
     var bind = require("mixins/bind");
 
-    function Menu(factory) {
+    function Menu(factory, app) {
         invariant(factory, "Can be constructed only with factory");
+        invariant(app, "Can i haz app?");
         this.factory = factory;
         this._defineEvent("changed");
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";
-        this.app = null;
+        this.app = app;
+        app.on("changed", this._onAppChanged, this);
     }
 
     extend(Menu.prototype, eventEmitter, serializable, fixedId, model, bind, {
@@ -42,11 +44,6 @@ define(function (require, exports, module) {
 
         navigate: function (pageName, pageModel) {
             this.app.router.navigate(pageName, pageModel);
-        },
-
-        setApp: function (app) {
-            this.app = app;
-            app.on("changed", this._onAppChanged, this);
         },
 
         _onAppChanged: function () {

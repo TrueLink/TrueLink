@@ -28,8 +28,8 @@ define(function (require, exports, module) {
         createApp: function () {
             return this._observed(new App(this));
         },
-        createProfile: function () {
-            return this._observed(new Profile(this));
+        createProfile: function (app) {
+            return this._observed(new Profile(this, app));
         },
         createDocument: function () {
             return this._observed(new Document(this));
@@ -48,8 +48,8 @@ define(function (require, exports, module) {
             return this.router;
         },
 
-        createMenu: function () {
-            return this._observed(new Menu(this));
+        createMenu: function (app) {
+            return this._observed(new Menu(this, app));
         },
 
         _observed: function (obj) {

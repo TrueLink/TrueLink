@@ -7,11 +7,13 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var urandom = require("urandom");
 
-    function Profile(factory) {
+    function Profile(factory, app) {
         invariant(factory, "Can be constructed only with factory");
+        invariant(app, "Can i haz app?");
         this.factory = factory;
         this._defineEvent("changed");
 
+        this.app = app;
         this.bg = null;
         this.documents = [];
         this.contacts = [];

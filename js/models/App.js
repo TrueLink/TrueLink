@@ -37,12 +37,11 @@ define(function (require, exports, module) {
             console.log("deserializing App");
             var factory = this.factory;
 //            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
-            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
-            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
+            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory, this));
+            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory, this));
 
             try {
-                this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory));
-                this.menu.setApp(this);
+                this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory, this));
             } catch (ex) {
                 this.menu = this._createMentu();
             }
@@ -64,9 +63,7 @@ define(function (require, exports, module) {
         },
 
         _createMentu: function () {
-            var menu =  this.factory.createMenu();
-            menu.setApp(this);
-            return menu;
+            return this.factory.createMenu(this);
         },
 
         init: function () {
@@ -96,7 +93,7 @@ define(function (require, exports, module) {
                 if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
                 if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
             });
-            var profile = this.factory.createProfile();
+            var profile = this.factory.createProfile(this);
             profile.set({
                 name: urandom.name(),
                 bg: nextBgIndex
