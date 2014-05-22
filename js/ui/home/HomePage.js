@@ -16,7 +16,7 @@ define(function (require, exports, module) {
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
+        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged, this); },
         render: function () {
             var profileComponents = {};
             var model = this.props.model;

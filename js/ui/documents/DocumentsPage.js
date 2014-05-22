@@ -19,7 +19,7 @@ define(function (require, exports, module) {
         },
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
+        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged, this); },
         _appendDocComponent: function (components, document) {
             components[document.name] = React.DOM.div({className: "generic-block"}, document.name);
         },

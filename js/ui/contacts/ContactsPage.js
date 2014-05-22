@@ -18,8 +18,12 @@ define(function (require, exports, module) {
             return false;
         },
         _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged); },
+        componentDidMount: function () {
+            this.props.model.on("changed", this._onModelChanged, this);
+        },
+        componentWillUnmount: function () {
+            this.props.model.off("changed", this._onModelChanged, this);
+        },
         _appendContactComponent: function (components, contact) {
             components[contact.name] = React.DOM.div({className: "generic-block"}, contact.name);
         },
