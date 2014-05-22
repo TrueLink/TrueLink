@@ -62,11 +62,22 @@ define(function (require, exports, module) {
         return $.extend({}, objs[id]);
     }
 
-    module.exports = {
+    function clear() {
+        lnks = [];
+        objs = {};
+        dump();
+    }
+
+    var fake = {
         getById: getById,
         save: save,
         addLink: addLink,
         removeLinks: removeLinks,
-        getLinks: getLinks
+        getLinks: getLinks,
+        clear: clear
     };
+
+    window.fakeDb = fake;
+
+    module.exports = fake;
 });

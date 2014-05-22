@@ -13,7 +13,10 @@ define(function (require, exports, module) {
             return this._getMeta();
         },
         exportMeta: function (packet, context) {
-            packet.setMetaData(this._getMeta());
+            // todo temp
+            var meta = this._getMeta();
+            meta.type = this.constructor.name;
+            packet.setMetaData(meta);
         }
     };
 });
