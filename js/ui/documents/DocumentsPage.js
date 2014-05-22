@@ -44,8 +44,6 @@ define(function (require, exports, module) {
                         }, "Add document")),
                     documents
                     ));
-
-            // React.DOM.div(null, "Documents: " + this.state.profile.name);
         }
     });
 });

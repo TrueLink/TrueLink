@@ -28,6 +28,7 @@ define(function (require, exports, module) {
                 bg: this.bg
             });
             packet.setLink("documents", context.getPacket(this.documents));
+            packet.setLink("contacts", context.getPacket(this.contacts));
         },
         deserialize: function (packet, context) {
             //console.log("deserializing Profile");
@@ -35,15 +36,23 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
-            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory));
+            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory, this));
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
 
         },
         createDocument: function () {
-            var document = this.factory.createDocument();
+            var document = this.factory.createDocument(this);
             document.set("name", urandom.animal());
             this.documents.push(document);
             this.onChanged();
             return document;
+        },
+        createContact: function () {
+            var contact = this.factory.createContact(this);
+            contact.set("name", urandom.name());
+            this.contacts.push(contact);
+            this.onChanged();
+            return contact;
         }
     });
 

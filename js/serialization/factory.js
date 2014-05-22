@@ -11,11 +11,13 @@ define(function (require, exports, module) {
     var Menu = require("models/Menu");
     var Profile = require("models/Profile");
     var Document = require("models/Document");
+    var Contact = require("models/Contact");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
     resolver.item(1, Profile);
     resolver.item(2, Document);
+    resolver.item(3, Contact);
 
     function Factory(serializer) {
         invariant(serializer, "serializer must be provided");
@@ -31,8 +33,11 @@ define(function (require, exports, module) {
         createProfile: function (app) {
             return this._observed(new Profile(this, app));
         },
-        createDocument: function () {
-            return this._observed(new Document(this));
+        createDocument: function (profile) {
+            return this._observed(new Document(this, profile));
+        },
+        createContact: function (profile) {
+            return this._observed(new Contact(this, profile));
         },
         createTransport: function () {
             if (!this.transport) {

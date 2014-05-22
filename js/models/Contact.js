@@ -7,37 +7,26 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
 
-    function Document(factory, profile) {
+    function Contact(factory, profile) {
         invariant(factory, "Can be constructed only with factory");
         invariant(profile, "Can i haz profile?");
         this.factory = factory;
         this._defineEvent("changed");
         this.profile = profile;
-
         this.name = null;
-        this.fields = {};
     }
 
-    extend(Document.prototype, eventEmitter, serializable, model, {
+    extend(Contact.prototype, eventEmitter, serializable, model, {
         serialize: function (packet, context) {
-            packet.setData({
-                name: this.name,
-                fields: this.fields
-            });
+            packet.setData({name: this.name});
         },
         deserialize: function (packet, context) {
+            var factory = this.factory;
             var data = packet.getData();
             this.name = data.name;
-            this.fields = data.fields;
-        },
-        setField: function (name, value) {
-            if (this[name] === value) { return; }
-            this[name] = value;
-            this.onChanged();
-        },
-        getFields: function () { return this.fields; }
+        }
 
     });
 
-    module.exports = Document;
+    module.exports = Contact;
 });

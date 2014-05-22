@@ -170,6 +170,11 @@ a.title {
     padding: 0 10px;
 }
 
+/* --- CONTACTS --- */
+.contacts-page .app-page-content {
+    padding: 0 10px;
+}
+
 /* --- MISC --- */
 .generic-block {
     border: 1px solid #282828;
