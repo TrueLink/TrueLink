@@ -1,11 +1,11 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("invariant");
+    var invariant = require("modules/invariant");
     var extend = require("extend");
-    var eventEmitter = require("events/eventEmitter");
-    var serializable = require("serialization/serializable");
+    var eventEmitter = require("modules/events/eventEmitter");
+    var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
-    var urandom = require("urandom");
+    var urandom = require("modules/urandom/urandom");
 
     function Profile(factory, app) {
         invariant(factory, "Can be constructed only with factory");

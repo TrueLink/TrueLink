@@ -1,16 +1,16 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("invariant");
-    var Dictionary = require("dictionary");
+    var invariant = require("modules/invariant");
+    var Dictionary = require("modules/dictionary/dictionary");
 
     var resolver = new Dictionary();
 
-    var App = require("js/models/App");
-    var Router = require("js/models/Router");
-    var Transport = require("js/models/Transport");
-    var Menu = require("js/models/Menu");
-    var Profile = require("js/models/Profile");
-    var Document = require("js/models/Document");
+    var App = require("models/App");
+    var Router = require("models/Router");
+    var Transport = require("models/Transport");
+    var Menu = require("models/Menu");
+    var Profile = require("models/Profile");
+    var Document = require("models/Document");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);

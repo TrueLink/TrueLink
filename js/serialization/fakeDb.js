@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var SerializationPacket = require("serialization/SerializationPacket");
+    var SerializationPacket = require("modules/serialization/SerializationPacket");
     var nullPacket = SerializationPacket.nullPacket;
     var $ = require("zepto");
     var isArray = $.isArray;

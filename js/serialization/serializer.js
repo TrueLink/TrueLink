@@ -2,9 +2,9 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var db = require("js/serialization/fakeDb");
-    var SerializationContext = require("serialization/SerializationContext");
-    var SerializationPacket = require("serialization/SerializationPacket");
+    var db = require("serialization/fakeDb");
+    var SerializationContext = require("modules/serialization/SerializationContext");
+    var SerializationPacket = require("modules/serialization/SerializationPacket");
     var $ = require("zepto");
     var isArray = $.isArray;
     var newUuid = require("uuid");

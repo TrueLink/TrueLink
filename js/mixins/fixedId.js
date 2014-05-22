@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("invariant");
+    var invariant = require("modules/invariant");
 
     module.exports = {
         _getMeta: function () {

@@ -1,20 +1,14 @@
 (function (require) {
     "use strict";
     require.config({
-        baseUrl: "/vendor/flux-modules/src",
+        baseUrl: "/js",
         paths: {
-            "zepto": "../../zepto/src/zepto",
-            "bind": "../../../../js/tools/bind",
-            "uuid": "../../../../js/tools/uuid",
-            "extend": "../../../../js/tools/extend",
-            "js": "../../../../js",
-            "ui": "../../../../js/ui",
-            "tools": "../../../../js/tools",
-            "mixins": "../../../../js/mixins",
-            "invariant": "invariant/invariant",
-            "urandom": "urandom/urandom",
-            "dictionary": "dictionary/dictionary",
-            "react": "../../react/build/react"
+            "zepto": "../vendor/zepto/src/zepto",
+            "bind": "tools/bind",
+            "uuid": "tools/uuid",
+            "extend": "tools/extend",
+            "modules": "../vendor/flux-modules/src/",
+            "react": "../vendor/react/build/react"
         },
         shim: {
             "zepto": { exports: "Zepto" }
@@ -23,20 +17,20 @@
 
     require([
         "zepto",
-        "js/converters/all",
-        "js/models/App",
-        "js/serialization/factory",
-        "js/serialization/appQuery",
-        "js/serialization/serializer",
+        "converters/all",
+        "models/App",
+        "serialization/factory",
+        "serialization/appQuery",
+        "serialization/serializer",
         "ui/AppComponent",
         "react"
     ], function () {
 
         var $ = require("zepto");
-        var Application = require("js/models/App");
-        var Factory = require("js/serialization/factory");
-        var query = require("js/serialization/appQuery");
-        var serializer = require("js/serialization/serializer");
+        var Application = require("models/App");
+        var Factory = require("serialization/factory");
+        var query = require("serialization/appQuery");
+        var serializer = require("serialization/serializer");
 
         var AppComponent = require("ui/AppComponent");
         var React = require("react");
