@@ -29,6 +29,7 @@ define(function (require, exports, module) {
             });
             packet.setLink("documents", context.getPacket(this.documents));
             packet.setLink("contacts", context.getPacket(this.contacts));
+            packet.setLink("dialogs", context.getPacket(this.dialogs));
         },
         deserialize: function (packet, context) {
             //console.log("deserializing Profile");
@@ -38,6 +39,7 @@ define(function (require, exports, module) {
             this.bg = data.bg;
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory, this));
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog.bind(factory, this));
 
         },
         createDocument: function () {
