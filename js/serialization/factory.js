@@ -12,12 +12,14 @@ define(function (require, exports, module) {
     var Profile = require("models/Profile");
     var Document = require("models/Document");
     var Contact = require("models/Contact");
+    var Dialog = require("models/Dialog");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
     resolver.item(1, Profile);
     resolver.item(2, Document);
     resolver.item(3, Contact);
+    resolver.item(4, Dialog);
 
     function Factory(serializer) {
         invariant(serializer, "serializer must be provided");
@@ -38,6 +40,9 @@ define(function (require, exports, module) {
         },
         createContact: function (profile) {
             return this._observed(new Contact(this, profile));
+        },
+        createDialog: function (profile) {
+            return this._observed(new Dialog(this, profile));
         },
         createTransport: function () {
             if (!this.transport) {

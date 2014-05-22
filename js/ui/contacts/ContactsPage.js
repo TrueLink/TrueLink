@@ -12,7 +12,7 @@ define(function (require, exports, module) {
                 profile: model
             };
         },
-        addContact: function () {
+        handleAddDialog: function () {
             var contact = this.props.model.createContact();
             //this.props.router
             return false;
@@ -24,8 +24,17 @@ define(function (require, exports, module) {
         componentWillUnmount: function () {
             this.props.model.off("changed", this._onModelChanged, this);
         },
-        _appendContactComponent: function (components, contact) {
-            components[contact.name] = React.DOM.div({className: "generic-block contact clearfix"},
+        handleContactClick: function (contact) {
+            var dialog = this.props.model.startDirectDialog(contact);
+            //this.props.router.navigate("dialog", dialog);
+            this.props.router.navigate("dialogs", this.props.model);
+            return false;
+        },
+        _appendDialogComponent: function (components, contact) {
+            components[contact.name] = React.DOM.div({
+                    className: "generic-block contact clearfix",
+                    onClick: this.handleContactClick.bind(this, contact)
+                },
                 React.DOM.div({className: "contact-image"}, ""),
                 React.DOM.div({className: "contact-title"}, contact.name));
         },
@@ -33,7 +42,7 @@ define(function (require, exports, module) {
             var profile = this.state.profile;
             var router = this.props.router;
             var contacts = {};
-            profile.contacts.forEach(this._appendContactComponent.bind(this, contacts));
+            profile.contacts.forEach(this._appendDialogComponent.bind(this, contacts));
             return React.DOM.div({className: "contacts-page"},
                 React.DOM.div({className: "app-page-title"},
                     React.DOM.a({
@@ -46,7 +55,7 @@ define(function (require, exports, module) {
                         React.DOM.a({
                             className: "button",
                             href: "",
-                            onClick: this.addContact
+                            onClick: this.handleAddDialog
                         }, "Add contact")),
                     contacts
                     ));

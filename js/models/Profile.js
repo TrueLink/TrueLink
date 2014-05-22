@@ -53,6 +53,28 @@ define(function (require, exports, module) {
             this.contacts.push(contact);
             this.onChanged();
             return contact;
+        },
+
+        _findDirectDialog: function (contact) {
+            var i;
+            for (i = 0; i < this.dialogs.length; i += 1) {
+                if (this.dialogs[i].contacts.length === 1 &&  this.dialogs[i].contacts[0] === contact) {
+                    return this.dialogs[i];
+                }
+            }
+            return null;
+        },
+
+        startDirectDialog: function (contact) {
+            var dialog = this._findDirectDialog(contact);
+            if (!dialog) {
+                dialog = this.factory.createDialog(this);
+                dialog.set("name", contact.name);
+                dialog.addContact(contact);
+                this.dialogs.push(dialog);
+                this.onChanged();
+            }
+            return dialog;
         }
     });
 

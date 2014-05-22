@@ -5,7 +5,9 @@ define(function (require, exports, module) {
         profiles: [{
             contacts: [{}],
             documents: [{}],
-            dialogs: [{}]
+            dialogs: [{
+                contacts: [{}]
+            }]
         }],
         currentProfile: {},
         transport: {},
