@@ -23,6 +23,14 @@ input[type="text"], input[type="password"] {
     width: 100%;
 }
 
+.clearfix:after {
+    content: " ";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+}
+
 /* --- GENERIC ---*/
 #app {
     font-family: 'Open Sans' , sans-serif;
@@ -173,6 +181,19 @@ a.title {
 /* --- CONTACTS --- */
 .contacts-page .app-page-content {
     padding: 0 10px;
+}
+
+.contacts-page .contact-image {
+    height: 60px;
+    width: 60px;
+    border-right: 1px solid #282828;
+    float: left;
+}
+
+.contacts-page .contact-title {
+    font-size: 22px;
+    margin-left: 10px;
+    float: left;
 }
 
 /* --- MISC --- */

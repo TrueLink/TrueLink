@@ -25,7 +25,9 @@ define(function (require, exports, module) {
             this.props.model.off("changed", this._onModelChanged, this);
         },
         _appendContactComponent: function (components, contact) {
-            components[contact.name] = React.DOM.div({className: "generic-block"}, contact.name);
+            components[contact.name] = React.DOM.div({className: "generic-block contact clearfix"},
+                React.DOM.div({className: "contact-image"}, ""),
+                React.DOM.div({className: "contact-title"}, contact.name));
         },
         render: function () {
             var profile = this.state.profile;
