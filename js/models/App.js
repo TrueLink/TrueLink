@@ -26,7 +26,7 @@ define(function (require, exports, module) {
         serialize: function (packet, context) {
             //console.log("serializing App");
             packet.setData({});
-//            packet.setLink("transport", context.getPacket(this.transport));
+            packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("profiles", context.getPacket(this.profiles));
             packet.setLink("currentProfile", context.getPacket(this.currentProfile));
             packet.setLink("menu", context.getPacket(this.menu));
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             console.log("deserializing App");
             var factory = this.factory;
-//            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
+            this.transport = context.deserialize(packet.getLink("transport"), factory.getTransport.bind(factory));
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory, this));
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory, this));
 
@@ -68,7 +68,8 @@ define(function (require, exports, module) {
 
         init: function () {
             console.log("app init");
-//            this.transport = this.factory.createTransport();
+            this.transport = this.factory.getTransport();
+            this.transport.init();
 
             this.menu = this._createMentu();
             this.router = this._createRouter();
