@@ -3,7 +3,9 @@ define(function (require, exports, module) {
     module.exports = {
         menu: {},
         profiles: [{
-            contacts: [{}],
+            contacts: [{
+                tlConnection: {}
+            }],
             documents: [{}],
             dialogs: [{
                 contacts: [{}]
