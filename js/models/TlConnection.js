@@ -4,27 +4,37 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var fixedId = require("mixins/fixedId");
     var model = require("mixins/model");
 
 
-    function Transport(factory) {
+    function TlConnection(factory, contact) {
         invariant(factory, "Can be constructed only with factory");
+        invariant(contact, "Can i haz contact?");
         this.factory = factory;
-        this.fixedId = "F2E281BB-3C0D-4CED-A0F1-A65771AEED9A";
+        this.contact = contact;
         this._defineEvent("changed");
+
+        this.status = null;
     }
 
-    extend(Transport.prototype, eventEmitter, serializable, fixedId, model, {
+    extend(TlConnection.prototype, eventEmitter, serializable, model, {
         serialize: function (packet, context) {
-            console.log("serializing Transport");
-            packet.setData({name: "TransportPacket"});
+
         },
         deserialize: function (packet, context) {
-            console.log("deserializing Transport");
+            var factory = this.factory;
+            var data = packet.getData();
+        },
+        init: function () {
+            this.status = TlConnection.STATUS_NOT_STARTED;
         }
 
     });
 
-    module.exports = Transport;
+
+    TlConnection.STATUS_NOT_STARTED = 0;
+    TlConnection.STATUS_ESTABLISHED = 10;
+
+
+    module.exports = TlConnection;
 });

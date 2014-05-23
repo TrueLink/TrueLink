@@ -7,12 +7,13 @@ define(function (require, exports, module) {
 
     var App = require("models/App");
     var Router = require("models/Router");
-    var Transport = require("models/Transport");
+    var CouchTransport = require("models/CouchTransport");
     var Menu = require("models/Menu");
     var Profile = require("models/Profile");
     var Document = require("models/Document");
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
+    var ContactTlConnection = require("models/TlConnection");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
@@ -44,9 +45,13 @@ define(function (require, exports, module) {
         createDialog: function (profile) {
             return this._observed(new Dialog(this, profile));
         },
-        createTransport: function () {
+
+        createContactTlConnection: function (contact) {
+            return this._observed(new ContactTlConnection(this, contact));
+        },
+        getTransport: function () {
             if (!this.transport) {
-                this.transport = this._observed(new Transport(this));
+                this.transport = this._observed(new CouchTransport(this));
             }
             return this.transport;
         },
