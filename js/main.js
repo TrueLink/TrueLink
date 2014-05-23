@@ -39,9 +39,14 @@
             console.log(navigator.userAgent);
             console.log("Starting app...");
             var factory = new Factory(serializer);
-            var appPacket = serializer.createPacket(Application.id, query), app;
+            var counterObj = {
+                dataLength: 0,
+                linkCount: 0
+            };
+            var appPacket = serializer.createPacket(Application.id, query, null, counterObj), app;
             if (appPacket) {
                 app = serializer.deserialize(appPacket, factory.createApp.bind(factory));
+                console.log("app deserialized: ~%s KB, %s links", (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
             } else {
                 app = factory.createApp();
                 app.init();
