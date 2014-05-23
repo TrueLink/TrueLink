@@ -14,7 +14,7 @@ define(function (require, exports, module) {
         this.contact = contact;
         this._defineEvent("changed");
 
-        this.status = null;
+        this.tlkeBuilder = null;
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
@@ -30,10 +30,6 @@ define(function (require, exports, module) {
         }
 
     });
-
-
-    TlConnection.STATUS_NOT_STARTED = 0;
-    TlConnection.STATUS_ESTABLISHED = 10;
 
 
     module.exports = TlConnection;
