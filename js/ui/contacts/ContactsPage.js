@@ -25,9 +25,9 @@ define(function (require, exports, module) {
             this.props.model.off("changed", this._onModelChanged, this);
         },
         handleContactClick: function (contact) {
-            var dialog = this.props.model.startDirectDialog(contact);
+            this.props.router.navigate("contact", contact);
+            //var dialog = this.props.model.startDirectDialog(contact);
             //this.props.router.navigate("dialog", dialog);
-            this.props.router.navigate("dialogs", this.props.model);
             return false;
         },
         _appendDialogComponent: function (components, contact) {

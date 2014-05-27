@@ -9,6 +9,7 @@ define(function (require, exports, module) {
     var pages = {
         "home": require("ui/home/HomePage"),
         "contacts" : require("ui/contacts/ContactsPage"),
+        "contact" : require("ui/contacts/ContactPage"),
         "dialogs" : require("ui/dialogs/DialogsPage"),
         "documents" : require("ui/documents/DocumentsPage"),
         "profile" : require("ui/profile/ProfilePage")
