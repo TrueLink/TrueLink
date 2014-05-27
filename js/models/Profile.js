@@ -54,6 +54,7 @@ define(function (require, exports, module) {
         },
         createContact: function () {
             var contact = this.factory.createContact(this);
+            contact.init();
             contact.set("name", urandom.name());
             this.contacts.push(contact);
             this.onChanged();

@@ -15,9 +15,13 @@ define(function (require, exports, module) {
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
     var ContactTlConnection = require("models/tlConnection/TlConnection");
-    var TlkeBuilder = require("modules/channels/TlkeBuilder");
     var Route = require("modules/channels/Route");
     var Tlke = require("modules/channels/Tlke");
+    var TlkeBuilder = require("modules/channels/TlkeBuilder");
+    var Tlht = require("modules/channels/Tlht");
+    var TlhtBuilder = require("modules/channels/TlhtBuilder");
+    var Tlec = require("modules/channels/Tlec");
+    var TlecBuilder = require("modules/channels/TlecBuilder");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
@@ -83,9 +87,26 @@ define(function (require, exports, module) {
             return this._observed(new Tlke(this));
         },
 
+        createTlht: function () {
+            return this._observed(new Tlht(this));
+        },
+
         createTlkeBuilder: function () {
             return this._observed(new TlkeBuilder(this));
         },
+
+        createTlhtBuilder: function () {
+            return this._observed(new TlhtBuilder(this));
+        },
+
+        createTlec: function () {
+            return this._observed(new Tlec(this));
+        },
+
+        createTlecBuilder: function () {
+            return this._observed(new TlecBuilder(this));
+        },
+
 
         createMenu: function (app) {
             return this._observed(new Menu(this, app));
