@@ -18,6 +18,7 @@ define(function (require, exports, module) {
         this.documents = [];
         this.contacts = [];
         this.dialogs = [];
+        this.pollingUrl = "";
     }
 
     extend(Profile.prototype, eventEmitter, serializable, model, {
@@ -25,7 +26,8 @@ define(function (require, exports, module) {
             //console.log("serializing Profile");
             packet.setData({
                 name: this.name,
-                bg: this.bg
+                bg: this.bg,
+                pollingUrl: this.pollingUrl
             });
             packet.setLink("documents", context.getPacket(this.documents));
             packet.setLink("contacts", context.getPacket(this.contacts));
@@ -37,6 +39,7 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
+            this.pollingUrl = data.pollingUrl;
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory, this));
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog.bind(factory, this));

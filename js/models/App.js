@@ -15,7 +15,7 @@ define(function (require, exports, module) {
         this.factory = factory;
         this._defineEvent("changed");
         this.fixedId = Application.id;
-//        this.transport = null;
+        this.transport = null;
         this.menu = null;
         this.profiles = [];
         this.currentProfile = null;
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             console.log("deserializing App");
             var factory = this.factory;
-            this.transport = context.deserialize(packet.getLink("transport"), factory.getTransport.bind(factory));
+            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory, this));
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory, this));
 
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
 
         init: function () {
             console.log("app init");
-            this.transport = this.factory.getTransport();
+            this.transport = this.factory.createTransport();
             this.transport.init();
 
             this.menu = this._createMentu();

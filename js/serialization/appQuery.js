@@ -4,7 +4,14 @@ define(function (require, exports, module) {
         menu: {},
         profiles: [{
             contacts: [{
-                tlConnection: {}
+                tlConnection: {
+                    tlkeBuilder: {
+                        tlke: {},
+                        route: {}
+                    },
+                    tlhtBuilder: {},
+                    tlecBuilders: [{}]
+                }
             }],
             documents: [{}],
             dialogs: [{
@@ -13,6 +20,7 @@ define(function (require, exports, module) {
         }],
         currentProfile: {},
         transport: {},
+        random: {},
         router: {
             model: {}
         }

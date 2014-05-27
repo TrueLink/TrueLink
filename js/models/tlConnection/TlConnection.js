@@ -27,10 +27,12 @@ define(function (require, exports, module) {
         },
         init: function () {
             this.status = TlConnection.STATUS_NOT_STARTED;
+            this.tlkeBuilder = this.factory.createTlkeBuilder();
         }
 
     });
 
+    TlConnection.STATUS_NOT_STARTED = 0;
 
     module.exports = TlConnection;
 });

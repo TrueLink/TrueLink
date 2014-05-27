@@ -31,6 +31,7 @@ define(function (require, exports, module) {
         },
         init: function () {
             this.tlConnection = this.factory.createContactTlConnection(this);
+            this.tlConnection.init();
         }
 
     });

@@ -7,13 +7,17 @@ define(function (require, exports, module) {
 
     var App = require("models/App");
     var Router = require("models/Router");
-    var CouchTransport = require("models/CouchTransport");
+    var CouchTransport = require("models/tlConnection/CouchTransport");
+    var Random = require("modules/cryptography/random");
     var Menu = require("models/Menu");
     var Profile = require("models/Profile");
     var Document = require("models/Document");
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
-    var ContactTlConnection = require("models/TlConnection");
+    var ContactTlConnection = require("models/tlConnection/TlConnection");
+    var TlkeBuilder = require("modules/channels/TlkeBuilder");
+    var Route = require("modules/channels/Route");
+    var Tlke = require("modules/channels/Tlke");
 
     // types that can be deserialized by typeData
     resolver.item(0, App);
@@ -27,6 +31,7 @@ define(function (require, exports, module) {
         this.serializer = serializer;
         this.transport = null;
         this.router = null;
+        this.random = null;
     }
 
     Factory.prototype = {
@@ -49,7 +54,7 @@ define(function (require, exports, module) {
         createContactTlConnection: function (contact) {
             return this._observed(new ContactTlConnection(this, contact));
         },
-        getTransport: function () {
+        createTransport: function () {
             if (!this.transport) {
                 this.transport = this._observed(new CouchTransport(this));
             }
@@ -61,6 +66,25 @@ define(function (require, exports, module) {
                 this.router = this._observed(new Router(this));
             }
             return this.router;
+        },
+
+        createRandom: function () {
+            if (!this.random) {
+                this.random = this._observed(new Random(this));
+            }
+            return this.random;
+        },
+
+        createRoute: function () {
+            return this._observed(new Route(this));
+        },
+
+        createTlke: function () {
+            return this._observed(new Tlke(this));
+        },
+
+        createTlkeBuilder: function () {
+            return this._observed(new TlkeBuilder(this));
         },
 
         createMenu: function (app) {
@@ -83,7 +107,9 @@ define(function (require, exports, module) {
             var found = resolver.first(function (item) { return item.value === inst.constructor; });
             invariant(found, "Type is not registered");
             return found.key;
-        }
+        },
+
+
     };
 
     module.exports = Factory;

@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var fixedId = require("mixins/fixedId");
     var model = require("mixins/model");
-    var Dictionary = require("modules/dictionary");
+    var Dictionary = require("modules/dictionary/dictionary");
     var CouchPolling = require("./CouchPolling");
 
     function Transport(factory) {
