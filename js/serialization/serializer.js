@@ -35,6 +35,7 @@ define(function (require, exports, module) {
         counterObj.dataLength += JSON.stringify(packetData).length;
         var packet = dataToPacket(packetData), linkName;
         context[id] = packet;
+        counterObj.objCount += 1;
 
         //if (isArray)
         for (linkName in scheme) {
@@ -121,7 +122,7 @@ define(function (require, exports, module) {
         });
         context.deepSyncMeta(packets);
         updateObjCache(context);
-        console.log("context stored: ~%s KB, %s links", (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
+        console.log("context stored: %s objects (~%s KB), %s links", packets.length, (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
         return packets;
     }
 
