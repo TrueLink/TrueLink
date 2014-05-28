@@ -59,6 +59,15 @@ define(function (require, exports, module) {
         openAddr: function (addr, profile) {
             var polling = this._getPolling(profile);
             polling.addAddr(addr);
+        },
+
+        sendNetworkPacket: function (networkPacket) {
+//            invariant(isMultivalue(networkPacket.addr), "networkPacket.addr must be multivalue");
+//            invariant(isMultivalue(networkPacket.data), "networkPacket.data must be multivalue");
+//
+//            var addr = networkPacket.addr;
+//            var packet = networkPacket.data;
+//
         }
 
 
