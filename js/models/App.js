@@ -20,6 +20,7 @@ define(function (require, exports, module) {
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
+        this.defaultPollingUrl = "http://localhost:5984/tl_channels";
     }
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
@@ -97,7 +98,8 @@ define(function (require, exports, module) {
             var profile = this.factory.createProfile(this);
             profile.set({
                 name: urandom.name(),
-                bg: nextBgIndex
+                bg: nextBgIndex,
+                pollingUrl: this.defaultPollingUrl
             });
             this.currentProfile = profile;
             this.profiles.push(profile);
