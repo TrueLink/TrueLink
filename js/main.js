@@ -7,7 +7,7 @@
             "bind": "tools/bind",
             "uuid": "tools/uuid",
             "extend": "tools/extend",
-            "modules": "../vendor/flux-modules/src/",
+            "modules": "../vendor/flux-modules/src",
             "react": "../vendor/react/build/react"
         },
         shim: {
