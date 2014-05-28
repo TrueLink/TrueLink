@@ -2,6 +2,7 @@ define(function (require, exports, module) {
     "use strict";
 
     module.exports = {
+        isModel: true,
         onChanged: function () { this.fire("changed", this); },
         set: function (name, value) {
             if (typeof name === "object") {

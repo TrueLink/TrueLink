@@ -2,6 +2,8 @@ define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var Dictionary = require("modules/dictionary/dictionary");
+    var extend = require("extend");
+    var model = require("mixins/model");
 
     var resolver = new Dictionary();
 
@@ -113,6 +115,10 @@ define(function (require, exports, module) {
         },
 
         _observed: function (obj) {
+            // todo this is kinda strange
+            if (!obj.isModel) {
+                extend(obj.constructor.prototype, model);
+            }
             this.serializer.listen(obj);
             return obj;
         },
