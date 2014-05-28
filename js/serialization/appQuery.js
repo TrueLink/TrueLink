@@ -9,8 +9,14 @@ define(function (require, exports, module) {
                         tlke: {},
                         route: {}
                     },
-                    tlhtBuilder: {},
-                    tlecBuilders: [{}]
+                    tlhtBuilder: {
+                        tlht: {},
+                        route: {}
+                    },
+                    tlecBuilders: [{
+                        tlec: {},
+                        route: {}
+                    }]
                 }
             }],
             documents: [{}],
