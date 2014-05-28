@@ -9,7 +9,9 @@ define(function (require, exports, module) {
         _getState: function () {
             var model = this.props.model;
             return {
-                contact: model
+                contact: model,
+                tlConnectionState: model.tlConnection.tlkeBuilder &&  model.tlConnection.tlkeBuilder.tlke
+                    ? model.tlConnection.tlkeBuilder.tlke.state : null
             };
         },
         handleAddDialog: function () {
@@ -17,12 +19,35 @@ define(function (require, exports, module) {
             //this.props.router
             return false;
         },
+
+        handleGenerate: function () {
+            try {
+                this.props.model.tlConnection.generateOffer();
+            } catch (ex) {
+                console.error(ex);
+            }
+            return false;
+        },
+
+        handleAbort: function () {
+            try {
+                this.props.model.tlConnection.abortTlke();
+            } catch (ex) {
+                console.error(ex);
+            }
+            return false;
+        },
+
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () {
-            this.props.model.on("changed", this._onModelChanged, this);
+            var contact = this.props.model;
+            contact.on("changed", this._onModelChanged, this);
+            contact.tlConnection.on("changed", this._onModelChanged, this);
         },
         componentWillUnmount: function () {
-            this.props.model.off("changed", this._onModelChanged, this);
+            var contact = this.props.model;
+            contact.off("changed", this._onModelChanged, this);
+            contact.tlConnection.off("changed", this._onModelChanged, this);
         },
 
         render: function () {
@@ -36,7 +61,14 @@ define(function (require, exports, module) {
                         onClick: router.createNavigateHandler("contacts", contact.profile)
                     }, "Contact details")),
                 React.DOM.div({className: "app-page-content"},
-                    contact.name
+                    contact.name, " tl state: " + this.state.tlConnectionState,
+                    React.DOM.div(null, React.DOM.a({
+                        href: "",
+                        onClick: this.handleGenerate
+                    }, "generate")), React.DOM.div(null, React.DOM.a({
+                        href: "",
+                        onClick: this.handleAbort
+                    }, "abort"))
                     ));
         }
     });

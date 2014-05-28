@@ -13,7 +13,12 @@ define(function (require, exports, module) {
             };
         },
         handleAddDialog: function () {
-            var contact = this.props.model.createContact();
+
+            try {
+                var contact = this.props.model.createContact();
+            } catch (ex) {
+                console.error(ex);
+            }
             //this.props.router
             return false;
         },

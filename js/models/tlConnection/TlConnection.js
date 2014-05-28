@@ -68,16 +68,35 @@ define(function (require, exports, module) {
             this._onChanged();
         },
 
+        generateOffer: function () {
+            if (this.tlkeBuilder || this.tlhtBuilder) {
+                throw new Error("Already connecting");
+            }
+            this.tlkeBuilder = this.factory.createTlkeBuilder();
+            this.tlkeBuilder.build();
+            this.tlhtBuilder = this.factory.createTlhtBuilder();
+            this.link();
+            this.tlkeBuilder.generate();
+        },
+
+        abortTlke: function () {
+            this.unlink();
+            if (this.tlkeBuilder) {
+                this.tlkeBuilder.destroy();
+                this.tlkeBuilder = null;
+            }
+            if (this.tlhtBuilder) {
+                this.tlhtBuilder.destroy();
+                this.tlhtBuilder = null;
+            }
+            this.onChanged();
+        },
+
         onTlhtDone: function (result) {
             var tlecBuilder = this.factory.createTlecBuilder();
         },
 
         init: function () {
-            this.status = TlConnection.STATUS_NOT_STARTED;
-            this.tlkeBuilder = this.factory.createTlkeBuilder();
-            this.tlkeBuilder.build();
-            this.tlhtBuilder = this.factory.createTlhtBuilder();
-            this.link();
         },
 
         _onChanged: function () {

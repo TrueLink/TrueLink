@@ -6,16 +6,16 @@ define(function (require, exports, module) {
             contacts: [{
                 tlConnection: {
                     tlkeBuilder: {
-                        tlke: {},
-                        route: {}
+                        _tlke: {},
+                        _route: {}
                     },
                     tlhtBuilder: {
-                        tlht: {},
-                        route: {}
+                        _tlht: {},
+                        _route: {}
                     },
                     tlecBuilders: [{
-                        tlec: {},
-                        route: {}
+                        _tlec: {},
+                        _route: {}
                     }]
                 }
             }],
