@@ -3,10 +3,12 @@ define(function (require, exports, module) {
     var invariant = require("modules/invariant");
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
+    var Hex = require("modules/multivalue/hex");
+
 
     function CouchPolling(url, since) {
         invariant(url, "Can i haz url?");
-        invariant(since, "Can i haz since?");
+        invariant(since || since === 0, "Can i haz since?");
         this.addrs = [];
         this.url = url;
         this.since = since;
@@ -14,9 +16,9 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
     }
 
-    extend(CouchPolling.prototype, {
+    extend(CouchPolling.prototype, eventEmitter, {
         addAddr: function (addr) {
-
+            console.log("adding addr %s to %s", addr.as(Hex), this.url);
         },
         onChanged: function () {
             this.fire("changed", this);

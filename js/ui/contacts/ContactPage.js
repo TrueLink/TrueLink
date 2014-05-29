@@ -24,6 +24,7 @@ define(function (require, exports, module) {
             try {
                 this.props.model.tlConnection.generateOffer();
             } catch (ex) {
+                this.handleAbort();
                 console.error(ex);
             }
             return false;

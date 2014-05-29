@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var Dictionary = require("modules/dictionary/dictionary");
     var CouchPolling = require("./CouchPolling");
+    var Hex = require("modules/multivalue/hex");
 
     function Transport(factory) {
         invariant(factory, "Can be constructed only with factory");
@@ -41,10 +42,11 @@ define(function (require, exports, module) {
         },
 
         _createPolling: function (profile) {
-            var polling = new CouchPolling(0, profile.pollingUrl);
+            var polling = new CouchPolling(profile.pollingUrl, 0);
             polling.on("channelPacket", this._handlePollingPacket, this);
             polling.on("changed", this._handlePollingChanged, this);
             this._pollings.item(profile, polling);
+            return polling;
         },
 
         _handlePollingChanged: function (polling) {
@@ -62,6 +64,7 @@ define(function (require, exports, module) {
         },
 
         sendNetworkPacket: function (networkPacket) {
+            console.log("Sending message to channel %s, data: %s", networkPacket.addr.as(Hex), networkPacket.data.as(Hex));
 //            invariant(isMultivalue(networkPacket.addr), "networkPacket.addr must be multivalue");
 //            invariant(isMultivalue(networkPacket.data), "networkPacket.data must be multivalue");
 //

@@ -12,6 +12,7 @@ define(function (require, exports, module) {
         invariant(contact, "Can i haz contact?");
         this.factory = factory;
         this.contact = contact;
+        this.profile = contact.profile;
         this._defineEvent("changed");
 
         this.tlkeBuilder = null;
@@ -32,8 +33,8 @@ define(function (require, exports, module) {
             var factory = this.factory;
             var data = packet.getData();
 
-            this.tlkeBuilder = context.deserialize(packet.getLink("tlkeBuilder"), factory.createTlkeBuilder.bind(factory, this));
-            this.tlhtBuilder = context.deserialize(packet.getLink("tlhtBuilder"), factory.createTlhtBuilder.bind(factory, this));
+            this.tlkeBuilder = context.deserialize(packet.getLink("tlkeBuilder"), factory.createTlkeBuilder.bind(factory));
+            this.tlhtBuilder = context.deserialize(packet.getLink("tlhtBuilder"), factory.createTlhtBuilder.bind(factory));
 
 
             this.link();
@@ -43,8 +44,10 @@ define(function (require, exports, module) {
 
             if (this.tlkeBuilder && this.tlhtBuilder) {
                 this.tlkeBuilder.on("offer", this.onTlkeOffer, this);
+                this.tlkeBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.on("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.on("done", this.tlhtBuilder.build, this.tlhtBuilder);
+                this.tlhtBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.on("done", this.onTlhtDone, this);
             }
 
@@ -53,10 +56,19 @@ define(function (require, exports, module) {
         unlink: function () {
             if (this.tlkeBuilder && this.tlhtBuilder) {
                 this.tlkeBuilder.off("offer", this.onTlkeOffer, this);
+                this.tlkeBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.off("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.off("done", this.tlhtBuilder.build, this.tlhtBuilder);
+                this.tlhtBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.off("done", this.onTlhtDone, this);
+
             }
+        },
+
+        onBuilderAddrIn: function (addr) {
+            // todo may be changed in future
+            var transport = this.factory.createTransport();
+            transport.openAddr(addr, this.profile);
         },
 
         onTlkeOffer: function (offer) {

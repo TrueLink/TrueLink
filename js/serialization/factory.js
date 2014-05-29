@@ -88,26 +88,25 @@ define(function (require, exports, module) {
         createTlke: function () {
             return this._observed(new Tlke(this));
         },
-
         createTlht: function () {
             return this._observed(new Tlht(this));
+        },
+        createTlec: function () {
+            return this._observed(new Tlec(this));
         },
 
         createTlkeBuilder: function () {
             return this._observed(new TlkeBuilder(this));
         },
-
         createTlhtBuilder: function () {
             return this._observed(new TlhtBuilder(this));
         },
-
-        createTlec: function () {
-            return this._observed(new Tlec(this));
-        },
-
         createTlecBuilder: function () {
             return this._observed(new TlecBuilder(this));
         },
+
+
+
 
 
         createMenu: function (app) {
