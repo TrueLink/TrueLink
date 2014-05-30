@@ -27,7 +27,7 @@ define(function (require, exports, module) {
         createProfileFactory: function (profile) {
             var profileFactory = new ProfileFactory(this.serializer);
             profileFactory.setProfile(profile);
-            return profile;
+            return profileFactory;
         },
         createProfile: function () {
             invariant(this.app, "app is not set");
