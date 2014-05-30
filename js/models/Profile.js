@@ -7,13 +7,12 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
 
-    function Profile(factory, app) {
+    function Profile(factory) {
         invariant(factory, "Can be constructed only with factory");
-        invariant(app, "Can i haz app?");
         this.factory = factory;
         this._defineEvent("changed");
 
-        this.app = app;
+        this.app = null;
         this.bg = null;
         this.documents = [];
         this.contacts = [];
@@ -29,6 +28,8 @@ define(function (require, exports, module) {
                 bg: this.bg,
                 pollingUrl: this.pollingUrl
             });
+
+            packet.setLink("app", context.getPacket(this.app));
             packet.setLink("documents", context.getPacket(this.documents));
             packet.setLink("contacts", context.getPacket(this.contacts));
             packet.setLink("dialogs", context.getPacket(this.dialogs));
@@ -36,18 +37,23 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             //console.log("deserializing Profile");
             var factory = this.factory;
+            this.app = context.deserialize(packet.getLink("app"), factory.createApp.bind(factory));
+            factory = this.factory = this.factory.createProfileFactory(this);
+
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
             this.pollingUrl = data.pollingUrl;
-            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory, this));
-            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
-            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog.bind(factory, this));
+            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory));
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory));
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog.bind(factory));
 
         },
         createDocument: function () {
-            var document = this.factory.createDocument(this);
-            document.set("name", urandom.animal());
+            var document = this.factory.createDocument();
+            document.set({
+                name: urandom.animal()
+            });
             this.documents.push(document);
             this.onChanged();
             return document;
@@ -74,7 +80,7 @@ define(function (require, exports, module) {
         startDirectDialog: function (contact) {
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
-                dialog = this.factory.createDialog(this);
+                dialog = this.factory.createDialog();
                 dialog.set("name", contact.name);
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);

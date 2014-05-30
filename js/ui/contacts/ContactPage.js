@@ -10,8 +10,8 @@ define(function (require, exports, module) {
             var model = this.props.model;
             return {
                 contact: model,
-                tlConnectionState: model.tlConnection.tlkeBuilder &&  model.tlConnection.tlkeBuilder.tlke
-                    ? model.tlConnection.tlkeBuilder.tlke.state : null
+                tlConnectionState: model.tlConnection.tlkeBuilder ?
+                    model.tlConnection.tlkeBuilder.getTlkeState() : null
             };
         },
         handleAddDialog: function () {

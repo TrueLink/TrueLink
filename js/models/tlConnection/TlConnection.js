@@ -47,6 +47,7 @@ define(function (require, exports, module) {
                 this.tlkeBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.on("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.on("done", this.tlhtBuilder.build, this.tlhtBuilder);
+                this.tlkeBuilder.on("changed", this.onChanged, this);
                 this.tlhtBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.on("done", this.onTlhtDone, this);
             }
@@ -59,6 +60,7 @@ define(function (require, exports, module) {
                 this.tlkeBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.off("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.off("done", this.tlhtBuilder.build, this.tlhtBuilder);
+                this.tlkeBuilder.on("changed", this.onChanged, this);
                 this.tlhtBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.off("done", this.onTlhtDone, this);
 

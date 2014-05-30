@@ -6,13 +6,24 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
 
+    var HomePage = require("ui/home/HomePage");
+    var HomePageModel = require("models/pages/HomePageModel");
+    var ContactsPage = require("ui/contacts/ContactsPage");
+    var ContactsPageModel = require("models/pages/ContactsPageModel");
+
     var pages = {
-        "home": require("ui/home/HomePage"),
-        "contacts" : require("ui/contacts/ContactsPage"),
-        "contact" : require("ui/contacts/ContactPage"),
-        "dialogs" : require("ui/dialogs/DialogsPage"),
-        "documents" : require("ui/documents/DocumentsPage"),
-        "profile" : require("ui/profile/ProfilePage")
+        "home": {
+            view: HomePage,
+            model: HomePageModel
+        },
+        "contacts": {
+            view: ContactsPage,
+            model: ContactsPageModel
+        }
+//        "contact" : require("ui/contacts/ContactPage"),
+//        "dialogs" : require("ui/dialogs/DialogsPage"),
+//        "documents" : require("ui/documents/DocumentsPage"),
+//        "profile" : require("ui/profile/ProfilePage")
     };
 
     function Router(factory) {
@@ -46,16 +57,16 @@ define(function (require, exports, module) {
 
             var modelConstructor = factory.getConstructor(data.modelType);
             this.currentPageModel = context.deserialize(packet.getLink("model"), modelConstructor.bind(factory));
-            this.currentPage = this._createPage(this.currentPageName, this.currentPageModel);
+            this.currentPage = this._createPageView(this.currentPageName, this.currentPageModel);
         },
 
-        navigate: function (pageName, pageModel) {
+        navigate: function (pageName, model) {
             try {
-                if (this.currentPageName === pageName && this.currentPageModel === pageModel) {
+                if (this.currentPageName === pageName && this.currentPageModel.model === model) {
                     return;
                 }
-                this.currentPage = this._createPage(pageName, pageModel);
-                this.currentPageModel = pageModel;
+                this.currentPageModel = this._createPageModel(pageName, model);
+                this.currentPage = this._createPageView(pageName, this.currentPageModel);
                 this.currentPageName = pageName;
                 this.onChanged();
             } catch (ex) {
@@ -71,9 +82,17 @@ define(function (require, exports, module) {
             return handler.bind(this);
         },
 
-        _createPage: function (pageName, pageModel) {
-            invariant(pages[pageName], "Page %s is not registered", pageName);
-            return pages[pageName]({model: pageModel, router: this});
+        _createPageView: function (pageName, pageModel) {
+            var constructors = pages[pageName];
+            invariant(constructors, "Page %s is not registered", pageName);
+            return constructors.view({model: pageModel, router: this});
+        },
+
+        _createPageModel: function (pageName, model) {
+            var constructors = pages[pageName];
+            invariant(constructors, "Page %s is not registered", pageName);
+            var pageModel = this.factory.construct(constructors.model);
+            model.setModel(model)
         }
     });
 

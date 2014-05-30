@@ -95,7 +95,7 @@ define(function (require, exports, module) {
                 if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
                 if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
             });
-            var profile = this.factory.createProfile(this);
+            var profile = this.factory.createProfile();
             profile.set({
                 name: urandom.name(),
                 bg: nextBgIndex,
