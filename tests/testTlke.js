@@ -1,13 +1,13 @@
-define([
-    "tools/random",
-    "modules/data-types/Hex",
-    "modules/channels/EventEmitter",
-    "modules/channels/tlke",
-    "modules/channels/tlkeBuilder",
-    "modules/channels/TestTransport",
-    "modules/channels/Route",
-    "zepto"
-], function (random, Hex, EventEmitter, Tlke, TlkeBuilder, Transport, Route, $) {
+define(function (require, exports, module) {
+    "use strict";
+    var random = require("modules/cryptography/random");
+    var Hex = require("modules/multivalue/hex");
+    var EventEmitter = require("modules/events/eventEmitter");
+    var Tlke = require("modules/channels/tlke");
+    var TlkeBuilder = require("modules/channels/TlkeBuilder");
+    var Transport =  require("modules/channels/TestTransport");
+    var Router = require("models/Router");
+    var extend = require("extend");
 
     var logfunc = function() {
         var args = [this.name].concat(arguments);
@@ -24,11 +24,11 @@ define([
             this._defineEvent("addrIn");
         }
         TlkeTestBuilder.prototype = new EventEmitter();
-        $.extend(TlkeTestBuilder.prototype, {
+        extend(TlkeTestBuilder.prototype, {
             build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
-                var route = this.route = new Route();
+                var route = this.route = new Router();
 
                 route.on("packet", tlke.processPacket, tlke);
                 route.on("networkPacket", this.on_sendPacket, this);
