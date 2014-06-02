@@ -13,10 +13,6 @@ define(function (require, exports, module) {
             }
             this.serializer.listen(obj);
             return obj;
-        },
-
-        contsruct: function (Constructor) {
-            return this._observed(new Constructor(this));
         }
     };
 });

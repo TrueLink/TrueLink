@@ -7,13 +7,10 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
 
-    function Dialog(factory, profile) {
-        invariant(factory, "Can be constructed only with factory");
-        invariant(profile, "Can i haz profile?");
-        this.factory = factory;
+    function Dialog() {
         this._defineEvent("changed");
-        this.profile = profile;
 
+        this.profile = null;
         this.name = null;
         this.fields = {};
         this.messages = [];
@@ -21,6 +18,9 @@ define(function (require, exports, module) {
     }
 
     extend(Dialog.prototype, eventEmitter, serializable, model, {
+        setProfile: function (profile) {
+            this.profile = profile;
+        },
         serialize: function (packet, context) {
             packet.setData({
                 name: this.name,
@@ -29,6 +29,7 @@ define(function (require, exports, module) {
             packet.setLink("contacts", context.getPacket(this.contacts));
         },
         deserialize: function (packet, context) {
+            this.checkFactory();
             var data = packet.getData();
             var factory = this.factory;
             this.name = data.name;

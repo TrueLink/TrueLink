@@ -1,6 +1,8 @@
 define(function (require, exports, module) {
     "use strict";
 
+    var invariant = require("modules/invariant");
+
     module.exports = {
         isModel: true,
         onChanged: function () { this.fire("changed", this); },
@@ -20,6 +22,12 @@ define(function (require, exports, module) {
         get: function (name) { return this[name]; },
         serializationNeeded: function () {
             return !this.getMeta() || !this.getMeta().id;
+        },
+        setFactory: function (factory) {
+            this.factory = factory;
+        },
+        checkFactory: function () {
+            invariant(this.factory, "factory is not set");
         }
     };
 });

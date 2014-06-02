@@ -19,6 +19,7 @@ define(function (require, exports, module) {
     ContactsPageModel.prototype = new PageModel();
 
     extend(ContactsPageModel.prototype, eventEmitter, serializable, model, {
+        constructor: ContactsPageModel,
         serialize: function (packet, context) {
             this._serializeModel(packet, context);
         },

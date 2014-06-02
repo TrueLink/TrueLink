@@ -6,22 +6,20 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
 
-    var App = require("models/App");
     var PageModel = require("./PageModel");
+    var Profile = require("models/Profile");
 
-
-    function HomePageModel(factory) {
+    function DocumentsPageModel(factory) {
         invariant(factory, "Can be constructed only with factory");
         this.factory = factory;
-        this.accepts = App;
+        this.accepts = Profile;
         this._defineEvent("changed");
-
     }
 
-    HomePageModel.prototype = new PageModel();
+    DocumentsPageModel.prototype = new PageModel();
 
-    extend(HomePageModel.prototype, eventEmitter, serializable, model, {
-        constructor: HomePageModel,
+    extend(DocumentsPageModel.prototype, eventEmitter, serializable, model, {
+        constructor: DocumentsPageModel,
         serialize: function (packet, context) {
             this._serializeModel(packet, context);
         },
@@ -29,13 +27,9 @@ define(function (require, exports, module) {
             var factory = this.factory;
             var data = packet.getData();
             this._deserializeModel(packet, context);
-        },
-
-        setCurrentProfile: function (profile) {
-            this.model.setCurrentProfile(profile);
         }
 
     });
 
-    module.exports = HomePageModel;
+    module.exports = DocumentsPageModel;
 });

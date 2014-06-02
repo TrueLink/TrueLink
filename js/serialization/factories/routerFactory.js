@@ -52,6 +52,9 @@ define(function (require, exports, module) {
             return found.key;
         },
 
+        construct: function (Constructor) {
+            return this._observed(new Constructor(this));
+        },
 
         shoudBeDeserialized: function () {
             throw new Error("All needed instances must be deserialized before router deserialization");

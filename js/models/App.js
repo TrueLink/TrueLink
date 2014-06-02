@@ -10,9 +10,7 @@ define(function (require, exports, module) {
 
     var maxBgIndex = 3;
 
-    function Application(factory) {
-        invariant(factory, "Can be constructed only with factory");
-        this.factory = factory;
+    function Application() {
         this._defineEvent("changed");
         this.fixedId = Application.id;
         this.transport = null;
@@ -25,7 +23,6 @@ define(function (require, exports, module) {
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
-            //console.log("serializing App");
             packet.setData({});
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("profiles", context.getPacket(this.profiles));
@@ -35,46 +32,64 @@ define(function (require, exports, module) {
 
         },
         deserialize: function (packet, context) {
-            console.log("deserializing App");
+            this.checkFactory();
             var factory = this.factory;
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
-            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory, this));
-            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory, this));
+            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
+            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
 
             try {
-                this.menu = context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory, this));
+                this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory)));
             } catch (ex) {
-                this.menu = this._createMentu();
+                console.error(ex);
+                this.setMenu(this.factory.createMenu());
             }
 
             try {
-                this.router = context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory));
-                this.router.on("changed", this.onChanged, this);
+                this.setRouter(context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory)));
             } catch (ex) {
-                this.router = this._createRouter();
+                console.error(ex);
+                this.setRouter(this.factory.createRouter());
+                this.router.navigate("home", this);
             }
 
         },
 
-        _createRouter: function () {
-            var router = this.factory.createRouter();
-            router.on("changed", this.onChanged, this);
-            router.navigate("home", this);
-            return router;
+
+        setMenu: function (menu) {
+            if (this.menu) {
+                this.menu.off("currentProfileChanged", this.setCurrentProfile, this);
+                this.menu.off("addProfile", this.addProfile, this);
+            }
+
+            if (menu) {
+                menu.on("currentProfileChanged", this.setCurrentProfile, this);
+                menu.on("addProfile", this.addProfile, this);
+            }
+
+            this.menu = menu;
         },
 
-        _createMentu: function () {
-            return this.factory.createMenu(this);
+        setRouter: function (router) {
+            if (this.router) {
+                this.router.off("changed", this.onChanged, this);
+            }
+            if (router) {
+                router.on("changed", this.onChanged, this);
+            }
+            this.router = router;
         },
 
         init: function () {
+            this.checkFactory();
             console.log("app init");
             this.transport = this.factory.createTransport();
             this.transport.init();
 
-            this.menu = this._createMentu();
-            this.router = this._createRouter();
+            this.setMenu(this.factory.createMenu());
+            this.setRouter(this.factory.createRouter());
             this.addProfile();
+            this.router.navigate("home", this);
         },
 
         getProfiles: function () {

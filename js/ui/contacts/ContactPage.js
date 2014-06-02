@@ -7,7 +7,9 @@ define(function (require, exports, module) {
             return this._getState();
         },
         _getState: function () {
-            var model = this.props.model;
+            var pageModel = this.props.model;
+            var model = pageModel.model;
+
             return {
                 contact: model,
                 tlConnectionState: model.tlConnection.tlkeBuilder ?

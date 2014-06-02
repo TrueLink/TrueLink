@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var Profile = require("models/Profile");
 
     var ProfileFactory = require("./profileFactory");
+    var RouterFactory = require("./routerFactory");
 
     function AppFactory(serializer) {
         invariant(serializer, "Can i haz serializer?");
@@ -31,24 +32,10 @@ define(function (require, exports, module) {
         },
         createProfile: function () {
             invariant(this.app, "app is not set");
-            var profile = new Profile(this);
-            profile.factory = this.createProfileFactory(profile);
-            profile.app = this.app;
+            var profile = new Profile();
+            profile.setFactory(this.createProfileFactory(profile));
+            profile.setApp(this.app);
             return this._observed(profile);
-        },
-
-
-        construct: function (Constructor) {
-            if (Constructor === CouchTransport) {
-                return this.createTransport();
-            }
-            if (Constructor === Router) {
-                return this.createRouter();
-            }
-            if (Constructor === Random) {
-                return this.createRandom();
-            }
-            return this._observed(new Constructor(this));
         },
 
         createTransport: function () {
@@ -58,9 +45,16 @@ define(function (require, exports, module) {
             return this.transport;
         },
 
+        createRouterFactory: function (router) {
+            var routerFactory = new RouterFactory(this.serializer);
+            routerFactory.setRouter(router);
+            return routerFactory;
+        },
         createRouter: function () {
             if (!this.router) {
-                this.router = this._observed(new Router(this));
+                var router = new Router(this);
+                router.setFactory(this.createRouterFactory(router));
+                this.router = this._observed(router);
             }
             return this.router;
         },
@@ -74,7 +68,10 @@ define(function (require, exports, module) {
 
         createMenu: function () {
             invariant(this.app, "app is not set");
-            return this._observed(new Menu(this, this.app));
+            var menu = new Menu();
+            menu.setFactory(this);
+            menu.setApp(this.app);
+            return this._observed(menu);
         }
     });
 

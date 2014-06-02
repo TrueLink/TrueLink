@@ -7,19 +7,19 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
     var PageModel = require("./PageModel");
-    var Profile = require("models/Profile");
     var Contact = require("models/Contact");
 
     function ContactPageModel(factory) {
         invariant(factory, "Can be constructed only with factory");
         this.factory = factory;
-        this.accepts = Profile;
+        this.accepts = Contact;
         this._defineEvent("changed");
     }
 
     ContactPageModel.prototype = new PageModel();
 
     extend(ContactPageModel.prototype, eventEmitter, serializable, model, {
+        constructor: ContactPageModel,
         serialize: function (packet, context) {
             this._serializeModel(packet, context);
         },

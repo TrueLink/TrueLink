@@ -10,6 +10,10 @@ define(function (require, exports, module) {
     var HomePageModel = require("models/pages/HomePageModel");
     var ContactsPage = require("ui/contacts/ContactsPage");
     var ContactsPageModel = require("models/pages/ContactsPageModel");
+    var DialogsPage = require("ui/dialogs/DialogsPage");
+    var DialogsPageModel = require("models/pages/DialogsPageModel");
+    var DocumentsPage = require("ui/documents/DocumentsPage");
+    var DocumentsPageModel = require("models/pages/DocumentsPageModel");
 
     var pages = {
         "home": {
@@ -19,16 +23,18 @@ define(function (require, exports, module) {
         "contacts": {
             view: ContactsPage,
             model: ContactsPageModel
+        },
+        "dialogs": {
+            view: DialogsPage,
+            model: DialogsPageModel
+        },
+        "documents": {
+            view: DocumentsPage,
+            model: DocumentsPageModel
         }
-//        "contact" : require("ui/contacts/ContactPage"),
-//        "dialogs" : require("ui/dialogs/DialogsPage"),
-//        "documents" : require("ui/documents/DocumentsPage"),
-//        "profile" : require("ui/profile/ProfilePage")
     };
 
-    function Router(factory) {
-        invariant(factory, "Can be constructed only with factory");
-        this.factory = factory;
+    function Router() {
         this._defineEvent("changed");
         this.currentPage = null;
         this.currentPageName = null;
@@ -38,7 +44,6 @@ define(function (require, exports, module) {
     extend(Router.prototype, eventEmitter, serializable, model, {
 
         serialize: function (packet, context) {
-            //console.log("serialize Router");
             packet.setData({
                 pageName: this.currentPageName
             });
@@ -47,22 +52,21 @@ define(function (require, exports, module) {
                     modelType: this.factory.getTypeData(this.currentPageModel)
                 });
             }
-            packet.setLink("model", context.getPacket(this.currentPageModel));
+            packet.setLink("pageModel", context.getPacket(this.currentPageModel));
         },
         deserialize: function (packet, context) {
-            //console.log("deserialize Router");
             var data = packet.getData();
             this.currentPageName = data.pageName;
             var factory = this.factory;
 
             var modelConstructor = factory.getConstructor(data.modelType);
-            this.currentPageModel = context.deserialize(packet.getLink("model"), modelConstructor.bind(factory));
+            this.currentPageModel = context.deserialize(packet.getLink("pageModel"), modelConstructor.bind(factory));
             this.currentPage = this._createPageView(this.currentPageName, this.currentPageModel);
         },
 
         navigate: function (pageName, model) {
             try {
-                if (this.currentPageName === pageName && this.currentPageModel.model === model) {
+                if (this.currentPageName === pageName && this.currentPageModel && this.currentPageModel.model === model) {
                     return;
                 }
                 this.currentPageModel = this._createPageModel(pageName, model);

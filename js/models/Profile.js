@@ -7,9 +7,7 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
 
-    function Profile(factory) {
-        invariant(factory, "Can be constructed only with factory");
-        this.factory = factory;
+    function Profile() {
         this._defineEvent("changed");
 
         this.app = null;
@@ -21,25 +19,24 @@ define(function (require, exports, module) {
     }
 
     extend(Profile.prototype, eventEmitter, serializable, model, {
+        // called by factory
+        setApp: function (app) {
+            this.app = app;
+        },
         serialize: function (packet, context) {
-            //console.log("serializing Profile");
             packet.setData({
                 name: this.name,
                 bg: this.bg,
                 pollingUrl: this.pollingUrl
             });
 
-            packet.setLink("app", context.getPacket(this.app));
             packet.setLink("documents", context.getPacket(this.documents));
             packet.setLink("contacts", context.getPacket(this.contacts));
             packet.setLink("dialogs", context.getPacket(this.dialogs));
         },
         deserialize: function (packet, context) {
-            //console.log("deserializing Profile");
+            this.checkFactory();
             var factory = this.factory;
-            this.app = context.deserialize(packet.getLink("app"), factory.createApp.bind(factory));
-            factory = this.factory = this.factory.createProfileFactory(this);
-
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
@@ -50,6 +47,7 @@ define(function (require, exports, module) {
 
         },
         createDocument: function () {
+            this.checkFactory();
             var document = this.factory.createDocument();
             document.set({
                 name: urandom.animal()
@@ -59,8 +57,8 @@ define(function (require, exports, module) {
             return document;
         },
         createContact: function () {
+            this.checkFactory();
             var contact = this.factory.createContact(this);
-            contact.init();
             contact.set("name", urandom.name());
             this.contacts.push(contact);
             this.onChanged();
@@ -78,6 +76,7 @@ define(function (require, exports, module) {
         },
 
         startDirectDialog: function (contact) {
+            this.checkFactory();
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
                 dialog = this.factory.createDialog();

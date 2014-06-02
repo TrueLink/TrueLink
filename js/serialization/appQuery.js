@@ -28,7 +28,9 @@ define(function (require, exports, module) {
         transport: {},
         random: {},
         router: {
-            model: {}
+            pageModel: {
+                model: {}
+            }
         }
     };
 });

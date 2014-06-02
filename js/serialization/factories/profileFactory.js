@@ -22,31 +22,24 @@ define(function (require, exports, module) {
         },
         createContact: function () {
             invariant(this.profile, "profile is not set");
-            var contact = new Contact(this);
-            contact.profile = this.profile;
+            var contact = new Contact();
+            contact.setProfile(this.profile);
+            contact.setFactory(this);
             return this._observed(contact);
         },
         createDialog: function () {
             invariant(this.profile, "profile is not set");
-            var dialog = new Dialog(this);
-            dialog.profile = this.profile;
+            var dialog = new Dialog();
+            dialog.setProfile(this.profile);
+            dialog.setFactory(this);
             return this._observed(dialog);
         },
         createDocument: function () {
             invariant(this.profile, "profile is not set");
-            var document = new Document(this);
-            document.profile = this.profile;
+            var document = new Document();
+            document.setProfile(this.profile);
+            document.setFactory(this);
             return this._observed(document);
-        },
-
-        createContactFactory: function (contact) {
-            return this;
-        },
-        createDialogFactory: function (dialog) {
-            return this;
-        },
-        createDocumentFactory: function (document) {
-            return this;
         }
 
 
