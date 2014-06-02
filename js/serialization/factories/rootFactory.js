@@ -17,7 +17,7 @@ define(function (require, exports, module) {
             var appFactory = new AppFactory(this.serializer);
             var app = new App(appFactory);
             appFactory.setApp(app);
-            return app;
+            return this._observed(app);
         },
         createAppFactory: function (app) {
             var factory = new AppFactory(this.serializer);
