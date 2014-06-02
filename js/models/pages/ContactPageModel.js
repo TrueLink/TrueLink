@@ -26,7 +26,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             var factory = this.factory;
             var data = packet.getData();
-            this._deserializeModel(packet, context, factory.createProfile.bind(factory));
+            this._deserializeModel(packet, context);
         }
 
     });

@@ -37,7 +37,7 @@ define(function (require, exports, module) {
             return this._observed(profile);
         },
 
-        // override to use singletons
+
         construct: function (Constructor) {
             if (Constructor === CouchTransport) {
                 return this.createTransport();
@@ -48,6 +48,7 @@ define(function (require, exports, module) {
             if (Constructor === Random) {
                 return this.createRandom();
             }
+            return this._observed(new Constructor(this));
         },
 
         createTransport: function () {

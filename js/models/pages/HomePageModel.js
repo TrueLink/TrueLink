@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
     var App = require("models/App");
+    var PageModel = require("./PageModel");
 
 
     function HomePageModel(factory) {
@@ -17,6 +18,8 @@ define(function (require, exports, module) {
 
     }
 
+    HomePageModel.prototype = new PageModel();
+
     extend(HomePageModel.prototype, eventEmitter, serializable, model, {
         serialize: function (packet, context) {
             this._serializeModel(packet, context);
@@ -24,7 +27,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             var factory = this.factory;
             var data = packet.getData();
-            this._deserializeModel(packet, context, factory.createApp.bind(factory));
+            this._deserializeModel(packet, context);
         }
 
     });

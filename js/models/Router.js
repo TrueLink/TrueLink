@@ -92,7 +92,8 @@ define(function (require, exports, module) {
             var constructors = pages[pageName];
             invariant(constructors, "Page %s is not registered", pageName);
             var pageModel = this.factory.construct(constructors.model);
-            model.setModel(model)
+            pageModel.setModel(model);
+            return pageModel;
         }
     });
 

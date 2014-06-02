@@ -53,28 +53,9 @@ define(function (require, exports, module) {
         },
 
 
-        createApp: function () {
-            return this.serializer.createApp();
-        },
-
-        // only for deserialization purposes!
-        createProfile: function () {
-            return this._observed(new Profile(this));
-        },
-
-        // only for deserialization purposes!
-        createContact: function () {
-            return this._observed(new Contact(this));
-        },
-        // only for deserialization purposes!
-        createDialog: function () {
-            return this._observed(new Dialog(this));
-        },
-        // only for deserialization purposes!
-        createDocument: function () {
-            return this._observed(new Document(this));
+        shoudBeDeserialized: function () {
+            throw new Error("All needed instances must be deserialized before router deserialization");
         }
-
 
     });
 

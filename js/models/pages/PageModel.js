@@ -11,9 +11,9 @@ define(function (require, exports, module) {
             invariant(model instanceof this.accepts, "model is not instanceof %s", this.accepts);
             this.model = model;
         },
-        _deserializeModel: function (packet, context, constructor) {
+        _deserializeModel: function (packet, context) {
             var factory = this.factory;
-            this.model = context.deserialize(packet.getLink("model"), constructor);
+            this.model = context.deserialize(packet.getLink("model"), factory.shoudBeDeserialized.bind(factory));
         },
         _serializeModel: function (packet, context) {
             packet.setLink("model", context.getPacket(this.model));

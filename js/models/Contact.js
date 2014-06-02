@@ -27,7 +27,7 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.profile = context.deserialize(packet.getLink("profile"), factory.createProfile.bind(factory));
-            this.factory = this.profile.factory.createContactFactory(this);
+            this.factory = this.factory.createContactFactory(this);
         },
         init: function () {
 
