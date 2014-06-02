@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var Tlke = require("modules/channels/tlke");
     var TlkeBuilder = require("modules/channels/TlkeBuilder");
     var Transport =  require("modules/channels/TestTransport");
-    var Router = require("models/Router");
+    var Route = require("modules/channels/Route");
     var extend = require("extend");
 
     var logfunc = function() {
@@ -28,7 +28,7 @@ define(function (require, exports, module) {
             build: function () {
                 var tlke = this.tlke = new Tlke();
                 tlke.setRng(random);
-                var route = this.route = new Router();
+                var route = this.route = new Route();
 
                 route.on("packet", tlke.processPacket, tlke);
                 route.on("networkPacket", this.on_sendPacket, this);
