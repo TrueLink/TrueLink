@@ -14,6 +14,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this.fixedId = Application.id;
         this.transport = null;
+        this.random = null;
         this.menu = null;
         this.profiles = [];
         this.currentProfile = null;
@@ -29,12 +30,14 @@ define(function (require, exports, module) {
             packet.setLink("currentProfile", context.getPacket(this.currentProfile));
             packet.setLink("menu", context.getPacket(this.menu));
             packet.setLink("router", context.getPacket(this.router));
+            packet.setLink("random", context.getPacket(this.random));
 
         },
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this.factory;
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
+            this.random = context.deserialize(packet.getLink("random"), factory.createRandom.bind(factory));
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
 
@@ -85,11 +88,13 @@ define(function (require, exports, module) {
             console.log("app init");
             this.transport = this.factory.createTransport();
             this.transport.init();
+            this.random = this.factory.createRandom();
 
             this.setMenu(this.factory.createMenu());
             this.setRouter(this.factory.createRouter());
             this.addProfile();
             this.router.navigate("home", this);
+
         },
 
         getProfiles: function () {
