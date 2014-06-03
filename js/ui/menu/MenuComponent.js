@@ -28,6 +28,13 @@ define(function (require, exports, module) {
                 "Profile settings": {
                     handler: router.createNavigateHandler("profile", currentProfile),
                     className: "menu-item secondary"
+                },
+                "Clear storage (temp)": {
+                    handler: function () {
+                        fakeDb.clear();
+                        location.reload(true);
+                    },
+                    className: "menu-item secondary"
                 }
             };
         },
