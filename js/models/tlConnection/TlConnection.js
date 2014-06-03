@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
+    var Hex = require("modules/multivalue/hex");
 
 
     function TlConnection() {
@@ -20,6 +21,10 @@ define(function (require, exports, module) {
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
         serialize: function (packet, context) {
 
+            packet.setData({
+                offer: this.offer ? this.offer.as(Hex).serialize() : null,
+                auth: this.auth ? this.auth.as(Hex).serialize() : null
+            });
             packet.setLink("tlkeBuilder", context.getPacket(this.tlkeBuilder));
             packet.setLink("tlhtBuilder", context.getPacket(this.tlhtBuilder));
 
@@ -28,6 +33,9 @@ define(function (require, exports, module) {
             this.checkFactory();
             var factory = this.factory;
             var data = packet.getData();
+
+            this.offer = data.offer ? Hex.deserialize(data.offer) : null;
+            this.auth = data.auth ? Hex.deserialize(data.auth) : null;
 
             this.tlkeBuilder = context.deserialize(packet.getLink("tlkeBuilder"), factory.createTlkeBuilder.bind(factory));
             this.tlhtBuilder = context.deserialize(packet.getLink("tlhtBuilder"), factory.createTlhtBuilder.bind(factory));
@@ -89,6 +97,20 @@ define(function (require, exports, module) {
             this.tlkeBuilder.generate();
         },
 
+        getTlkeState: function () {
+            return this.tlkeBuilder ? this.tlkeBuilder.getTlkeState() : null;
+        },
+
+        enterOffer: function (offer) {
+            if (!this.tlkeBuilder) {
+                this.tlkeBuilder = this.factory.createTlkeBuilder();
+                this.tlkeBuilder.build();
+                this.tlhtBuilder = this.factory.createTlhtBuilder();
+                this.link();
+                this.tlkeBuilder.enterOffer(offer);
+            }
+        },
+
         abortTlke: function () {
             this.unlink();
             if (this.tlkeBuilder) {
@@ -99,6 +121,8 @@ define(function (require, exports, module) {
                 this.tlhtBuilder.destroy();
                 this.tlhtBuilder = null;
             }
+            this.offer = null;
+            this.auth = null;
             this.onChanged();
         },
 

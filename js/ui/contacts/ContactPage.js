@@ -1,6 +1,8 @@
 define(function (require, exports, module) {
     "use strict";
     var React = require("react");
+    var Hex = require("modules/multivalue/hex");
+
     module.exports = React.createClass({
         displayName: "ContactPage",
         getInitialState: function () {
@@ -11,8 +13,9 @@ define(function (require, exports, module) {
             var model = pageModel.model;
             return {
                 contact: model,
-                tlConnectionState: model.tlConnection.tlkeBuilder ?
-                    model.tlConnection.tlkeBuilder.getTlkeState() : null
+                tlConnectionState: model.tlConnection ? model.tlConnection.getTlkeState() : null,
+                offer: model.tlConnection && model.tlConnection.offer ? model.tlConnection.offer.as(Hex).toString() : null,
+                auth: model.tlConnection && model.tlConnection.auth ? model.tlConnection.auth.as(Hex).toString() : null
             };
         },
 
@@ -33,6 +36,11 @@ define(function (require, exports, module) {
                 console.error(ex);
             }
             return false;
+        },
+
+        handleOfferInput: function () {
+            var offer = Hex.fromString(this.refs.offer.getDOMNode().value);
+            this.props.pageModel.model.tlConnection.enterOffer(offer);
         },
 
         _onModelChanged: function () { this.setState(this._getState()); },
@@ -59,13 +67,17 @@ define(function (require, exports, module) {
                     }, "Contact details")),
                 React.DOM.div({className: "app-page-content"},
                     contact.name, " tl state: " + this.state.tlConnectionState,
+                    React.DOM.div(null, "offer: " + this.state.offer),
+                    React.DOM.div(null, "auth: " + this.state.auth),
                     React.DOM.div(null, React.DOM.a({
                         href: "",
                         onClick: this.handleGenerate
-                    }, "generate")), React.DOM.div(null, React.DOM.a({
+                    }, "generate")),
+                    React.DOM.div(null, React.DOM.a({
                         href: "",
                         onClick: this.handleAbort
-                    }, "abort"))
+                    }, "abort")),
+                    React.DOM.div(null, React.DOM.input({ref: "offer"}), React.DOM.button({onClick: this.handleOfferInput}, "accept offer"))
                     ));
         }
     });
