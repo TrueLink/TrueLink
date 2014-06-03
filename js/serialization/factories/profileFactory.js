@@ -1,13 +1,15 @@
 define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
-    var Dictionary = require("modules/dictionary/dictionary");
     var extend = require("extend");
     var prototype = require("./prototype");
 
     var Document = require("models/Document");
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
+
+    var TlConnection = require("models/tlConnection/TlConnection");
+    var TlConnectionFactory = require("./tlConnectionFactory");
 
 
     function ProfileFactory(serializer) {
@@ -40,6 +42,19 @@ define(function (require, exports, module) {
             document.setProfile(this.profile);
             document.setFactory(this);
             return this._observed(document);
+        },
+
+        createTlConnectionFactory: function () {
+            var tlConnectionFactory = new TlConnectionFactory(this.serializer);
+            tlConnectionFactory.setProfile(this.profile);
+            return tlConnectionFactory;
+        },
+
+        createTlConnection: function () {
+            invariant(this.profile, "profile is not set");
+            var tlConnection = new TlConnection();
+            tlConnection.setFactory(this.createTlConnectionFactory());
+            return this._observed(tlConnection);
         }
 
 

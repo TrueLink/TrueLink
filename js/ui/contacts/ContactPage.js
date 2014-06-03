@@ -43,12 +43,12 @@ define(function (require, exports, module) {
 
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () {
-            var contact = this.props.model;
+            var contact = this.props.model.model;
             contact.on("changed", this._onModelChanged, this);
             contact.tlConnection.on("changed", this._onModelChanged, this);
         },
         componentWillUnmount: function () {
-            var contact = this.props.model;
+            var contact = this.props.model.model;
             contact.off("changed", this._onModelChanged, this);
             contact.tlConnection.off("changed", this._onModelChanged, this);
         },

@@ -16,7 +16,7 @@ define(function (require, exports, module) {
         handleAddDialog: function () {
 
             try {
-                var contact = this.props.model.createContact();
+                var contact = this.props.model.model.createContact();
             } catch (ex) {
                 console.error(ex);
             }

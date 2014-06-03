@@ -60,6 +60,7 @@ define(function (require, exports, module) {
             this.checkFactory();
             var contact = this.factory.createContact(this);
             contact.set("name", urandom.name());
+            contact.init();
             this.contacts.push(contact);
             this.onChanged();
             return contact;

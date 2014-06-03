@@ -9,7 +9,9 @@ define(function (require, exports, module) {
     var HomePage = require("ui/home/HomePage");
     var HomePageModel = require("models/pages/HomePageModel");
     var ContactsPage = require("ui/contacts/ContactsPage");
+    var ContactPage = require("ui/contacts/ContactPage");
     var ContactsPageModel = require("models/pages/ContactsPageModel");
+    var ContactPageModel = require("models/pages/ContactPageModel");
     var DialogsPage = require("ui/dialogs/DialogsPage");
     var DialogsPageModel = require("models/pages/DialogsPageModel");
     var DocumentsPage = require("ui/documents/DocumentsPage");
@@ -24,14 +26,31 @@ define(function (require, exports, module) {
             view: ContactsPage,
             model: ContactsPageModel
         },
+
+        "contact": {
+            view: ContactPage,
+            model: ContactPageModel
+        },
+
         "dialogs": {
             view: DialogsPage,
             model: DialogsPageModel
         },
+
+//        "dialog": {
+//            view: DialogsPage,
+//            model: DialogsPageModel
+//        },
+
         "documents": {
             view: DocumentsPage,
             model: DocumentsPageModel
         }
+
+//        "document": {
+//            view: DocumentPage,
+//            model: DocumentPageModel
+//        }
     };
 
     function Router() {

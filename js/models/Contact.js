@@ -11,6 +11,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this.name = null;
         this.profile = null;
+        this.tlConnection = null;
     }
 
     extend(Contact.prototype, eventEmitter, serializable, model, {
@@ -21,13 +22,20 @@ define(function (require, exports, module) {
 
         serialize: function (packet, context) {
             packet.setData({name: this.name});
-
+            packet.setLink("tlConnection", context.getPacket(this.tlConnection));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this.factory;
             var data = packet.getData();
             this.name = data.name;
+            this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection.bind(factory));
+        },
+
+        init: function () {
+            this.checkFactory();
+            this.tlConnection = this.factory.createTlConnection();
+            this.onChanged();
         }
 
     });

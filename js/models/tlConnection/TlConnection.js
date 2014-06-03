@@ -7,12 +7,7 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
 
-    function TlConnection(factory, contact) {
-        invariant(factory, "Can be constructed only with factory");
-        invariant(contact, "Can i haz contact?");
-        this.factory = factory;
-        this.contact = contact;
-        this.profile = contact.profile;
+    function TlConnection() {
         this._defineEvent("changed");
 
         this.tlkeBuilder = null;
@@ -30,6 +25,7 @@ define(function (require, exports, module) {
 
         },
         deserialize: function (packet, context) {
+            this.checkFactory();
             var factory = this.factory;
             var data = packet.getData();
 
@@ -69,8 +65,8 @@ define(function (require, exports, module) {
 
         onBuilderAddrIn: function (addr) {
             // todo may be changed in future
-            var transport = this.factory.createTransport();
-            transport.openAddr(addr, this.profile);
+            //var transport = this.factory.createTransport();
+            //transport.openAddr(addr, this.profile);
         },
 
         onTlkeOffer: function (offer) {
