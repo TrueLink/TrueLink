@@ -7,9 +7,8 @@ define(function (require, exports, module) {
             return this._getState();
         },
         _getState: function () {
-            var pageModel = this.props.model;
+            var pageModel = this.props.pageModel;
             var model = pageModel.model;
-
             return {
                 contact: model,
                 tlConnectionState: model.tlConnection.tlkeBuilder ?
@@ -19,7 +18,7 @@ define(function (require, exports, module) {
 
         handleGenerate: function () {
             try {
-                this.props.model.model.tlConnection.generateOffer();
+                this.props.pageModel.model.tlConnection.generateOffer();
             } catch (ex) {
                 this.handleAbort();
                 console.error(ex);
@@ -29,7 +28,7 @@ define(function (require, exports, module) {
 
         handleAbort: function () {
             try {
-                this.props.model.modeltlConnection.abortTlke();
+                this.props.pageModel.model.tlConnection.abortTlke();
             } catch (ex) {
                 console.error(ex);
             }
@@ -38,12 +37,12 @@ define(function (require, exports, module) {
 
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () {
-            var contact = this.props.model.model;
+            var contact = this.props.pageModel.model;
             contact.on("changed", this._onModelChanged, this);
             contact.tlConnection.on("changed", this._onModelChanged, this);
         },
         componentWillUnmount: function () {
-            var contact = this.props.model.model;
+            var contact = this.props.pageModel.model;
             contact.off("changed", this._onModelChanged, this);
             contact.tlConnection.off("changed", this._onModelChanged, this);
         },

@@ -108,7 +108,7 @@ define(function (require, exports, module) {
         _createPageView: function (pageName, pageModel) {
             var constructors = pages[pageName];
             invariant(constructors, "Page %s is not registered", pageName);
-            return constructors.view({model: pageModel, router: this});
+            return constructors.view({pageModel: pageModel, router: this});
         },
 
         _createPageModel: function (pageName, model) {

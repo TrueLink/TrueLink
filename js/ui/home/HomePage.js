@@ -7,7 +7,7 @@ define(function (require, exports, module) {
             return this._getState();
         },
         _getState: function () {
-            var pageModel = this.props.model;
+            var pageModel = this.props.pageModel;
             var model = pageModel.model;
             return {
                 profiles: model.profiles,
@@ -15,11 +15,11 @@ define(function (require, exports, module) {
             };
         },
         _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged, this); },
+        componentDidMount: function () { this.props.pageModel.on("changed", this._onModelChanged, this); },
+        componentWillUnmount: function () { this.props.pageModel.off("changed", this._onModelChanged, this); },
         render: function () {
             var profileComponents = {};
-            var model = this.props.model;
+            var model = this.props.pageModel.model;
             this.state.profiles.forEach(function (p) {
                 profileComponents[p.name] = React.DOM.li({
                     onClick: model.setCurrentProfile.bind(model, p),

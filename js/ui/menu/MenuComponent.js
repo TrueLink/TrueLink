@@ -9,6 +9,7 @@ define(function (require, exports, module) {
         },
 
         getMenuItems: function () {
+            // model is Menu here (menu is not like pages)
             var model = this.props.model;
             var router = this.props.router;
             var currentProfile = model.app.currentProfile;

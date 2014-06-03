@@ -7,7 +7,7 @@ define(function (require, exports, module) {
             return this._getState();
         },
         _getState: function () {
-            var model = this.props.model;
+            var model = this.props.pageModel.model;
             return {
                 profile: model
             };
