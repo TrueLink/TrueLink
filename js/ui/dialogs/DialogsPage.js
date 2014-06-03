@@ -16,7 +16,7 @@ define(function (require, exports, module) {
         },
         handleStartDialog: function () {
             var props = this.props;
-            props.router.navigate("contacts", props.model);
+            props.router.navigate("contacts", props.model.model);
             return false;
         },
         _onModelChanged: function () { this.setState(this._getState()); },

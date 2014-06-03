@@ -7,15 +7,15 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
 
     var HomePage = require("ui/home/HomePage");
-    var HomePageModel = require("models/pages/HomePageModel");
+    var HomePageModel = require("models/pageModels/HomePageModel");
     var ContactsPage = require("ui/contacts/ContactsPage");
     var ContactPage = require("ui/contacts/ContactPage");
-    var ContactsPageModel = require("models/pages/ContactsPageModel");
-    var ContactPageModel = require("models/pages/ContactPageModel");
+    var ContactsPageModel = require("models/pageModels/ContactsPageModel");
+    var ContactPageModel = require("models/pageModels/ContactPageModel");
     var DialogsPage = require("ui/dialogs/DialogsPage");
-    var DialogsPageModel = require("models/pages/DialogsPageModel");
+    var DialogsPageModel = require("models/pageModels/DialogsPageModel");
     var DocumentsPage = require("ui/documents/DocumentsPage");
-    var DocumentsPageModel = require("models/pages/DocumentsPageModel");
+    var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
 
     var pages = {
         "home": {

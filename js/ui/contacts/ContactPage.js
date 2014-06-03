@@ -16,15 +16,10 @@ define(function (require, exports, module) {
                     model.tlConnection.tlkeBuilder.getTlkeState() : null
             };
         },
-        handleAddDialog: function () {
-            var contact = this.props.model.createContact();
-            //this.props.router
-            return false;
-        },
 
         handleGenerate: function () {
             try {
-                this.props.model.tlConnection.generateOffer();
+                this.props.model.model.tlConnection.generateOffer();
             } catch (ex) {
                 this.handleAbort();
                 console.error(ex);
@@ -34,7 +29,7 @@ define(function (require, exports, module) {
 
         handleAbort: function () {
             try {
-                this.props.model.tlConnection.abortTlke();
+                this.props.model.modeltlConnection.abortTlke();
             } catch (ex) {
                 console.error(ex);
             }

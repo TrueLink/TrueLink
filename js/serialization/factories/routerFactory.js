@@ -5,13 +5,13 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var prototype = require("./prototype");
 
-    var HomePageModel = require("models/pages/HomePageModel");
-    var ContactsPageModel = require("models/pages/ContactsPageModel");
-    var ContactPageModel = require("models/pages/ContactPageModel");
-    var DialogsPageModel = require("models/pages/DialogsPageModel");
-    var DialogPageModel = require("models/pages/DialogPageModel");
-    var DocumentsPageModel = require("models/pages/DocumentsPageModel");
-    var DocumentPageModel = require("models/pages/DocumentPageModel");
+    var HomePageModel = require("models/pageModels/HomePageModel");
+    var ContactsPageModel = require("models/pageModels/ContactsPageModel");
+    var ContactPageModel = require("models/pageModels/ContactPageModel");
+    var DialogsPageModel = require("models/pageModels/DialogsPageModel");
+    var DialogPageModel = require("models/pageModels/DialogPageModel");
+    var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
+    var DocumentPageModel = require("models/pageModels/DocumentPageModel");
 
     var Profile = require("models/Profile");
     var Contact = require("models/Contact");
