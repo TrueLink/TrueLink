@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
     var Hex = require("modules/multivalue/hex");
+    var Tlke = require("modules/channels/Tlke");
 
 
     function TlConnection() {
@@ -16,6 +17,7 @@ define(function (require, exports, module) {
         this.tlecBuilders = [];
         this.offer = null;
         this.auth = null;
+        this.status = null;
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
@@ -50,7 +52,7 @@ define(function (require, exports, module) {
                 this.tlkeBuilder.on("offer", this.onTlkeOffer, this);
                 this.tlkeBuilder.on("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.on("done", this.tlhtBuilder.build, this.tlhtBuilder);
-                this.tlkeBuilder.on("changed", this.onChanged, this);
+                this.tlkeBuilder.on("changed", this.onTlkeBuilderChanged, this);
                 this.tlhtBuilder.on("done", this.onTlhtDone, this);
             }
 
@@ -61,7 +63,7 @@ define(function (require, exports, module) {
                 this.tlkeBuilder.off("offer", this.onTlkeOffer, this);
                 this.tlkeBuilder.off("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.off("done", this.tlhtBuilder.build, this.tlhtBuilder);
-                this.tlkeBuilder.on("changed", this.onChanged, this);
+                this.tlkeBuilder.on("changed", this.onTlkeBuilderChanged, this);
                 this.tlhtBuilder.off("done", this.onTlhtDone, this);
 
             }
@@ -69,11 +71,11 @@ define(function (require, exports, module) {
 
         onTlkeOffer: function (offer) {
             this.offer = offer;
-            this._onChanged();
+            this.onChanged();
         },
         onTlkeAuth: function (auth) {
             this.auth = auth;
-            this._onChanged();
+            this.onChanged();
         },
 
         generateOffer: function () {
@@ -85,10 +87,6 @@ define(function (require, exports, module) {
             this.tlhtBuilder = this.factory.createTlhtBuilder();
             this.link();
             this.tlkeBuilder.generate();
-        },
-
-        getTlkeState: function () {
-            return this.tlkeBuilder ? this.tlkeBuilder.getTlkeState() : null;
         },
 
         enterOffer: function (offer) {
@@ -119,24 +117,48 @@ define(function (require, exports, module) {
             }
             this.offer = null;
             this.auth = null;
+            this.status = TlConnection.STATUS_NOT_STARTED;
+
+            this.onChanged();
+        },
+
+        onTlkeBuilderChanged: function () {
+            switch (this.tlkeBuilder.getTlkeState()) {
+            case Tlke.STATE_AWAITING_OFFER_RESPONSE:
+                this.status = TlConnection.STATUS_OFFER_GENERATED;
+                break;
+            case Tlke.STATE_AWAITING_AUTH:
+                this.status = TlConnection.STATUS_AUTH_NEEDED;
+                break;
+            }
             this.onChanged();
         },
 
         onTlhtDone: function (result) {
             console.info("TLHT done! ", result);
+            this.status = TlConnection.STATUS_ESTABLISHED;
+            this.onChanged();
 //            var tlecBuilder = this.factory.createTlecBuilder();
         },
 
         init: function () {
-        },
-
-        _onChanged: function () {
-            this.fire("changed", this);
+            this.status = TlConnection.STATUS_NOT_STARTED;
         }
 
     });
 
+//    Start - Offer generated - Auth generated - ht exchange - done
+//    Start - Offer accepted - Auth needed - ht exchange - done
     TlConnection.STATUS_NOT_STARTED = 0;
+
+    TlConnection.STATUS_OFFER_GENERATED = 1;
+    TlConnection.STATUS_AUTH_GENERATED = 2;
+    TlConnection.STATUS_HT_EXCHANGE = 3;
+
+    TlConnection.STATUS_OFFER_ACCEPTED = 4;
+    TlConnection.STATUS_AUTH_NEEDED = 5;
+
+    TlConnection.STATUS_ESTABLISHED = 10;
 
     module.exports = TlConnection;
 });
