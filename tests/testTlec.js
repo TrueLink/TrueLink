@@ -1,19 +1,11 @@
-define([
-    "tools/random",
-    "modules/data-types/Hex",
-    "modules/channels/EventEmitter",
-    "modules/channels/tlke",
-    "modules/channels/tlkeBuilder",
-    "modules/channels/tlht",
-    "modules/channels/tlhtBuilder",
-    "modules/channels/tlec",
-    "modules/channels/tlecBuilder",
-    "modules/channels/overTlecBuilder",
-    "modules/channels/TestTransport",
-    "modules/channels/Route",
-    "modules/data-types/utf8string",
-    "zepto"
-], function (random, Hex, EventEmitter, Tlke, TlkeBuilder, Tlht, TlhtBuilder, Tlec, TlecBuilder, OverTlecBuilder, Transport, Route, Utf8String, $) {
+define(function (require, exports, module) {
+    "use strict";
+    var utils = require("converters/all");
+    var Hex = require("modules/multivalue/hex");
+    var Utf8String = require("modules/multivalue/utf8string");
+    var EventEmitter = require("modules/events/eventEmitter");
+    var extend = require("extend");
+    var utils = require("./utils");
 
     var logfunc = function() {
         var args = [this.name].concat(arguments);
@@ -22,15 +14,14 @@ define([
 
     describe("True Link Encrypted Channel", function () {
 
-        describe("with builder", function () {
-            beforeEach(function () {
-                var transport = this.transport = new Transport();
-                var aliceTlke = this.aliceTlke = new TlkeBuilder(transport, random);
-                var bobTlke = this.bobTlke = new TlkeBuilder(transport, random);
-                var aliceTlth = this.aliceTlth = new TlhtBuilder(transport, random);
-                var bobTlht = this.bobTlht = new TlhtBuilder(transport, random);
-                var aliceTlec = this.aliceTlec = new TlecBuilder(transport, random);
-                var bobTlec = this.bobTlec = new TlecBuilder(transport, random);
+        xdescribe("with builder", function () {
+            beforeEach(function (done) {
+                var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
+                var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
+                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
+                var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
+                var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
+                var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
                 aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
@@ -41,12 +32,19 @@ define([
                 aliceTlth.on("done", aliceTlec.build, aliceTlec);
                 bobTlht.on("done", bobTlec.build, bobTlec);
 
+                var results = [];
+                var success = function() {
+                    results.push(this);
+                    if(results.length == 2) done();
+                };
+
                 this.aliceHistory = [];
                 aliceTlec.on("done", function(tlec) {
                     this.aliceTlec = tlec;
                     tlec.on("message", function(bytes) {
                         this.aliceHistory.push(bytes.as(Utf8String).value);
                     }, this);
+                    success();
                 }, this);
                 this.sendMessageFromAlice = function(text) {
                     this.aliceHistory.push(text);
@@ -59,6 +57,7 @@ define([
                     tlec.on("message", function(bytes) {
                         this.bobHistory.push(bytes.as(Utf8String).value);
                     }, this);
+                    success();
                 }, this);
                 this.sendMessageFromBob = function(text) {
                     this.bobHistory.push(text);
@@ -97,13 +96,12 @@ define([
 
         describe("tlec over tlec", function () {
             beforeEach(function () {
-                var transport = this.transport = new Transport();
-                var aliceTlke = this.aliceTlke = new TlkeBuilder(transport, random);
-                var bobTlke = this.bobTlke = new TlkeBuilder(transport, random);
-                var aliceTlth = this.aliceTlth = new TlhtBuilder(transport, random);
-                var bobTlht = this.bobTlht = new TlhtBuilder(transport, random);
-                var aliceTlec = this.aliceTlec = new TlecBuilder(transport, random);
-                var bobTlec = this.bobTlec = new TlecBuilder(transport, random);
+                var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
+                var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
+                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
+                var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
+                var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
+                var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
                 aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
@@ -114,11 +112,16 @@ define([
                 aliceTlth.on("done", aliceTlec.build, aliceTlec);
                 bobTlht.on("done", bobTlec.build, bobTlec);
 
+                var results = [];
+                var success = function() {
+                    results.push(this);
+                    if(results.length == 2) done();
+                };
 
                 this.aliceHistory = [];
                 aliceTlec.on("done", function (tlec) {
                     console.log("alice building over");
-                    var over = new OverTlecBuilder(transport, random);
+                    var over = utils.factory.createOverTlecBuilder();
                     tlec.on("message", function (bytes) {
                         var msg = JSON.parse(bytes.as(Utf8String).value);
                         over.processMessage(msg);
@@ -132,13 +135,14 @@ define([
                         tlec2.on("message", function(bytes) {
                             this.aliceHistory.push(bytes.as(Utf8String).value);
                         }, this);
+                        success();
                     }, this);
                     over.build(false);
                 }, this);
                 this.bobHistory = [];
                 bobTlec.on("done", function (tlec) {
                     console.log("bob building over");
-                    var over = new OverTlecBuilder(transport, random);
+                    var over = utils.factory.createOverTlecBuilder();
                     tlec.on("message", function (bytes) {
                         var msg = JSON.parse(bytes.as(Utf8String).value);
                         over.processMessage(msg);
@@ -152,6 +156,7 @@ define([
                         tlec2.on("message", function(bytes) {
                             this.bobHistory.push(bytes.as(Utf8String).value);
                         }, this);
+                        success();
                     }, this);
                     over.build(true);
                 }, this);

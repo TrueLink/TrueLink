@@ -14,6 +14,7 @@ define(function (require, exports, module) {
     var Random = require("modules/cryptography/random");
 
     function TlConnectionFactory() {
+        this._transport = null;
     }
 
     extend(TlConnectionFactory.prototype, {
@@ -39,7 +40,10 @@ define(function (require, exports, module) {
 
         // temp solution for smoke testing
         createTransport: function () {
-            return new TestTransport();
+            if(!this._transport) {
+                this._transport = new TestTransport();
+            }
+            return this._transport;
         },
 
         createRandom: function () {

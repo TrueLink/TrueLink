@@ -1,19 +1,14 @@
-define([
-    "tools/random",
-    "modules/data-types/Hex",
-    "modules/channels/EventEmitter",
-    "modules/channels/tlke",
-    "modules/channels/tlkeBuilder",
-    "modules/channels/tlht",
-    "modules/channels/tlhtBuilder",
-    "modules/channels/TestTransport",
-    "modules/channels/Route",
-    "zepto"
-], function (random, Hex, EventEmitter, Tlke, TlkeBuilder, Tlht, TlhtBuilder, Transport, Route, $) {
+define(function (require, exports, module) {
+    "use strict";
+    var utils = require("converters/all");
+    var Hex = require("modules/multivalue/hex");
+    var EventEmitter = require("modules/events/eventEmitter");
+    var extend = require("extend");
+    var utils = require("./utils");
 
     var logfunc = function() {
-        var args = [this.name].concat(arguments);
-        //console.log.apply(console, args);
+        var args = [this.name].concat(Array.prototype.slice.call(arguments));
+        console.log.apply(console, args);
     }
 
     describe("True Link Hash Tail Exchange", function () {
@@ -25,13 +20,13 @@ define([
             this._defineEvent("done");
             this.transport = transport;
         }
-        TlkeTestBuilder.prototype = new EventEmitter();
-        $.extend(TlkeTestBuilder.prototype, {
+        $.extend(TlkeTestBuilder.prototype, EventEmitter, {
             build: function () {
-                var tlke = this.tlke = new Tlke();
-                tlke.setRng(random);
-                var route = this.route = new Route();
+                var tlke = this.tlke = utils.factory.createTlke();
+                var route = this.route = utils.factory.createRoute();
                 var transport = this.transport;
+
+                tlke.init();
 
                 route.on("packet", tlke.processPacket, tlke);
                 route.on("networkPacket", transport.sendNetworkPacket, transport);
@@ -85,11 +80,10 @@ define([
             this._defineEvent("done");
             this.transport = transport;
         }
-        TlhtTestBuilder.prototype = new EventEmitter();
-        $.extend(TlhtTestBuilder.prototype, {
+        $.extend(TlhtTestBuilder.prototype, EventEmitter, {
             build: function (args) {
-                var tlht = this.tlht = new Tlht();
-                var route = this.route = new Route();
+                var tlht = this.tlht = utils.factory.createTlht();
+                var route = this.route = utils.factory.createRoute();
                 var transport = this.transport;
 
                 route.on("packet", tlht.processPacket, tlht);
@@ -101,7 +95,6 @@ define([
                 transport.on("networkPacket", route.processNetworkPacket, route);
                 tlht.on("htReady", this.on_htReady, this);
 
-                tlht.setRng(random);
                 tlht.init(args.key);
                 route.setAddr(args);
                 tlht.generate();
@@ -112,23 +105,33 @@ define([
                 this.hashEnd = args.hashEnd;
                 this._log("hashStart", args.hashStart.as(Hex));
                 this._log("hashEnd", args.hashEnd.as(Hex));
+                this.fire("done");
             },
             _log: logfunc
         });
 
         describe("with transport", function () {
-            beforeEach(function () {
-                var transport = this.transport = new Transport();
+            beforeEach(function (done) {
+                var transport = this.transport = utils.factory.createTransport();
                 var aliceTlke = this.aliceTlke = new TlkeTestBuilder("Alice", transport);
                 var bobTlke = this.bobTlke = new TlkeTestBuilder("Bob", transport);
-                var aliceTlth = this.aliceTlth = new TlhtTestBuilder("Alice", transport);
+                var aliceTlht = this.aliceTlth = new TlhtTestBuilder("Alice", transport);
                 var bobTlht = this.bobTlht = new TlhtTestBuilder("Bob", transport);
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
                 aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
 
-                aliceTlke.on("done", aliceTlth.build, aliceTlth);
+                aliceTlke.on("done", aliceTlht.build, aliceTlht);
                 bobTlke.on("done", bobTlht.build, bobTlht);
+
+                var results = [];
+                var success = function() {
+                    results.push(this);
+                    if(results.length == 2) done();
+                };
+
+                aliceTlht.on("done", success, aliceTlht);
+                bobTlht.on("done", success, bobTlht);
 
                 aliceTlke.build();
                 bobTlke.build();
@@ -148,12 +151,11 @@ define([
         });
 
         describe("with builder", function () {
-            beforeEach(function () {
-                var transport = this.transport = new Transport();
-                var aliceTlke = this.aliceTlke = new TlkeBuilder(transport, random);
-                var bobTlke = this.bobTlke = new TlkeBuilder(transport, random);
-                var aliceTlth = this.aliceTlth = new TlhtBuilder(transport, random);
-                var bobTlht = this.bobTlht = new TlhtBuilder(transport, random);
+            beforeEach(function (done) {
+                var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
+                var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
+                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
+                var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
                 aliceTlke.on("auth", function (auth) {
@@ -165,11 +167,19 @@ define([
                 aliceTlke.on("done", aliceTlth.build, aliceTlth);
                 bobTlke.on("done", bobTlht.build, bobTlht);
 
+                var results = [];
+                var success = function() {
+                    results.push(this);
+                    if(results.length == 2) done();
+                };
+
                 aliceTlth.on("done", function(args) {
                     this.aliceResult = args;
+                    success();
                 }, this);
                 bobTlht.on("done", function(args) {
                     this.bobResult = args;
+                    success();
                 }, this);
 
                 aliceTlke.build();
