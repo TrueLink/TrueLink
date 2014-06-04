@@ -48,11 +48,9 @@ define(function (require, exports, module) {
 
             if (this.tlkeBuilder && this.tlhtBuilder) {
                 this.tlkeBuilder.on("offer", this.onTlkeOffer, this);
-                this.tlkeBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.on("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.on("done", this.tlhtBuilder.build, this.tlhtBuilder);
                 this.tlkeBuilder.on("changed", this.onChanged, this);
-                this.tlhtBuilder.on("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.on("done", this.onTlhtDone, this);
             }
 
@@ -61,20 +59,12 @@ define(function (require, exports, module) {
         unlink: function () {
             if (this.tlkeBuilder && this.tlhtBuilder) {
                 this.tlkeBuilder.off("offer", this.onTlkeOffer, this);
-                this.tlkeBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlkeBuilder.off("auth", this.onTlkeAuth, this);
                 this.tlkeBuilder.off("done", this.tlhtBuilder.build, this.tlhtBuilder);
                 this.tlkeBuilder.on("changed", this.onChanged, this);
-                this.tlhtBuilder.off("addrIn", this.onBuilderAddrIn, this);
                 this.tlhtBuilder.off("done", this.onTlhtDone, this);
 
             }
-        },
-
-        onBuilderAddrIn: function (addr) {
-            // todo may be changed in future
-            //var transport = this.factory.createTransport();
-            //transport.openAddr(addr, this.profile);
         },
 
         onTlkeOffer: function (offer) {
@@ -111,6 +101,12 @@ define(function (require, exports, module) {
             }
         },
 
+        enterAuth: function (auth) {
+            if (this.tlkeBuilder) {
+                this.tlkeBuilder.enterAuth(auth);
+            }
+        },
+
         abortTlke: function () {
             this.unlink();
             if (this.tlkeBuilder) {
@@ -127,7 +123,8 @@ define(function (require, exports, module) {
         },
 
         onTlhtDone: function (result) {
-            var tlecBuilder = this.factory.createTlecBuilder();
+            console.info("TLHT done! ", result);
+//            var tlecBuilder = this.factory.createTlecBuilder();
         },
 
         init: function () {

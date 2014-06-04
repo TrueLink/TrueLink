@@ -43,6 +43,11 @@ define(function (require, exports, module) {
             this.props.pageModel.model.tlConnection.enterOffer(offer);
         },
 
+        handleAuthInput: function () {
+            var offer = Hex.fromString(this.refs.auth.getDOMNode().value);
+            this.props.pageModel.model.tlConnection.enterAuth(offer);
+        },
+
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () {
             var contact = this.props.pageModel.model;
@@ -77,8 +82,9 @@ define(function (require, exports, module) {
                         href: "",
                         onClick: this.handleAbort
                     }, "abort")),
-                    React.DOM.div(null, React.DOM.input({ref: "offer"}), React.DOM.button({onClick: this.handleOfferInput}, "accept offer"))
-                    ));
+                    React.DOM.div(null, React.DOM.input({ref: "offer"}), React.DOM.button({onClick: this.handleOfferInput}, "accept offer")),
+                    React.DOM.div(null, React.DOM.input({ref: "auth"}), React.DOM.button({onClick: this.handleAuthInput}, "accept auth"))
+                ));
         }
     });
 });
