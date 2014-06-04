@@ -127,8 +127,20 @@ define(function (require, exports, module) {
             case Tlke.STATE_AWAITING_OFFER_RESPONSE:
                 this.status = TlConnection.STATUS_OFFER_GENERATED;
                 break;
+            case Tlke.STATE_AWAITING_AUTH_RESPONSE:
+                this.status = TlConnection.STATUS_AUTH_GENERATED;
+                break;
             case Tlke.STATE_AWAITING_AUTH:
                 this.status = TlConnection.STATUS_AUTH_NEEDED;
+                break;
+            case Tlke.STATE_AWAITING_AUTHDATA:
+                this.status = TlConnection.STATUS_AUTHDATA_NEEDED;
+                break;
+            case Tlke.STATE_CONNECTION_ESTABLISHED:
+                this.status = TlConnection.STATUS_HT_EXCHANGE;
+                break;
+            case Tlke.STATE_CONNECTION_FAILED:
+                this.status = TlConnection.STATUS_AUTH_ERROR;
                 break;
             }
             this.onChanged();
@@ -147,17 +159,21 @@ define(function (require, exports, module) {
 
     });
 
-//    Start - Offer generated - Auth generated - ht exchange - done
-//    Start - Offer accepted - Auth needed - ht exchange - done
     TlConnection.STATUS_NOT_STARTED = 0;
 
+    // tlke A
     TlConnection.STATUS_OFFER_GENERATED = 1;
     TlConnection.STATUS_AUTH_GENERATED = 2;
-    TlConnection.STATUS_HT_EXCHANGE = 3;
+    TlConnection.STATUS_AUTH_ERROR = -1;
 
-    TlConnection.STATUS_OFFER_ACCEPTED = 4;
+    // tlke B
+    TlConnection.STATUS_AUTHDATA_NEEDED = 4;
     TlConnection.STATUS_AUTH_NEEDED = 5;
 
+    // tlht both
+    TlConnection.STATUS_HT_EXCHANGE = 3;
+
+    // at least one tlec ready
     TlConnection.STATUS_ESTABLISHED = 10;
 
     module.exports = TlConnection;

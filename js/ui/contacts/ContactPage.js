@@ -13,7 +13,7 @@ define(function (require, exports, module) {
             var model = pageModel.model;
             return {
                 contact: model,
-                tlConnectionState: model.tlConnection ? model.tlConnection.getTlkeState() : null,
+                tlConnectionState: model.tlConnection ? model.tlConnection.status : null,
                 offer: model.tlConnection && model.tlConnection.offer ? model.tlConnection.offer.as(Hex).toString() : null,
                 auth: model.tlConnection && model.tlConnection.auth ? model.tlConnection.auth.as(Hex).toString() : null
             };
