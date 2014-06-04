@@ -81,7 +81,7 @@ define(function (require, exports, module) {
             _log: logfunc
         });
 
-        xdescribe("with route short-circuited", function () {
+        describe("with route short-circuited", function () {
             beforeEach(function () {
                 var alice = this.alice = new TlkeTestBuilder("Alice");
                 var bob = this.bob = new TlkeTestBuilder("Bob");
@@ -118,7 +118,7 @@ define(function (require, exports, module) {
             });
         });
 
-        xdescribe("with transport", function () {
+        describe("with transport", function () {
             beforeEach(function () {
                 var transport = this.transport = utils.factory.createTransport();
                 var alice = this.alice = new TlkeTestBuilder("Alice");
@@ -165,7 +165,6 @@ define(function (require, exports, module) {
 
         describe("with real builder", function () {
             beforeEach(function () {
-                var transport = this.transport = utils.factory.createTransport();
                 var alice = this.alice = utils.factory.createTlkeBuilder();
                 var bob = this.bob = utils.factory.createTlkeBuilder();
 
@@ -195,18 +194,18 @@ define(function (require, exports, module) {
                 expect(this.aliceResult.key).not.toBeUndefined();
             });
 
-            xit("bob key is ready", function () {
+            it("bob key is ready", function () {
                 expect(this.bobResult.inId).not.toBeUndefined();
                 expect(this.bobResult.outId).not.toBeUndefined();
                 expect(this.bobResult.key).not.toBeUndefined();
             });
 
-            xit("channel ids matched", function () {
+            it("channel ids matched", function () {
                 expect(this.aliceResult.inId.as(Hex).isEqualTo(this.bobResult.outId.as(Hex))).toBe(true);
                 expect(this.aliceResult.outId.as(Hex).isEqualTo(this.bobResult.inId.as(Hex))).toBe(true);
             });
 
-            xit("keys are the same", function () {
+            it("keys are the same", function () {
                 expect(this.aliceResult.key.as(Hex).isEqualTo(this.bobResult.key.as(Hex))).toBe(true);
             });
 
