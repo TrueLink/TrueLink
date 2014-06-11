@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     "use strict";
     var utils = require("converters/all");
     var Hex = require("modules/multivalue/hex");
@@ -11,7 +11,7 @@ define(function (require, exports, module) {
         console.log.apply(console, args);
     }
 
-    describe("True Link Hash Tail Exchange", function () {
+    describe("True Link Hash Tail Exchange", function() {
 
         function TlkeTestBuilder(name, transport) {
             this.name = "TlkeTestBuilder" + name;
@@ -21,7 +21,7 @@ define(function (require, exports, module) {
             this.transport = transport;
         }
         $.extend(TlkeTestBuilder.prototype, EventEmitter, {
-            build: function () {
+            build: function() {
                 var tlke = this.tlke = utils.factory.createTlke();
                 var route = this.route = utils.factory.createRoute();
                 var transport = this.transport;
@@ -40,35 +40,35 @@ define(function (require, exports, module) {
 
                 transport.on("networkPacket", route.processNetworkPacket, route);
             },
-            generate: function () {
+            generate: function() {
                 this._log("generate");
                 this.tlke.generate();
             },
-            keyReady: function (args) {
+            keyReady: function(args) {
                 this._log("keyReady", args);
                 this.inId = args.inId;
                 this.outId = args.outId;
                 this.key = args.key;
             },
-            enterOffer: function (offer) {
+            enterOffer: function(offer) {
                 this._log("enterOffer", offer);
                 this.tlke.enterOffer(offer);
             },
-            enterAuth: function (auth) {
+            enterAuth: function(auth) {
                 this._log("enterAuth", auth);
                 this.tlke.enterAuth(auth);
             },
-            on_requestOffer: function (offer) {
+            on_requestOffer: function(offer) {
                 this._log("on_requestOffer", offer);
                 this.fire("offer", offer);
             },
-            on_requestAuth: function (auth) {
+            on_requestAuth: function(auth) {
                 this._log("on_requestAuth", auth);
                 if (auth) {
                     this.fire("auth", auth);
                 }
             },
-            on_keyReady: function (args) {
+            on_keyReady: function(args) {
                 this._log("on_keyReady", args);
                 this.fire("done", args);
             },
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
             this.transport = transport;
         }
         $.extend(TlhtTestBuilder.prototype, EventEmitter, {
-            build: function (args) {
+            build: function(args) {
                 var tlht = this.tlht = utils.factory.createTlht();
                 var route = this.route = utils.factory.createRoute();
                 var transport = this.transport;
@@ -99,7 +99,7 @@ define(function (require, exports, module) {
                 route.setAddr(args);
                 tlht.generate();
             },
-            on_htReady: function (args) {
+            on_htReady: function(args) {
                 this._log("on_htReady", args);
                 this.hashStart = args.hashStart;
                 this.hashEnd = args.hashEnd;
@@ -110,12 +110,12 @@ define(function (require, exports, module) {
             _log: logfunc
         });
 
-        describe("with transport", function () {
-            beforeEach(function (done) {
+        describe("with transport", function() {
+            beforeEach(function(done) {
                 var transport = this.transport = utils.factory.createTransport();
                 var aliceTlke = this.aliceTlke = new TlkeTestBuilder("Alice", transport);
                 var bobTlke = this.bobTlke = new TlkeTestBuilder("Bob", transport);
-                var aliceTlht = this.aliceTlth = new TlhtTestBuilder("Alice", transport);
+                var aliceTlht = this.aliceTlht = new TlhtTestBuilder("Alice", transport);
                 var bobTlht = this.bobTlht = new TlhtTestBuilder("Bob", transport);
 
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
@@ -127,7 +127,7 @@ define(function (require, exports, module) {
                 var results = [];
                 var success = function() {
                     results.push(this);
-                    if(results.length == 2) done();
+                    if (results.length == 2) done();
                 };
 
                 aliceTlht.on("done", success, aliceTlht);
@@ -138,42 +138,61 @@ define(function (require, exports, module) {
                 aliceTlke.generate();
             });
 
-            it("alice hash tails are ready", function () {
-                expect(this.aliceTlth.hashStart).not.toBeUndefined();
-                expect(this.aliceTlth.hashEnd).not.toBeUndefined();
+            it("alice hash tails are ready", function() {
+                expect(this.aliceTlht.hashStart).not.toBeUndefined();
+                expect(this.aliceTlht.hashEnd).not.toBeUndefined();
             });
 
-            it("bob hash tails are ready", function () {
+            it("bob hash tails are ready", function() {
                 expect(this.bobTlht.hashStart).not.toBeUndefined();
                 expect(this.bobTlht.hashEnd).not.toBeUndefined();
             });
 
         });
 
-        describe("with builder", function () {
-            beforeEach(function (done) {
+        describe("with builder", function() {
+            beforeEach(function(done) {
+                var transport = this.transport = utils.factory.createTransport();
                 var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
                 var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
-                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
+                var aliceTlht = this.aliceTlht = utils.factory.createTlhtBuilder();
                 var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
 
+                aliceTlke.on("networkPacket", transport.sendNetworkPacket, transport);
+                bobTlke.on("networkPacket", transport.sendNetworkPacket, transport);
+
+                aliceTlke.on("addrIn", transport.openAddr, transport);
+                bobTlke.on("addrIn", transport.openAddr, transport);
+
+                transport.on("networkPacket", aliceTlke.processNetworkPacket, aliceTlke);
+                transport.on("networkPacket", bobTlke.processNetworkPacket, bobTlke);
+
+                aliceTlht.on("networkPacket", transport.sendNetworkPacket, transport);
+                bobTlht.on("networkPacket", transport.sendNetworkPacket, transport);
+
+                aliceTlht.on("addrIn", transport.openAddr, transport);
+                bobTlht.on("addrIn", transport.openAddr, transport);
+
+                transport.on("networkPacket", aliceTlht.processNetworkPacket, aliceTlht);
+                transport.on("networkPacket", bobTlht.processNetworkPacket, bobTlht);
+
                 aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
-                aliceTlke.on("auth", function (auth) {
+                aliceTlke.on("auth", function(auth) {
                     if (auth) {
                         bobTlke.enterAuth(auth);
                     }
                 }, null);
 
-                aliceTlke.on("done", aliceTlth.build, aliceTlth);
+                aliceTlke.on("done", aliceTlht.build, aliceTlht);
                 bobTlke.on("done", bobTlht.build, bobTlht);
 
                 var results = [];
                 var success = function() {
                     results.push(this);
-                    if(results.length == 2) done();
+                    if (results.length == 2) done();
                 };
 
-                aliceTlth.on("done", function(args) {
+                aliceTlht.on("done", function(args) {
                     this.aliceResult = args;
                     success();
                 }, this);
@@ -187,15 +206,15 @@ define(function (require, exports, module) {
                 aliceTlke.generate();
             });
 
-            it("alice hash tails are ready", function () {
+            it("alice hash tails are ready", function() {
                 expect(this.aliceResult.hashStart).not.toBeUndefined();
                 expect(this.aliceResult.hashEnd).not.toBeUndefined();
             });
 
-            it("bob hash tails are ready", function () {
+            it("bob hash tails are ready", function() {
                 expect(this.bobResult.hashStart).not.toBeUndefined();
                 expect(this.bobResult.hashEnd).not.toBeUndefined();
-            });            
+            });
         });
 
     });
