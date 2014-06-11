@@ -1,31 +1,20 @@
 define(function (require, exports, module) {
     "use strict";
     var React = require("react");
+    var reactObserver = require("mixins/reactObserver");
     module.exports = React.createClass({
         displayName: "DocumentsPage",
-        getInitialState: function () {
-            return this._getState();
-        },
-        _getState: function () {
-            var pageModel = this.props.pageModel;
-            var model = pageModel.model;
-            return {
-                profile: model
-            };
-        },
-        addDocument: function () {
-            var doc = this.props.pageModel.model.createDocument();
-            //this.props.router
-            return false;
-        },
-        _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () { this.props.pageModel.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.pageModel.off("changed", this._onModelChanged, this); },
+        mixins: [reactObserver],
         _appendDocComponent: function (components, document) {
             components[document.name] = React.DOM.div({className: "generic-block"}, document.name);
         },
+        addDocument: function () {
+            //var doc = this.props.pageModel.model.createDocument();
+            //this.props.router
+            return false;
+        },
         render: function () {
-            var profile = this.state.profile;
+            var profile = this.state.model;
             var router = this.props.router;
             var documents = {};
             profile.documents.forEach(this._appendDocComponent.bind(this, documents));

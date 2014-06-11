@@ -2,23 +2,10 @@ define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var Hex = require("modules/multivalue/hex");
-
+    var reactObserver = require("mixins/reactObserver");
     module.exports = React.createClass({
         displayName: "ContactPage",
-        getInitialState: function () {
-            return this._getState();
-        },
-        _getState: function () {
-            var pageModel = this.props.pageModel;
-            var model = pageModel.model;
-            return {
-                contact: model,
-                tlConnectionState: model.tlConnection ? model.tlConnection.status : null,
-                offer: model.tlConnection && model.tlConnection.offer ? model.tlConnection.offer.as(Hex).toString() : null,
-                auth: model.tlConnection && model.tlConnection.auth ? model.tlConnection.auth.as(Hex).toString() : null
-            };
-        },
-
+        mixins: [reactObserver],
         handleGenerate: function () {
             try {
                 this.props.pageModel.model.tlConnection.generateOffer();
@@ -47,22 +34,15 @@ define(function (require, exports, module) {
             var offer = Hex.fromString(this.refs.auth.getDOMNode().value);
             this.props.pageModel.model.tlConnection.enterAuth(offer);
         },
-
-        _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () {
-            var contact = this.props.pageModel.model;
-            contact.on("changed", this._onModelChanged, this);
-            contact.tlConnection.on("changed", this._onModelChanged, this);
-        },
-        componentWillUnmount: function () {
-            var contact = this.props.pageModel.model;
-            contact.off("changed", this._onModelChanged, this);
-            contact.tlConnection.off("changed", this._onModelChanged, this);
-        },
-
         render: function () {
-            var contact = this.state.contact;
+            var contact = this.state.model;
+//            var pageModel = this.state.pageModel;
             var router = this.props.router;
+
+            var tlConnectionState = contact.tlConnection ? contact.tlConnection.status : null;
+            var offer = contact.tlConnection && contact.tlConnection.offer ? contact.tlConnection.offer.as(Hex).toString() : null;
+            var auth = contact.tlConnection && contact.tlConnection.auth ? contact.tlConnection.auth.as(Hex).toString() : null;
+
             return React.DOM.div({className: "contact-page"},
                 React.DOM.div({className: "app-page-title"},
                     React.DOM.a({
@@ -71,9 +51,9 @@ define(function (require, exports, module) {
                         onClick: router.createNavigateHandler("contacts", contact.profile)
                     }, "Contact details")),
                 React.DOM.div({className: "app-page-content"},
-                    contact.name, " tl state: " + this.state.tlConnectionState,
-                    React.DOM.div(null, "offer: " + this.state.offer),
-                    React.DOM.div(null, "auth: " + this.state.auth),
+                    contact.name, " tl state: " + tlConnectionState,
+                    React.DOM.div(null, "offer: " + offer),
+                    React.DOM.div(null, "auth: " + auth),
                     React.DOM.div(null, React.DOM.a({
                         href: "",
                         onClick: this.handleGenerate
@@ -84,7 +64,7 @@ define(function (require, exports, module) {
                     }, "abort")),
                     React.DOM.div(null, React.DOM.input({ref: "offer"}), React.DOM.button({onClick: this.handleOfferInput}, "accept offer")),
                     React.DOM.div(null, React.DOM.input({ref: "auth"}), React.DOM.button({onClick: this.handleAuthInput}, "accept auth"))
-                ));
+                    ));
         }
     });
 });

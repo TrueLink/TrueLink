@@ -1,34 +1,18 @@
 define(function (require, exports, module) {
     "use strict";
     var React = require("react");
+    var reactObserver = require("mixins/reactObserver");
     module.exports = React.createClass({
         displayName: "ContactsPage",
-        getInitialState: function () {
-            return this._getState();
-        },
-        _getState: function () {
-            var pageModel = this.props.pageModel;
-            var model = pageModel.model;
-            return {
-                profile: model
-            };
-        },
-        handleAddDialog: function () {
-
+        mixins: [reactObserver],
+        handleAddContact: function () {
             try {
                 var contact = this.props.pageModel.model.createContact();
+//                this.props.router
             } catch (ex) {
                 console.error(ex);
             }
-            //this.props.router
             return false;
-        },
-        _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () {
-            this.props.pageModel.on("changed", this._onModelChanged, this);
-        },
-        componentWillUnmount: function () {
-            this.props.pageModel.off("changed", this._onModelChanged, this);
         },
         handleContactClick: function (contact) {
             this.props.router.navigate("contact", contact);
@@ -38,14 +22,15 @@ define(function (require, exports, module) {
         },
         _appendDialogComponent: function (components, contact) {
             components[contact.name] = React.DOM.div({
-                    className: "generic-block contact clearfix",
-                    onClick: this.handleContactClick.bind(this, contact)
-                },
+                className: "generic-block contact clearfix",
+                onClick: this.handleContactClick.bind(this, contact)
+            },
                 React.DOM.div({className: "contact-image"}, ""),
                 React.DOM.div({className: "contact-title"}, contact.name));
         },
         render: function () {
-            var profile = this.state.profile;
+            var profile = this.state.model;
+//            var pageModel = this.state.pageModel;
             var router = this.props.router;
             var contacts = {};
             profile.contacts.forEach(this._appendDialogComponent.bind(this, contacts));
@@ -61,7 +46,7 @@ define(function (require, exports, module) {
                         React.DOM.a({
                             className: "button",
                             href: "",
-                            onClick: this.handleAddDialog
+                            onClick: this.handleAddContact
                         }, "Add contact")),
                     contacts
                     ));

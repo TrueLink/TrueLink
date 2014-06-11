@@ -1,22 +1,14 @@
 define(function (require, exports, module) {
     "use strict";
     var React = require("react");
+    var reactObserver = require("mixins/reactObserver");
     module.exports = React.createClass({
         displayName: "ProfilePage",
-        getInitialState: function () {
-            return this._getState();
-        },
-        _getState: function () {
-            var model = this.props.pageModel.model;
-            return {
-                profile: model
-            };
-        },
-        _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged, this); },
+        mixins: [reactObserver],
         render: function () {
-            return React.DOM.div(null, "Profile Settings: " + this.state.profile.name);
+            var profile = this.state.model;
+//            var router = this.props.router;
+            return React.DOM.div(null, "Profile Settings: " + profile.name);
         }
     });
 });
