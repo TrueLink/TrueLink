@@ -39,7 +39,7 @@ define(function (require, exports, module) {
 //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
-            var tlConnectionState = contact.tlConnection ? contact.tlConnection.status : null;
+            var tlConnectionState = contact.tlConnection ? contact.tlConnection.getStatus() : null;
             var offer = contact.tlConnection && contact.tlConnection.offer ? contact.tlConnection.offer.as(Hex).toString() : null;
             var auth = contact.tlConnection && contact.tlConnection.auth ? contact.tlConnection.auth.as(Hex).toString() : null;
 

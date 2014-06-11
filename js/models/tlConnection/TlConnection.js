@@ -6,30 +6,130 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
     var Hex = require("modules/multivalue/hex");
-    var Tlke = require("modules/channels/Tlke");
+    var Utf8String = require("modules/multivalue/utf8string");
 
 
-    function TlConnection() {
+    function TlConnection(factory) {
+        invariant(factory, "Can be constructed only with factory");
+
         this._defineEvent("changed");
+        this._defineEvent("message");
 
-        this.tlkeBuilder = null;
-        this.tlhtBuilder = null;
-        this.tlecBuilders = [];
         this.offer = null;
         this.auth = null;
-        this.status = null;
+        this._factory = factory;
+        this._transport = factory.createTransport();
+        this._transport.on("networkPacket", this._onTransportNetworkPacket, this);
+        this._initialTlecBuilder = null;
+        this._tlecBuilders = [];
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
+        init: function () {
+            this._initialTlecBuilder = this._factory.createTlecBuilder();
+            this._initialTlecBuilder.build();
+            this._linkInitial();
+        },
+
+        getStatus: function () {
+            this._initialTlecBuilder ? this._initialTlecBuilder.status : null;
+        },
+        generateOffer: function () {
+            this._initialTlecBuilder.generateOffer();
+        },
+
+        enterOffer: function (offer) {
+            this._initialTlecBuilder.enterOffer(offer);
+        },
+
+        enterAuth: function (auth) {
+            this._initialTlecBuilder.enterAuth(auth);
+        },
+
+        abortTlke: function () {
+            this._initialTlecBuilder.rebuild();
+        },
+
+        _onTransportNetworkPacket: function (packet) {
+            if (this._initialTlecBuilder) {
+                this._initialTlecBuilder.processNetworkPacket(packet);
+            }
+            this._tlecBuilders.forEach(function (builder) {
+                builder.processNetworkPacket(packet);
+            });
+        },
+        _linkFinishedTlecBuilder: function (builder) {
+            builder.on("message", this._receiveMessage, this);
+            builder.on("networkPacket", this._receiveMessage, this);
+        },
+
+        _unlinkFinishedTlecBuilder: function (builder) {
+            builder.off("message", this._receiveMessage, this);
+            builder.off("networkPacket", this._receiveMessage, this);
+        },
+
+        _addTlecBuilder: function (builder) {
+            this._linkFinishedTlecBuilder(builder);
+            this._tlecBuilders.push(builder);
+        },
+        _sendMessage: function (msg) {
+            var activeTlecBuilder = this._tlecBuilders[0];
+            if (!activeTlecBuilder) { throw new Error("no tlec"); }
+            var messageData = Utf8String.fromString(JSON.stringify(msg));
+            activeTlecBuilder.sendMessage(messageData);
+        },
+        _receiveMessage: function (messageData) {
+            var msg = JSON.parse(messageData.as(Utf8String).toString());
+            this.fire("message", msg);
+        },
+
+        _linkInitial: function () {
+            var builder = this._initialTlecBuilder;
+            builder.on("changed", this._onChanged, this);
+            builder.on("offer", this._onInitialOffer, this);
+            builder.on("auth", this._onInitialAuth, this);
+            builder.on("addrIn", this._onInitialAuth, this);
+            builder.on("networkPacket", this._onInitialNetworkPacket, this);
+            builder.on("done", this._addTlecBuilder, this);
+        },
+        _unlinkInitial: function () {
+            var builder = this._initialTlecBuilder;
+            builder.off("changed", this._onChanged, this);
+            builder.off("offer", this._onInitialOffer, this);
+            builder.off("auth", this._onInitialAuth, this);
+            builder.off("addrIn", this._onInitialAuth, this);
+            builder.off("networkPacket", this._onInitialNetworkPacket, this);
+            builder.off("done", this._addTlecBuilder, this);
+        },
+
+        _onInitialOffer: function (offer) {
+            this.offer = offer;
+            this._onChanged();
+        },
+        _onInitialAuth: function (auth) {
+            if (auth) {
+                this.auth = auth;
+                this._onChanged();
+            }
+        },
+
+        _onInitialAddrIn: function (addr) {
+            this._transport.openAddr(addr);
+        },
+
+        _onInitialNetworkPacket: function (packet) {
+            this._transport.sendNetworkPacket(packet);
+        },
+
         serialize: function (packet, context) {
 
             packet.setData({
                 offer: this.offer ? this.offer.as(Hex).serialize() : null,
                 auth: this.auth ? this.auth.as(Hex).serialize() : null
             });
-            packet.setLink("tlkeBuilder", context.getPacket(this.tlkeBuilder));
-            packet.setLink("tlhtBuilder", context.getPacket(this.tlhtBuilder));
 
+            packet.setLink("_initialTlecBuilder", context.getPacket(this._initialTlecBuilder));
+            packet.setLink("_tlecBuilders", context.getPacket(this._tlecBuilders));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
@@ -39,142 +139,17 @@ define(function (require, exports, module) {
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
 
-            this.tlkeBuilder = context.deserialize(packet.getLink("tlkeBuilder"), factory.createTlkeBuilder.bind(factory));
-            this.tlhtBuilder = context.deserialize(packet.getLink("tlhtBuilder"), factory.createTlhtBuilder.bind(factory));
-
+            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder.bind(factory));
+            this._linkInitial();
+            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder.bind(factory));
+            this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
 
             this.link();
-        },
-
-        link: function () {
-
-            if (this.tlkeBuilder && this.tlhtBuilder) {
-                this.tlkeBuilder.on("offer", this.onTlkeOffer, this);
-                this.tlkeBuilder.on("auth", this.onTlkeAuth, this);
-                this.tlkeBuilder.on("done", this.tlhtBuilder.build, this.tlhtBuilder);
-                this.tlkeBuilder.on("changed", this.onTlkeBuilderChanged, this);
-                this.tlhtBuilder.on("done", this.onTlhtDone, this);
-            }
-
-        },
-
-        unlink: function () {
-            if (this.tlkeBuilder && this.tlhtBuilder) {
-                this.tlkeBuilder.off("offer", this.onTlkeOffer, this);
-                this.tlkeBuilder.off("auth", this.onTlkeAuth, this);
-                this.tlkeBuilder.off("done", this.tlhtBuilder.build, this.tlhtBuilder);
-                this.tlkeBuilder.on("changed", this.onTlkeBuilderChanged, this);
-                this.tlhtBuilder.off("done", this.onTlhtDone, this);
-
-            }
-        },
-
-        onTlkeOffer: function (offer) {
-            this.offer = offer;
-            this.onChanged();
-        },
-        onTlkeAuth: function (auth) {
-            this.auth = auth;
-            this.onChanged();
-        },
-
-        generateOffer: function () {
-            if (this.tlkeBuilder || this.tlhtBuilder) {
-                throw new Error("Already connecting");
-            }
-            this.tlkeBuilder = this.factory.createTlkeBuilder();
-            this.tlkeBuilder.build();
-            this.tlhtBuilder = this.factory.createTlhtBuilder();
-            this.link();
-            this.tlkeBuilder.generate();
-        },
-
-        enterOffer: function (offer) {
-            if (!this.tlkeBuilder) {
-                this.tlkeBuilder = this.factory.createTlkeBuilder();
-                this.tlkeBuilder.build();
-                this.tlhtBuilder = this.factory.createTlhtBuilder();
-                this.link();
-                this.tlkeBuilder.enterOffer(offer);
-            }
-        },
-
-        enterAuth: function (auth) {
-            if (this.tlkeBuilder) {
-                this.tlkeBuilder.enterAuth(auth);
-            }
-        },
-
-        abortTlke: function () {
-            this.unlink();
-            if (this.tlkeBuilder) {
-                this.tlkeBuilder.destroy();
-                this.tlkeBuilder = null;
-            }
-            if (this.tlhtBuilder) {
-                this.tlhtBuilder.destroy();
-                this.tlhtBuilder = null;
-            }
-            this.offer = null;
-            this.auth = null;
-            this.status = TlConnection.STATUS_NOT_STARTED;
-
-            this.onChanged();
-        },
-
-        onTlkeBuilderChanged: function () {
-            switch (this.tlkeBuilder.getTlkeState()) {
-            case Tlke.STATE_AWAITING_OFFER_RESPONSE:
-                this.status = TlConnection.STATUS_OFFER_GENERATED;
-                break;
-            case Tlke.STATE_AWAITING_AUTH_RESPONSE:
-                this.status = TlConnection.STATUS_AUTH_GENERATED;
-                break;
-            case Tlke.STATE_AWAITING_AUTH:
-                this.status = TlConnection.STATUS_AUTH_NEEDED;
-                break;
-            case Tlke.STATE_AWAITING_AUTHDATA:
-                this.status = TlConnection.STATUS_AUTHDATA_NEEDED;
-                break;
-            case Tlke.STATE_CONNECTION_ESTABLISHED:
-                this.status = TlConnection.STATUS_HT_EXCHANGE;
-                break;
-            case Tlke.STATE_CONNECTION_FAILED:
-                this.status = TlConnection.STATUS_AUTH_ERROR;
-                break;
-            }
-            this.onChanged();
-        },
-
-        onTlhtDone: function (result) {
-            console.info("TLHT done! ", result);
-            this.status = TlConnection.STATUS_ESTABLISHED;
-            this.onChanged();
-//            var tlecBuilder = this.factory.createTlecBuilder();
-        },
-
-        init: function () {
-            this.status = TlConnection.STATUS_NOT_STARTED;
         }
 
     });
 
-    TlConnection.STATUS_NOT_STARTED = 0;
 
-    // tlke A
-    TlConnection.STATUS_OFFER_GENERATED = 1;
-    TlConnection.STATUS_AUTH_GENERATED = 2;
-    TlConnection.STATUS_AUTH_ERROR = -1;
-
-    // tlke B
-    TlConnection.STATUS_AUTHDATA_NEEDED = 4;
-    TlConnection.STATUS_AUTH_NEEDED = 5;
-
-    // tlht both
-    TlConnection.STATUS_HT_EXCHANGE = 3;
-
-    // at least one tlec ready
-    TlConnection.STATUS_ESTABLISHED = 10;
 
     module.exports = TlConnection;
 });

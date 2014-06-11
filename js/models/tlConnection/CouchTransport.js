@@ -53,7 +53,7 @@ define(function (require, exports, module) {
             var since = polling.since;
             var profile = this._pollings.first(function (item) { return item.value === polling; });
             this.sinces[profile.url] = since;
-            this.onChanged();
+            this._onChanged();
         },
         _getPolling: function (profile) {
             return this._pollings.item(profile) || this._createPolling(profile);

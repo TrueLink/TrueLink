@@ -44,16 +44,17 @@ define(function (require, exports, module) {
             return this._observed(document);
         },
 
-        createTlConnectionFactory: function () {
+        createTlConnectionFactory: function (tlConnection) {
             var tlConnectionFactory = new TlConnectionFactory(this.serializer);
             tlConnectionFactory.setProfile(this.profile);
+            tlConnectionFactory.setTlConnection(tlConnection);
             return tlConnectionFactory;
         },
 
         createTlConnection: function () {
             invariant(this.profile, "profile is not set");
             var tlConnection = new TlConnection();
-            tlConnection.setFactory(this.createTlConnectionFactory());
+            tlConnection.setFactory(this.createTlConnectionFactory(tlConnection));
             return this._observed(tlConnection);
         }
 

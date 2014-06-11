@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var TlkeBuilder = require("modules/channels/TlkeBuilder");
     var TlhtBuilder = require("modules/channels/TlhtBuilder");
     var TlecBuilder = require("modules/channels/TlecBuilder");
+    var OverTlecBuilder = require("modules/channels/OverTlecBuilder");
     var Tlke = require("modules/channels/Tlke");
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
@@ -18,11 +19,16 @@ define(function (require, exports, module) {
         invariant(serializer, "Can i haz serializer?");
         this.serializer = serializer;
         this.profile = null;
+        this.tlConnection = null;
     }
 
     extend(TlConnectionFactory.prototype, prototype, {
         setProfile: function (profile) {
             this.profile = profile;
+        },
+
+        setTlConnection: function (con) {
+            this.tlConnection = con;
         },
 
         createTlkeBuilder: function () {
@@ -35,6 +41,11 @@ define(function (require, exports, module) {
             return this._observed(new TlecBuilder(this));
         },
 
+        createOverTlecBuilder: function () {
+            var builder = new OverTlecBuilder(this);
+            return this._observed(builder);
+        },
+
         createTlke: function () {
             return this._observed(new Tlke(this));
         },
@@ -45,6 +56,7 @@ define(function (require, exports, module) {
             return this._observed(new Tlec(this));
         },
 
+
         // temp solution for smoke testing
         createTransport: function () {
             invariant(this.profile, "profile is not set");
@@ -54,6 +66,7 @@ define(function (require, exports, module) {
             return this.profile._transport;
         },
 
+        // temp
         createRandom: function () {
             return this.profile.app.random;
         },

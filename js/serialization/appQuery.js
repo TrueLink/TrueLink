@@ -5,15 +5,27 @@ define(function (require, exports, module) {
         profiles: [{
             contacts: [{
                 tlConnection: {
-                    tlkeBuilder: {
-                        _tlke: {},
+                    _initialTlecBuilder: {
+                        _tlkeBuilder: {
+                            _tlke: {},
+                            _route: {}
+                        },
+                        _tlhtBuilder: {
+                            _tlke: {},
+                            _route: {}
+                        },
+                        _tlec: {},
                         _route: {}
                     },
-                    tlhtBuilder: {
-                        _tlht: {},
-                        _route: {}
-                    },
-                    tlecBuilders: [{
+                    _tlecBuilders: [{
+                        _tlkeBuilder: {
+                            _tlke: {},
+                            _route: {}
+                        },
+                        _tlhtBuilder: {
+                            _tlke: {},
+                            _route: {}
+                        },
                         _tlec: {},
                         _route: {}
                     }]
