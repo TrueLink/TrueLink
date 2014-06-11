@@ -35,7 +35,7 @@ define(function (require, exports, module) {
         },
         deserialize: function (packet, context) {
             this.checkFactory();
-            var factory = this.factory;
+            var factory = this._factory;
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
             this.random = context.deserialize(packet.getLink("random"), factory.createRandom.bind(factory));
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
@@ -45,14 +45,14 @@ define(function (require, exports, module) {
                 this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory)));
             } catch (ex) {
                 console.error(ex);
-                this.setMenu(this.factory.createMenu());
+                this.setMenu(this._factory.createMenu());
             }
 
             try {
                 this.setRouter(context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory)));
             } catch (ex) {
                 console.error(ex);
-                this.setRouter(this.factory.createRouter());
+                this.setRouter(this._factory.createRouter());
                 this.router.navigate("home", this);
             }
 
@@ -86,12 +86,12 @@ define(function (require, exports, module) {
         init: function () {
             this.checkFactory();
             console.log("app init");
-            this.transport = this.factory.createTransport();
+            this.transport = this._factory.createTransport();
             this.transport.init();
-            this.random = this.factory.createRandom();
+            this.random = this._factory.createRandom();
 
-            this.setMenu(this.factory.createMenu());
-            this.setRouter(this.factory.createRouter());
+            this.setMenu(this._factory.createMenu());
+            this.setRouter(this._factory.createRouter());
             this.addProfile();
             this.router.navigate("home", this);
 
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
                 if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
                 if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
             });
-            var profile = this.factory.createProfile();
+            var profile = this._factory.createProfile();
             profile.set({
                 name: urandom.name(),
                 bg: nextBgIndex,

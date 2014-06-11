@@ -26,7 +26,7 @@ define(function (require, exports, module) {
         },
         deserialize: function (packet, context) {
             this.checkFactory();
-            var factory = this.factory;
+            var factory = this._factory;
             var data = packet.getData();
             this.name = data.name;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection.bind(factory));
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
 
         init: function () {
             this.checkFactory();
-            this.tlConnection = this.factory.createTlConnection();
+            this.tlConnection = this._factory.createTlConnection();
             this._onChanged();
         }
 

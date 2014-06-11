@@ -15,22 +15,16 @@ define(function (require, exports, module) {
     var TestTransport = require("modules/channels/TestTransport");
 
 
-    function TlConnectionFactory(serializer) {
+    function TlConnectionFactory(serializer, tlConnection, profile) {
         invariant(serializer, "Can i haz serializer?");
+        invariant(tlConnection, "Can i haz tlConnection?");
+        invariant(profile, "Can i haz profile?");
         this.serializer = serializer;
-        this.profile = null;
-        this.tlConnection = null;
+        this.profile = profile;
+        this.tlConnection = tlConnection;
     }
 
     extend(TlConnectionFactory.prototype, prototype, {
-        setProfile: function (profile) {
-            this.profile = profile;
-        },
-
-        setTlConnection: function (con) {
-            this.tlConnection = con;
-        },
-
         createTlkeBuilder: function () {
             return this._observed(new TlkeBuilder(this));
         },

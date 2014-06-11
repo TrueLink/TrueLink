@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
     function Transport(factory) {
         invariant(factory, "Can be constructed only with factory");
-        this.factory = factory;
+        this._factory = factory;
         this.fixedId = "F2E281BB-3C0D-4CED-A0F1-A65771AEED9A";
         this._defineEvent("changed");
         this._defineEvent("networkPacket");

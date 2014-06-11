@@ -36,7 +36,7 @@ define(function (require, exports, module) {
         },
         deserialize: function (packet, context) {
             this.checkFactory();
-            var factory = this.factory;
+            var factory = this._factory;
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         },
         createDocument: function () {
             this.checkFactory();
-            var document = this.factory.createDocument();
+            var document = this._factory.createDocument();
             document.set({
                 name: urandom.animal()
             });
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
         },
         createContact: function () {
             this.checkFactory();
-            var contact = this.factory.createContact(this);
+            var contact = this._factory.createContact(this);
             contact.set("name", urandom.name());
             contact.init();
             this.contacts.push(contact);
@@ -80,7 +80,7 @@ define(function (require, exports, module) {
             this.checkFactory();
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
-                dialog = this.factory.createDialog();
+                dialog = this._factory.createDialog();
                 dialog.set("name", contact.name);
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);

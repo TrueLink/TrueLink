@@ -14,15 +14,10 @@ define(function (require, exports, module) {
 
     extend(Factory.prototype, prototype, {
         createApp: function () {
-            var appFactory = new AppFactory(this.serializer);
-            var app = new App(appFactory);
-            appFactory.setApp(app);
+            var app = new App();
+            var appFactory = new AppFactory(this.serializer, app);
+            app.setFactory(appFactory);
             return this._observed(app);
-        },
-        createAppFactory: function (app) {
-            var factory = new AppFactory(this.serializer);
-            factory.setApp(app);
-            return factory;
         }
     });
 

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
 
     function DocumentPageModel(factory) {
         invariant(factory, "Can be constructed only with factory");
-        this.factory = factory;
+        this._factory = factory;
         this.accepts = Document;
         this._defineEvent("changed");
     }
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
             this._serializeModel(packet, context);
         },
         deserialize: function (packet, context) {
-            var factory = this.factory;
+            var factory = this._factory;
             var data = packet.getData();
             this._deserializeModel(packet, context);
         }

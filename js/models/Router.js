@@ -68,7 +68,7 @@ define(function (require, exports, module) {
             });
             if (this.currentPageModel) {
                 packet.setData({
-                    modelType: this.factory.getTypeData(this.currentPageModel)
+                    modelType: this._factory.getTypeData(this.currentPageModel)
                 });
             }
             packet.setLink("pageModel", context.getPacket(this.currentPageModel));
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             var data = packet.getData();
             this.currentPageName = data.pageName;
-            var factory = this.factory;
+            var factory = this._factory;
 
             var modelConstructor = factory.getConstructor(data.modelType);
             this.currentPageModel = context.deserialize(packet.getLink("pageModel"), modelConstructor.bind(factory));
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
         _createPageModel: function (pageName, model) {
             var constructors = pages[pageName];
             invariant(constructors, "Page %s is not registered", pageName);
-            var pageModel = this.factory.construct(constructors.model);
+            var pageModel = this._factory.construct(constructors.model);
             pageModel.setModel(model);
             return pageModel;
         }

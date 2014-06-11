@@ -9,22 +9,24 @@ define(function (require, exports, module) {
     var Utf8String = require("modules/multivalue/utf8string");
 
 
-    function TlConnection(factory) {
-        invariant(factory, "Can be constructed only with factory");
+    function TlConnection() {
 
         this._defineEvent("changed");
         this._defineEvent("message");
 
         this.offer = null;
         this.auth = null;
-        this._factory = factory;
-        this._transport = factory.createTransport();
-        this._transport.on("networkPacket", this._onTransportNetworkPacket, this);
         this._initialTlecBuilder = null;
         this._tlecBuilders = [];
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
+
+        setFactory: function (factory) {
+            this._factory = factory;
+            this._transport = factory.createTransport();
+            this._transport.on("networkPacket", this._onTransportNetworkPacket, this);
+        },
         init: function () {
             this._initialTlecBuilder = this._factory.createTlecBuilder();
             this._initialTlecBuilder.build();
@@ -32,7 +34,7 @@ define(function (require, exports, module) {
         },
 
         getStatus: function () {
-            this._initialTlecBuilder ? this._initialTlecBuilder.status : null;
+            return this._initialTlecBuilder ? this._initialTlecBuilder.status : null;
         },
         generateOffer: function () {
             this._initialTlecBuilder.generateOffer();
@@ -85,6 +87,7 @@ define(function (require, exports, module) {
 
         _linkInitial: function () {
             var builder = this._initialTlecBuilder;
+            if (!builder) { return; }
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
@@ -94,6 +97,7 @@ define(function (require, exports, module) {
         },
         _unlinkInitial: function () {
             var builder = this._initialTlecBuilder;
+            if (!builder) { return; }
             builder.off("changed", this._onChanged, this);
             builder.off("offer", this._onInitialOffer, this);
             builder.off("auth", this._onInitialAuth, this);
@@ -133,7 +137,7 @@ define(function (require, exports, module) {
         },
         deserialize: function (packet, context) {
             this.checkFactory();
-            var factory = this.factory;
+            var factory = this._factory;
             var data = packet.getData();
 
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
@@ -143,8 +147,6 @@ define(function (require, exports, module) {
             this._linkInitial();
             this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder.bind(factory));
             this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
-
-            this.link();
         }
 
     });

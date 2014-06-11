@@ -24,10 +24,10 @@ define(function (require, exports, module) {
             return !this.getMeta() || !this.getMeta().id;
         },
         setFactory: function (factory) {
-            this.factory = factory;
+            this._factory = factory;
         },
         checkFactory: function () {
-            invariant(this.factory, "factory is not set");
+            invariant(this._factory, "factory is not set");
         }
     };
 });

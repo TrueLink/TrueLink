@@ -156,7 +156,6 @@ define(function (require, exports, module) {
             if (!this.app) {
                 var factory = new RootFactory(this);
                 this.app = factory.createApp();
-                this.app.factory = factory.createAppFactory(this.app);
             }
             return this.app;
         }

@@ -13,13 +13,9 @@ define(function (require, exports, module) {
     var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
     var DocumentPageModel = require("models/pageModels/DocumentPageModel");
 
-    var Profile = require("models/Profile");
-    var Contact = require("models/Contact");
-    var Document = require("models/Document");
-    var Dialog = require("models/Dialog");
-
-    function RouterFactory(serializer) {
+    function RouterFactory(serializer, router) {
         invariant(serializer, "Can i haz serializer?");
+        invariant(router, "Can i haz router?");
         this.serializer = serializer;
         this.resolver = new Dictionary();
         this.resolver.item(0, HomePageModel);
@@ -29,16 +25,11 @@ define(function (require, exports, module) {
         this.resolver.item(4, DialogPageModel);
         this.resolver.item(5, DocumentsPageModel);
         this.resolver.item(6, DocumentPageModel);
-        this.router = null;
+        this.router = router;
     }
 
     extend(RouterFactory.prototype, prototype, {
-        setRouter: function (router) {
-            this.router = router;
-        },
-
         getConstructor: function (typeData) {
-            invariant(this.resolver, "resolver is not defined");
             var constructor = this.resolver.item(typeData);
             invariant(constructor, "Type with data %s is not registered", typeData);
             // will be bound inside parent caller's deserialization method
@@ -46,7 +37,6 @@ define(function (require, exports, module) {
         },
 
         getTypeData: function (inst) {
-            invariant(this.resolver, "resolver is not defined");
             var found = this.resolver.first(function (item) { return item.value === inst.constructor; });
             invariant(found, "Type is not registered");
             return found.key;

@@ -31,7 +31,7 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             this.checkFactory();
             var data = packet.getData();
-            var factory = this.factory;
+            var factory = this._factory;
             this.name = data.name;
             this.fields = data.fields;
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
