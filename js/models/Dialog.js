@@ -39,11 +39,11 @@ define(function (require, exports, module) {
         setField: function (name, value) {
             if (this[name] === value) { return; }
             this[name] = value;
-            this.onChanged();
+            this._onChanged();
         },
         addContact: function (contact) {
             this.contacts.push(contact);
-            this.onChanged();
+            this._onChanged();
         }
 
     });

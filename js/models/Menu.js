@@ -57,7 +57,7 @@ define(function (require, exports, module) {
 
         _onAppChanged: function () {
             // everything will be reconstructed anyway on app "changed"
-            this.onChanged();
+            this._onChanged();
         }
 
     });

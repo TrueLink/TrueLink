@@ -5,7 +5,7 @@ define(function (require, exports, module) {
 
     module.exports = {
         isModel: true,
-        onChanged: function () { this.fire("changed", this); },
+        _onChanged: function () { this.fire("changed", this); },
         set: function (name, value) {
             if (typeof name === "object") {
                 for (var key in name) {
@@ -17,7 +17,7 @@ define(function (require, exports, module) {
                 if (this[name] === value) { return; }
                 this[name] = value;
             }
-            this.onChanged();
+            this._onChanged();
         },
         get: function (name) { return this[name]; },
         serializationNeeded: function () {

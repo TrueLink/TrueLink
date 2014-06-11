@@ -53,7 +53,7 @@ define(function (require, exports, module) {
                 name: urandom.animal()
             });
             this.documents.push(document);
-            this.onChanged();
+            this._onChanged();
             return document;
         },
         createContact: function () {
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
             contact.set("name", urandom.name());
             contact.init();
             this.contacts.push(contact);
-            this.onChanged();
+            this._onChanged();
             return contact;
         },
 
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
                 dialog.set("name", contact.name);
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);
-                this.onChanged();
+                this._onChanged();
             }
             return dialog;
         }

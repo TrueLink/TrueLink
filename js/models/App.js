@@ -75,10 +75,10 @@ define(function (require, exports, module) {
 
         setRouter: function (router) {
             if (this.router) {
-                this.router.off("changed", this.onChanged, this);
+                this.router.off("changed", this._onChanged, this);
             }
             if (router) {
-                router.on("changed", this.onChanged, this);
+                router.on("changed", this._onChanged, this);
             }
             this.router = router;
         },
@@ -123,7 +123,7 @@ define(function (require, exports, module) {
             });
             this.currentProfile = profile;
             this.profiles.push(profile);
-            this.onChanged();
+            this._onChanged();
         }
 
     });

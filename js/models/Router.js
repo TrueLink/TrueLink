@@ -91,7 +91,7 @@ define(function (require, exports, module) {
                 this.currentPageModel = this._createPageModel(pageName, model);
                 this.currentPage = this._createPageView(pageName, this.currentPageModel);
                 this.currentPageName = pageName;
-                this.onChanged();
+                this._onChanged();
             } catch (ex) {
                 console.error("Navigation failed:", ex);
             }
