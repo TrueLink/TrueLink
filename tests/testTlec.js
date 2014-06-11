@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     "use strict";
     var utils = require("converters/all");
     var Hex = require("modules/multivalue/hex");
@@ -12,30 +12,30 @@ define(function (require, exports, module) {
         //console.log.apply(console, args);
     }
 
-    describe("True Link Encrypted Channel", function () {
+    describe("True Link Encrypted Channel", function() {
 
-        xdescribe("with builder", function () {
-            beforeEach(function (done) {
-                var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
-                var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
-                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
-                var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
+        describe("with builder", function() {
+            beforeEach(function(done) {
+                var transport = this.transport = utils.factory.createTransport();
                 var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
                 var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
 
-                aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
-                aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
+                aliceTlec.on("networkPacket", transport.sendNetworkPacket, transport);
+                bobTlec.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                aliceTlke.on("done", aliceTlth.build, aliceTlth);
-                bobTlke.on("done", bobTlht.build, bobTlht);
+                aliceTlec.on("addrIn", transport.openAddr, transport);
+                bobTlec.on("addrIn", transport.openAddr, transport);
 
-                aliceTlth.on("done", aliceTlec.build, aliceTlec);
-                bobTlht.on("done", bobTlec.build, bobTlec);
+                transport.on("networkPacket", aliceTlec.processNetworkPacket, aliceTlec);
+                transport.on("networkPacket", bobTlec.processNetworkPacket, bobTlec);
+
+                aliceTlec.on("offer", bobTlec.enterOffer, bobTlec);
+                aliceTlec.on("auth", bobTlec.enterAuth, bobTlec);
 
                 var results = [];
                 var success = function() {
                     results.push(this);
-                    if(results.length == 2) done();
+                    if (results.length == 2) done();
                 };
 
                 this.aliceHistory = [];
@@ -64,12 +64,12 @@ define(function (require, exports, module) {
                     this.bobTlec.sendMessage(new Utf8String(text));
                 };
 
-                aliceTlke.build();
-                bobTlke.build();
-                aliceTlke.generate();
+                aliceTlec.build();
+                bobTlec.build();
+                aliceTlec.generate();
             });
 
-            it("can send messages", function () {
+            it("can send messages", function() {
                 this.sendMessageFromAlice("Hi, Bob.");
                 this.sendMessageFromBob("Hi, Alice.");
                 this.sendMessageFromAlice("How are you doing, Bob?");
@@ -81,55 +81,60 @@ define(function (require, exports, module) {
 
                 expect(this.aliceHistory).toEqual(this.bobHistory);
                 expect(this.aliceHistory).toEqual([
-                    "Hi, Bob.", 
-                    "Hi, Alice.", 
-                    "How are you doing, Bob?", 
-                    "I'm sending messages to you over TLEC!!!", 
-                    "Wow, and how is it?", 
-                    "It is awesome!!!", 
-                    "Why?", 
-                    "Because our conversation now is more secured than ever" 
-                    ]);
+                    "Hi, Bob.",
+                    "Hi, Alice.",
+                    "How are you doing, Bob?",
+                    "I'm sending messages to you over TLEC!!!",
+                    "Wow, and how is it?",
+                    "It is awesome!!!",
+                    "Why?",
+                    "Because our conversation now is more secured than ever"
+                ]);
             });
 
         });
 
-        describe("tlec over tlec", function () {
-            beforeEach(function () {
-                var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
-                var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
-                var aliceTlth = this.aliceTlth = utils.factory.createTlhtBuilder();
-                var bobTlht = this.bobTlht = utils.factory.createTlhtBuilder();
+        describe("tlec over tlec", function() {
+            beforeEach(function(done) {
+                var transport = this.transport = utils.factory.createTransport();
                 var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
                 var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
 
-                aliceTlke.on("offer", bobTlke.enterOffer, bobTlke);
-                aliceTlke.on("auth", bobTlke.enterAuth, bobTlke);
+                aliceTlec.on("networkPacket", transport.sendNetworkPacket, transport);
+                bobTlec.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                aliceTlke.on("done", aliceTlth.build, aliceTlth);
-                bobTlke.on("done", bobTlht.build, bobTlht);
+                aliceTlec.on("addrIn", transport.openAddr, transport);
+                bobTlec.on("addrIn", transport.openAddr, transport);
 
-                aliceTlth.on("done", aliceTlec.build, aliceTlec);
-                bobTlht.on("done", bobTlec.build, bobTlec);
+                transport.on("networkPacket", aliceTlec.processNetworkPacket, aliceTlec);
+                transport.on("networkPacket", bobTlec.processNetworkPacket, bobTlec);
+
+                aliceTlec.on("offer", bobTlec.enterOffer, bobTlec);
+                aliceTlec.on("auth", bobTlec.enterAuth, bobTlec);
 
                 var results = [];
                 var success = function() {
                     results.push(this);
-                    if(results.length == 2) done();
+                    if (results.length == 2) done();
                 };
 
                 this.aliceHistory = [];
-                aliceTlec.on("done", function (tlec) {
-                    console.log("alice building over");
+                aliceTlec.on("done", function(tlec) {
+                    console.log("alice building over", tlec);
                     var over = utils.factory.createOverTlecBuilder();
-                    tlec.on("message", function (bytes) {
+
+                    over.on("networkPacket", transport.sendNetworkPacket, transport);
+                    over.on("addrIn", transport.openAddr, transport);
+                    transport.on("networkPacket", over.processNetworkPacket, over);
+
+                    aliceTlec.on("message", function(bytes) {
                         var msg = JSON.parse(bytes.as(Utf8String).value);
                         over.processMessage(msg);
                     });
-                    over.on("message", function (msg) {
-                        tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                    over.on("message", function(msg) {
+                        aliceTlec.sendMessage(new Utf8String(JSON.stringify(msg)));
                     });
-                    over.on("done", function (tlec2) { 
+                    over.on("done", function(tlec2) {
                         console.log("alice !!!!", tlec2);
                         this.aliceNewTlec = tlec2;
                         tlec2.on("message", function(bytes) {
@@ -140,18 +145,23 @@ define(function (require, exports, module) {
                     over.build(false);
                 }, this);
                 this.bobHistory = [];
-                bobTlec.on("done", function (tlec) {
-                    console.log("bob building over");
+                bobTlec.on("done", function(tlec) {
+                    console.log("bob building over", tlec);
                     var over = utils.factory.createOverTlecBuilder();
-                    tlec.on("message", function (bytes) {
+
+                    over.on("networkPacket", transport.sendNetworkPacket, transport);
+                    over.on("addrIn", transport.openAddr, transport);
+                    transport.on("networkPacket", over.processNetworkPacket, over);
+
+                    bobTlec.on("message", function(bytes) {
                         var msg = JSON.parse(bytes.as(Utf8String).value);
                         over.processMessage(msg);
                     });
-                    over.on("message", function (msg) {
-                        tlec.sendMessage(new Utf8String(JSON.stringify(msg)));
+                    over.on("message", function(msg) {
+                        bobTlec.sendMessage(new Utf8String(JSON.stringify(msg)));
                     });
-                    over.on("done", function (tlec2) {
-                        console.log("bob !!!!", this);
+                    over.on("done", function(tlec2) {
+                        console.log("bob !!!!", tlec2);
                         this.bobNewTlec = tlec2;
                         tlec2.on("message", function(bytes) {
                             this.bobHistory.push(bytes.as(Utf8String).value);
@@ -170,12 +180,12 @@ define(function (require, exports, module) {
                     this.bobNewTlec.sendMessage(new Utf8String(text));
                 };
 
-                aliceTlke.build();
-                bobTlke.build();
-                aliceTlke.generate();
+                aliceTlec.build();
+                bobTlec.build();
+                aliceTlec.generate();
             });
 
-            it("can send messages", function () {
+            it("can send messages", function() {
                 this.sendMessageFromAlice("Hi, Bob.");
                 this.sendMessageFromBob("Hi, Alice.");
                 this.sendMessageFromAlice("How are you doing, Bob?");
@@ -187,15 +197,15 @@ define(function (require, exports, module) {
 
                 expect(this.aliceHistory).toEqual(this.bobHistory);
                 expect(this.aliceHistory).toEqual([
-                    "Hi, Bob.", 
-                    "Hi, Alice.", 
-                    "How are you doing, Bob?", 
-                    "I'm sending messages to you over TLEC!!!", 
-                    "Wow, and how is it?", 
-                    "It is awesome!!!", 
-                    "Why?", 
-                    "Because our conversation now is more secured than ever" 
-                    ]);
+                    "Hi, Bob.",
+                    "Hi, Alice.",
+                    "How are you doing, Bob?",
+                    "I'm sending messages to you over TLEC!!!",
+                    "Wow, and how is it?",
+                    "It is awesome!!!",
+                    "Why?",
+                    "Because our conversation now is more secured than ever"
+                ]);
             });
 
         });

@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var TlkeBuilder = require("modules/channels/TlkeBuilder");
     var TlhtBuilder = require("modules/channels/TlhtBuilder");
     var TlecBuilder = require("modules/channels/TlecBuilder");
+    var OverTlecBuilder = require("modules/channels/OverTlecBuilder");
     var Tlke = require("modules/channels/Tlke");
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
@@ -18,39 +19,40 @@ define(function (require, exports, module) {
     }
 
     extend(TlConnectionFactory.prototype, {
-        createTlkeBuilder: function () {
+        createTlkeBuilder: function() {
             return new TlkeBuilder(this);
         },
-        createTlhtBuilder: function () {
+        createTlhtBuilder: function() {
             return new TlhtBuilder(this);
         },
-        createTlecBuilder: function () {
+        createTlecBuilder: function() {
             return new TlecBuilder(this);
         },
-
-        createTlke: function () {
+        createOverTlecBuilder: function() {
+            return new OverTlecBuilder(this);
+        },
+        createTlke: function() {
             return new Tlke(this);
         },
-        createTlht: function () {
+        createTlht: function() {
             return new Tlht(this);
         },
-        createTlec: function () {
+        createTlec: function() {
             return new Tlec(this);
         },
-
         // temp solution for smoke testing
-        createTransport: function () {
-            if(!this._transport) {
+        createTransport: function() {
+            if (!this._transport) {
                 this._transport = new TestTransport();
             }
             return this._transport;
         },
 
-        createRandom: function () {
+        createRandom: function() {
             return new Random();
         },
 
-        createRoute: function () {
+        createRoute: function() {
             return new Route(this);
         }
     });
