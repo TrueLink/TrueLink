@@ -35,6 +35,7 @@ define(function (require, exports, module) {
         init: function () {
             this.checkFactory();
             this.tlConnection = this._factory.createTlConnection();
+            this.tlConnection.init();
             this._onChanged();
         }
 

@@ -66,7 +66,7 @@ define(function(require, exports, module) {
 
                 aliceTlec.build();
                 bobTlec.build();
-                aliceTlec.generate();
+                aliceTlec.generateOffer();
             });
 
             it("can send messages", function() {
@@ -182,7 +182,7 @@ define(function(require, exports, module) {
 
                 aliceTlec.build();
                 bobTlec.build();
-                aliceTlec.generate();
+                aliceTlec.generateOffer();
             });
 
             it("can send messages", function() {

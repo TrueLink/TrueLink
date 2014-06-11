@@ -11,7 +11,7 @@ define(function (require, exports, module) {
                             _route: {}
                         },
                         _tlhtBuilder: {
-                            _tlke: {},
+                            _tlht: {},
                             _route: {}
                         },
                         _tlec: {},
@@ -23,7 +23,7 @@ define(function (require, exports, module) {
                             _route: {}
                         },
                         _tlhtBuilder: {
-                            _tlke: {},
+                            _tlht: {},
                             _route: {}
                         },
                         _tlec: {},

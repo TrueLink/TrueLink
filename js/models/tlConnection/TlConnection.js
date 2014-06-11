@@ -91,7 +91,7 @@ define(function (require, exports, module) {
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
-            builder.on("addrIn", this._onInitialAuth, this);
+            builder.on("addrIn", this._onInitialAddrIn, this);
             builder.on("networkPacket", this._onInitialNetworkPacket, this);
             builder.on("done", this._addTlecBuilder, this);
         },
@@ -101,7 +101,7 @@ define(function (require, exports, module) {
             builder.off("changed", this._onChanged, this);
             builder.off("offer", this._onInitialOffer, this);
             builder.off("auth", this._onInitialAuth, this);
-            builder.off("addrIn", this._onInitialAuth, this);
+            builder.off("addrIn", this._onInitialAddrIn, this);
             builder.off("networkPacket", this._onInitialNetworkPacket, this);
             builder.off("done", this._addTlecBuilder, this);
         },

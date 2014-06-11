@@ -25,6 +25,7 @@ define(function (require, exports, module) {
             var profile = new Profile();
             var profileFactory = new ProfileFactory(this.serializer, profile);
             profile.setFactory(profileFactory);
+            profile.setApp(this.app);
             return this._observed(profile);
         },
 
