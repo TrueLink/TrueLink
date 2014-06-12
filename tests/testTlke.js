@@ -82,7 +82,7 @@ define(function(require, exports, module) {
         });
 
         describe("with route short-circuited", function() {
-            beforeEach(function() {
+            before(function() {
                 var alice = this.alice = new TlkeTestBuilder("Alice");
                 var bob = this.bob = new TlkeTestBuilder("Bob");
                 alice.on("networkPacket", bob.processNetworkPacket, bob);
@@ -97,29 +97,29 @@ define(function(require, exports, module) {
             });
 
             it("alice key is ready", function() {
-                expect(this.alice.inId).not.toBeUndefined();
-                expect(this.alice.outId).not.toBeUndefined();
-                expect(this.alice.key).not.toBeUndefined();
+                expect(this.alice.inId).not.to.be.undefined;
+                expect(this.alice.outId).not.to.be.undefined;
+                expect(this.alice.key).not.to.be.undefined;
             });
 
             it("bob key is ready", function() {
-                expect(this.bob.inId).not.toBeUndefined();
-                expect(this.bob.outId).not.toBeUndefined();
-                expect(this.bob.key).not.toBeUndefined();
+                expect(this.bob.inId).not.to.be.undefined;
+                expect(this.bob.outId).not.to.be.undefined;
+                expect(this.bob.key).not.to.be.undefined;
             });
 
             it("channel ids matched", function() {
-                expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).toBe(true);
-                expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).toBe(true);
+                expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).to.be.true;
+                expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).to.be.true;
             });
 
             it("keys are the same", function() {
-                expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).toBe(true);
+                expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).to.be.true;
             });
         });
 
         describe("with transport", function() {
-            beforeEach(function() {
+            before(function() {
                 var transport = this.transport = utils.factory.createTransport();
                 var alice = this.alice = new TlkeTestBuilder("Alice");
                 var bob = this.bob = new TlkeTestBuilder("Bob");
@@ -141,24 +141,24 @@ define(function(require, exports, module) {
             });
 
             it("alice key is ready", function() {
-                expect(this.alice.inId).not.toBeUndefined();
-                expect(this.alice.outId).not.toBeUndefined();
-                expect(this.alice.key).not.toBeUndefined();
+                expect(this.alice.inId).not.to.be.undefined;
+                expect(this.alice.outId).not.to.be.undefined;
+                expect(this.alice.key).not.to.be.undefined;
             });
 
             it("bob key is ready", function() {
-                expect(this.bob.inId).not.toBeUndefined();
-                expect(this.bob.outId).not.toBeUndefined();
-                expect(this.bob.key).not.toBeUndefined();
+                expect(this.bob.inId).not.to.be.undefined;
+                expect(this.bob.outId).not.to.be.undefined;
+                expect(this.bob.key).not.to.be.undefined;
             });
 
             it("channel ids matched", function() {
-                expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).toBe(true);
-                expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).toBe(true);
+                expect(this.alice.inId.as(Hex).isEqualTo(this.bob.outId.as(Hex))).to.be.true;
+                expect(this.alice.outId.as(Hex).isEqualTo(this.bob.inId.as(Hex))).to.be.true;
             });
 
             it("keys are the same", function() {
-                expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).toBe(true);
+                expect(this.alice.key.as(Hex).isEqualTo(this.bob.key.as(Hex))).to.be.true;
             });
 
         });
@@ -199,24 +199,24 @@ define(function(require, exports, module) {
             });
 
             it("alice key is ready", function() {
-                expect(this.aliceResult.inId).not.toBeUndefined();
-                expect(this.aliceResult.outId).not.toBeUndefined();
-                expect(this.aliceResult.key).not.toBeUndefined();
+                expect(this.aliceResult.inId).not.to.be.undefined;
+                expect(this.aliceResult.outId).not.to.be.undefined;
+                expect(this.aliceResult.key).not.to.be.undefined;
             });
 
             it("bob key is ready", function() {
-                expect(this.bobResult.inId).not.toBeUndefined();
-                expect(this.bobResult.outId).not.toBeUndefined();
-                expect(this.bobResult.key).not.toBeUndefined();
+                expect(this.bobResult.inId).not.to.be.undefined;
+                expect(this.bobResult.outId).not.to.be.undefined;
+                expect(this.bobResult.key).not.to.be.undefined;
             });
 
             it("channel ids matched", function() {
-                expect(this.aliceResult.inId.as(Hex).isEqualTo(this.bobResult.outId.as(Hex))).toBe(true);
-                expect(this.aliceResult.outId.as(Hex).isEqualTo(this.bobResult.inId.as(Hex))).toBe(true);
+                expect(this.aliceResult.inId.as(Hex).isEqualTo(this.bobResult.outId.as(Hex))).to.be.true;
+                expect(this.aliceResult.outId.as(Hex).isEqualTo(this.bobResult.inId.as(Hex))).to.be.true;
             });
 
             it("keys are the same", function() {
-                expect(this.aliceResult.key.as(Hex).isEqualTo(this.bobResult.key.as(Hex))).toBe(true);
+                expect(this.aliceResult.key.as(Hex).isEqualTo(this.bobResult.key.as(Hex))).to.be.true;
             });
 
         });

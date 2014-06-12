@@ -15,7 +15,7 @@ define(function(require, exports, module) {
     describe("True Link Encrypted Channel", function() {
 
         describe("with builder", function() {
-            beforeEach(function(done) {
+            before(function(done) {
                 var transport = this.transport = utils.factory.createTransport();
                 var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
                 var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
@@ -79,8 +79,8 @@ define(function(require, exports, module) {
                 this.sendMessageFromAlice("Why?");
                 this.sendMessageFromBob("Because our conversation now is more secured than ever");
 
-                expect(this.aliceHistory).toEqual(this.bobHistory);
-                expect(this.aliceHistory).toEqual([
+                expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+                expect(this.aliceHistory).to.deep.equal([
                     "Hi, Bob.",
                     "Hi, Alice.",
                     "How are you doing, Bob?",
@@ -95,7 +95,7 @@ define(function(require, exports, module) {
         });
 
         describe("tlec over tlec", function() {
-            beforeEach(function(done) {
+            before(function(done) {
                 var transport = this.transport = utils.factory.createTransport();
                 var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
                 var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
@@ -195,8 +195,8 @@ define(function(require, exports, module) {
                 this.sendMessageFromAlice("Why?");
                 this.sendMessageFromBob("Because our conversation now is more secured than ever");
 
-                expect(this.aliceHistory).toEqual(this.bobHistory);
-                expect(this.aliceHistory).toEqual([
+                expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+                expect(this.aliceHistory).to.deep.equal([
                     "Hi, Bob.",
                     "Hi, Alice.",
                     "How are you doing, Bob?",

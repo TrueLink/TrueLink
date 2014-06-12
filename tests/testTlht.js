@@ -111,7 +111,7 @@ define(function(require, exports, module) {
         });
 
         describe("with transport", function() {
-            beforeEach(function(done) {
+            before(function(done) {
                 var transport = this.transport = utils.factory.createTransport();
                 var aliceTlke = this.aliceTlke = new TlkeTestBuilder("Alice", transport);
                 var bobTlke = this.bobTlke = new TlkeTestBuilder("Bob", transport);
@@ -139,19 +139,19 @@ define(function(require, exports, module) {
             });
 
             it("alice hash tails are ready", function() {
-                expect(this.aliceTlht.hashStart).not.toBeUndefined();
-                expect(this.aliceTlht.hashEnd).not.toBeUndefined();
+                expect(this.aliceTlht.hashStart).not.to.be.undefined;
+                expect(this.aliceTlht.hashEnd).not.to.be.undefined;
             });
 
             it("bob hash tails are ready", function() {
-                expect(this.bobTlht.hashStart).not.toBeUndefined();
-                expect(this.bobTlht.hashEnd).not.toBeUndefined();
+                expect(this.bobTlht.hashStart).not.to.be.undefined;
+                expect(this.bobTlht.hashEnd).not.to.be.undefined;
             });
 
         });
 
         describe("with builder", function() {
-            beforeEach(function(done) {
+            before(function(done) {
                 var transport = this.transport = utils.factory.createTransport();
                 var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
                 var bobTlke = this.bobTlke = utils.factory.createTlkeBuilder();
@@ -207,13 +207,13 @@ define(function(require, exports, module) {
             });
 
             it("alice hash tails are ready", function() {
-                expect(this.aliceResult.hashStart).not.toBeUndefined();
-                expect(this.aliceResult.hashEnd).not.toBeUndefined();
+                expect(this.aliceResult.hashStart).not.to.be.undefined;
+                expect(this.aliceResult.hashEnd).not.to.be.undefined;
             });
 
             it("bob hash tails are ready", function() {
-                expect(this.bobResult.hashStart).not.toBeUndefined();
-                expect(this.bobResult.hashEnd).not.toBeUndefined();
+                expect(this.bobResult.hashStart).not.to.be.undefined;
+                expect(this.bobResult.hashEnd).not.to.be.undefined;
             });
         });
 
