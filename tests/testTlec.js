@@ -38,7 +38,6 @@ define(function(require, exports, module) {
                     if (results.length == 2) done();
                 };
 
-                this.aliceHistory = [];
                 aliceTlec.on("done", function(tlec) {
                     this.aliceTlec = tlec;
                     tlec.on("message", function(bytes) {
@@ -51,7 +50,6 @@ define(function(require, exports, module) {
                     this.aliceTlec.sendMessage(new Utf8String(text));
                 };
 
-                this.bobHistory = [];
                 bobTlec.on("done", function(tlec) {
                     this.bobTlec = tlec;
                     tlec.on("message", function(bytes) {
@@ -67,6 +65,11 @@ define(function(require, exports, module) {
                 aliceTlec.build();
                 bobTlec.build();
                 aliceTlec.generateOffer();
+            });
+
+            beforeEach(function() {
+                this.aliceHistory = [];
+                this.bobHistory = [];
             });
 
             it("can send messages", function() {
@@ -92,6 +95,15 @@ define(function(require, exports, module) {
                 ]);
             });
 
+            it("can send long messages (16k)", function() {
+                var message="-"
+                while(message.length < 10000) {
+                    message = message + "|" + message;
+                }
+                this.sendMessageFromAlice(message);
+                expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+                expect(this.aliceHistory).to.deep.equal([message]);
+            });
         });
 
         describe("tlec over tlec", function() {
@@ -118,7 +130,6 @@ define(function(require, exports, module) {
                     if (results.length == 2) done();
                 };
 
-                this.aliceHistory = [];
                 aliceTlec.on("done", function(tlec) {
                     console.log("alice building over", tlec);
                     var over = utils.factory.createOverTlecBuilder();
@@ -144,7 +155,6 @@ define(function(require, exports, module) {
                     }, this);
                     over.build(false);
                 }, this);
-                this.bobHistory = [];
                 bobTlec.on("done", function(tlec) {
                     console.log("bob building over", tlec);
                     var over = utils.factory.createOverTlecBuilder();
@@ -183,6 +193,11 @@ define(function(require, exports, module) {
                 aliceTlec.build();
                 bobTlec.build();
                 aliceTlec.generateOffer();
+            });
+
+            beforeEach(function() {
+                this.aliceHistory = [];
+                this.bobHistory = [];
             });
 
             it("can send messages", function() {
