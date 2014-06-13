@@ -104,6 +104,13 @@ define(function(require, exports, module) {
                 expect(this.aliceHistory).to.deep.equal(this.bobHistory);
                 expect(this.aliceHistory).to.deep.equal([message]);
             });
+
+            it("can send many messages (100)", function() {
+                for(var i=0; i<100; i++) {
+                    this.sendMessageFromAlice("message #" + i);
+                }
+                expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+            });
         });
 
         describe("tlec over tlec", function() {
