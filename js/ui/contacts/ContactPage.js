@@ -34,14 +34,22 @@ define(function (require, exports, module) {
             var offer = Hex.fromString(this.refs.auth.getDOMNode().value);
             this.props.pageModel.model.tlConnection.enterAuth(offer);
         },
+        _componentDidMount: function () {
+            var contact = this.props.pageModel.model;
+            contact.tlConnection.on("changed", this._onModelChanged, this);
+        },
+        _componentWillUnmount: function () {
+            var contact = this.props.pageModel.model;
+            contact.tlConnection.off("changed", this._onModelChanged, this);
+        },
         render: function () {
             var contact = this.state.model;
 //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
-            var tlConnectionState = contact.tlConnection ? contact.tlConnection.getStatus() : null;
-            var offer = contact.tlConnection && contact.tlConnection.offer ? contact.tlConnection.offer.as(Hex).toString() : null;
-            var auth = contact.tlConnection && contact.tlConnection.auth ? contact.tlConnection.auth.as(Hex).toString() : null;
+            var tlConnectionState = contact.tlConnection.getStatus();
+            var offer = contact.tlConnection.offer ? contact.tlConnection.offer.as(Hex).toString() : null;
+            var auth =  contact.tlConnection.auth ? contact.tlConnection.auth.as(Hex).toString() : null;
 
             return React.DOM.div({className: "contact-page"},
                 React.DOM.div({className: "app-page-title"},
