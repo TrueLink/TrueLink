@@ -1,8 +1,8 @@
 var connect = require('connect');
 var app = connect()
+    .use(connect.logger())
     .use(function (req, res, next) {
         "use strict";
-	console.log(req.method + " " + req.url);
         try {
             if (req.url.indexOf(".appcache") !== -1) {
                 res.setHeader("Content-Type", "text/cache-manifest");
