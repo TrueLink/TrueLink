@@ -196,8 +196,19 @@ a.title {
     float: left;
 }
 
-/* --- CONTACTS --- */
-
+/* --- CONTACT (temp)--- */
+.contact-page .app-page-content {
+    padding: 10px;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+.contact-page input {
+    font-size: 1.5rem;
+    width: 80%;
+}
+.contact-page button {
+    padding: .3em;
+}
 
 /* --- DIALOGS --- */
 .dialogs-page .app-page-content {

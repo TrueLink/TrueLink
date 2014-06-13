@@ -49,6 +49,8 @@ define(function (require, exports, module) {
         },
 
         abortTlke: function () {
+            this.offer = null;
+            this.auth = null;
             this._initialTlecBuilder.rebuild();
         },
 
@@ -62,12 +64,12 @@ define(function (require, exports, module) {
         },
         _linkFinishedTlecBuilder: function (builder) {
             builder.on("message", this._receiveMessage, this);
-            builder.on("networkPacket", this._receiveMessage, this);
+            builder.on("networkPacket", this._onNetworkPacket, this);
         },
 
         _unlinkFinishedTlecBuilder: function (builder) {
             builder.off("message", this._receiveMessage, this);
-            builder.off("networkPacket", this._receiveMessage, this);
+            builder.off("networkPacket", this._onNetworkPacket, this);
         },
 
         _addTlecBuilder: function (builder) {
@@ -92,7 +94,7 @@ define(function (require, exports, module) {
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
             builder.on("addrIn", this._onInitialAddrIn, this);
-            builder.on("networkPacket", this._onInitialNetworkPacket, this);
+            builder.on("networkPacket", this._onNetworkPacket, this);
             builder.on("done", this._addTlecBuilder, this);
         },
         _unlinkInitial: function () {
@@ -102,7 +104,7 @@ define(function (require, exports, module) {
             builder.off("offer", this._onInitialOffer, this);
             builder.off("auth", this._onInitialAuth, this);
             builder.off("addrIn", this._onInitialAddrIn, this);
-            builder.off("networkPacket", this._onInitialNetworkPacket, this);
+            builder.off("networkPacket", this._onNetworkPacket, this);
             builder.off("done", this._addTlecBuilder, this);
         },
 
@@ -121,7 +123,7 @@ define(function (require, exports, module) {
             this._transport.openAddr(addr);
         },
 
-        _onInitialNetworkPacket: function (packet) {
+        _onNetworkPacket: function (packet) {
             this._transport.sendNetworkPacket(packet);
         },
 
