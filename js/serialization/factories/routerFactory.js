@@ -43,11 +43,7 @@ define(function (require, exports, module) {
         },
 
         construct: function (Constructor) {
-            return this._observed(new Constructor(this));
-        },
-
-        shoudBeDeserialized: function () {
-            throw new Error("All needed instances must be deserialized before router deserialization");
+            return this._observed(new Constructor(this.serializer.getRetardedFactory()));
         }
 
     });
