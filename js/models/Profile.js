@@ -81,7 +81,7 @@ define(function (require, exports, module) {
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
                 dialog = this._factory.createDialog();
-                dialog.set("name", contact.name);
+                dialog.name = contact.name;
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);
                 this._onChanged();
