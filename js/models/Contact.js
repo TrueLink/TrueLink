@@ -15,6 +15,12 @@ define(function (require, exports, module) {
     }
 
     extend(Contact.prototype, eventEmitter, serializable, model, {
+        init: function () {
+            this.checkFactory();
+            this.tlConnection = this._factory.createTlConnection();
+            this.tlConnection.init();
+            this._onChanged();
+        },
 
         setProfile: function (profile) {
             this.profile = profile;
@@ -30,14 +36,9 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection.bind(factory));
-        },
-
-        init: function () {
-            this.checkFactory();
-            this.tlConnection = this._factory.createTlConnection();
-            this.tlConnection.init();
-            this._onChanged();
         }
+
+
 
     });
 

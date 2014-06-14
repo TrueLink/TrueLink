@@ -198,15 +198,18 @@ a.title {
 
 /* --- CONTACT (temp)--- */
 .contact-page .app-page-content {
-    padding: 10px;
+    padding: 0 10px;
+}
+.contact-page .tlStatus {
+    margin: 10px 0;
     font-size: 1.5rem;
     color: #ffffff;
 }
-.contact-page input {
+.contact-page .tlStatus input {
     font-size: 1.5rem;
     width: 80%;
 }
-.contact-page button {
+.contact-page .tlStatus button {
     padding: .3em;
 }
 

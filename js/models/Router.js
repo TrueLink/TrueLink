@@ -14,6 +14,8 @@ define(function (require, exports, module) {
     var ContactPageModel = require("models/pageModels/ContactPageModel");
     var DialogsPage = require("ui/dialogs/DialogsPage");
     var DialogsPageModel = require("models/pageModels/DialogsPageModel");
+    var DialogPage = require("ui/dialogs/DialogPage");
+    var DialogPageModel = require("models/pageModels/DialogPageModel");
     var DocumentsPage = require("ui/documents/DocumentsPage");
     var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
 
@@ -37,10 +39,10 @@ define(function (require, exports, module) {
             model: DialogsPageModel
         },
 
-//        "dialog": {
-//            view: DialogsPage,
-//            model: DialogsPageModel
-//        },
+        "dialog": {
+            view: DialogPage,
+            model: DialogPageModel
+        },
 
         "documents": {
             view: DocumentsPage,

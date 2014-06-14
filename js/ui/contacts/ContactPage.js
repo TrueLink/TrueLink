@@ -15,6 +15,12 @@ define(function (require, exports, module) {
             var contact = this.props.pageModel.model;
             contact.tlConnection.off("changed", this._onModelChanged, this);
         },
+        handleGoToDialog: function () {
+            var contact = this.props.pageModel.model;
+            var dialog = contact.profile.startDirectDialog(contact);
+            this.props.router.navigate("dialog", dialog);
+            return false;
+        },
         render: function () {
             var contact = this.state.model;
 //            var pageModel = this.state.pageModel;
@@ -27,7 +33,9 @@ define(function (require, exports, module) {
                         href: "",
                         onClick: router.createNavigateHandler("contacts", contact.profile)
                     }, "Contact details: " + contact.name)),
-                    TlConnectionStatus({tlConnection: contact.tlConnection}));
+                React.DOM.div({className: "app-page-content"},
+                     TlConnectionStatus({tlConnection: contact.tlConnection}),
+                     React.DOM.a({className: "button", href: "", onClick: this.handleGoToDialog}, "Go to dialog")));
         }
     });
 });
