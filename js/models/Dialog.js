@@ -59,7 +59,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
             this.name = data.name;
             this.fields = data.fields;
-            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter.bind(this));
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
         },
 
         link: function () {

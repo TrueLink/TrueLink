@@ -47,7 +47,7 @@
             };
             var appPacket = serializer.createPacket(Application.id, query, null, counterObj), app;
             if (appPacket) {
-                app = serializer.deserialize(appPacket, serializer.createApp.bind(serializer));
+                app = serializer.deserialize(appPacket, serializer.createApp, serializer);
                 console.log("app deserialized: %s objects (~%s KB), %s links", counterObj.objCount, (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
             } else {
                 app = serializer.createApp();

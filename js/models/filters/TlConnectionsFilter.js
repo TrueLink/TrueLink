@@ -30,7 +30,7 @@ define(function (require, exports, module) {
 
         deserialize: function (packet, context) {
             var factory = this._factory;
-            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"), factory.shouldBeDeserialized.bind(factory));
+            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"), factory.shouldBeDeserialized, factory);
 
         },
         addTlConnection: function (conn) {

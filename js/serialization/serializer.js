@@ -71,9 +71,9 @@ define(function (require, exports, module) {
             });
         },
 
-        deserialize: function (packet, constructor) {
+        deserialize: function (packet, constructor, thisArg) {
             var deserContext = new SerializationContext();
-            var obj = deserContext.deserialize(packet, constructor);
+            var obj = deserContext.deserialize(packet, constructor, thisArg);
             this.updateObjCache(deserContext);
             return obj;
         },

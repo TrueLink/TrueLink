@@ -35,7 +35,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
             var data = packet.getData();
             this.name = data.name;
-            this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection.bind(factory));
+            this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
         }
 
 

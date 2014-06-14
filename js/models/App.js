@@ -36,20 +36,20 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
-            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport.bind(factory));
-            this.random = context.deserialize(packet.getLink("random"), factory.createRandom.bind(factory));
-            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile.bind(factory));
-            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile.bind(factory));
+            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
+            this.random = context.deserialize(packet.getLink("random"), factory.createRandom, factory);
+            this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile, factory);
+            this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile, factory);
 
             try {
-                this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu.bind(factory)));
+                this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu, factory));
             } catch (ex) {
                 console.error(ex);
                 this.setMenu(this._factory.createMenu());
             }
 
             try {
-                this.setRouter(context.deserialize(packet.getLink("router"), factory.createRouter.bind(factory)));
+                this.setRouter(context.deserialize(packet.getLink("router"), factory.createRouter, factory));
             } catch (ex) {
                 console.error(ex);
                 this.setRouter(this._factory.createRouter());

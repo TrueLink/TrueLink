@@ -81,7 +81,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
 
             var modelConstructor = factory.getConstructor(data.modelType);
-            this.currentPageModel = context.deserialize(packet.getLink("pageModel"), modelConstructor.bind(factory));
+            this.currentPageModel = context.deserialize(packet.getLink("pageModel"), modelConstructor, factory);
             this.currentPage = this._createPageView(this.currentPageName, this.currentPageModel);
         },
 

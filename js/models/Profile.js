@@ -41,9 +41,9 @@ define(function (require, exports, module) {
             this.name = data.name;
             this.bg = data.bg;
             this.pollingUrl = data.pollingUrl;
-            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument.bind(factory));
-            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory));
-            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog.bind(factory));
+            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
 
         },
         createDocument: function () {

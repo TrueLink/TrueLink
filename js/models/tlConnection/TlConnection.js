@@ -161,9 +161,9 @@ define(function (require, exports, module) {
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
 
-            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder.bind(factory));
+            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder, factory);
             this._linkInitial();
-            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder.bind(factory));
+            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
             this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
         }
 
