@@ -17,6 +17,7 @@ define(function (require, exports, module) {
         this._defineEvent("unfiltered");
         this._defineEvent("changed");
         this._tlConnections = [];
+        this._factory = factory;
     }
 
     TlConnectionsFilter.prototype = new Filter();
@@ -29,8 +30,13 @@ define(function (require, exports, module) {
 
         deserialize: function (packet, context) {
             var factory = this._factory;
-            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"), factory.shoudBeDeserialized.bind(factory));
+            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"), factory.shouldBeDeserialized.bind(factory));
 
+        },
+        addTlConnection: function (conn) {
+            if (this._tlConnections.indexOf(conn) !== -1) { return; }
+            this._tlConnections.push(conn);
+            this._onChanged();
         },
         _filter: function (value) {
             if (!value || !value.tlConnection) { return; }

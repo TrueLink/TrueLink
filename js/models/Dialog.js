@@ -22,11 +22,11 @@ define(function (require, exports, module) {
 
     extend(Dialog.prototype, eventEmitter, serializable, model, {
         init: function () {
-//            this.tlConnectionsFilter =
+            this.tlConnectionsFilter = this._factory.createTlConnectionFilter();
         },
         addContact: function (contact) {
             this.contacts.push(contact);
-            this.tlConnectionsFilter;
+            this.tlConnectionsFilter.addTlConnection(contact.tlConnection);
         },
         processMessage: function (message) {
             invariant(this.tlConnectionsFilter, "dialog is not ready");
@@ -59,7 +59,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
             this.name = data.name;
             this.fields = data.fields;
-            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact.bind(factory, this));
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter.bind(this));
         },
 
         link: function () {
