@@ -16,10 +16,6 @@ define(function (require, exports, module) {
 
     extend(Contact.prototype, eventEmitter, serializable, model, {
         init: function () {
-            this.checkFactory();
-            this.tlConnection = this._factory.createTlConnection();
-            this.tlConnection.init();
-            this._onChanged();
         },
 
         setProfile: function (profile) {

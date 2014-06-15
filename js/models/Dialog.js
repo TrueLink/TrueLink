@@ -9,7 +9,6 @@ define(function (require, exports, module) {
 
     function Dialog() {
         this._defineEvent("changed");
-        this._defineEvent("message");
 
         this.profile = null;
         this.name = null;
@@ -25,12 +24,12 @@ define(function (require, exports, module) {
             this.tlConnectionsFilter = this._factory.createTlConnectionFilter();
         },
         addContact: function (contact) {
+            invariant(this.tlConnectionsFilter, "dialog is not ready. Ensure to call init() before addContact()");
+            console.log("__dialog added contact");
             this.contacts.push(contact);
-            this.tlConnectionsFilter.addTlConnection(contact.tlConnection);
-        },
-        processMessage: function (message) {
-            invariant(this.tlConnectionsFilter, "dialog is not ready");
-            this.typeFilter.filter(message);
+            var contactTlConnection = contact.tlConnection;
+            this.tlConnectionsFilter.addTlConnection(contactTlConnection);
+            this._linkTlConnection(contactTlConnection);
         },
 
         sendMessage: function (message) {
@@ -73,9 +72,15 @@ define(function (require, exports, module) {
 
 
         _onMessage: function (message) {
-            this.fire("message", message);
-        }
+            function sendMessage(conn) {
+                conn.sendMessage(message);
+            }
+            message.tlConnection.forEach(sendMessage);
+        },
 
+        _linkTlConnection: function (conn) {
+            conn.on("message", this.typeFilter.filter, this.typeFilter);
+        }
 
     });
 

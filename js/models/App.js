@@ -105,7 +105,8 @@ define(function (require, exports, module) {
             return this.currentProfile;
         },
         setCurrentProfile: function (profile) {
-            this.set("currentProfile", profile);
+            this.currentProfile = profile;
+            this._onChanged();
         },
 
 

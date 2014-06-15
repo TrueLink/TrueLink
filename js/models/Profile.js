@@ -14,6 +14,7 @@ define(function (require, exports, module) {
         this.bg = null;
         this.documents = [];
         this.contacts = [];
+        this.tlConnections = [];
         this.dialogs = [];
         this.pollingUrl = "";
     }
@@ -23,29 +24,7 @@ define(function (require, exports, module) {
         setApp: function (app) {
             this.app = app;
         },
-        serialize: function (packet, context) {
-            packet.setData({
-                name: this.name,
-                bg: this.bg,
-                pollingUrl: this.pollingUrl
-            });
 
-            packet.setLink("documents", context.getPacket(this.documents));
-            packet.setLink("contacts", context.getPacket(this.contacts));
-            packet.setLink("dialogs", context.getPacket(this.dialogs));
-        },
-        deserialize: function (packet, context) {
-            this.checkFactory();
-            var factory = this._factory;
-            var data = packet.getData();
-            this.name = data.name;
-            this.bg = data.bg;
-            this.pollingUrl = data.pollingUrl;
-            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
-            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
-            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
-
-        },
         createDocument: function () {
             this.checkFactory();
             var document = this._factory.createDocument();
@@ -59,11 +38,45 @@ define(function (require, exports, module) {
         createContact: function () {
             this.checkFactory();
             var contact = this._factory.createContact(this);
-            contact.set("name", urandom.name());
+            var contactTlConnection = this._createTlConnection();
+            this._addTlConnection(contactTlConnection);
+            contact.set({
+                name : urandom.name(),
+                tlConnection: contactTlConnection
+            });
             contact.init();
+            console.log("__profile added contact with tlConnection");
             this.contacts.push(contact);
             this._onChanged();
             return contact;
+        },
+
+        startDirectDialog: function (contact) {
+            this.checkFactory();
+            var dialog = this._findDirectDialog(contact);
+            if (!dialog) {
+                dialog = this._factory.createDialog();
+                dialog.init();
+                dialog.name = contact.name;
+                dialog.addContact(contact);
+                console.log("__profile added dialog");
+                this.dialogs.push(dialog);
+                this._onChanged();
+            }
+            return dialog;
+        },
+
+        _createTlConnection: function () {
+            this.checkFactory();
+            var tlConnection = this._factory.createTlConnection();
+            tlConnection.init();
+            return tlConnection;
+        },
+
+        _addTlConnection: function (conn) {
+            this._linkTlConnection(conn);
+            console.log("__profile added tlConnection");
+            this.tlConnections.push(conn);
         },
 
         _findDirectDialog: function (contact) {
@@ -76,18 +89,41 @@ define(function (require, exports, module) {
             return null;
         },
 
-        startDirectDialog: function (contact) {
+        serialize: function (packet, context) {
+            packet.setData({
+                name: this.name,
+                bg: this.bg,
+                pollingUrl: this.pollingUrl
+            });
+
+            packet.setLink("documents", context.getPacket(this.documents));
+            packet.setLink("contacts", context.getPacket(this.contacts));
+            packet.setLink("dialogs", context.getPacket(this.dialogs));
+            packet.setLink("tlConnections", context.getPacket(this.tlConnections));
+        },
+        deserialize: function (packet, context) {
             this.checkFactory();
-            var dialog = this._findDirectDialog(contact);
-            if (!dialog) {
-                dialog = this._factory.createDialog();
-                dialog.name = contact.name;
-                dialog.addContact(contact);
-                this.dialogs.push(dialog);
-                this._onChanged();
-            }
-            return dialog;
-        }
+            var factory = this._factory;
+            var data = packet.getData();
+            this.name = data.name;
+            this.bg = data.bg;
+            this.pollingUrl = data.pollingUrl;
+            this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
+            this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
+            this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
+            this.tlConnections.forEach(this._linkTlConnection, this);
+
+        },
+        _linkTlConnection: function (conn) {
+            conn.on("message", this._onTlConnectionMessage, this);
+        },
+
+        _onTlConnectionMessage: function (message) {
+            this.fire("message", message);
+        },
+
+
     });
 
     module.exports = Profile;
