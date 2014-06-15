@@ -121,7 +121,7 @@ define(function (require, exports, module) {
 
         _onTlConnectionMessage: function (message) {
             this.fire("message", message);
-        },
+        }
 
 
     });

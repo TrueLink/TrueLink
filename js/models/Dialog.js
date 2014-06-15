@@ -20,6 +20,9 @@ define(function (require, exports, module) {
     }
 
     extend(Dialog.prototype, eventEmitter, serializable, model, {
+        setProfile: function (profile) {
+            this.profile = profile;
+        },
         init: function () {
             this.tlConnectionsFilter = this._factory.createTlConnectionFilter();
         },
@@ -34,15 +37,11 @@ define(function (require, exports, module) {
 
         sendMessage: function (message) {
             invariant(this.tlConnectionsFilter, "dialog is not ready");
-            this.tlConnectionsFilter.unfilter(message);
-        },
-
-        setProfile: function (profile) {
-            this.profile = profile;
+            this.tlConnectionsFilter.unfilter({data: message});
         },
 
         _processMessage: function (message) {
-
+            this.messages.push(message.data);
         },
 
         serialize: function (packet, context) {
@@ -51,6 +50,7 @@ define(function (require, exports, module) {
                 fields: this.fields
             });
             packet.setLink("contacts", context.getPacket(this.contacts));
+            packet.setLink("tlConnectionsFilter", context.getPacket(this.tlConnectionsFilter));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
@@ -59,6 +59,7 @@ define(function (require, exports, module) {
             this.name = data.name;
             this.fields = data.fields;
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
+            this.tlConnectionsFilter = context.deserialize(packet.getLink("tlConnectionsFilter"), factory.createTlConnectionFilter, factory);
         },
 
         link: function () {
