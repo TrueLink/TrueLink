@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     "use strict";
-    var Filter = require("models/filter/Filter");
+    var Filter = require("modules/filter/Filter");
     var serializable = require("modules/serialization/serializable");
     var tools = require("modules/tools");
     var extend = tools.extend;
@@ -11,13 +11,11 @@ define(function (require, exports, module) {
     // passes if one of (or itself, if not array) value.tlConnection is found in this._tlConnections
     // sets value.tlConnection = this._tlConnections on unfilter
 
-    function TlConnectionsFilter(factory) {
-        invariant(factory, "can be created only with factory");
+    function TlConnectionsFilter() {
         this._defineEvent("filtered");
         this._defineEvent("unfiltered");
         this._defineEvent("changed");
         this._tlConnections = [];
-        this._factory = factory;
     }
 
     TlConnectionsFilter.prototype = new Filter();
@@ -29,8 +27,7 @@ define(function (require, exports, module) {
         },
 
         deserialize: function (packet, context) {
-            var factory = this._factory;
-            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"), factory.shouldBeDeserialized, factory);
+            this._tlConnections = context.deserialize(packet.getLink("_tlConnections"));
 
         },
         addTlConnection: function (conn) {

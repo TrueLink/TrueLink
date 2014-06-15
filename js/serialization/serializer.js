@@ -30,30 +30,35 @@ define(function (require, exports, module) {
             return packet;
         },
 
-        createPacket: function (id, scheme, context, counterObj) {
+        createPacket: function (scheme, type, id, context, counterObj) {
             context = context || {};
             if (context[id]) { return context[id]; }
+            var typeDef = scheme[type];
+            if (!typeDef) {
+                throw new Error("type with name " + type + " is not found in the scheme");
+            }
 
             var packetData = db.getById(id);
             if (!packetData) { return null; }
 
             counterObj.dataLength += JSON.stringify(packetData).length;
-            var packet = this.dataToPacket(packetData), linkName;
+            var packet = this.dataToPacket(packetData);
             context[id] = packet;
             counterObj.objCount += 1;
 
-            //if (isArray)
-            var links, that = this;
-            for (linkName in scheme) {
-                links = db.getLinks(id, linkName);
-                counterObj.linkCount += links.length;
-                if (isArray(scheme[linkName])) {
-                    packet.setLink(linkName, links.map(function (link) {
-                        return that.createPacket(link.toId, scheme[linkName][0], context, counterObj);
-                    }));
-                } else {
-                    if (links.length > 0) {
-                        packet.setLink(linkName, that.createPacket(links[0].toId, scheme[linkName], context, counterObj));
+            var linkName, link, dbLinks;
+
+            function createPacketFromDbLink(typeDefName, dbLink) {
+                return this.createPacket(scheme, typeDefName, dbLink.toId, context, counterObj);
+            }
+            for (linkName in typeDef) {
+                link = typeDef[linkName];
+                dbLinks = db.getLinks(id, linkName);
+                if (link.propType === "many") {
+                    packet.setLink(linkName, dbLinks.map(createPacketFromDbLink.bind(this, link.type)));
+                } else if (link.propType === "one") {
+                    if (dbLinks.length > 0) {
+                        packet.setLink(linkName, createPacketFromDbLink.call(this, link.type, dbLinks[0]));
                     } else {
                         packet.setLink(linkName, SerializationPacket.nullPacket);
                     }
@@ -63,12 +68,11 @@ define(function (require, exports, module) {
         },
 
         updateObjCache: function (context) {
-            var that = this;
             context.getObjects().forEach(function (obj) {
                 var id = obj.getMeta().id;
                 if (!id) { return; }
-                that.objCache[id] = obj;
-            });
+                this.objCache[id] = obj;
+            }, this);
         },
 
         deserialize: function (packet, constructor, thisArg) {
@@ -91,9 +95,8 @@ define(function (require, exports, module) {
 
 // recursively update all link info
         storeLinks: function (packet, seen, counterObj) {
-            var that = this;
             if (isArray(packet)) {
-                packet.forEach(function (p) { that.storeLinks(p, seen, counterObj); });
+                packet.forEach(function (p) { this.storeLinks(p, seen, counterObj); }, this);
                 return;
             }
             if (seen.indexOf(packet) !== -1) { return; }
@@ -102,8 +105,8 @@ define(function (require, exports, module) {
             if (!packet.isSerialized) { return; }
             var links = packet.getLinks(), linkName;
             for (linkName in links) {
-                that._storeLinks(packet, linkName, links[linkName], counterObj);
-                that.storeLinks(links[linkName], seen, counterObj);
+                this._storeLinks(packet, linkName, links[linkName], counterObj);
+                this.storeLinks(links[linkName], seen, counterObj);
             }
         },
 
@@ -114,20 +117,19 @@ define(function (require, exports, module) {
                 linkCount: 0
             };
             var packets = context.getPackets();
-            var that = this;
             packets.forEach(function (packet) {
                 if (!packet.isSerialized) { return; }
                 var meta = packet.getMetaData();
                 if (!meta.id) {
                     meta.id = meta.fixedId || newUuid();
                 }
-                var data = that.packetToData(packet);
+                var data = this.packetToData(packet);
                 counterObj.dataLength += JSON.stringify(data).length;
                 db.save(data);
-            });
+            }, this);
             packets.forEach(function (packet) {
-                that.storeLinks(packet, [], counterObj);
-            });
+                this.storeLinks(packet, [], counterObj);
+            }, this);
             context.deepSyncMeta(packets);
             this.updateObjCache(context);
             console.log("context stored: %s objects (~%s KB), %s links", packets.length, (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
@@ -150,15 +152,6 @@ define(function (require, exports, module) {
         listen: function (obj) {
             obj.on("changed", this.onObjectChanged, this);
         },
-
-        getRetardedFactory: function () {
-            return {
-                shouldBeDeserialized: function () {
-                    throw new Error("All needed instances must be already deserialized by this point");
-                }
-            };
-        },
-
 
         createApp: function () {
             if (!this.app) {

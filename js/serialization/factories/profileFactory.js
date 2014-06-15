@@ -10,7 +10,7 @@ define(function (require, exports, module) {
 
     var TlConnection = require("models/tlConnection/TlConnection");
     var TlConnectionFactory = require("./tlConnectionFactory");
-    var TlConnectionFilter = require("models/filters/TlConnectionFilter");
+    var TlConnectionsFilter = require("models/filters/TlConnectionsFilter");
 
 
     function ProfileFactory(serializer, profile) {
@@ -49,8 +49,8 @@ define(function (require, exports, module) {
         },
 
         createTlConnectionFilter: function () {
-            var tlConnectionFilter = new TlConnectionFilter(this.serializer.getRetardedFactory());
-            return this._observed(tlConnectionFilter);
+            var tlConnectionsFilter = new TlConnectionsFilter();
+            return this._observed(tlConnectionsFilter);
         }
     });
 

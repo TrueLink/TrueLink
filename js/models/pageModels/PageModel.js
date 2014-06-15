@@ -17,7 +17,7 @@ define(function (require, exports, module) {
         },
         _deserializeModel: function (packet, context) {
             var factory = this._factory;
-            this.setModel(context.deserialize(packet.getLink("model"), factory.shouldBeDeserialized, factory));
+            this.setModel(context.deserialize(packet.getLink("model")));
         },
         _serializeModel: function (packet, context) {
             packet.setLink("model", context.getPacket(this.model));
