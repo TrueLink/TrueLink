@@ -6,20 +6,16 @@ define(function (require, exports, module) {
     module.exports = {
         isModel: true,
         _onChanged: function () { this.fire("changed", this); },
-        set: function (name, value) {
-            if (typeof name === "object") {
-                for (var key in name) {
-                    if(name.hasOwnProperty(key)) {
-                        this[key] = name[key];
-                    }
+        set: function (obj) {
+            invariant(typeof obj === "object", "obj must be object");
+            for (var key in obj) {
+                if(obj.hasOwnProperty(key)) {
+                    this[key] = obj[key];
                 }
-            } else {
-                if (this[name] === value) { return; }
-                this[name] = value;
             }
             this._onChanged();
         },
-        get: function (name) { return this[name]; },
+        //get: function (name) { return this[name]; },
         serializationNeeded: function () {
             return !this.getMeta() || !this.getMeta().id;
         },
