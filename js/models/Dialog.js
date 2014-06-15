@@ -25,6 +25,7 @@ define(function (require, exports, module) {
         },
         init: function () {
             this.tlConnectionsFilter = this._factory.createTlConnectionFilter();
+            this._link();
         },
         addContact: function (contact) {
             invariant(this.tlConnectionsFilter, "dialog is not ready. Ensure to call init() before addContact()");
@@ -37,11 +38,15 @@ define(function (require, exports, module) {
 
         sendMessage: function (message) {
             invariant(this.tlConnectionsFilter, "dialog is not ready");
-            this.tlConnectionsFilter.unfilter({data: message});
+            var msg = {text: message};
+            this.messages.push(msg);
+            this.tlConnectionsFilter.unfilter(msg);
+            this._onChanged();
         },
 
         _processMessage: function (message) {
-            this.messages.push(message.data);
+            this.messages.push(message);
+            this._onChanged();
         },
 
         serialize: function (packet, context) {
@@ -60,9 +65,10 @@ define(function (require, exports, module) {
             this.fields = data.fields;
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
             this.tlConnectionsFilter = context.deserialize(packet.getLink("tlConnectionsFilter"), factory.createTlConnectionFilter, factory);
+            this._link();
         },
 
-        link: function () {
+        _link: function () {
             if (this.typeFilter && this.tlConnectionsFilter) {
                 this.typeFilter.on("filtered", this.tlConnectionsFilter.filter, this.tlConnectionsFilter);
                 this.tlConnectionsFilter.on("filtered", this._processMessage, this);
@@ -70,8 +76,6 @@ define(function (require, exports, module) {
                 this.typeFilter.on("unfiltered", this._onMessage, this);
             }
         },
-
-
         _onMessage: function (message) {
             function sendMessage(conn) {
                 conn.sendMessage(message);

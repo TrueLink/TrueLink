@@ -25,6 +25,7 @@ define(function (require, exports, module) {
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
                     }, "Dialog: " + dialog.name)),
                 React.DOM.div({className: "app-page-content"},
+                    MessagesView({messages: dialog.messages}),
                     React.DOM.form({onSubmit: this._onSubmit},
                         React.DOM.input({ref: "inputMessage"}))));
         }
