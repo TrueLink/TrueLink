@@ -5,14 +5,14 @@ define(function (require, exports, module) {
     var codecBytes = require("modules/sjcl/codecBytes");
     var codecHex = require("modules/sjcl/codecHex");
     var codecString = require("modules/sjcl/codecString");
-    var BigIntSjcl = require("modules/sjcl/bn");
+    var Bn = require("modules/sjcl/bn");
     var Base64 = require("modules/multivalue/base64");
     var Base64Url = require("modules/multivalue/base64url");
     var BitArray = require("modules/multivalue/bitArray");
     var Hex = require("modules/multivalue/hex");
     var Utf8String = require("modules/multivalue/utf8string");
     var Bytes = require("modules/multivalue/bytes");
-    var Bn = require("modules/multivalue/bigIntSjcl");
+    var BigIntSjcl = require("modules/multivalue/bigIntSjcl");
 
     converter.register("base64", "bitArray", function (value) {
         return new BitArray(codecBase64.toBits(value));
@@ -51,13 +51,13 @@ define(function (require, exports, module) {
         return new BitArray(value.toBits());
     });
     converter.register("bitArray", "bigIntSjcl",function (value) {
-        return new Bn(BigIntSjcl.fromBits(value));
+        return new BigIntSjcl(Bn.fromBits(value));
     });
     converter.register("bigIntSjcl", "hex", function (value) {
         return new Hex(value.toString().replace("0x", ""));
     });
     converter.register("hex", "bigIntSjcl", function (value) {
-        return new Bn(value);
+        return new BigIntSjcl(new Bn(value));
     });
 
 });
