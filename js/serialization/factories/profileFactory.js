@@ -49,7 +49,7 @@ define(function (require, exports, module) {
         },
 
         createTlConnectionFilter: function () {
-            var tlConnectionFilter = new TlConnectionFilter(this.serializer.getRetardedFactory());
+            var tlConnectionFilter = new TlConnectionFilter();
             return this._observed(tlConnectionFilter);
         }
     });

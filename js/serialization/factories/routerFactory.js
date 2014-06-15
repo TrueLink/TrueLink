@@ -43,7 +43,7 @@ define(function (require, exports, module) {
         },
 
         construct: function (Constructor) {
-            return this._observed(new Constructor(this.serializer.getRetardedFactory()));
+            return this._observed(new Constructor());
         }
 
     });

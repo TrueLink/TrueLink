@@ -151,15 +151,6 @@ define(function (require, exports, module) {
             obj.on("changed", this.onObjectChanged, this);
         },
 
-        getRetardedFactory: function () {
-            return {
-                shouldBeDeserialized: function () {
-                    throw new Error("All needed instances must be already deserialized by this point");
-                }
-            };
-        },
-
-
         createApp: function () {
             if (!this.app) {
                 var factory = new RootFactory(this);

@@ -10,9 +10,7 @@ define(function (require, exports, module) {
     var PageModel = require("./PageModel");
 
 
-    function HomePageModel(factory) {
-        invariant(factory, "Can be constructed only with factory");
-        this._factory = factory;
+    function HomePageModel() {
         this.accepts = App;
         this._defineEvent("changed");
 
@@ -26,7 +24,6 @@ define(function (require, exports, module) {
             this._serializeModel(packet, context);
         },
         deserialize: function (packet, context) {
-            var factory = this._factory;
             var data = packet.getData();
             this._deserializeModel(packet, context);
         },
