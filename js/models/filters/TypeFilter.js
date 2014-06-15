@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     "use strict";
-    var Filter = require("models/filter/Filter");
+    var Filter = require("modules/filter/Filter");
     var extend = require("modules/tools").extend;
     var invariant = require("modules/invariant");
 
@@ -8,7 +8,7 @@ define(function (require, exports, module) {
         invariant(typeKey && type !== undefined, "typeKey and type must be provided");
         this._defineEvent("filtered");
         this._defineEvent("unfiltered");
-        this._typeKey = typeKey
+        this._typeKey = typeKey;
         this._type = type;
     }
 

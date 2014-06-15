@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     "use strict";
-    var Filter = require("models/filter/Filter");
+    var Filter = require("modules/filter/Filter");
     var serializable = require("modules/serialization/serializable");
     var tools = require("modules/tools");
     var extend = tools.extend;

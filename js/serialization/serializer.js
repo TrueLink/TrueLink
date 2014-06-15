@@ -30,35 +30,40 @@ define(function (require, exports, module) {
             return packet;
         },
 
-        createPacket: function (id, scheme, context, counterObj) {
+        createPacket: function (scheme, type, id, context, counterObj) {
             context = context || {};
             if (context[id]) { return context[id]; }
+            var typeDef = scheme[type];
+            if (!typeDef) {
+                throw new Error("type with name " + type + " is not found in the scheme");
+            }
 
             var packetData = db.getById(id);
             if (!packetData) { return null; }
 
             counterObj.dataLength += JSON.stringify(packetData).length;
-            var packet = this.dataToPacket(packetData), linkName;
+            var packet = this.dataToPacket(packetData);
             context[id] = packet;
             counterObj.objCount += 1;
 
-            //if (isArray)
-//            var links, that = this;
-//            for (linkName in scheme) {
-//                links = db.getLinks(id, linkName);
-//                counterObj.linkCount += links.length;
-//                if (isArray(scheme[linkName])) {
-//                    packet.setLink(linkName, links.map(function (link) {
-//                        return that.createPacket(link.toId, scheme[linkName][0], context, counterObj);
-//                    }));
-//                } else {
-//                    if (links.length > 0) {
-//                        packet.setLink(linkName, that.createPacket(links[0].toId, scheme[linkName], context, counterObj));
-//                    } else {
-//                        packet.setLink(linkName, SerializationPacket.nullPacket);
-//                    }
-//                }
-//            }
+            var linkName, link, dbLinks;
+
+            function createPacketFromDbLink(typeDefName, dbLink) {
+                return this.createPacket(scheme, typeDefName, dbLink.toId, context, counterObj);
+            }
+            for (linkName in typeDef) {
+                link = typeDef[linkName];
+                dbLinks = db.getLinks(id, linkName);
+                if (link.propType === "many") {
+                    packet.setLink(linkName, dbLinks.map(createPacketFromDbLink.bind(this, link.type)));
+                } else if (link.propType === "one") {
+                    if (dbLinks.length > 0) {
+                        packet.setLink(linkName, createPacketFromDbLink.call(this, link.type, dbLinks[0]));
+                    } else {
+                        packet.setLink(linkName, SerializationPacket.nullPacket);
+                    }
+                }
+            }
             return packet;
         },
 
