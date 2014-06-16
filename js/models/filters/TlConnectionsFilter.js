@@ -32,7 +32,6 @@ define(function (require, exports, module) {
         },
         addTlConnection: function (conn) {
             if (this._tlConnections.indexOf(conn) !== -1) { return; }
-            console.log("__filter added tlConnection");
             this._tlConnections.push(conn);
             this._onChanged();
         },

@@ -45,7 +45,6 @@ define(function (require, exports, module) {
                 tlConnection: contactTlConnection
             });
             contact.init();
-            console.log("__profile added contact with tlConnection");
             this.contacts.push(contact);
             this._onChanged();
             return contact;
@@ -59,7 +58,6 @@ define(function (require, exports, module) {
                 dialog.init();
                 dialog.name = contact.name;
                 dialog.addContact(contact);
-                console.log("__profile added dialog");
                 this.dialogs.push(dialog);
                 this._onChanged();
             }
@@ -75,7 +73,6 @@ define(function (require, exports, module) {
 
         _addTlConnection: function (conn) {
             this._linkTlConnection(conn);
-            console.log("__profile added tlConnection");
             this.tlConnections.push(conn);
         },
 

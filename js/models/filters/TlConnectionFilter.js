@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var extend = tools.extend;
     var invariant = require("modules/invariant");
     var Utf8String = require("modules/multivalue/utf8string");
+    var urandom = require("modules/urandom/urandom");
 
     // not serializable, removes value.metadata and transforms object to multivalue
     // passes always (for now)

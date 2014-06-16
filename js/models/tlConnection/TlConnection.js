@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var Hex = require("modules/multivalue/hex");
     var TlecBuilder = require("modules/channels/TlecBuilder");
     var TlConnectionFilter = require("models/filters/TlConnectionFilter");
+    var urandom = require("modules/urandom/urandom");
 
 
     function TlConnection() {
@@ -143,7 +144,6 @@ define(function (require, exports, module) {
         },
 
         _onInitialTlecBuilderDone: function (builder) {
-            this._initialTlecBuilder.destroy();
             this._initialTlecBuilder = null;
             this._addTlecBuilder(builder);
             this._onChanged();
@@ -169,12 +169,10 @@ define(function (require, exports, module) {
         },
 
         _onMessage: function (msg) {
-            console.log("tlConnection emits message");
             this.fire("message", msg);
         },
 
         _onMessageSend: function (msg) {
-            console.log("tlConnection sends message to tlecB");
             var activeTlec = this._tlecBuilders[0];
             activeTlec.sendMessage(msg);
         }
