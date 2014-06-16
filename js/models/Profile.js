@@ -50,7 +50,7 @@ define(function (require, exports, module) {
             return contact;
         },
 
-        startDirectDialog: function (contact) {
+        startDirectDialog: function (contact, firstMessage) {
             this.checkFactory();
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
@@ -59,6 +59,9 @@ define(function (require, exports, module) {
                 dialog.name = contact.name;
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);
+                if (firstMessage) {
+                    dialog.processMessage(firstMessage);
+                }
                 this._onChanged();
             }
             return dialog;
@@ -113,11 +116,17 @@ define(function (require, exports, module) {
 
         },
         _linkTlConnection: function (conn) {
-//            conn.on("message", this._onTlConnectionMessage, this);
+            conn.on("message", this._onTlConnectionMessage, this);
         },
 
-        _onTlConnectionMessage: function (message) {
-//            this.fire("message", message);
+        _onTlConnectionMessage: function (message, tlConnection) {
+            var found = this.contacts.filter(function (contact) {
+                return contact.tlConnection === tlConnection;
+            });
+            if (found.length > 0) {
+                // just start a new dialog
+                var dialog = this.startDirectDialog(found[0], message);
+            }
         }
 
 

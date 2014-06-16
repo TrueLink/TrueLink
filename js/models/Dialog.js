@@ -29,7 +29,7 @@ define(function (require, exports, module) {
         addContact: function (contact) {
             if (this.contacts.indexOf(contact) !== -1) { return; }
             this.contacts.push(contact);
-            contact.tlConnection.on("message", this.typeFilter.filter, this.typeFilter);
+            contact.tlConnection.on("message", this.processMessage, this);
         },
 
         sendMessage: function (message) {
@@ -37,6 +37,10 @@ define(function (require, exports, module) {
             this.messages.push(msg);
             this.typeFilter.unfilter(msg);
             this._onChanged();
+        },
+
+        processMessage: function (message) {
+            this.typeFilter.filter(message);
         },
 
         _processMessage: function (message) {
