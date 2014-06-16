@@ -33,8 +33,8 @@ define(function (require, exports, module) {
         },
 
         sendMessage: function (message) {
-            var msg = {text: message};
-            this.messages.push(msg);
+            var msg = {text: message, sender: this.profile.name + " (me)"};
+            this._pushMessage(msg);
             this.typeFilter.unfilter(msg);
             this._onChanged();
         },
@@ -44,6 +44,17 @@ define(function (require, exports, module) {
         },
 
         _processMessage: function (message) {
+            var tlConnection = message.metadata.tlConnection;
+            this.contacts.forEach(function (contact) {
+                if (contact.tlConnection === tlConnection) {
+                    message.sender = contact.name;
+                }
+            });
+            this._pushMessage(message);
+        },
+
+        _pushMessage: function (message) {
+            message.time = new Date();
             this.messages.push(message);
             this._onChanged();
         },

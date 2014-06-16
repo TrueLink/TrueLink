@@ -8,8 +8,6 @@ define(function (require, exports, module) {
     var Hex = require("modules/multivalue/hex");
     var TlecBuilder = require("modules/channels/TlecBuilder");
     var TlConnectionFilter = require("models/filters/TlConnectionFilter");
-    var urandom = require("modules/urandom/urandom");
-
 
     function TlConnection() {
 
@@ -20,8 +18,7 @@ define(function (require, exports, module) {
         this.auth = null;
         this._initialTlecBuilder = null;
         this._tlecBuilders = [];
-        this._tlConnectionFilter = new TlConnectionFilter();
-        this._tlConnectionFilter.addTlConnection(this);
+        this._tlConnectionFilter = new TlConnectionFilter(this);
         this._tlConnectionFilter.on("filtered", this._onMessageSend, this);
         this._tlConnectionFilter.on("unfiltered", this._onMessage, this);
     }

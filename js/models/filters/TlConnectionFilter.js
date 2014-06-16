@@ -5,25 +5,20 @@ define(function (require, exports, module) {
     var extend = tools.extend;
     var invariant = require("modules/invariant");
     var Utf8String = require("modules/multivalue/utf8string");
-    var urandom = require("modules/urandom/urandom");
 
     // not serializable, removes value.metadata and transforms object to multivalue
     // passes always (for now)
-    // sets value.metadata.tlConnection = this._tlConnections on unfilter
+    // sets value.metadata.tlConnection = this._tlConnection on unfilter
 
-    function TlConnectionFilter() {
+    function TlConnectionFilter(conn) {
         this._defineEvent("filtered");
         this._defineEvent("unfiltered");
-        this._tlConnections = [];
+        this._tlConnection = conn;
     }
 
     TlConnectionFilter.prototype = new Filter();
 
     extend(TlConnectionFilter.prototype,  {
-        addTlConnection: function (conn) {
-            if (this._tlConnections.indexOf(conn) !== -1) { return; }
-            this._tlConnections.push(conn);
-        },
         // called inside tlConnection.sendMessage
         _filter: function (value) {
             if (value.metadata) {
@@ -35,7 +30,7 @@ define(function (require, exports, module) {
         _unfilter: function (value) {
             var result = JSON.parse(value.as(Utf8String).toString());
             result.metadata = result.metadata || {};
-            result.metadata.tlConnection = this._tlConnections;
+            result.metadata.tlConnection = this._tlConnection;
             return result;
         }
     });
