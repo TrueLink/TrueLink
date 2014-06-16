@@ -45,6 +45,7 @@ define(function (require, exports, module) {
         },
 
         _processMessage: function (message) {
+            console.log(this.name, "received message", message);
             this.messages.push(message);
             this._onChanged();
         },
@@ -74,13 +75,17 @@ define(function (require, exports, module) {
                 this.tlConnectionsFilter.on("filtered", this._processMessage, this);
                 this.tlConnectionsFilter.on("unfiltered", this.typeFilter.unfilter, this.typeFilter);
                 this.typeFilter.on("unfiltered", this._onMessage, this);
+                this.contacts.forEach(function (contact) {
+                    contact.tlConnection.on("message", this.typeFilter.filter, this.typeFilter);
+                }, this);
             }
         },
         _onMessage: function (message) {
+            console.log(this.name, "sends message", message);
             function sendMessage(conn) {
                 conn.sendMessage(message);
             }
-            message.tlConnection.forEach(sendMessage);
+            message.metadata.tlConnection.forEach(sendMessage);
         },
 
         _linkTlConnection: function (conn) {

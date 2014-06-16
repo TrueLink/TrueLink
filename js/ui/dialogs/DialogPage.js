@@ -7,10 +7,14 @@ define(function (require, exports, module) {
         displayName: "DialogPage",
         mixins: [reactObserver],
         _onSubmit: function () {
-            var node = this.refs.inputMessage.getDOMNode();
-            var messageObj = node.value;
-            node.value = "";
-            this.props.pageModel.model.sendMessage(messageObj);
+            try {
+                var node = this.refs.inputMessage.getDOMNode();
+                var messageObj = node.value;
+                node.value = "";
+                this.props.pageModel.model.sendMessage(messageObj);
+            } catch (ex) {
+                console.error(ex);
+            }
             return false;
         },
         render: function () {

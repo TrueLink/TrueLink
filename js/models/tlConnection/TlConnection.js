@@ -6,8 +6,8 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
     var Hex = require("modules/multivalue/hex");
-    var Utf8String = require("modules/multivalue/utf8string");
     var TlecBuilder = require("modules/channels/TlecBuilder");
+    var TlConnectionFilter = require("models/filters/TlConnectionFilter");
 
 
     function TlConnection() {
@@ -19,6 +19,10 @@ define(function (require, exports, module) {
         this.auth = null;
         this._initialTlecBuilder = null;
         this._tlecBuilders = [];
+        this._tlConnectionFilter = new TlConnectionFilter();
+        this._tlConnectionFilter.addTlConnection(this);
+        this._tlConnectionFilter.on("filtered", this._onMessageSend, this);
+        this._tlConnectionFilter.on("unfiltered", this._onMessage, this);
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
@@ -60,6 +64,30 @@ define(function (require, exports, module) {
             this.init();
         },
 
+        serialize: function (packet, context) {
+
+            packet.setData({
+                offer: this.offer ? this.offer.as(Hex).serialize() : null,
+                auth: this.auth ? this.auth.as(Hex).serialize() : null
+            });
+
+            packet.setLink("_initialTlecBuilder", context.getPacket(this._initialTlecBuilder));
+            packet.setLink("_tlecBuilders", context.getPacket(this._tlecBuilders));
+        },
+        deserialize: function (packet, context) {
+            this.checkFactory();
+            var factory = this._factory;
+            var data = packet.getData();
+
+            this.offer = data.offer ? Hex.deserialize(data.offer) : null;
+            this.auth = data.auth ? Hex.deserialize(data.auth) : null;
+
+            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder, factory);
+            this._linkInitial();
+            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
+            this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
+        },
+
         _onTransportNetworkPacket: function (packet) {
             if (this._initialTlecBuilder) {
                 this._initialTlecBuilder.processNetworkPacket(packet);
@@ -85,15 +113,12 @@ define(function (require, exports, module) {
         canSendMessages: function () {
             return this._tlecBuilders.length > 0;
         },
-        _sendMessage: function (msg) {
+        sendMessage: function (msg) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
-            var activeTlecBuilder = this._tlecBuilders[0];
-            var messageData = Utf8String.fromString(JSON.stringify(msg));
-            activeTlecBuilder.sendMessage(messageData);
+            this._tlConnectionFilter.filter(msg);
         },
         _receiveMessage: function (messageData) {
-            var msg = JSON.parse(messageData.as(Utf8String).toString());
-            this.fire("message", msg);
+            this._tlConnectionFilter.unfilter(messageData);
         },
 
         _linkInitial: function () {
@@ -143,28 +168,15 @@ define(function (require, exports, module) {
             this._transport.sendNetworkPacket(packet);
         },
 
-        serialize: function (packet, context) {
-
-            packet.setData({
-                offer: this.offer ? this.offer.as(Hex).serialize() : null,
-                auth: this.auth ? this.auth.as(Hex).serialize() : null
-            });
-
-            packet.setLink("_initialTlecBuilder", context.getPacket(this._initialTlecBuilder));
-            packet.setLink("_tlecBuilders", context.getPacket(this._tlecBuilders));
+        _onMessage: function (msg) {
+            console.log("tlConnection emits message");
+            this.fire("message", msg);
         },
-        deserialize: function (packet, context) {
-            this.checkFactory();
-            var factory = this._factory;
-            var data = packet.getData();
 
-            this.offer = data.offer ? Hex.deserialize(data.offer) : null;
-            this.auth = data.auth ? Hex.deserialize(data.auth) : null;
-
-            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder, factory);
-            this._linkInitial();
-            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
-            this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
+        _onMessageSend: function (msg) {
+            console.log("tlConnection sends message to tlecB");
+            var activeTlec = this._tlecBuilders[0];
+            activeTlec.sendMessage(msg);
         }
 
     });

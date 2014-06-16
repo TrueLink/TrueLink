@@ -116,11 +116,11 @@ define(function (require, exports, module) {
 
         },
         _linkTlConnection: function (conn) {
-            conn.on("message", this._onTlConnectionMessage, this);
+//            conn.on("message", this._onTlConnectionMessage, this);
         },
 
         _onTlConnectionMessage: function (message) {
-            this.fire("message", message);
+//            this.fire("message", message);
         }
 
 
