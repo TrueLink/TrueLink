@@ -74,11 +74,6 @@ a.title {
     position: relative;
 }
 
-.app-page-header {
-    background: #8AB1D3;
-    height: 50px;
-}
-
 .app-page-header .title{ font-size: 22px; }
 
 
@@ -113,6 +108,7 @@ a.title {
 }
 
 .app-page-header, .app-page-footer {
+    background: #8AB1D3;
     height: 50px;
 }
 
@@ -226,6 +222,63 @@ a.title {
     font-size: 22px;
     margin-left: 10px;
     float: left;
+}
+
+/* --- DIALOG --- */
+.dialog-page .app-page-footer {
+    height: 75px;
+    background: none;
+}
+
+.dialog-page .app-page-content.has-footer{
+    bottom: 75px;
+}
+
+.dialog-page .app-page-footer .tabs-header, .dialog-page .app-page-footer .tabs-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.dialog-page .app-page-footer .tabs-header {
+    bottom: 51px;
+    height: 25px;
+    line-height: 25px;
+    z-index: 100;
+}
+.dialog-page .app-page-footer .tab-title {
+    float: left;
+    background: #8ab1d3;
+    border: solid #ccc;
+    border-width: 1px 1px 0 1px;
+    padding: 0 10px;
+}
+.dialog-page .app-page-footer .tabs-content {
+    background: #8ab1d3;
+    border-top: 1px solid #ccc;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+    z-index: 90;
+}
+
+.dialog-page .app-page-footer .message-input {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+.dialog-page .app-page-footer .message-input .send-button {
+    position: absolute;
+    right: 10px;
+    top:0;
+    bottom: 0;
+}
+.dialog-page .app-page-footer .message-input button {
+    padding: 5px;
+}
+.dialog-page .app-page-footer .message-input input {
+    width: 50%;
 }
 
 

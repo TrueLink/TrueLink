@@ -73,6 +73,15 @@ define(function (require, exports, module) {
                 this._onChanged();
             }
         },
+        hasSecureChannels: function () {
+            var contacts = this.contacts, i;
+            for (i = 0; i < contacts.length; i += 1) {
+                if (contacts[i].tlConnection.canSendMessages()) {
+                    return true;
+                }
+            }
+            return false;
+        },
 
         serialize: function (packet, context) {
             var firstUnreadIndex = null, lastUnreadIndex = null;

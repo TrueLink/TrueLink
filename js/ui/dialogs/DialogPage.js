@@ -26,10 +26,27 @@ define(function (require, exports, module) {
             var dialog = this.props.pageModel.model;
             dialog.off("changed", dialog.markAsRead, dialog);
         },
+        _onConfigure: function () {
+            var dialog = this.props.pageModel.model;
+            // TODO this is kinda dumb
+            this.props.router.navigate("contact", dialog.contacts[0]);
+        },
         render: function () {
             var dialog = this.state.model;
 //            var pageModel = this.state.pageModel;
             var router = this.props.router;
+
+            var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
+            function randomItem(list) {
+                return list[Math.floor(Math.random() * list.length)];
+            }
+
+            var input = React.DOM.div({className: "message-input"},
+                React.DOM.form({onSubmit: this._onSubmit}, React.DOM.input({ref: "inputMessage"})),
+                React.DOM.div({className: "send-button"}, React.DOM.button({onClick: this._onSubmit}, randomItem(words))));
+            var configure = React.DOM.div({className: "message-input"},
+                React.DOM.button({onClick: this._onConfigure}, "Configure secure channel"));
+
             return React.DOM.div({className: "dialog-page app-page"},
                 React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
@@ -37,10 +54,13 @@ define(function (require, exports, module) {
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
                     }, "〈 Dialog: " + dialog.name)),
-                React.DOM.div({className: "app-page-content has-header"},
-                    MessagesView({messages: dialog.messages}),
-                    React.DOM.form({onSubmit: this._onSubmit},
-                        React.DOM.input({ref: "inputMessage"}))));
+                React.DOM.div({className: "app-page-content has-header has-footer"},
+                    MessagesView({messages: dialog.messages})),
+                React.DOM.div({className: "app-page-footer"},
+                    React.DOM.div({className: "tabs-header"},
+                        React.DOM.div({className: "tab-title"}, "Secure channel")),
+                    React.DOM.div({className: "tabs-content"},
+                        dialog.hasSecureChannels() ? input : configure)));
         }
     });
 });
