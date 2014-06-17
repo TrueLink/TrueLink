@@ -51,13 +51,14 @@ define(function (require, exports, module) {
                     message.sender = contact.name;
                 }
             });
-            this._pushMessage(message, true);
+            message.unread = true;
+            this._pushMessage(message);
         },
 
-        _pushMessage: function (message, incUnread) {
+        _pushMessage: function (message) {
             message.time = new Date();
             this.messages.push(message);
-            if (incUnread) {
+            if (message.unread) {
                 this.unreadCount += 1;
             }
             this._onChanged();
@@ -65,16 +66,28 @@ define(function (require, exports, module) {
 
         markAsRead: function () {
             if (this.unreadCount) {
+                this.messages.forEach(function (msg) {
+                    if (msg.unread) { msg.unread = false; }
+                });
                 this.unreadCount = 0;
                 this._onChanged();
             }
         },
 
         serialize: function (packet, context) {
+            var firstUnreadIndex = null, lastUnreadIndex = null;
+            this.messages.forEach(function (msg, index) {
+                delete msg.metadata;
+                if (msg.unread) {
+                    firstUnreadIndex = (firstUnreadIndex || firstUnreadIndex === 0) ? firstUnreadIndex : index;
+                    lastUnreadIndex = index;
+                }
+            });
             packet.setData({
                 name: this.name,
                 fields: this.fields,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                messages: this.unreadCount ? this.messages.slice(firstUnreadIndex, lastUnreadIndex + 1) : []
             });
             packet.setLink("contacts", context.getPacket(this.contacts));
         },
@@ -85,6 +98,7 @@ define(function (require, exports, module) {
             this.name = data.name;
             this.fields = data.fields;
             this.unreadCount = data.unread;
+            this.messages = data.messages || [];
             var contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
             contacts.forEach(this.addContact, this);
         },
