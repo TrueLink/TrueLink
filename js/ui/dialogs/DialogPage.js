@@ -30,14 +30,14 @@ define(function (require, exports, module) {
             var dialog = this.state.model;
 //            var pageModel = this.state.pageModel;
             var router = this.props.router;
-            return React.DOM.div({className: "dialog-page"},
-                React.DOM.div({className: "app-page-title"},
+            return React.DOM.div({className: "dialog-page app-page"},
+                React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
-                    }, "Dialog: " + dialog.name)),
-                React.DOM.div({className: "app-page-content"},
+                    }, "〈 Dialog: " + dialog.name)),
+                React.DOM.div({className: "app-page-content has-header"},
                     MessagesView({messages: dialog.messages}),
                     React.DOM.form({onSubmit: this._onSubmit},
                         React.DOM.input({ref: "inputMessage"}))));

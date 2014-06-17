@@ -26,14 +26,14 @@ define(function (require, exports, module) {
 //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
-            return React.DOM.div({className: "contact-page"},
-                React.DOM.div({className: "app-page-title"},
+            return React.DOM.div({className: "contact-page app-page"},
+                React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("contacts", contact.profile)
-                    }, "Contact details: " + contact.name)),
-                React.DOM.div({className: "app-page-content"},
+                    }, "〈 Contact details: " + contact.name)),
+                React.DOM.div({className: "app-page-content has-header"},
                      TlConnectionStatus({tlConnection: contact.tlConnection}),
                      React.DOM.a({className: "button", href: "", onClick: this.handleGoToDialog}, "Go to dialog")));
         }

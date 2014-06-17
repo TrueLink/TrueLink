@@ -34,14 +34,14 @@ define(function (require, exports, module) {
             var router = this.props.router;
             var contacts = {};
             profile.contacts.forEach(this._appendDialogComponent.bind(this, contacts));
-            return React.DOM.div({className: "contacts-page"},
-                React.DOM.div({className: "app-page-title"},
+            return React.DOM.div({className: "contacts-page app-page"},
+                React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("home", profile.app)
-                    }, "Contacts")),
-                React.DOM.div({className: "app-page-content"},
+                    }, "〈 Contacts")),
+                React.DOM.div({className: "app-page-content has-header"},
                     React.DOM.div({className: "generic-block"},
                         React.DOM.a({
                             className: "button",

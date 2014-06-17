@@ -26,7 +26,7 @@ define(function (require, exports, module) {
                 " stretch-background user-background-" + currentProfile.bg;
             return React.DOM.div({id: "app"},
                 MenuComponent({model: this.state.menu, className: "app-menu", router: router}),
-                React.DOM.div({className: "app-page" + pageCustomClass},
+                React.DOM.div({className: "app-view" + pageCustomClass},
                     this.state.currentPage));
         }
     });

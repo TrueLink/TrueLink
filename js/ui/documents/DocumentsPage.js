@@ -18,14 +18,14 @@ define(function (require, exports, module) {
             var router = this.props.router;
             var documents = {};
             profile.documents.forEach(this._appendDocComponent.bind(this, documents));
-            return React.DOM.div({className: "documents-page"},
-                React.DOM.div({className: "app-page-title"},
+            return React.DOM.div({className: "documents-page app-page"},
+                React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("home", profile.app)
-                    }, "Documents")),
-                React.DOM.div({className: "app-page-content"},
+                    }, "〈 Documents")),
+                React.DOM.div({className: "app-page-content has-header"},
                     React.DOM.div({className: "generic-block"},
                         React.DOM.a({
                             className: "button",

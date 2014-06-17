@@ -47,11 +47,10 @@ select, option, input {
     font-family: 'Open Sans',sans-serif;
 }
 
-.app-menu, .app-page {
+.app-menu, .app-view, .app-page {
     height: 100%;
     position: relative;
 }
-
 
 .title {
     font-size: 20px;
@@ -68,22 +67,22 @@ a.title {
     background-color: #153153
 }
 
-.app-page {
+.app-view {
     margin-left: 250px;
     height: 100%;
     overflow: hidden;
     position: relative;
 }
 
-.app-page-title {
+.app-page-header {
     background: #8AB1D3;
     height: 50px;
 }
 
-.app-page-title .title{ font-size: 22px; }
+.app-page-header .title{ font-size: 22px; }
 
 
-.app-page-title a.title {
+.app-page-header a.title {
     color: #282828;
     line-height: 50px;
     margin-left: 10px;
@@ -95,35 +94,33 @@ a.title {
     position: relative;
 }
 
-.header, .footer, .content {
+.app-page-header, .app-page-footer, .app-page-content {
     position: absolute;
     left: 0;
     right: 0;
 }
-
-.header, .footer {
-    height: 54px;
+.app-page-content.has-header{
+    top: 50px;
 }
-
-.header {
-    top: 0;
+.app-page-content.has-footer{
+    bottom: 50px;
 }
-
-.content {
+.app-page-content {
     overflow-x: hidden;
     overflow-y: auto;
     top: 0;
     bottom: 0;
 }
 
-.content.has-footer {
-    top: 54px;
-}
-.content.has-header {
-    bottom: 54px;
+.app-page-header, .app-page-footer {
+    height: 50px;
 }
 
-.footer {
+.app-page-header {
+    top: 0;
+}
+
+.app-page-footer {
     bottom: 0;
 }
 
