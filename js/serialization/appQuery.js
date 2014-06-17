@@ -44,11 +44,7 @@ define(function (require, exports, module) {
         Tlht: {},
         Tlke: {},
         Dialog: {
-            contacts: {propType: "many", type: "Contact"},
-            tlConnectionsFilter: {propType: "one", type: "TlConnectionsFilter"}
-        },
-        TlConnectionsFilter: {
-            _tlConnections: {propType: "many", type: "TlConnection"}
+            contacts: {propType: "many", type: "Contact"}
         },
         Menu: {},
         Document: {},

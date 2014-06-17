@@ -5,8 +5,15 @@ define(function (require, exports, module) {
     module.exports = React.createClass({
         displayName: "DialogsPage",
         mixins: [reactObserver],
+        handleDialogClick: function (dialog) {
+            this.props.router.navigate("dialog", dialog);
+            return false;
+        },
         _appendDialogComponent: function (components, dialog) {
-            components[dialog.name] = React.DOM.div({className: "generic-block dialog clearfix"},
+            components[dialog.name] = React.DOM.div({
+                className: "generic-block dialog clearfix",
+                onClick: this.handleDialogClick.bind(this, dialog)
+            },
                 React.DOM.div({className: "dialog-image"}, ""),
                 React.DOM.div({className: "dialog-title"}, dialog.name));
         },
