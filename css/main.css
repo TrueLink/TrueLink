@@ -83,6 +83,10 @@ a.title {
     margin-left: 10px;
 }
 
+.app-page-content {
+    padding: 10px;
+}
+
 .wide {
     height: 100%;
     width: 100%;
@@ -118,6 +122,58 @@ a.title {
 
 .app-page-footer {
     bottom: 0;
+}
+
+
+.bubble
+{
+    margin-top: 10px;
+    position: relative;
+    width: 80%;
+    padding: 10px;
+    background: #E9F0DA;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.bubble-right {
+    float: right;
+    margin-right: 10px;
+}
+.bubble-left {
+    float: left;
+    margin-left: 10px;
+}
+
+
+.bubble-right:after
+{
+    content: "";
+    position: absolute;
+    top: 9px;
+    right: -10px;
+    border-style: solid;
+    border-width: 11px 0 11px 11px;
+    border-color: transparent #E9F0DA;
+    display: block;
+    width: 0;
+    z-index: 1;
+    /*-webkit-transform:rotate(360deg);*/
+    /*border-style: inset;*/
+}
+.bubble-left:after
+{
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: -10px;
+    border-style: solid;
+    border-width: 11px 11px 11px 0;
+    border-color: transparent #E9F0DA transparent transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
 }
 
 /* --- MENU --- */
@@ -167,15 +223,8 @@ a.title {
 /* --- HOME --- */
 
 /* --- DOCUMENTS --- */
-.documents-page .app-page-content {
-    padding: 0 10px;
-}
 
 /* --- CONTACTS --- */
-.contacts-page .app-page-content {
-    padding: 0 10px;
-}
-
 .contacts-page .contact-image {
     height: 60px;
     width: 60px;
@@ -190,9 +239,6 @@ a.title {
 }
 
 /* --- CONTACT (temp)--- */
-.contact-page .app-page-content {
-    padding: 0 10px;
-}
 .contact-page .tlStatus {
     margin: 10px 0;
     font-size: 1.5rem;
@@ -207,10 +253,6 @@ a.title {
 }
 
 /* --- DIALOGS --- */
-.dialogs-page .app-page-content {
-    padding: 0 10px;
-}
-
 .dialogs-page .dialog-image {
     height: 60px;
     width: 60px;
@@ -225,6 +267,7 @@ a.title {
 }
 
 /* --- DIALOG --- */
+
 .dialog-page .app-page-footer {
     height: 75px;
     background: none;

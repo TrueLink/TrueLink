@@ -34,8 +34,8 @@ define(function (require, exports, module) {
         },
 
         sendMessage: function (message) {
-            var msg = {text: message, sender: this.profile.name + " (me)"};
-            this._pushMessage(msg);
+            var msg = {text: message, sender: this.profile.name + " (me)" };
+            this._pushMessage(extend({}, msg, {isMine: true}));
             this.typeFilter.unfilter(msg);
             this._onChanged();
         },
