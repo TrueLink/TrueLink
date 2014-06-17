@@ -12,15 +12,15 @@ define(function(require, exports, module) {
     var Bn = require("modules/sjcl/bn");
 
     var values = {
-        BitArray: new BitArray([1777760708, -1684129233, -20238083, -704249774]),
-        Base64: new Base64("afZ5xJueOi/+yzD91gYAUg=="),
-        Base64Url: new Base64Url("afZ5xJueOi_-yzD91gYAUg"),
-        BigItnSjcl: new BigItnSjcl(new Bn("0x69F679C49B9E3A2FFECB30FDD6060052")),
-        Bytes: new Bytes([105, 246, 121, 196, 155, 158, 58, 47, 254, 203, 48, 253, 214, 6, 0, 82]),
-        DecBlocks: new DecBlocks("140848714333059090483870106516841693266"),
-        Hex: new Hex("69F679C49B9E3A2FFECB30FDD6060052"),
-        //Utf8String: new Utf8String(""), Don't work at all
-        X32WordArray: new X32WordArray([1777760708, -1684129233, -20238083, -704249774], 16),
+        BitArray: new BitArray([1400140393, 1852252269, 1702064993, 1734680881]),
+        Base64: new Base64("U3RyaW5nIG1lc3NhZ2UhMQ=="),
+        Base64Url: new Base64Url("U3RyaW5nIG1lc3NhZ2UhMQ"),
+        BigItnSjcl: new BigItnSjcl(new Bn("0x537472696E67206D6573736167652131")),
+        Bytes: new Bytes([83, 116, 114, 105, 110, 103, 32, 109, 101, 115, 115, 97, 103, 101, 33, 49]),
+        DecBlocks: new DecBlocks("110930550633557961317610434596264288561"),
+        Hex: new Hex("537472696E67206D6573736167652131"),
+        Utf8String: new Utf8String("String message!1"), 
+        X32WordArray: new X32WordArray([1400140393, 1852252269, 1702064993, 1734680881], 16),
     }
     var types = {
         BitArray: BitArray,
@@ -39,10 +39,8 @@ define(function(require, exports, module) {
         it('to ' + to, function() {
             var result = values[from].as(types[to]);
             console.log(from, to, values[from], values[to], result)
-            expect(result)
-                .be.instanceof(types[to])
-                .with.property("value")
-                .that.deep.equals(values[to].value);
+            expect(result).be.instanceof(types[to]).with.property("value")
+            expect(result.isEqualTo(values[to])).true;
         });
 
     }
