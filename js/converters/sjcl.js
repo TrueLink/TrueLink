@@ -60,4 +60,28 @@ define(function (require, exports, module) {
         return new BigIntSjcl(new Bn(value));
     });
 
+    function escapeRegExp(string) {
+        return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+    }
+
+    function replaceAll(str, find, replace) {
+        return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+    }
+
+    converter.register("base64", "base64url", function (value) {
+        var result = replaceAll(value, "+", "-");
+        result = replaceAll(result, "/", "_");
+        result = replaceAll(result, "=", "");
+        return new Base64Url(result);
+    });
+
+    converter.register("base64url", "base64", function (value) {
+        var result = replaceAll(value, "-", "+");
+        result = replaceAll(result, "_", "/");
+        while (result.length & 3) {
+            result += "=";
+        }
+        return new Base64(result);
+    });
+
 });
