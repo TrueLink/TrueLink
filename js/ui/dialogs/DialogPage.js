@@ -17,6 +17,15 @@ define(function (require, exports, module) {
             }
             return false;
         },
+        _componentDidMount: function () {
+            var dialog = this.props.pageModel.model;
+            dialog.markAsRead();
+            dialog.on("changed", dialog.markAsRead, dialog);
+        },
+        _componentWillUnmount: function () {
+            var dialog = this.props.pageModel.model;
+            dialog.off("changed", dialog.markAsRead, dialog);
+        },
         render: function () {
             var dialog = this.state.model;
 //            var pageModel = this.state.pageModel;

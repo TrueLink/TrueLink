@@ -17,6 +17,7 @@ define(function (require, exports, module) {
         this.tlConnections = [];
         this.dialogs = [];
         this.pollingUrl = "";
+        this.unreadCount = 0;
     }
 
     extend(Profile.prototype, eventEmitter, serializable, model, {
@@ -59,12 +60,25 @@ define(function (require, exports, module) {
                 dialog.name = contact.name;
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);
+                this._linkDialog(dialog);
                 if (firstMessage) {
                     dialog.processMessage(firstMessage);
                 }
                 this._onChanged();
             }
             return dialog;
+        },
+
+        _linkDialog: function (dialog) {
+            dialog.on("changed", this._onDialogChanged, this);
+        },
+
+        _onDialogChanged: function () {
+            var havingUnread = this.dialogs.filter(function (dialog) { return dialog.unreadCount > 0; });
+            if (havingUnread.length !== this.unreadCount) {
+                this.unreadCount = havingUnread.length;
+                this._onChanged();
+            }
         },
 
         _createTlConnection: function () {
@@ -93,7 +107,8 @@ define(function (require, exports, module) {
             packet.setData({
                 name: this.name,
                 bg: this.bg,
-                pollingUrl: this.pollingUrl
+                pollingUrl: this.pollingUrl,
+                unread: this.unreadCount
             });
 
             packet.setLink("documents", context.getPacket(this.documents));
@@ -108,9 +123,11 @@ define(function (require, exports, module) {
             this.name = data.name;
             this.bg = data.bg;
             this.pollingUrl = data.pollingUrl;
+            this.unreadCount = data.unread;
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
+            this.dialogs.forEach(this._linkDialog, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
 

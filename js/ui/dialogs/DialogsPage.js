@@ -15,8 +15,10 @@ define(function (require, exports, module) {
                 onClick: this.handleDialogClick.bind(this, dialog)
             },
                 React.DOM.div({className: "dialog-image"}, ""),
-                React.DOM.div({className: "dialog-title"}, dialog.name));
+                React.DOM.div({className: "dialog-title"},
+                        dialog.name + (dialog.unreadCount ? " (" + dialog.unreadCount + ")" : "")));
         },
+
         handleStartDialog: function () {
             var props = this.props;
             props.router.navigate("contacts", props.pageModel.model);

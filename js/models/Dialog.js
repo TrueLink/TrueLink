@@ -14,6 +14,7 @@ define(function (require, exports, module) {
         this.name = null;
         this.messages = [];
         this.contacts = [];
+        this.unreadCount = 0;
 
         this.typeFilter = new TypeFilter("receiver", "dialog");
         this.typeFilter.on("filtered", this._processMessage, this);
@@ -50,19 +51,30 @@ define(function (require, exports, module) {
                     message.sender = contact.name;
                 }
             });
-            this._pushMessage(message);
+            this._pushMessage(message, true);
         },
 
-        _pushMessage: function (message) {
+        _pushMessage: function (message, incUnread) {
             message.time = new Date();
             this.messages.push(message);
+            if (incUnread) {
+                this.unreadCount += 1;
+            }
             this._onChanged();
+        },
+
+        markAsRead: function () {
+            if (this.unreadCount) {
+                this.unreadCount = 0;
+                this._onChanged();
+            }
         },
 
         serialize: function (packet, context) {
             packet.setData({
                 name: this.name,
-                fields: this.fields
+                fields: this.fields,
+                unread: this.unreadCount
             });
             packet.setLink("contacts", context.getPacket(this.contacts));
         },
@@ -72,6 +84,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
             this.name = data.name;
             this.fields = data.fields;
+            this.unreadCount = data.unread;
             var contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
             contacts.forEach(this.addContact, this);
         },

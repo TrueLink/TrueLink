@@ -55,7 +55,13 @@ define(function (require, exports, module) {
             invariant(this.app, "app is not set");
         },
 
+        _relinkProfile: function (profile) {
+            profile.off("changed", this._onChanged, this);
+            profile.on("changed", this._onChanged, this);
+        },
+
         _onAppChanged: function () {
+            this.app.profiles.forEach(this._relinkProfile, this);
             // everything will be reconstructed anyway on app "changed"
             this._onChanged();
         }

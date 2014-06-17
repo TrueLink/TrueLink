@@ -20,7 +20,8 @@ define(function (require, exports, module) {
                 },
                 "Dialogs": {
                     handler: router.createNavigateHandler("dialogs", currentProfile),
-                    className: "menu-item"
+                    className: "menu-item",
+                    misc: currentProfile.unreadCount ? " (" + currentProfile.unreadCount + ")" : null
                 },
                 "Contacts": {
                     handler: router.createNavigateHandler("contacts", currentProfile),
@@ -60,8 +61,12 @@ define(function (require, exports, module) {
         },
 
         _onModelChanged: function () { this.setState(this._getState()); },
-        componentDidMount: function () { this.props.model.on("changed", this._onModelChanged, this); },
-        componentWillUnmount: function () { this.props.model.off("changed", this._onModelChanged, this); },
+        componentDidMount: function () {
+            this.props.model.on("changed", this._onModelChanged, this);
+        },
+        componentWillUnmount: function () {
+            this.props.model.off("changed", this._onModelChanged, this);
+        },
         render: function () {
             var menuItems = {}, items = this.getMenuItems(), title, item;
             for (title in items) {
@@ -70,7 +75,7 @@ define(function (require, exports, module) {
                     href: "",
                     className: item.className,
                     onClick: item.handler
-                }, title);
+                }, title, items[title].misc);
             }
 
             return React.DOM.div({className: this.props.className},

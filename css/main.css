@@ -218,6 +218,20 @@ a.title {
     padding: 0 10px;
 }
 
+.dialogs-page .dialog-image {
+    height: 60px;
+    width: 60px;
+    border-right: 1px solid #282828;
+    float: left;
+}
+
+.dialogs-page .dialog-title {
+    font-size: 22px;
+    margin-left: 10px;
+    float: left;
+}
+
+
 /* --- MISC --- */
 .generic-block {
     border: 1px solid #282828;
