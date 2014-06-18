@@ -18,9 +18,11 @@ define(function (require, exports, module) {
         this.auth = null;
         this._initialTlecBuilder = null;
         this._tlecBuilders = [];
+        this._addrIns = [];
         this._tlConnectionFilter = new TlConnectionFilter(this);
         this._tlConnectionFilter.on("filtered", this._onMessageSend, this);
         this._tlConnectionFilter.on("unfiltered", this._onMessage, this);
+        this._transport = null;
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
@@ -125,7 +127,7 @@ define(function (require, exports, module) {
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
-            builder.on("addrIn", this._onInitialAddrIn, this);
+            builder.on("openAddrIn", this._onInitialAddrIn, this);
             builder.on("networkPacket", this._onNetworkPacket, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
         },
@@ -135,7 +137,7 @@ define(function (require, exports, module) {
             builder.off("changed", this._onChanged, this);
             builder.off("offer", this._onInitialOffer, this);
             builder.off("auth", this._onInitialAuth, this);
-            builder.off("addrIn", this._onInitialAddrIn, this);
+            builder.off("openAddrIn", this._onInitialAddrIn, this);
             builder.off("networkPacket", this._onNetworkPacket, this);
             builder.off("done", this._onInitialTlecBuilderDone, this);
         },
@@ -158,6 +160,7 @@ define(function (require, exports, module) {
         },
 
         _onInitialAddrIn: function (addr) {
+            this._addrIns.push(addr);
             this._transport.openAddr(addr);
         },
 

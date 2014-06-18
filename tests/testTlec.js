@@ -23,8 +23,8 @@ define(function(require, exports, module) {
                 aliceTlec.on("networkPacket", transport.sendNetworkPacket, transport);
                 bobTlec.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                aliceTlec.on("addrIn", transport.openAddr, transport);
-                bobTlec.on("addrIn", transport.openAddr, transport);
+                aliceTlec.on("openAddrIn", transport.openAddr, transport);
+                bobTlec.on("openAddrIn", transport.openAddr, transport);
 
                 transport.on("networkPacket", aliceTlec.processNetworkPacket, aliceTlec);
                 transport.on("networkPacket", bobTlec.processNetworkPacket, bobTlec);
@@ -122,8 +122,8 @@ define(function(require, exports, module) {
                 aliceTlec.on("networkPacket", transport.sendNetworkPacket, transport);
                 bobTlec.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                aliceTlec.on("addrIn", transport.openAddr, transport);
-                bobTlec.on("addrIn", transport.openAddr, transport);
+                aliceTlec.on("openAddrIn", transport.openAddr, transport);
+                bobTlec.on("openAddrIn", transport.openAddr, transport);
 
                 transport.on("networkPacket", aliceTlec.processNetworkPacket, aliceTlec);
                 transport.on("networkPacket", bobTlec.processNetworkPacket, bobTlec);
@@ -142,7 +142,7 @@ define(function(require, exports, module) {
                     var over = utils.factory.createOverTlecBuilder();
 
                     over.on("networkPacket", transport.sendNetworkPacket, transport);
-                    over.on("addrIn", transport.openAddr, transport);
+                    over.on("openAddrIn", transport.openAddr, transport);
                     transport.on("networkPacket", over.processNetworkPacket, over);
 
                     aliceTlec.on("message", function(bytes) {
@@ -167,7 +167,7 @@ define(function(require, exports, module) {
                     var over = utils.factory.createOverTlecBuilder();
 
                     over.on("networkPacket", transport.sendNetworkPacket, transport);
-                    over.on("addrIn", transport.openAddr, transport);
+                    over.on("openAddrIn", transport.openAddr, transport);
                     transport.on("networkPacket", over.processNetworkPacket, over);
 
                     bobTlec.on("message", function(bytes) {

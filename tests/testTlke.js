@@ -18,7 +18,7 @@ define(function(require, exports, module) {
             this._defineEvent("networkPacket");
             this._defineEvent("offer");
             this._defineEvent("auth");
-            this._defineEvent("addrIn");
+            this._defineEvent("openAddrIn");
         }
 
         extend(TlkeTestBuilder.prototype, EventEmitter, {
@@ -30,7 +30,7 @@ define(function(require, exports, module) {
 
                 route.on("packet", tlke.processPacket, tlke);
                 route.on("networkPacket", this.on_sendPacket, this);
-                route.on("addrIn", this.on_addrIn, this);
+                route.on("openAddrIn", this.on_addrIn, this);
 
                 tlke.on("packet", route.processPacket, route);
                 tlke.on("addr", route.setAddr, route);
@@ -76,7 +76,7 @@ define(function(require, exports, module) {
             },
             on_addrIn: function(addr) {
                 this._log("on_addrIn", addr);
-                this.fire("addrIn", addr);
+                this.fire("openAddrIn", addr);
             },
             _log: logfunc
         });
@@ -126,8 +126,8 @@ define(function(require, exports, module) {
                 alice.on("networkPacket", transport.sendNetworkPacket, transport);
                 bob.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                alice.on("addrIn", transport.openAddr, transport);
-                bob.on("addrIn", transport.openAddr, transport);
+                alice.on("openAddrIn", transport.openAddr, transport);
+                bob.on("openAddrIn", transport.openAddr, transport);
 
                 transport.on("networkPacket", alice.processNetworkPacket, alice);
                 transport.on("networkPacket", bob.processNetworkPacket, bob);
@@ -172,8 +172,8 @@ define(function(require, exports, module) {
                 alice.on("networkPacket", transport.sendNetworkPacket, transport);
                 bob.on("networkPacket", transport.sendNetworkPacket, transport);
 
-                alice.on("addrIn", transport.openAddr, transport);
-                bob.on("addrIn", transport.openAddr, transport);
+                alice.on("openAddrIn", transport.openAddr, transport);
+                bob.on("openAddrIn", transport.openAddr, transport);
 
                 transport.on("networkPacket", alice.processNetworkPacket, alice);
                 transport.on("networkPacket", bob.processNetworkPacket, bob);
