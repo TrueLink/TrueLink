@@ -29,27 +29,27 @@ define(function (require, exports, module) {
             return this._observed(profile);
         },
 
+        _createTransport: function () {
+            return this._observed(new CouchTransport());
+        },
         createTransport: function () {
-            if (!this.transport) {
-                this.transport = this._observed(new CouchTransport(this));
-            }
-            return this.transport;
+            return this.getInstance("Transport", this._createTransport, this);
+        },
+        _createRouter: function () {
+            var router = new Router(this);
+            var routerFactory = new RouterFactory(this.serializer, router);
+            router.setFactory(routerFactory);
+            return this._observed(router);
         },
         createRouter: function () {
-            if (!this.router) {
-                var router = new Router(this);
-                var routerFactory = new RouterFactory(this.serializer, router);
-                router.setFactory(routerFactory);
-                this.router = this._observed(router);
-            }
-            return this.router;
+            return this.getInstance("Router", this._createRouter, this);
         },
 
+        _createRandom: function () {
+            return this._observed(new Random(this));
+        },
         createRandom: function () {
-            if (!this.random) {
-                this.random = this._observed(new Random(this));
-            }
-            return this.random;
+            return this.getInstance("Random", this._createRouter, this);
         },
 
         createMenu: function () {

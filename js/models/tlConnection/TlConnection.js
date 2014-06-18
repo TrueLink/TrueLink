@@ -14,6 +14,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this._defineEvent("message");
 
+        this.profile = null;
         this.offer = null;
         this.auth = null;
         this._initialTlecBuilder = null;
@@ -31,6 +32,10 @@ define(function (require, exports, module) {
             this._factory = factory;
             this._transport = factory.createTransport();
             this._transport.on("networkPacket", this._onTransportNetworkPacket, this);
+        },
+
+        setProfile: function (profile) {
+            this.profile = profile;
         },
         init: function () {
             this._initialTlecBuilder = this._factory.createTlecBuilder();
@@ -68,7 +73,8 @@ define(function (require, exports, module) {
 
             packet.setData({
                 offer: this.offer ? this.offer.as(Hex).serialize() : null,
-                auth: this.auth ? this.auth.as(Hex).serialize() : null
+                auth: this.auth ? this.auth.as(Hex).serialize() : null,
+                addrIns: this._addrIns.map(function (addr) { return addr.as(Hex).serialize(); })
             });
 
             packet.setLink("_initialTlecBuilder", context.getPacket(this._initialTlecBuilder));
@@ -81,11 +87,14 @@ define(function (require, exports, module) {
 
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
+            this._addrIns = data.addrIns ? data.addrIns.map(function (addr) { return Hex.deserialize(addr); }) : [];
 
             this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder, factory);
             this._linkInitial();
             this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
             this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
+            // all is ready, gimme packets!
+            this._transport.openAddr(this._addrIns, this.profile);
         },
 
         _onTransportNetworkPacket: function (packet) {
@@ -127,7 +136,8 @@ define(function (require, exports, module) {
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
-            builder.on("openAddrIn", this._onInitialAddrIn, this);
+            builder.on("openAddrIn", this._onAddrIn, this);
+            builder.on("closeAddrIn", this._onCloseAddrIn, this);
             builder.on("networkPacket", this._onNetworkPacket, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
         },
@@ -137,7 +147,8 @@ define(function (require, exports, module) {
             builder.off("changed", this._onChanged, this);
             builder.off("offer", this._onInitialOffer, this);
             builder.off("auth", this._onInitialAuth, this);
-            builder.off("openAddrIn", this._onInitialAddrIn, this);
+            builder.off("openAddrIn", this._onAddrIn, this);
+            builder.off("closeAddrIn", this._onCloseAddrIn, this);
             builder.off("networkPacket", this._onNetworkPacket, this);
             builder.off("done", this._onInitialTlecBuilderDone, this);
         },
@@ -159,13 +170,37 @@ define(function (require, exports, module) {
             }
         },
 
-        _onInitialAddrIn: function (addr) {
-            this._addrIns.push(addr);
-            this._transport.openAddr(addr);
+        _onAddrIn: function (addr) {
+            var foundIndex = -1;
+            this._addrIns.forEach(function (open, index) {
+                if (open.as(Hex).isEqualTo(addr.as(Hex))) {
+                    foundIndex = index;
+                }
+            });
+            if (foundIndex === -1) {
+                console.log("#adding addrIn");
+                this._addrIns.push(addr);
+                this._onChanged();
+            }
+            this._transport.openAddr(addr, this.profile);
+        },
+        _onCloseAddrIn: function (addr) {
+            var foundIndex = -1;
+            this._addrIns.forEach(function (open, index) {
+                if (open.as(Hex).isEqualTo(addr.as(Hex))) {
+                    foundIndex = index;
+                }
+            });
+            if (foundIndex !== -1) {
+                console.log("#removing addrIn");
+                this._addrIns.splice(foundIndex, 1);
+                this._onChanged();
+            }
+            this._transport.closeAddr(addr, this.profile);
         },
 
         _onNetworkPacket: function (packet) {
-            this._transport.sendNetworkPacket(packet);
+            this._transport.sendNetworkPacket(packet, this.profile);
         },
 
         _onMessage: function (msg) {

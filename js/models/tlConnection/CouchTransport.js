@@ -10,9 +10,7 @@ define(function (require, exports, module) {
     var CouchPolling = require("./CouchPolling");
     var Hex = require("modules/multivalue/hex");
 
-    function Transport(factory) {
-        invariant(factory, "Can be constructed only with factory");
-        this._factory = factory;
+    function CouchTransport() {
         this.fixedId = "F2E281BB-3C0D-4CED-A0F1-A65771AEED9A";
         this._defineEvent("changed");
         this._defineEvent("networkPacket");
@@ -24,7 +22,7 @@ define(function (require, exports, module) {
 
     }
 
-    extend(Transport.prototype, eventEmitter, serializable, fixedId, model, {
+    extend(CouchTransport.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
             packet.setData({sinces: this.sinces});
         },
@@ -45,8 +43,13 @@ define(function (require, exports, module) {
             var polling = new CouchPolling(profile.pollingUrl, 0);
             polling.on("channelPacket", this._handlePollingPacket, this);
             polling.on("changed", this._handlePollingChanged, this);
+            profile.on("urlChanged", this._onProfileUrlChanged, this);
             this._pollings.item(profile, polling);
             return polling;
+        },
+
+        _onProfileUrlChanged: function (ignore, profile) {
+            console.log("url changed to %s", profile.pollingUrl);
         },
 
         _handlePollingChanged: function (polling) {
@@ -58,12 +61,18 @@ define(function (require, exports, module) {
         _getPolling: function (profile) {
             return this._pollings.item(profile) || this._createPolling(profile);
         },
+
+        // addr can be array
         openAddr: function (addr, profile) {
             var polling = this._getPolling(profile);
             polling.addAddr(addr);
         },
+        closeAddr: function (addr, profile) {
+            var polling = this._getPolling(profile);
+            polling.removeAddr(addr);
+        },
 
-        sendNetworkPacket: function (networkPacket) {
+        sendNetworkPacket: function (networkPacket, profile) {
             console.log("Sending message to channel %s, data: %s", networkPacket.addr.as(Hex), networkPacket.data.as(Hex));
 //            invariant(isMultivalue(networkPacket.addr), "networkPacket.addr must be multivalue");
 //            invariant(isMultivalue(networkPacket.data), "networkPacket.data must be multivalue");
@@ -77,5 +86,5 @@ define(function (require, exports, module) {
 
     });
 
-    module.exports = Transport;
+    module.exports = CouchTransport;
 });

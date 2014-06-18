@@ -15,12 +15,10 @@ define(function (require, exports, module) {
     var TestTransport = require("modules/channels/TestTransport");
 
 
-    function TlConnectionFactory(serializer, tlConnection, profile) {
+    function TlConnectionFactory(serializer, tlConnection) {
         invariant(serializer, "Can i haz serializer?");
         invariant(tlConnection, "Can i haz tlConnection?");
-        invariant(profile, "Can i haz profile?");
         this.serializer = serializer;
-        this.profile = profile;
         this.tlConnection = tlConnection;
     }
 
@@ -51,18 +49,12 @@ define(function (require, exports, module) {
         },
 
 
-        // temp solution for smoke testing
         createTransport: function () {
-            invariant(this.profile, "profile is not set");
-            if (!this.profile._transport) {
-                this.profile._transport = new TestTransport();
-            }
-            return this.profile._transport;
+            return this.getInstance("Transport");
         },
 
-        // temp
         createRandom: function () {
-            return this.profile.app.random;
+            return this.getInstance("Random");
         },
 
         createRoute: function () {

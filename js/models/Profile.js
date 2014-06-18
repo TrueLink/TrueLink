@@ -9,6 +9,7 @@ define(function (require, exports, module) {
 
     function Profile() {
         this._defineEvent("changed");
+        this._defineEvent("urlChanged");
 
         this.app = null;
         this.bg = null;
@@ -24,6 +25,16 @@ define(function (require, exports, module) {
         // called by factory
         setApp: function (app) {
             this.app = app;
+            this.pollingUrl = app.defaultPollingUrl;
+        },
+
+        setUrl: function (url) {
+            url = url.toLowerCase().replace(/\/$/g, "");
+            if (this.pollingUrl !== url) {
+                this.pollingUrl = url;
+                this._onChanged();
+                this.fire("urlChanged");
+            }
         },
 
         createDocument: function () {
