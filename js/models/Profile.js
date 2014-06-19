@@ -31,9 +31,10 @@ define(function (require, exports, module) {
         setUrl: function (url) {
             url = url.toLowerCase().replace(/\/$/g, "");
             if (this.pollingUrl !== url) {
+                var oldUrl = this.pollingUrl;
                 this.pollingUrl = url;
                 this._onChanged();
-                this.fire("urlChanged");
+                this.fire("urlChanged", {oldUrl: oldUrl, newUrl: url});
             }
         },
 
