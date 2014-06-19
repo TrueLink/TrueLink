@@ -5,6 +5,7 @@
         paths: {
             "zepto": "../vendor/zepto/src/zepto",
             "zepto_ajax": "../vendor/zepto/src/ajax",
+            "zepto_event": "../vendor/zepto/src/event",
             "bind": "tools/bind",
             "uuid": "tools/uuid",
             "extend": "tools/extend",
@@ -13,7 +14,8 @@
         },
         shim: {
             "zepto": { exports: "Zepto" },
-            "zepto_ajax": { deps: ["zepto"] }
+            "zepto_ajax": { deps: ["zepto", "zepto_event"] },
+            "zepto_event": { deps: ["zepto"] }
         }
     });
 
