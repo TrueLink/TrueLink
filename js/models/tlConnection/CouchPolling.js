@@ -20,14 +20,16 @@ define(function (require, exports, module) {
     }
 
     extend(CouchPolling.prototype, eventEmitter, {
-        addChannel: function (channelName) {
+        addChannel: function (channelName, getAll) {
             console.log("adding addr %s to %s", channelName, this.url);
-            if (!channelName) { return; }
-            var i;
-            for (i = 0; i < this.channels.length; i += 1) {
-                if (this.channels[i] === channelName) { return; }
+            if (!channelName || this.channels.indexOf(channelName) !== -1) { return; }
+            if (getAll) {
+                this._getAllSince0(channelName);
+            } else {
+                this._cancel();
+                this.channels.push(channelName);
+                this._deferredStart();
             }
-            this._addChannel(channelName);
         },
 
         stop: function () {
@@ -48,7 +50,7 @@ define(function (require, exports, module) {
             }
         },
 
-        _addChannel: function (channelName) {
+        _getAllSince0: function (channelName) {
             var url = this.url +
                 "/_changes?feed=longpoll&filter=channels/do&Channel=" + channelName +
                 "&include_docs=true&since=0";

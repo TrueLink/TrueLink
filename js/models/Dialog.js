@@ -108,7 +108,7 @@ define(function (require, exports, module) {
             this.fields = data.fields;
             this.unreadCount = data.unread;
             this.messages = data.messages || [];
-            var contacts = context.deserialize(packet.getLink("contacts"), factory.createTlConnectionFilter, factory);
+            var contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             contacts.forEach(this.addContact, this);
         },
 

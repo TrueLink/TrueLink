@@ -10,7 +10,6 @@ define(function (require, exports, module) {
 
     var TlConnection = require("models/tlConnection/TlConnection");
     var TlConnectionFactory = require("./tlConnectionFactory");
-    var TlConnectionsFilter = require("models/filters/TlConnectionsFilter");
 
 
     function ProfileFactory(serializer, profile) {
@@ -47,11 +46,6 @@ define(function (require, exports, module) {
             tlConnection.setFactory(tlConnectionFactory);
             tlConnection.setProfile(this.profile);
             return this._observed(tlConnection);
-        },
-
-        createTlConnectionFilter: function () {
-            var tlConnectionsFilter = new TlConnectionsFilter();
-            return this._observed(tlConnectionsFilter);
         }
     });
 

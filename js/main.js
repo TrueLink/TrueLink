@@ -4,6 +4,7 @@
         baseUrl: "/js",
         paths: {
             "zepto": "../vendor/zepto/src/zepto",
+            "zepto_ajax": "../vendor/zepto/src/ajax",
             "bind": "tools/bind",
             "uuid": "tools/uuid",
             "extend": "tools/extend",
@@ -11,12 +12,14 @@
             "react": "../vendor/react/build/react"
         },
         shim: {
-            "zepto": { exports: "Zepto" }
+            "zepto": { exports: "Zepto" },
+            "zepto_ajax": { deps: ["zepto"] }
         }
     });
 
     require([
         "zepto",
+        "zepto_ajax",
         "converters/all",
         "models/App",
         "serialization/appQuery",

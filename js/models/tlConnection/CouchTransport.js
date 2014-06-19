@@ -11,6 +11,7 @@ define(function (require, exports, module) {
     var Hex = require("modules/multivalue/hex");
     var $ = require("zepto");
     var Multivalue = require("modules/multivalue/multivalue");
+    var tools = require("modules/tools");
 
     function CouchTransport() {
         this.fixedId = "F2E281BB-3C0D-4CED-A0F1-A65771AEED9A";
@@ -38,6 +39,7 @@ define(function (require, exports, module) {
         },
 
         _handlePollingPacket: function (evt) {
+            console.log("got message from %s", evt.channelName);
             var channelId = Hex.fromString(evt.channelName);
             var data = Hex.fromString(evt.data);
             this.fire("networkPacket", {addr: channelId, data: data});
@@ -70,11 +72,19 @@ define(function (require, exports, module) {
         },
 
         // addr can be array
-        openAddr: function (addr, profile) {
+        openAddr: function (profile, addr) {
+            if (tools.isArray(addr)) {
+                addr.forEach(this.openAddr.bind(this, profile));
+                return;
+            }
             var polling = this._getPolling(profile);
             polling.removeChannel(addr.as(Hex).toString());
         },
-        closeAddr: function (addr, profile) {
+        closeAddr: function (profile, addr) {
+            if (tools.isArray(addr)) {
+                addr.forEach(this.closeAddr.bind(this, profile));
+                return;
+            }
             var polling = this._getPolling(profile);
             polling.addChannel(addr.as(Hex).toString());
         },
@@ -83,6 +93,7 @@ define(function (require, exports, module) {
             if (!this.messages[url].length) { return; }
             var message = this.messages[url].pop();
 
+            console.log("sending message to %s, %s bytes", message.ChannelId, JSON.stringify(message).length);
             $.ajax({
                 type: "POST",
                 contentType: "application/json",
@@ -99,8 +110,7 @@ define(function (require, exports, module) {
 
         },
 
-        sendNetworkPacket: function (networkPacket, profile) {
-            console.log("Sending message to channel %s, data: %s", networkPacket.addr.as(Hex), networkPacket.data.as(Hex));
+        sendNetworkPacket: function (profile, networkPacket) {
             invariant(networkPacket.addr instanceof Multivalue, "networkPacket.addr must be multivalue");
             invariant(networkPacket.data instanceof Multivalue, "networkPacket.data must be multivalue");
 

@@ -94,7 +94,7 @@ define(function (require, exports, module) {
             this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
             this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
             // all is ready, gimme packets!
-            this._transport.openAddr(this._addrIns, this.profile);
+            this._transport.openAddr(this.profile, this._addrIns);
         },
 
         _onTransportNetworkPacket: function (packet) {
@@ -178,11 +178,10 @@ define(function (require, exports, module) {
                 }
             });
             if (foundIndex === -1) {
-                console.log("#adding addrIn");
                 this._addrIns.push(addr);
                 this._onChanged();
             }
-            this._transport.openAddr(addr, this.profile);
+            this._transport.openAddr(this.profile, addr, true);
         },
         _onCloseAddrIn: function (addr) {
             var foundIndex = -1;
@@ -192,15 +191,14 @@ define(function (require, exports, module) {
                 }
             });
             if (foundIndex !== -1) {
-                console.log("#removing addrIn");
                 this._addrIns.splice(foundIndex, 1);
                 this._onChanged();
             }
-            this._transport.closeAddr(addr, this.profile);
+            this._transport.closeAddr(this.profile, addr);
         },
 
         _onNetworkPacket: function (packet) {
-            this._transport.sendNetworkPacket(packet, this.profile);
+            this._transport.sendNetworkPacket(this.profile, packet);
         },
 
         _onMessage: function (msg) {

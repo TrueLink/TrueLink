@@ -49,7 +49,7 @@ define(function (require, exports, module) {
             return this._observed(new Random(this));
         },
         createRandom: function () {
-            return this.getInstance("Random", this._createRouter, this);
+            return this.getInstance("Random", this._createRandom, this);
         },
 
         createMenu: function () {
