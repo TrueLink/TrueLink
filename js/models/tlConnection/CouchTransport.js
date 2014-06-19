@@ -78,7 +78,7 @@ define(function (require, exports, module) {
                 return;
             }
             var polling = this._getPolling(profile);
-            polling.removeChannel(addr.as(Hex).toString());
+            polling.addChannel(addr.as(Hex).toString());
         },
         closeAddr: function (profile, addr) {
             if (tools.isArray(addr)) {
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
                 return;
             }
             var polling = this._getPolling(profile);
-            polling.addChannel(addr.as(Hex).toString());
+            polling.removeChannel(addr.as(Hex).toString());
         },
 
         _send: function (url) {
