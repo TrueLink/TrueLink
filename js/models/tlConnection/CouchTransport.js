@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var fixedId = require("mixins/fixedId");
     var model = require("mixins/model");
     var Dictionary = require("modules/dictionary/dictionary");
-    var CouchPolling = require("./CouchPolling");
+    var CouchChannels = require("./CouchChannels");
     var Hex = require("modules/multivalue/hex");
     var $ = require("zepto");
     var Multivalue = require("modules/multivalue/multivalue");
@@ -25,6 +25,7 @@ define(function (require, exports, module) {
 
         // url => [{ChannelId:"", DataString:""}]
         this.messages = {};
+
     }
 
     extend(CouchTransport.prototype, eventEmitter, serializable, fixedId, model, {
@@ -46,7 +47,7 @@ define(function (require, exports, module) {
         },
 
         _createPolling: function (profile) {
-            var polling = new CouchPolling(profile.pollingUrl, 0);
+            var polling = new CouchChannels(profile.pollingUrl, 0);
             polling.on("channelPacket", this._handlePollingPacket, this);
             polling.on("changed", this._handlePollingChanged, this);
             profile.on("urlChanged", this._onProfileUrlChanged, this);
@@ -58,7 +59,9 @@ define(function (require, exports, module) {
             var oldUrl = params.oldUrl;
             var newUrl = params.newUrl;
             // resend messages from oldUrl queue
+            // reset this._pollings[profile]
             console.log("url changed to %s", profile.pollingUrl);
+            throw new Error("CouchTransport._onProfileUrlChanged() is not implemented");
         },
 
         _handlePollingChanged: function (polling) {
@@ -72,15 +75,17 @@ define(function (require, exports, module) {
         },
 
         // addr can be array
-        openAddr: function (profile, addr) {
+        openAddr: function (profile, addr, getAll) {
             if (tools.isArray(addr)) {
                 addr.forEach(this.openAddr.bind(this, profile));
                 return;
             }
+            console.log("=== opening ", addr);
             var polling = this._getPolling(profile);
-            polling.addChannel(addr.as(Hex).toString());
+            polling.addChannel(addr.as(Hex).toString(), getAll);
         },
         closeAddr: function (profile, addr) {
+            console.log("=== closing ", addr);
             if (tools.isArray(addr)) {
                 addr.forEach(this.closeAddr.bind(this, profile));
                 return;
@@ -130,7 +135,14 @@ define(function (require, exports, module) {
             if (this.messages[url].length === 1) {
                 this._send(url);
             }
+        },
+
+        destroy: function () {
+            this._pollings.items.forEach(function (item) {
+                item.value.reset();
+            });
         }
+
 
 
 

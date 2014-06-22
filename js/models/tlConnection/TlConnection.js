@@ -65,7 +65,11 @@ define(function (require, exports, module) {
         abortTlke: function () {
             this.offer = null;
             this.auth = null;
-            this._initialTlecBuilder.destroy();
+            if (this._initialTlecBuilder) {
+                this._initialTlecBuilder.destroy();
+            }
+            this._tlecBuilders.forEach(function (builder) { builder.destroy(); });
+            this._tlecBuilders = [];
             this.init();
         },
 
@@ -172,15 +176,7 @@ define(function (require, exports, module) {
 
         _onAddrIn: function (addr) {
             var foundIndex = -1;
-            this._addrIns.forEach(function (open, index) {
-                if (open.as(Hex).isEqualTo(addr.as(Hex))) {
-                    foundIndex = index;
-                }
-            });
-            if (foundIndex === -1) {
-                this._addrIns.push(addr);
-                this._onChanged();
-            }
+            this._addrIns.push(addr);
             this._transport.openAddr(this.profile, addr, true);
         },
         _onCloseAddrIn: function (addr) {
