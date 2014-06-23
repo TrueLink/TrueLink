@@ -87,7 +87,6 @@ define(function (require, exports, module) {
             this.checkFactory();
             console.log("app init");
             this.transport = this._factory.createTransport();
-            this.transport.init();
             this.random = this._factory.createRandom();
 
             this.setMenu(this._factory.createMenu());

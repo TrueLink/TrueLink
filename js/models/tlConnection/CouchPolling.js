@@ -7,33 +7,30 @@ define(function (require, exports, module) {
 
     var ajaxTimeout = 20000;
 
-    function unique(arr) {
-        var u = {}, a = [], i, l;
-        for (i = 0, l = arr.length; i < l; ++i) {
-            if (u.hasOwnProperty(arr[i])) {
-                continue;
-            }
-            a.push(arr[i]);
-            u[arr[i]] = 1;
-        }
-        return a;
-    }
-
-    function CouchPolling(url, since, dontLoop) {
+    function CouchPolling(url, since) {
         invariant(url, "Can i haz url?");
         invariant(since || since === 0, "Can i haz since?");
         this.channels = [];
         this.url = url;
         this.since = since;
-        this.infinite = !dontLoop;
         this._defineEvent("channelPackets");
         this._defineEvent("changedSince");
-        this._defineEvent("timedOut");
         this.channelsAjax = null;
         this.timeoutDefer = null;
     }
 
     extend(CouchPolling.prototype, eventEmitter, {
+        _unique: function (arr) {
+            var u = {}, a = [], i, l;
+            for (i = 0, l = arr.length; i < l; ++i) {
+                if (u.hasOwnProperty(arr[i])) {
+                    continue;
+                }
+                a.push(arr[i]);
+                u[arr[i]] = 1;
+            }
+            return a;
+        },
         addChannel: function (channelName) {
             if (this.channels.indexOf(channelName) === -1) {
                 this._cancel();
@@ -66,29 +63,33 @@ define(function (require, exports, module) {
                 }
                 this.since = data.last_seq;
                 this._onChangedSince(this.since);
-
-                this.fire("channelPackets", {
-                    packets: data.results.map(function (res) { return {
-                        channelName: res.doc.ChannelId,
-                        data: res.doc.DataString
-                    }; }),
-                    channels: this.channels
-                });
-
+                this._onResults(data);
             } catch (e) {
                 console.error(e);
             } finally {
-                if (this.infinite) {
-                    this._deferredStart();
-                }
+                this._deferredStart();
             }
+        },
+
+        _onResults: function (data) {
+            this.fire("channelPackets", {
+                packets: data.results.map(function (res) { return {
+                    channelName: res.doc.ChannelId,
+                    data: res.doc.DataString,
+                    seq: res.seq
+                }; })
+            });
+        },
+
+        _getUrl: function () {
+            return this.url +
+                "/_changes?feed=longpoll&filter=channels/do&Channel=" + this._unique(this.channels).join(",") +
+                "&include_docs=true&since=" + this.since;
         },
 
         _start: function () {
             if (!this.channels.length) { return; }
-            var url = this.url +
-                "/_changes?feed=longpoll&filter=channels/do&Channel=" + unique(this.channels).join(",") +
-                "&include_docs=true&since=" + this.since;
+            var url = this._getUrl();
             this.channelsAjax = $.ajax({
                 url: url,
                 dataType: "json",
@@ -99,11 +100,8 @@ define(function (require, exports, module) {
                     if (errorType !== "timeout" && errorType !== "abort") {
                         console.warn("Message polling failed: ", error || errorType);
                     }
-                    if (errorType !== "abort" && this.infinite) {
+                    if (errorType !== "abort") {
                         this._deferredStart(errorType === "timeout" ? null : 5000);
-                    }
-                    if (errorType === "timeout") {
-                        this.fire("timedOut", {channels: this.channels});
                     }
                 }
             });
@@ -123,6 +121,5 @@ define(function (require, exports, module) {
             this.fire("changedSince", since);
         }
     });
-
     module.exports = CouchPolling;
 });

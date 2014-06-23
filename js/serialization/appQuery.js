@@ -22,9 +22,14 @@ define(function (require, exports, module) {
             dialogs: {propType: "many", type: "Dialog"}
         },
         TlConnection: {
-            _initialTlecBuilder: {propType: "one", type: "TlecBuilder"},
-            _tlecBuilders: {propType: "many", type: "TlecBuilder"}
+            _initialTlec: {propType: "one", type: "TlecSuite"},
+            _tlecs: {propType: "many", type: "TlecSuite"}
         },
+        TlecSuite: {
+            _transportAdapter: {propType: "one", type: "TransportAdapter"},
+            _tlecBuider: {propType: "one", type: "TlecBuilder"}
+        },
+        TransportAdapter: {},
         TlecBuilder: {
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},
             _tlhtBuilder: {propType: "one", type: "TlhtBuilder"},

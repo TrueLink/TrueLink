@@ -12,7 +12,8 @@ define(function (require, exports, module) {
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
     var Route = require("modules/channels/Route");
-    var TestTransport = require("modules/channels/TestTransport");
+    var TransportAdapter = require("models/tlConnection/TransportAdapter");
+    var TlecSuite = require("models/tlConnection/TlecSuite");
 
 
     function TlConnectionFactory(serializer, tlConnection) {
@@ -55,6 +56,17 @@ define(function (require, exports, module) {
 
         createRandom: function () {
             return this.getInstance("Random");
+        },
+
+        createTransportAdapter: function () {
+            var adapter = new TransportAdapter();
+            return this._observed(adapter);
+        },
+
+        createTlecSuite: function () {
+            var suite = new TlecSuite();
+            suite.setFactory(this);
+            return this._observed(suite);
         },
 
         createRoute: function () {

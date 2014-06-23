@@ -7,7 +7,8 @@ define(function (require, exports, module) {
     var fixedId = require("mixins/fixedId");
     var model = require("mixins/model");
     var Dictionary = require("modules/dictionary/dictionary");
-    var CouchChannels = require("./CouchChannels");
+    var CouchPolling = require("./CouchPolling");
+    var CouchGetting = require("./CouchGetting");
     var Hex = require("modules/multivalue/hex");
     var $ = require("zepto");
     var Multivalue = require("modules/multivalue/multivalue");
@@ -18,80 +19,109 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this._defineEvent("networkPacket");
 
-        // profile => polling
-        this._pollings = new Dictionary();
+        // url => polling
+        this._pollings = {};
         // url => since
         this.sinces = {};
 
+        // messages enqueued to send
         // url => [{ChannelId:"", DataString:""}]
         this.messages = {};
 
+        this._gettings = {};
     }
 
     extend(CouchTransport.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
-            packet.setData({sinces: this.sinces});
+            packet.setData({
+                sinces: this.sinces,
+                messages: this.messages
+            });
         },
         deserialize: function (packet, context) {
             var data = packet.getData();
             this.sinces = data.sinces;
-        },
-        init: function () {
-        },
-
-        _handlePollingPacket: function (evt) {
-            console.log("got message from %s", evt.channelName);
-            var channelId = Hex.fromString(evt.channelName);
-            var data = Hex.fromString(evt.data);
-            this.fire("networkPacket", {addr: channelId, data: data});
+            this.messages = data.messages;
+            this._sendAllMessages();
         },
 
-        _createPolling: function (profile) {
-            var polling = new CouchChannels(profile.pollingUrl, 0);
-            polling.on("channelPacket", this._handlePollingPacket, this);
+        _handlePollingPackets: function (evt) {
+            evt.packets.forEach(function (packet) {
+                console.log("got message from %s", packet.channelName);
+                var channelId = Hex.fromString(packet.channelName);
+                var data = Hex.fromString(packet.data);
+                this.fire("networkPacket", {addr: channelId, data: data, seq: packet.seq});
+            });
+        },
+
+        _createPolling: function (url) {
+            var polling = new CouchPolling(url, this.sinces[url] || 0);
+            polling.on("channelPackets", this._handlePollingPackets, this);
             polling.on("changed", this._handlePollingChanged, this);
-            profile.on("urlChanged", this._onProfileUrlChanged, this);
-            this._pollings.item(profile, polling);
+            this._pollings[url] = polling;
             return polling;
         },
 
-        _onProfileUrlChanged: function (params, profile) {
-            var oldUrl = params.oldUrl;
-            var newUrl = params.newUrl;
-            // resend messages from oldUrl queue
-            // reset this._pollings[profile]
-            console.log("url changed to %s", profile.pollingUrl);
-            throw new Error("CouchTransport._onProfileUrlChanged() is not implemented");
+        _createGetting: function (url) {
+            var getting = new CouchGetting(url);
+            getting.on("channelPackets", this._handlePollingPackets, this);
+            this._gettings[url] = getting;
+            return getting;
         },
 
+
         _handlePollingChanged: function (polling) {
-            var since = polling.since;
-            var profile = this._pollings.first(function (item) { return item.value === polling; });
-            this.sinces[profile.url] = since;
+            var since = polling.since, url;
+            for (url in this._pollings) {
+                if (this._pollings.hasOwnProperty(url) && this._pollings[url] === polling) {
+                    break;
+                }
+            }
+            this.sinces[url] = since;
             this._onChanged();
         },
-        _getPolling: function (profile) {
-            return this._pollings.item(profile) || this._createPolling(profile);
+        _getPolling: function (url) {
+            return this._pollings[url] || this._createPolling(url);
+        },
+        _getGetting: function (url) {
+            return this._gettings[url] || this._createGetting(url);
         },
 
         // addr can be array
-        openAddr: function (profile, addr, getAll) {
+        openAddr: function (args) {
+            var url = args.url;
+            var addr = args.addr;
             if (tools.isArray(addr)) {
-                addr.forEach(this.openAddr.bind(this, profile));
+                addr.forEach(this.openAddr.bind(this, url));
                 return;
             }
-            console.log("=== opening ", addr);
-            var polling = this._getPolling(profile);
-            polling.addChannel(addr.as(Hex).toString(), getAll);
+            var polling = this._getPolling(url);
+            polling.addChannel(addr.as(Hex).toString());
         },
-        closeAddr: function (profile, addr) {
-            console.log("=== closing ", addr);
+        closeAddr: function (args) {
+            var url = args.url;
+            var addr = args.addr;
             if (tools.isArray(addr)) {
-                addr.forEach(this.closeAddr.bind(this, profile));
+                addr.forEach(this.closeAddr.bind(this, url));
                 return;
             }
-            var polling = this._getPolling(profile);
+            var polling = this._getPolling(url);
             polling.removeChannel(addr.as(Hex).toString());
+        },
+
+        fetchAll: function (args) {
+            var url = args.url;
+            var addr = args.addr;
+            this._getGetting(url).addChannel(addr.as(Hex).toString());
+        },
+
+        _sendAllMessages: function () {
+            var url;
+            for (url in this.messages) {
+                if (this.messages.hasOwnProperty(url)) {
+                    this._send(url);
+                }
+            }
         },
 
         _send: function (url) {
@@ -115,14 +145,15 @@ define(function (require, exports, module) {
 
         },
 
-        sendNetworkPacket: function (profile, networkPacket) {
+        sendNetworkPacket: function (args) {
+            var networkPacket = args.networkPacket;
+            var url = args.url;
             invariant(networkPacket.addr instanceof Multivalue, "networkPacket.addr must be multivalue");
             invariant(networkPacket.data instanceof Multivalue, "networkPacket.data must be multivalue");
 
             var addr = networkPacket.addr;
             var packet = networkPacket.data;
 
-            var url = profile.pollingUrl;
             if (!this.messages[url]) {
                 this.messages[url] = [];
             }

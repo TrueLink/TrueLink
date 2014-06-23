@@ -17,8 +17,8 @@ define(function (require, exports, module) {
         this.profile = null;
         this.offer = null;
         this.auth = null;
-        this._initialTlecBuilder = null;
-        this._tlecBuilders = [];
+        this._initialTlec = null;
+        this._tlecs = [];
         this._addrIns = [];
         this._tlConnectionFilter = new TlConnectionFilter(this);
         this._tlConnectionFilter.on("filtered", this._onMessageSend, this);
@@ -38,8 +38,8 @@ define(function (require, exports, module) {
             this.profile = profile;
         },
         init: function () {
-            this._initialTlecBuilder = this._factory.createTlecBuilder();
-            this._initialTlecBuilder.build();
+            this._initialTlec = this._factory.createTlecBuilder();
+            this._initialTlec.build();
             this._linkInitial();
             this._onChanged();
         },
@@ -48,28 +48,28 @@ define(function (require, exports, module) {
             if (this.canSendMessages()) {
                 return TlecBuilder.STATUS_ESTABLISHED;
             }
-            return this._initialTlecBuilder ? this._initialTlecBuilder.status : null;
+            return this._initialTlec ? this._initialTlec.status : null;
         },
         generateOffer: function () {
-            this._initialTlecBuilder.generateOffer();
+            this._initialTlec.generateOffer();
         },
 
         enterOffer: function (offer) {
-            this._initialTlecBuilder.enterOffer(offer);
+            this._initialTlec.enterOffer(offer);
         },
 
         enterAuth: function (auth) {
-            this._initialTlecBuilder.enterAuth(auth);
+            this._initialTlec.enterAuth(auth);
         },
 
         abortTlke: function () {
             this.offer = null;
             this.auth = null;
-            if (this._initialTlecBuilder) {
-                this._initialTlecBuilder.destroy();
+            if (this._initialTlec) {
+                this._initialTlec.destroy();
             }
-            this._tlecBuilders.forEach(function (builder) { builder.destroy(); });
-            this._tlecBuilders = [];
+            this._tlecs.forEach(function (builder) { builder.destroy(); });
+            this._tlecs = [];
             this.init();
         },
 
@@ -81,8 +81,8 @@ define(function (require, exports, module) {
                 addrIns: this._addrIns.map(function (addr) { return addr.as(Hex).serialize(); })
             });
 
-            packet.setLink("_initialTlecBuilder", context.getPacket(this._initialTlecBuilder));
-            packet.setLink("_tlecBuilders", context.getPacket(this._tlecBuilders));
+            packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
+            packet.setLink("_tlecs", context.getPacket(this._tlecs));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
@@ -93,38 +93,40 @@ define(function (require, exports, module) {
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
             this._addrIns = data.addrIns ? data.addrIns.map(function (addr) { return Hex.deserialize(addr); }) : [];
 
-            this._initialTlecBuilder = context.deserialize(packet.getLink("_initialTlecBuilder"), factory.createTlecBuilder, factory);
+            this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createTlecBuilder, factory);
             this._linkInitial();
-            this._tlecBuilders = context.deserialize(packet.getLink("_tlecBuilders"), factory.createTlecBuilder, factory);
-            this._tlecBuilders.forEach(this._linkFinishedTlecBuilder, this);
+            this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createTlecBuilder, factory);
+            this._tlecs.forEach(this._linkFinishedTlecBuilder, this);
             // all is ready, gimme packets!
             this._transport.openAddr(this.profile, this._addrIns);
         },
 
         _onTransportNetworkPacket: function (packet) {
-            if (this._initialTlecBuilder) {
-                this._initialTlecBuilder.processNetworkPacket(packet);
+            if (this._initialTlec) {
+                this._initialTlec.processNetworkPacket(packet);
             }
-            this._tlecBuilders.forEach(function (builder) {
+            this._tlecs.forEach(function (builder) {
                 builder.processNetworkPacket(packet);
             });
         },
         _linkFinishedTlecBuilder: function (builder) {
             builder.on("message", this._receiveMessage, this);
             builder.on("networkPacket", this._onNetworkPacket, this);
+            builder.on("closeAddrIn", this._onCloseAddrIn, this);
         },
 
         _unlinkFinishedTlecBuilder: function (builder) {
             builder.off("message", this._receiveMessage, this);
             builder.off("networkPacket", this._onNetworkPacket, this);
+            builder.off("closeAddrIn", this._onCloseAddrIn, this);
         },
 
         _addTlecBuilder: function (builder) {
             this._linkFinishedTlecBuilder(builder);
-            this._tlecBuilders.push(builder);
+            this._tlecs.push(builder);
         },
         canSendMessages: function () {
-            return this._tlecBuilders.length > 0;
+            return this._tlecs.length > 0;
         },
         sendMessage: function (msg) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
@@ -135,7 +137,7 @@ define(function (require, exports, module) {
         },
 
         _linkInitial: function () {
-            var builder = this._initialTlecBuilder;
+            var builder = this._initialTlec;
             if (!builder) { return; }
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
@@ -146,7 +148,7 @@ define(function (require, exports, module) {
             builder.on("done", this._onInitialTlecBuilderDone, this);
         },
         _unlinkInitial: function () {
-            var builder = this._initialTlecBuilder;
+            var builder = this._initialTlec;
             if (!builder) { return; }
             builder.off("changed", this._onChanged, this);
             builder.off("offer", this._onInitialOffer, this);
@@ -158,7 +160,7 @@ define(function (require, exports, module) {
         },
 
         _onInitialTlecBuilderDone: function (builder) {
-            this._initialTlecBuilder = null;
+            this._initialTlec = null;
             this._addTlecBuilder(builder);
             this._onChanged();
         },
@@ -202,7 +204,7 @@ define(function (require, exports, module) {
         },
 
         _onMessageSend: function (msg) {
-            var activeTlec = this._tlecBuilders[0];
+            var activeTlec = this._tlecs[0];
             activeTlec.sendMessage(msg);
         }
 
