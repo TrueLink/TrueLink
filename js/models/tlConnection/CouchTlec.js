@@ -13,12 +13,17 @@ define(function (require, exports, module) {
         this._tlecBuilder = null;
         this._transportAdapter = null;
         this._transport = null;
+
+        this._cachedPackets = [];
     }
 
     extend(TlecSuite.prototype, eventEmitter, serializable, model, {
 
         setTransport: function (transport) {
             this._transport = transport;
+
+            this._transport.on("packets", this._onTransportPackets, this);
+
         },
 
         init: function () {
@@ -59,25 +64,48 @@ define(function (require, exports, module) {
         },
 
         _link: function () {
+            invariant(this._transport, "transport is not set");
             if (this._tlecBuilder && this._transportAdapter) {
 
                 this._tlecBuilder.on("done", this._onDone, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
-                this._tlecBuilder.on("openAddrIn", this._transportAdapter.openAddr, this._transportAdapter);
-                this._tlecBuilder.on("closeAddrIn", this._transportAdapter.closeAddr, this._transportAdapter);
-                this._tlecBuilder.on("networkPacket", this._transportAdapter.sendPacket, this._transportAdapter);
-
-                this._transportAdapter.on("packetFromTransport", this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
-                this._transportAdapter.on("packetForTransport", this._transport.sendPacket, this._transport);
-                this._transportAdapter.on("addrIn", this._transport.openAddr, this._transport);
-                this._transportAdapter.on("fetchAll", this._transport.fetchAll, this._transport);
-
-                this._transport.on("networkPacket", this._transportAdapter.processPacket, this._transportAdapter);
-
+                this._tlecBuilder.on("openAddrIn", this._transport.beginPolling, this);
+                this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
+                this._tlecBuilder.on("closeAddrIn", this._transport.endPolling, this._transport);
+                this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
             }
 
+        },
+
+        _onTlecOpenAddr: function (addr) {
+            if (!this.fetched) {
+                this._transport.fetchAll(addr);
+            }
+        },
+
+        _addPacketToCached: function (packet) {
+            if (!this._cachedPackets.some(function (p) {return p.seq === packet.seq; })) {
+                this._cachedPackets.push(packet);
+            }
+        },
+        _onTransportPackets: function (args) {
+            if (this.fetched) {
+                this._processPackets(this._cachedPackets);
+            } else {
+                this._cachedPackets.forEach(this._addPacketToCached, this);
+                if (args.since === 0) {
+                    this.fetched = true;
+                    this._processPackets(this._cachedPackets);
+                }
+            }
+        },
+
+        _processPackets: function (packets) {
+            packets
+                .sort(function (a, b) { return a.seq - b.seq; })
+                .forEach(this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
         },
 
         _onOffer: function (offer) {

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this._defineEvent("packets");
         this._pollingUrl = null;
+        this._postingUrl = null;
         this._polling = null;
         // url => since
         this._sinces = {};
@@ -48,26 +49,32 @@ define(function (require, exports, module) {
 
         },
 
+        setPostingUrl: function (newUrl) {
+            this._postingUrl = newUrl;
+        },
+
         serialize: function (packet, context) {
             packet.setData({
                 sinces: this._sinces,
                 unsent: this._unsentPackets,
-                url: this._pollingUrl
+                pollingUrl: this._pollingUrl,
+                postingUrl: this._postingUrl,
             });
         },
         deserialize: function (packet, context) {
             var data = packet.getData();
             this._sinces = data.sinces;
             this._unsentPackets = data.unsent;
-            this.setPollingUrl(data.url);
+            this.setPollingUrl(data.pollingUrl);
+            this.setPostingUrl(data.postingUrl);
         },
 
         sendPacket: function (args) {
             invariant(args.addr instanceof Multivalue, "args.addr must be multivalue");
             invariant(args.data instanceof Multivalue, "args.data must be multivalue");
-            invariant(args.url && typeof args.url === "string", "args.url must be string");
+            invariant(this._postingUrl, "postingUrl is not set");
 
-            var url = args.url;
+            var url = this._postingUrl;
             var addr = args.addr;
             var packet = args.data;
 
@@ -116,26 +123,25 @@ define(function (require, exports, module) {
             this._getting.addChannel(addr.as(Hex).toString());
         },
 
-        _handlePollingPackets: function (evt, sender) {
-            this._sinces[sender.url] = evt.lastSeq;
+        _handlePollingPackets: function (args, sender) {
+            this._sinces[sender.url] = args.lastSeq;
             this._onChanged();
-            this._onPackets(evt.packets);
+            this._onPackets(args);
         },
 
-        _handleGettingPackets: function (evt, sender) {
-            this._onPackets(evt.packets);
+        _handleGettingPackets: function (args, sender) {
+            this._onPackets(args);
         },
 
-        _onPackets: function (packets) {
-            packets.forEach(function (packet) {
-                console.log("got packet from %s", packet.channelName);
-                var channelId = Hex.fromString(packet.channelName);
-                var data = Hex.fromString(packet.data);
-                this.fire("networkPacket", {
-                    addr: channelId,
-                    data: data,
+        _onPackets: function (args) {
+            this.fire("packets", {
+                lastSeq: args.lastSeq,
+                since: args.since,
+                packets: args.packets.map(function (packet) { return {
+                    addr: Hex.fromString(packet.channelName),
+                    data: Hex.fromString(packet.data),
                     seq: packet.seq
-                });
+                }; })
             });
         },
 
