@@ -4,9 +4,6 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var fixedId = require("mixins/fixedId");
-    var model = require("mixins/model");
-    var Dictionary = require("modules/dictionary/dictionary");
     var CouchPolling = require("./CouchPolling");
     var CouchGetting = require("./CouchGetting");
     var Hex = require("modules/multivalue/hex");
@@ -15,167 +12,178 @@ define(function (require, exports, module) {
     var tools = require("modules/tools");
 
     function CouchTransport() {
-        this.fixedId = "F2E281BB-3C0D-4CED-A0F1-A65771AEED9A";
         this._defineEvent("changed");
-        this._defineEvent("networkPacket");
-
-        // url => polling
-        this._pollings = {};
+        this._defineEvent("packets");
+        this._pollingUrl = null;
+        this._polling = null;
         // url => since
-        this.sinces = {};
+        this._sinces = {};
 
-        // messages enqueued to send
-        // url => [{ChannelId:"", DataString:""}]
-        this.messages = {};
-
-        this._gettings = {};
+        // url => [{ChannelId: "", DataString:""}]
+        this._unsentPackets = {};
     }
 
-    extend(CouchTransport.prototype, eventEmitter, serializable, fixedId, model, {
+    extend(CouchTransport.prototype, eventEmitter, serializable, {
+
+        _getSince: function (url) {
+            if (!this._sinces[url]) {
+                this._sinces[url] = 0;
+            }
+            return this._sinces[url];
+        },
+        setPollingUrl: function (newUrl) {
+            if (this._pollingUrl) {
+                this._getting.reset();
+                this._polling.reset();
+                // store addrs from running polling and getting
+            }
+
+            this._pollingUrl = newUrl;
+
+            this._getting = new CouchGetting(newUrl);
+            this._getting.on("channelPackets", this._handleGettingPackets, this);
+            this._polling = new CouchPolling(newUrl, this._getSince(newUrl));
+            this._polling.on("channelPackets", this._handlePollingPackets, this);
+            // restore addrs from running polling and getting
+
+        },
+
         serialize: function (packet, context) {
             packet.setData({
-                sinces: this.sinces,
-                messages: this.messages
+                sinces: this._sinces,
+                unsent: this._unsentPackets,
+                url: this._pollingUrl
             });
         },
         deserialize: function (packet, context) {
             var data = packet.getData();
-            this.sinces = data.sinces;
-            this.messages = data.messages;
-            this._sendAllMessages();
+            this._sinces = data.sinces;
+            this._unsentPackets = data.unsent;
+            this.setPollingUrl(data.url);
         },
 
-        _handlePollingPackets: function (evt) {
-            evt.packets.forEach(function (packet) {
-                console.log("got message from %s", packet.channelName);
-                var channelId = Hex.fromString(packet.channelName);
-                var data = Hex.fromString(packet.data);
-                this.fire("networkPacket", {addr: channelId, data: data, seq: packet.seq});
-            });
-        },
+        sendPacket: function (args) {
+            invariant(args.addr instanceof Multivalue, "args.addr must be multivalue");
+            invariant(args.data instanceof Multivalue, "args.data must be multivalue");
+            invariant(args.url && typeof args.url === "string", "args.url must be string");
 
-        _createPolling: function (url) {
-            var polling = new CouchPolling(url, this.sinces[url] || 0);
-            polling.on("channelPackets", this._handlePollingPackets, this);
-            polling.on("changed", this._handlePollingChanged, this);
-            this._pollings[url] = polling;
-            return polling;
-        },
+            var url = args.url;
+            var addr = args.addr;
+            var packet = args.data;
 
-        _createGetting: function (url) {
-            var getting = new CouchGetting(url);
-            getting.on("channelPackets", this._handlePollingPackets, this);
-            this._gettings[url] = getting;
-            return getting;
-        },
-
-
-        _handlePollingChanged: function (polling) {
-            var since = polling.since, url;
-            for (url in this._pollings) {
-                if (this._pollings.hasOwnProperty(url) && this._pollings[url] === polling) {
-                    break;
-                }
+            if (!this._unsentPackets[url]) {
+                this._unsentPackets[url] = [];
             }
-            this.sinces[url] = since;
+
+            this._unsentPackets[url].push({
+                ChannelId: addr.as(Hex).toString(),
+                DataString:  packet.as(Hex).toString()
+            });
+
             this._onChanged();
-        },
-        _getPolling: function (url) {
-            return this._pollings[url] || this._createPolling(url);
-        },
-        _getGetting: function (url) {
-            return this._gettings[url] || this._createGetting(url);
+
+            if (this._unsentPackets[url].length === 1) {
+                this._send(url);
+            }
         },
 
         // addr can be array
-        openAddr: function (args) {
-            var url = args.url;
-            var addr = args.addr;
+        beginPolling: function (addr) {
+            invariant(addr instanceof Multivalue, "addr must be multivalue");
+            invariant(this._pollingUrl, "pollingUrl is not set");
+
             if (tools.isArray(addr)) {
-                addr.forEach(this.openAddr.bind(this, url));
+                addr.forEach(this.beginPolling.bind(this, url));
                 return;
             }
-            var polling = this._getPolling(url);
-            polling.addChannel(addr.as(Hex).toString());
+            this._polling.addChannel(addr.as(Hex).toString());
         },
-        closeAddr: function (args) {
-            var url = args.url;
-            var addr = args.addr;
+        endPolling: function (addr) {
+            invariant(addr instanceof Multivalue, "addr must be multivalue");
+            invariant(this._pollingUrl, "pollingUrl is not set");
+
             if (tools.isArray(addr)) {
-                addr.forEach(this.closeAddr.bind(this, url));
+                addr.forEach(this.endPolling.bind(this, url));
                 return;
             }
-            var polling = this._getPolling(url);
-            polling.removeChannel(addr.as(Hex).toString());
+            this._polling.removeChannel(addr.as(Hex).toString());
         },
 
-        fetchAll: function (args) {
-            var url = args.url;
-            var addr = args.addr;
-            this._getGetting(url).addChannel(addr.as(Hex).toString());
+        fetchAll: function (addr) {
+            invariant(addr instanceof Multivalue, "addr must be multivalue");
+            invariant(this._pollingUrl, "pollingUrl is not set");
+
+            this._getting.addChannel(addr.as(Hex).toString());
         },
 
-        _sendAllMessages: function () {
+        _handlePollingPackets: function (evt, sender) {
+            this._sinces[sender.url] = evt.lastSeq;
+            this._onChanged();
+            this._onPackets(evt.packets);
+        },
+
+        _handleGettingPackets: function (evt, sender) {
+            this._onPackets(evt.packets);
+        },
+
+        _onPackets: function (packets) {
+            packets.forEach(function (packet) {
+                console.log("got packet from %s", packet.channelName);
+                var channelId = Hex.fromString(packet.channelName);
+                var data = Hex.fromString(packet.data);
+                this.fire("networkPacket", {
+                    addr: channelId,
+                    data: data,
+                    seq: packet.seq
+                });
+            });
+        },
+
+        _sendAllPackets: function () {
             var url;
-            for (url in this.messages) {
-                if (this.messages.hasOwnProperty(url)) {
+            for (url in this._unsentPackets) {
+                if (this._unsentPackets.hasOwnProperty(url)) {
                     this._send(url);
                 }
             }
         },
 
-        _send: function (url) {
-            if (!this.messages[url].length) { return; }
-            var message = this.messages[url].pop();
+        _send: function (url, sentPacket) {
+            if (sentPacket) {
+                var sentIndex = this._unsentPackets[url].indexOf(sentPacket);
+                if (sentIndex !== -1) {
+                    this._unsentPackets[url].splice(sentIndex, 1);
+                    this._onChanged();
+                }
+            }
+            if (!this._unsentPackets[url].length) { return; }
+            var packet = this._unsentPackets[url][0];
 
-            console.log("sending message to %s, %s bytes", message.ChannelId, JSON.stringify(message).length);
+
+            console.log("sending packet to %s, %s bytes", packet.ChannelId, JSON.stringify(packet).length);
             $.ajax({
                 type: "POST",
                 contentType: "application/json",
                 context: this,
                 url: url,
-                data: JSON.stringify(message),
-                success: function (data, status, xhr) { this._send(url); },
+                data: JSON.stringify(packet),
+                success: function (data, status, xhr) { this._send(url, packet); },
                 error: function (xhr, errorType, error) {
-                    console.warn("Message sending failed: ", error || errorType);
-                    this.messages[url].push(message);
+                    console.warn("Packet sending failed: ", error || errorType);
                     setTimeout((function () { this._send(url); }).bind(this), 5000);
                 }
             });
 
         },
 
-        sendNetworkPacket: function (args) {
-            var networkPacket = args.networkPacket;
-            var url = args.url;
-            invariant(networkPacket.addr instanceof Multivalue, "networkPacket.addr must be multivalue");
-            invariant(networkPacket.data instanceof Multivalue, "networkPacket.data must be multivalue");
-
-            var addr = networkPacket.addr;
-            var packet = networkPacket.data;
-
-            if (!this.messages[url]) {
-                this.messages[url] = [];
-            }
-
-            this.messages[url].unshift({
-                ChannelId: addr.as(Hex).toString(),
-                DataString:  packet.as(Hex).toString()
-            });
-
-            if (this.messages[url].length === 1) {
-                this._send(url);
-            }
+        destroy: function () {
+            this._polling.reset();
+            this._getting.reset();
         },
 
-        destroy: function () {
-            this._pollings.items.forEach(function (item) {
-                item.value.reset();
-            });
+        _onChanged: function () {
+            this.fire("changed", this);
         }
-
-
-
 
     });
 
