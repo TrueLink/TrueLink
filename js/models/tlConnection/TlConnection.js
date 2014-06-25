@@ -48,7 +48,7 @@ define(function (require, exports, module) {
             if (this.canSendMessages()) {
                 return TlecBuilder.STATUS_ESTABLISHED;
             }
-            return this._initialTlec ? this._initialTlec.status : null;
+            return this._initialTlec ? this._initialTlec.getStatus() : null;
         },
         generateOffer: function () {
             this._initialTlec.generateOffer();
