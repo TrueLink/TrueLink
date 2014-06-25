@@ -12,9 +12,8 @@ define(function (require, exports, module) {
         invariant(since || since === 0, "Can i haz since?");
         this.channels = [];
         this.url = url;
-        this.since = since;
+        this._since = since;
         this._defineEvent("channelPackets");
-        this._defineEvent("changedSince");
         this.channelsAjax = null;
         this.timeoutDefer = null;
     }
@@ -61,9 +60,8 @@ define(function (require, exports, module) {
                 if (!data || !data.last_seq) {
                     throw new Error("Wrong answer structure");
                 }
-                this.since = data.last_seq;
-                this._onChangedSince(this.since);
-                this._onResults(data);
+                this._since = data.last_seq;
+                this._onResults(data, this._since);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -71,8 +69,10 @@ define(function (require, exports, module) {
             }
         },
 
-        _onResults: function (data) {
+        _onResults: function (data, since) {
             this.fire("channelPackets", {
+                lastSeq: data.last_seq,
+                since: since,
                 packets: data.results.map(function (res) { return {
                     channelName: res.doc.ChannelId,
                     data: res.doc.DataString,
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
         _getUrl: function () {
             return this.url +
                 "/_changes?feed=longpoll&filter=channels/do&Channel=" + this._unique(this.channels).join(",") +
-                "&include_docs=true&since=" + this.since;
+                "&include_docs=true&since=" + this._since;
         },
 
         _start: function () {
@@ -116,9 +116,6 @@ define(function (require, exports, module) {
                 clearTimeout(this.timeoutDefer);
             }
             this.timeoutDefer = setTimeout((function () { this._start(); }).bind(this), timeout);
-        },
-        _onChangedSince: function (since) {
-            this.fire("changedSince", since);
         }
     });
     module.exports = CouchPolling;

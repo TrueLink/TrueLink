@@ -6,7 +6,6 @@ define(function (require, exports, module) {
 
     function CouchGetting(url) {
         invariant(url, "Can i haz url?");
-        this._defineEvent("changed");
         this._defineEvent("channelPackets");
         this.url = url;
         this.channels = [];
@@ -25,7 +24,7 @@ define(function (require, exports, module) {
                 if (!data || !data.last_seq) {
                     throw new Error("Wrong answer structure");
                 }
-                this._onResults(data);
+                this._onResults(data, 0);
             } catch (e) {
                 console.error(e);
             } finally {
