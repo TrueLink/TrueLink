@@ -36,7 +36,6 @@ define(function (require, exports, module) {
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
-            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.random = context.deserialize(packet.getLink("random"), factory.createRandom, factory);
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile, factory);
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile, factory);

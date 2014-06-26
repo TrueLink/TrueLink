@@ -75,7 +75,6 @@ define(function (require, exports, module) {
                 name : urandom.name(),
                 tlConnection: contactTlConnection
             });
-            contact.init();
             this.contacts.push(contact);
             this._onChanged();
             return contact;
