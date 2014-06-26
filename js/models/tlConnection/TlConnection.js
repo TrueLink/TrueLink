@@ -14,7 +14,6 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
         this._defineEvent("message");
 
-        this.profile = null;
         this.offer = null;
         this.auth = null;
         this._initialTlec = null;
@@ -27,20 +26,10 @@ define(function (require, exports, module) {
     }
 
     extend(TlConnection.prototype, eventEmitter, serializable, model, {
-
-        setFactory: function (factory) {
-            this._factory = factory;
-            this._transport = factory.createTransport();
-            this._transport.on("networkPacket", this._onTransportNetworkPacket, this);
-        },
-
-        setProfile: function (profile) {
-            this.profile = profile;
-        },
         init: function () {
             this._initialTlec = this._factory.createCouchTlec();
-            this._initialTlec.build();
             this._linkInitial();
+            this._initialTlec.init();
             this._onChanged();
         },
 
@@ -97,18 +86,8 @@ define(function (require, exports, module) {
             this._linkInitial();
             this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createCouchTlec, factory);
             this._tlecs.forEach(this._linkFinishedTlec, this);
-            // all is ready, gimme packets!
-            this._transport.openAddr(this.profile, this._addrIns);
         },
 
-        _onTransportNetworkPacket: function (packet) {
-            if (this._initialTlec) {
-                this._initialTlec.processNetworkPacket(packet);
-            }
-            this._tlecs.forEach(function (builder) {
-                builder.processNetworkPacket(packet);
-            });
-        },
         _linkFinishedTlec: function (tlecWrapper) {
             tlecWrapper.on("message", this._receiveMessage, this);
             tlecWrapper.on("networkPacket", this._onNetworkPacket, this);
@@ -136,21 +115,7 @@ define(function (require, exports, module) {
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
-            builder.on("openAddrIn", this._onAddrIn, this);
-            builder.on("closeAddrIn", this._onCloseAddrIn, this);
-            builder.on("networkPacket", this._onNetworkPacket, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
-        },
-        _unlinkInitial: function () {
-            var builder = this._initialTlec;
-            if (!builder) { return; }
-            builder.off("changed", this._onChanged, this);
-            builder.off("offer", this._onInitialOffer, this);
-            builder.off("auth", this._onInitialAuth, this);
-            builder.off("openAddrIn", this._onAddrIn, this);
-            builder.off("closeAddrIn", this._onCloseAddrIn, this);
-            builder.off("networkPacket", this._onNetworkPacket, this);
-            builder.off("done", this._onInitialTlecBuilderDone, this);
         },
 
         _onInitialTlecBuilderDone: function (builder) {
@@ -170,28 +135,6 @@ define(function (require, exports, module) {
             }
         },
 
-        _onAddrIn: function (addr) {
-            var foundIndex = -1;
-            this._addrIns.push(addr);
-            this._transport.openAddr(this.profile, addr, true);
-        },
-        _onCloseAddrIn: function (addr) {
-            var foundIndex = -1;
-            this._addrIns.forEach(function (open, index) {
-                if (open.as(Hex).isEqualTo(addr.as(Hex))) {
-                    foundIndex = index;
-                }
-            });
-            if (foundIndex !== -1) {
-                this._addrIns.splice(foundIndex, 1);
-                this._onChanged();
-            }
-            this._transport.closeAddr(this.profile, addr);
-        },
-
-        _onNetworkPacket: function (packet) {
-            this._transport.sendNetworkPacket(this.profile, packet);
-        },
 
         _onMessage: function (msg) {
             this.fire("message", msg);

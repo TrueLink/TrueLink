@@ -9,6 +9,10 @@ define(function (require, exports, module) {
 
     function TlecSuite() {
         this._defineEvent("changed");
+        this._defineEvent("offer");
+        this._defineEvent("auth");
+        this._defineEvent("message");
+        this._defineEvent("done");
 
         this._tlecBuilder = null;
         this._transportAdapter = null;
@@ -21,17 +25,18 @@ define(function (require, exports, module) {
 
         setTransport: function (transport) {
             this._transport = transport;
-
             this._transport.on("packets", this._onTransportPackets, this);
-
         },
 
         init: function () {
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = factory.createTlecBuilder();
-            this._transportAdapter = factory.createTransportAdapter();
             this._link();
+        },
+
+        run: function () {
+
         },
 
         enterOffer: function (offer) {
@@ -53,25 +58,23 @@ define(function (require, exports, module) {
         serialize: function (packet, context) {
             packet.setData({});
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
-            packet.setLink("_transportAdapter", context.getPacket(this._transportAdapter));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
             var data = packet.getData();
             this._tlecBuilder = context.deserialize(packet.getLink("_tlecBuilder"), factory.createTlecBuilder, factory);
-            this._transportAdapter = context.deserialize(packet.getLink("_transportAdapter"), factory.createTransportAdapter, factory);
         },
 
         _link: function () {
             invariant(this._transport, "transport is not set");
-            if (this._tlecBuilder && this._transportAdapter) {
+            if (this._tlecBuilder) {
 
                 this._tlecBuilder.on("done", this._onDone, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
-                this._tlecBuilder.on("openAddrIn", this._transport.beginPolling, this);
+                this._tlecBuilder.on("openAddrIn", this._transport.beginPolling, this._transport);
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
                 this._tlecBuilder.on("closeAddrIn", this._transport.endPolling, this._transport);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
@@ -122,9 +125,8 @@ define(function (require, exports, module) {
         },
 
         destroy: function () {
-            if (this._tlecBuilder && this._transportAdapter) {
+            if (this._tlecBuilder) {
                 this._tlecBuilder.destroy();
-                this._transportAdapter.destroy();
             }
         }
 

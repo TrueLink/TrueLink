@@ -74,8 +74,8 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this._sinces = data.sinces;
             this._unsentPackets = data.unsent;
-            this.setPollingUrl(data.pollingUrl);
-            this.setPostingUrl(data.postingUrl);
+            this._setPollingUrl(data.pollingUrl);
+            this._setPostingUrl(data.postingUrl);
         },
 
         sendPacket: function (args) {

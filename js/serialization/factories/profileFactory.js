@@ -49,7 +49,6 @@ define(function (require, exports, module) {
             var tlConnection = new TlConnection();
             var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile);
             tlConnection.setFactory(tlConnectionFactory);
-            tlConnection.setProfile(this.profile);
             return this._observed(tlConnection);
         }
     });

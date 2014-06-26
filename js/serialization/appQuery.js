@@ -22,14 +22,12 @@ define(function (require, exports, module) {
             transport: {propType: "one", type: "CouchTransport"}
         },
         TlConnection: {
-            _initialTlec: {propType: "one", type: "TlecSuite"},
-            _tlecs: {propType: "many", type: "TlecSuite"}
+            _initialTlec: {propType: "one", type: "CouchTlec"},
+            _tlecs: {propType: "many", type: "CouchTlec"}
         },
-        TlecSuite: {
-            _transportAdapter: {propType: "one", type: "TransportAdapter"},
+        CouchTlec: {
             _tlecBuider: {propType: "one", type: "TlecBuilder"}
         },
-        TransportAdapter: {},
         TlecBuilder: {
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},
             _tlhtBuilder: {propType: "one", type: "TlhtBuilder"},

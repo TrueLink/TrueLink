@@ -12,15 +12,15 @@ define(function (require, exports, module) {
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
     var Route = require("modules/channels/Route");
-    var TransportAdapter = require("models/tlConnection/TransportAdapter");
-    var TlecSuite = require("models/tlConnection/CouchTlec");
+    var CouchTlec = require("models/tlConnection/CouchTlec");
 
 
-    function TlConnectionFactory(serializer, tlConnection) {
+    function TlConnectionFactory(serializer, tlConnection, profile) {
         invariant(serializer, "Can i haz serializer?");
         invariant(tlConnection, "Can i haz tlConnection?");
         this.serializer = serializer;
         this.tlConnection = tlConnection;
+        this.profile = profile;
     }
 
     extend(TlConnectionFactory.prototype, prototype, {
@@ -53,14 +53,11 @@ define(function (require, exports, module) {
             return this.getInstance("Random");
         },
 
-        createTransportAdapter: function () {
-            var adapter = new TransportAdapter();
-            return this._observed(adapter);
-        },
-
         createCouchTlec: function () {
+            invariant(this.profile.transport, "cannot create CouchTlec: profile.transport is not set");
             var tlecWrapper = new CouchTlec();
             tlecWrapper.setFactory(this);
+            tlecWrapper.setTransport(this.profile.transport);
             return this._observed(tlecWrapper);
         },
 
