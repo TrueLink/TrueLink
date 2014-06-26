@@ -3,3 +3,4 @@ syntax: glob
 start.lnk
 start2.lnk
 server2.js
+*.sublime-workspace
