@@ -15,7 +15,12 @@ define(function (require, exports, module) {
     }
 
     extend(Contact.prototype, eventEmitter, serializable, model, {
-        init: function () {
+        init: function (args) {
+            invariant(args.tlConnection, "Can i haz args.tlConnection?");
+            invariant(args.name, "Can i haz args.name?");
+            this.tlConnection = args.tlConnection;
+            this.name = args.name;
+            this._onChanged();
         },
 
         setProfile: function (profile) {

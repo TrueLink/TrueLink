@@ -5,7 +5,6 @@ define(function (require, exports, module) {
     var prototype = require("./prototype");
 
     var Router = require("models/Router");
-    var CouchTransport = require("models/tlConnection/CouchTransport");
     var Random = require("modules/cryptography/random");
     var Menu = require("models/Menu");
     var Profile = require("models/Profile");
@@ -29,12 +28,6 @@ define(function (require, exports, module) {
             return this._observed(profile);
         },
 
-        _createTransport: function () {
-            return this._observed(new CouchTransport());
-        },
-        createTransport: function () {
-            return this.getInstance("Transport", this._createTransport, this);
-        },
         _createRouter: function () {
             var router = new Router(this);
             var routerFactory = new RouterFactory(this.serializer, router);

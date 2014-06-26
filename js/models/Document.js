@@ -15,6 +15,11 @@ define(function (require, exports, module) {
     }
 
     extend(Document.prototype, eventEmitter, serializable, model, {
+        init: function (args) {
+            invariant(args.name, "Can i haz args.name?");
+            this.name = args.name;
+            this._onChanged();
+        },
         setProfile: function (profile) {
             this.profile = profile;
         },

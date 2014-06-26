@@ -11,6 +11,8 @@ define(function (require, exports, module) {
     var TlConnection = require("models/tlConnection/TlConnection");
     var TlConnectionFactory = require("./tlConnectionFactory");
 
+    var CouchTransport = require("models/tlConnection/CouchTransport");
+
 
     function ProfileFactory(serializer, profile) {
         invariant(serializer, "Can i haz serializer?");
@@ -39,6 +41,9 @@ define(function (require, exports, module) {
             return this._observed(document);
         },
 
+        createTransport: function () {
+            return this._observed(new CouchTransport());
+        },
 
         createTlConnection: function () {
             var tlConnection = new TlConnection();

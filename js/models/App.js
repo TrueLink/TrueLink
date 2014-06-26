@@ -85,12 +85,12 @@ define(function (require, exports, module) {
 
         init: function () {
             this.checkFactory();
+            var factory = this._factory;
             console.log("app init");
-            this.transport = this._factory.createTransport();
-            this.random = this._factory.createRandom();
+            this.random = factory.createRandom();
 
-            this.setMenu(this._factory.createMenu());
-            this.setRouter(this._factory.createRouter());
+            this.setMenu(factory.createMenu());
+            this.setRouter(factory.createRouter());
             this.addProfile();
             this.router.navigate("home", this);
 
@@ -108,18 +108,21 @@ define(function (require, exports, module) {
             this._onChanged();
         },
 
-
-        addProfile: function () {
+        _getNextBgIndex: function () {
             var nextBgIndex = 0;
             this.profiles.forEach(function (profile) {
                 if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
                 if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
             });
+            return nextBgIndex;
+        },
+
+        addProfile: function () {
             var profile = this._factory.createProfile();
-            profile.set({
+            profile.init({
                 name: urandom.name(),
-                bg: nextBgIndex,
-                pollingUrl: this.defaultPollingUrl
+                bg: this._getNextBgIndex(),
+                serverUrl: this.defaultPollingUrl
             });
             this.currentProfile = profile;
             this.profiles.push(profile);

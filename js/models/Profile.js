@@ -17,31 +17,49 @@ define(function (require, exports, module) {
         this.contacts = [];
         this.tlConnections = [];
         this.dialogs = [];
-        this.pollingUrl = "";
+        this.serverUrl = "";
         this.unreadCount = 0;
+
+        this.transport = null;
     }
 
     extend(Profile.prototype, eventEmitter, serializable, model, {
         // called by factory
         setApp: function (app) {
             this.app = app;
-            this.pollingUrl = app.defaultPollingUrl;
+            this.serverUrl = app.defaultPollingUrl;
+        },
+
+        init: function (args) {
+            invariant(args, "args required");
+            invariant(args.name && (typeof args.name === "string"), "args.name must be non-empty string");
+            invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
+            invariant(typeof args.bg === "number", "args.bg must be number");
+
+            this.name = args.name;
+            this.bg = args.bg;
+            this.serverUrl = args.serverUrl;
+
+            this.transport = this._factory.createTransport();
+            this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
+            this._onChanged();
         },
 
         setUrl: function (url) {
             url = url.toLowerCase().replace(/\/$/g, "");
-            if (this.pollingUrl !== url) {
-                var oldUrl = this.pollingUrl;
-                this.pollingUrl = url;
+            if (this.serverUrl !== url) {
+                this.serverUrl = url;
+                console.warn("transport.changeUrl is not yet implemented");
+//                this.transport.setPollingUrl(url);
+//                this.transport.setPostingUrl(url);
                 this._onChanged();
-                this.fire("urlChanged", {oldUrl: oldUrl, newUrl: url});
             }
         },
 
         createDocument: function () {
             this.checkFactory();
             var document = this._factory.createDocument();
-            document.set({
+            document.init({
                 name: urandom.animal()
             });
             this.documents.push(document);
@@ -53,7 +71,7 @@ define(function (require, exports, module) {
             var contact = this._factory.createContact(this);
             var contactTlConnection = this._createTlConnection();
             this._addTlConnection(contactTlConnection);
-            contact.set({
+            contact.init({
                 name : urandom.name(),
                 tlConnection: contactTlConnection
             });
@@ -68,8 +86,7 @@ define(function (require, exports, module) {
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
                 dialog = this._factory.createDialog();
-                dialog.init();
-                dialog.name = contact.name;
+                dialog.init({name: contact.name});
                 dialog.addContact(contact);
                 this.dialogs.push(dialog);
                 this._linkDialog(dialog);
@@ -119,7 +136,7 @@ define(function (require, exports, module) {
             packet.setData({
                 name: this.name,
                 bg: this.bg,
-                pollingUrl: this.pollingUrl,
+                serverUrl: this.serverUrl,
                 unread: this.unreadCount
             });
 
@@ -127,6 +144,7 @@ define(function (require, exports, module) {
             packet.setLink("contacts", context.getPacket(this.contacts));
             packet.setLink("dialogs", context.getPacket(this.dialogs));
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
+            packet.setLink("transport", context.getPacket(this.transport));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
@@ -134,7 +152,7 @@ define(function (require, exports, module) {
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
-            this.pollingUrl = data.pollingUrl;
+            this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
@@ -142,6 +160,7 @@ define(function (require, exports, module) {
             this.dialogs.forEach(this._linkDialog, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
+            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
 
         },
         _linkTlConnection: function (conn) {

@@ -38,7 +38,7 @@ define(function (require, exports, module) {
             this.profile = profile;
         },
         init: function () {
-            this._initialTlec = this._factory.createTlecBuilder();
+            this._initialTlec = this._factory.createCouchTlec();
             this._initialTlec.build();
             this._linkInitial();
             this._onChanged();
@@ -93,10 +93,10 @@ define(function (require, exports, module) {
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
             this._addrIns = data.addrIns ? data.addrIns.map(function (addr) { return Hex.deserialize(addr); }) : [];
 
-            this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createTlecBuilder, factory);
+            this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createCouchTlec, factory);
             this._linkInitial();
-            this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createTlecBuilder, factory);
-            this._tlecs.forEach(this._linkFinishedTlecBuilder, this);
+            this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createCouchTlec, factory);
+            this._tlecs.forEach(this._linkFinishedTlec, this);
             // all is ready, gimme packets!
             this._transport.openAddr(this.profile, this._addrIns);
         },
@@ -109,21 +109,15 @@ define(function (require, exports, module) {
                 builder.processNetworkPacket(packet);
             });
         },
-        _linkFinishedTlecBuilder: function (builder) {
-            builder.on("message", this._receiveMessage, this);
-            builder.on("networkPacket", this._onNetworkPacket, this);
-            builder.on("closeAddrIn", this._onCloseAddrIn, this);
+        _linkFinishedTlec: function (tlecWrapper) {
+            tlecWrapper.on("message", this._receiveMessage, this);
+            tlecWrapper.on("networkPacket", this._onNetworkPacket, this);
+            tlecWrapper.on("closeAddrIn", this._onCloseAddrIn, this);
         },
 
-        _unlinkFinishedTlecBuilder: function (builder) {
-            builder.off("message", this._receiveMessage, this);
-            builder.off("networkPacket", this._onNetworkPacket, this);
-            builder.off("closeAddrIn", this._onCloseAddrIn, this);
-        },
-
-        _addTlecBuilder: function (builder) {
-            this._linkFinishedTlecBuilder(builder);
-            this._tlecs.push(builder);
+        _addTlec: function (tlecWrapper) {
+            this._linkFinishedTlec(tlecWrapper);
+            this._tlecs.push(tlecWrapper);
         },
         canSendMessages: function () {
             return this._tlecs.length > 0;
@@ -161,7 +155,7 @@ define(function (require, exports, module) {
 
         _onInitialTlecBuilderDone: function (builder) {
             this._initialTlec = null;
-            this._addTlecBuilder(builder);
+            this._addTlec(builder);
             this._onChanged();
         },
 

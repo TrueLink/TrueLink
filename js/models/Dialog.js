@@ -25,7 +25,10 @@ define(function (require, exports, module) {
         setProfile: function (profile) {
             this.profile = profile;
         },
-        init: function () {
+        init: function (args) {
+            invariant(args.name, "Can i haz args.name?");
+            this.name = args.name;
+            this._onChanged();
         },
         addContact: function (contact) {
             if (this.contacts.indexOf(contact) !== -1) { return; }

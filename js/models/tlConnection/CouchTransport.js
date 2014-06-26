@@ -32,7 +32,16 @@ define(function (require, exports, module) {
             }
             return this._sinces[url];
         },
-        setPollingUrl: function (newUrl) {
+
+        init: function (args) {
+            invariant(args.pollingUrl, "Can i haz args.pollingUrl?");
+            invariant(args.postingUrl, "Can i haz args.postingUrl?");
+            this._setPollingUrl(args.pollingUrl);
+            this._setPostingUrl(args.postingUrl);
+            this._onChanged();
+        },
+
+        _setPollingUrl: function (newUrl) {
             if (this._pollingUrl) {
                 this._getting.reset();
                 this._polling.reset();
@@ -49,7 +58,7 @@ define(function (require, exports, module) {
 
         },
 
-        setPostingUrl: function (newUrl) {
+        _setPostingUrl: function (newUrl) {
             this._postingUrl = newUrl;
         },
 
@@ -58,7 +67,7 @@ define(function (require, exports, module) {
                 sinces: this._sinces,
                 unsent: this._unsentPackets,
                 pollingUrl: this._pollingUrl,
-                postingUrl: this._postingUrl,
+                postingUrl: this._postingUrl
             });
         },
         deserialize: function (packet, context) {

@@ -9,7 +9,6 @@ define(function (require, exports, module) {
             // type "any" means that the corresponding model must be already deserialized
             // (see SerializationContext.deserialize() without constructor argument)
             menu: {propType: "one", type: "Menu"},
-            transport: {propType: "one", type: "TestTransport"},
             profiles: {propType: "many", type: "Profile"},
             currentProfile: {propType: "one", type: "Profile"},
             router: {propType: "one", type: "Router"},
@@ -19,7 +18,8 @@ define(function (require, exports, module) {
             tlConnections: {propType: "many", type: "TlConnection"},
             contacts: {propType: "many", type: "Contact"},
             documents: {propType: "many", type: "Document"},
-            dialogs: {propType: "many", type: "Dialog"}
+            dialogs: {propType: "many", type: "Dialog"},
+            transport: {propType: "one", type: "CouchTransport"}
         },
         TlConnection: {
             _initialTlec: {propType: "one", type: "TlecSuite"},
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
         PageModel: {
             model: {propType: "one", type: "any"}
         },
-        TestTransport: {},
+        CouchTransport: {},
         Random: {}
     };
 });

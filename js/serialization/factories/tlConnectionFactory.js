@@ -13,7 +13,7 @@ define(function (require, exports, module) {
     var Tlec = require("modules/channels/Tlec");
     var Route = require("modules/channels/Route");
     var TransportAdapter = require("models/tlConnection/TransportAdapter");
-    var TlecSuite = require("models/tlConnection/TlecSuite");
+    var TlecSuite = require("models/tlConnection/CouchTlec");
 
 
     function TlConnectionFactory(serializer, tlConnection) {
@@ -49,11 +49,6 @@ define(function (require, exports, module) {
             return this._observed(new Tlec(this));
         },
 
-
-        createTransport: function () {
-            return this.getInstance("Transport");
-        },
-
         createRandom: function () {
             return this.getInstance("Random");
         },
@@ -63,10 +58,10 @@ define(function (require, exports, module) {
             return this._observed(adapter);
         },
 
-        createTlecSuite: function () {
-            var suite = new TlecSuite();
-            suite.setFactory(this);
-            return this._observed(suite);
+        createCouchTlec: function () {
+            var tlecWrapper = new CouchTlec();
+            tlecWrapper.setFactory(this);
+            return this._observed(tlecWrapper);
         },
 
         createRoute: function () {
