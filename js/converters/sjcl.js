@@ -6,14 +6,22 @@ define(function (require, exports, module) {
     var codecHex = require("modules/sjcl/codecHex");
     var codecString = require("modules/sjcl/codecString");
     var Bn = require("modules/sjcl/bn");
+    var Ba = require("modules/sjcl/bitArray");
     var Base64 = require("modules/multivalue/base64");
     var Base64Url = require("modules/multivalue/base64url");
     var BitArray = require("modules/multivalue/bitArray");
     var Hex = require("modules/multivalue/hex");
     var Utf8String = require("modules/multivalue/utf8string");
+    var X32WordArray = require("modules/multivalue/x32wordArray");
     var Bytes = require("modules/multivalue/bytes");
     var BigIntSjcl = require("modules/multivalue/bigIntSjcl");
 
+    converter.register("x32wordArray", "bitArray", function(value) {
+        return new BitArray(value.words);
+    });
+    converter.register("bitArray", "x32wordArray", function(value) {
+        return new X32WordArray(value, Ba.bitLength(value) / 8);
+    });
     converter.register("base64", "bitArray", function (value) {
         return new BitArray(codecBase64.toBits(value));
     });
