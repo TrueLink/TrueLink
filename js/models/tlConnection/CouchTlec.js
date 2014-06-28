@@ -15,10 +15,9 @@ define(function (require, exports, module) {
         this._defineEvent("done");
 
         this._tlecBuilder = null;
-        this._transportAdapter = null;
+        this._transportAdapters = [];
         this._transport = null;
 
-        this._cachedPackets = [];
     }
 
     extend(TlecSuite.prototype, eventEmitter, serializable, model, {

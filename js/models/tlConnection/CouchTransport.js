@@ -4,35 +4,36 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var CouchPolling = require("./CouchPolling");
-    var CouchGetting = require("./CouchGetting");
-    var Hex = require("modules/multivalue/hex");
-    var $ = require("zepto");
+    var model = require("mixins/model");
+    var Dictionary = require("modules/dictionary");
     var Multivalue = require("modules/multivalue/multivalue");
-    var tools = require("modules/tools");
+    var Hex = require("modules/multivalue/hex");
+
+    var CouchPolling = require("misc/CouchPolling");
+    var CouchPosting = require("misc/CouchPosting");
+    var CouchFetching = require("misc/CouchFetching");
+
 
     function CouchTransport() {
         this._defineEvent("changed");
         this._defineEvent("packets");
-        this._pollingUrl = null;
-        this._postingUrl = null;
-        this._polling = null;
-        // url => since
-        this._sinces = {};
 
-        // url => [{ChannelId: "", DataString:""}]
+        this._pollingUrl = null;
+        this._polling = null;
+        this._postingUrl = null;
+        this._posting = null;
+
+        // url => since
+        this._sinces = null;
+        // fetching => context
+        this._fetchings = new Dictionary();
+        // url => [{channelName: "", data: ""}]
         this._unsentPackets = {};
+        // context => addr
+        this._channels = {};
     }
 
-    extend(CouchTransport.prototype, eventEmitter, serializable, {
-
-        _getSince: function (url) {
-            if (!this._sinces[url]) {
-                this._sinces[url] = 0;
-            }
-            return this._sinces[url];
-        },
-
+    extend(CouchTransport.prototype, eventEmitter, serializable, model, {
         init: function (args) {
             invariant(args.pollingUrl, "Can i haz args.pollingUrl?");
             invariant(args.postingUrl, "Can i haz args.postingUrl?");
@@ -41,25 +42,51 @@ define(function (require, exports, module) {
             this._onChanged();
         },
 
-        _setPollingUrl: function (newUrl) {
-            if (this._pollingUrl) {
-                this._getting.reset();
-                this._polling.reset();
-                // store addrs from running polling and getting
+        // context will not appear in the request results for now
+        // if a context will be needed in the results - rewrite _onPackets() to emit "packets" event this._channels.length times (for each context)
+        beginPolling: function (channel, context) {
+            if (this._channels[context]) {
+                throw new Error("Context already exists");
             }
-
-            this._pollingUrl = newUrl;
-
-            this._getting = new CouchGetting(newUrl);
-            this._getting.on("channelPackets", this._handleGettingPackets, this);
-            this._polling = new CouchPolling(newUrl, this._getSince(newUrl));
-            this._polling.on("channelPackets", this._handlePollingPackets, this);
-            // restore addrs from running polling and getting
-
+            this._channels[context] = channel;
+            this._pollChannels();
         },
 
-        _setPostingUrl: function (newUrl) {
-            this._postingUrl = newUrl;
+        endPolling: function (channel, context) {
+            delete this._channels[context];
+            this._pollChannels();
+        },
+        _pollChannels: function () {
+            invariant(this._polling, "polling url was not set");
+            var dict = this._channels;
+            var channels = Object.keys(dict).map(function (key) { return dict[key]; });
+            this._polling.beginPolling(channels.map(function (ch) { return ch.as(Hex).toString(); }));
+        },
+
+        fetchChannel: function (channel, since, context) {
+            var fetching = new CouchFetching(this._pollingUrl, context);
+            fetching.on("packets", this._onPackets);
+            fetching.beginRequest(channel.as(Hex).toString(), since);
+        },
+
+        sendPacket: function (args) {
+            invariant(args.addr instanceof Multivalue, "args.addr must be multivalue");
+            invariant(args.data instanceof Multivalue, "args.data must be multivalue");
+            invariant(this._postingUrl, "postingUrl is not set");
+
+            var addr = args.addr;
+            var packet = args.data;
+
+            this._unsentPackets.push({
+                channelName: addr.as(Hex).toString(),
+                data:  packet.as(Hex).toString()
+            });
+
+            this._onChanged();
+
+            if (this._unsentPackets.length === 1) {
+                this._sendNextPacket();
+            }
         },
 
         serialize: function (packet, context) {
@@ -78,126 +105,76 @@ define(function (require, exports, module) {
             this._setPostingUrl(data.postingUrl);
         },
 
-        sendPacket: function (args) {
-            invariant(args.addr instanceof Multivalue, "args.addr must be multivalue");
-            invariant(args.data instanceof Multivalue, "args.data must be multivalue");
-            invariant(this._postingUrl, "postingUrl is not set");
-
-            var url = this._postingUrl;
-            var addr = args.addr;
-            var packet = args.data;
-
-            if (!this._unsentPackets[url]) {
-                this._unsentPackets[url] = [];
+        _setPollingUrl: function (newUrl) {
+            if (this._pollingUrl) {
+                // store addrs from running polling and getting
+                // this._polling.off(...)
+                throw new Error("Not implemented");
             }
-
-            this._unsentPackets[url].push({
-                ChannelId: addr.as(Hex).toString(),
-                DataString:  packet.as(Hex).toString()
-            });
-
+            this._pollingUrl = newUrl;
+            if (!this._sinces[newUrl]) {
+                this._sinces[newUrl] = 0;
+            }
+            this._polling = new CouchPolling(newUrl, this._sinces[newUrl]);
+            this._polling.on("packets", this._onPollingPackets, this);
             this._onChanged();
+        },
 
-            if (this._unsentPackets[url].length === 1) {
-                this._send(url);
+        _setPostingUrl: function (newUrl) {
+            if (this._postingUrl) {
+                // store packets to resend (?)
+                // this._posting.off(...)
+                throw new Error("Not implemented");
             }
+            this._postingUrl = newUrl;
+            this._posting = new CouchPosting(newUrl);
+            this._posting.on("success", this._onPostingSuccess, this);
+            this._posting.on("error", this._onPostingError, this);
+            this._onChanged();
         },
 
-        // addr can be array
-        beginPolling: function (addr) {
-            invariant(addr instanceof Multivalue, "addr must be multivalue");
-            invariant(this._pollingUrl, "pollingUrl is not set");
-
-            if (tools.isArray(addr)) {
-                addr.forEach(this.beginPolling.bind(this, url));
-                return;
-            }
-            this._polling.addChannel(addr.as(Hex).toString());
-        },
-        endPolling: function (addr) {
-            invariant(addr instanceof Multivalue, "addr must be multivalue");
-            invariant(this._pollingUrl, "pollingUrl is not set");
-
-            if (tools.isArray(addr)) {
-                addr.forEach(this.endPolling.bind(this, url));
-                return;
-            }
-            this._polling.removeChannel(addr.as(Hex).toString());
-        },
-
-        fetchAll: function (addr) {
-            invariant(addr instanceof Multivalue, "addr must be multivalue");
-            invariant(this._pollingUrl, "pollingUrl is not set");
-
-            this._getting.addChannel(addr.as(Hex).toString());
-        },
-
-        _handlePollingPackets: function (args, sender) {
+        _onPollingPackets: function (args, sender) {
             this._sinces[sender.url] = args.lastSeq;
             this._onChanged();
             this._onPackets(args);
         },
 
-        _handleGettingPackets: function (args, sender) {
-            this._onPackets(args);
-        },
-
         _onPackets: function (args) {
-            this.fire("packets", {
-                lastSeq: args.lastSeq,
-                since: args.since,
-                packets: args.packets.map(function (packet) { return {
+            args.packets = args.packets.map(function (packet) {
+                return {
                     addr: Hex.fromString(packet.channelName),
                     data: Hex.fromString(packet.data),
                     seq: packet.seq
-                }; })
+                };
             });
+            this.fire("packets", args);
         },
 
-        _sendAllPackets: function () {
-            var url;
-            for (url in this._unsentPackets) {
-                if (this._unsentPackets.hasOwnProperty(url)) {
-                    this._send(url);
-                }
+        _onPostingSuccess: function (args) {
+            var index = this._unsentPackets.indexOf(args.context);
+            if (index !== -1) {
+                this._unsentPackets.splice(index, 1);
+                this._onChanged();
             }
+            this._sendNextPacket();
         },
 
-        _send: function (url, sentPacket) {
-            if (sentPacket) {
-                var sentIndex = this._unsentPackets[url].indexOf(sentPacket);
-                if (sentIndex !== -1) {
-                    this._unsentPackets[url].splice(sentIndex, 1);
-                    this._onChanged();
-                }
-            }
-            if (!this._unsentPackets[url].length) { return; }
-            var packet = this._unsentPackets[url][0];
+        _onPostingError: function (errorType) {
+            setTimeout((function () {
+                this._sendNextPacket();
+            }).bind(this), errorType === "timeout" ? 4 : 5000);
+        },
 
-
-            console.log("sending packet to %s, %s bytes", packet.ChannelId, JSON.stringify(packet).length);
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                context: this,
-                url: url,
-                data: JSON.stringify(packet),
-                success: function (data, status, xhr) { this._send(url, packet); },
-                error: function (xhr, errorType, error) {
-                    console.warn("Packet sending failed: ", error || errorType);
-                    setTimeout((function () { this._send(url); }).bind(this), 5000);
-                }
-            });
-
+        _sendNextPacket: function () {
+            if (!this._unsentPackets.length) { return; }
+            invariant(this._posting, "posting url was not set");
+            var packet = this._unsentPackets[0];
+            this._posting.send(packet.channelName, packet.data, packet);
         },
 
         destroy: function () {
-            this._polling.reset();
-            this._getting.reset();
-        },
-
-        _onChanged: function () {
-            this.fire("changed", this);
+            // end all requests
+            throw new Error("Not implemented");
         }
 
     });

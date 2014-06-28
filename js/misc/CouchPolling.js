@@ -4,8 +4,12 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var $ = require("zepto");
+    var tools = require("modules/tools");
 
     var ajaxTimeout = 20000;
+
+
+    // works with strings, not multivalues
 
     function CouchPolling(url, since) {
         invariant(url, "Can i haz url?");
@@ -13,55 +17,46 @@ define(function (require, exports, module) {
         this.channels = [];
         this.url = url;
         this._since = since;
-        this._defineEvent("channelPackets");
+        this._defineEvent("packets");
         this.channelsAjax = null;
         this.timeoutDefer = null;
     }
 
     extend(CouchPolling.prototype, eventEmitter, {
-        _unique: function (arr) {
-            var u = {}, a = [], i, l;
-            for (i = 0, l = arr.length; i < l; ++i) {
-                if (u.hasOwnProperty(arr[i])) {
-                    continue;
-                }
-                a.push(arr[i]);
-                u[arr[i]] = 1;
+        _differentChannels: function (newChannels) {
+            if (this.channels.length !== newChannels.length) {
+                return true;
             }
-            return a;
-        },
-        addChannel: function (channelName) {
-            if (this.channels.indexOf(channelName) === -1) {
-                this._cancel();
-                this._deferredStart();
-            }
-            this.channels.push(channelName);
+            return this.channels.some(function (i) { return newChannels.indexOf(i) === -1; });
         },
 
-        reset: function () {
-            this._cancel();
+        beginPolling: function (channelNames) {
+            var newChannels = tools.arrayUnique(channelNames);
+            if (this._differentChannels(newChannels)) {
+                this.endPolling();
+                this.channels = newChannels;
+                this._deferredStart();
+            }
+        },
+
+        _abort: function () {
+            if (this.timeoutDefer) { clearTimeout(this.timeoutDefer); }
+            if (!this.channelsAjax) { return; }
+            this.channelsAjax.abort();
+        },
+
+        endPolling: function () {
+            this._abort();
             this.channels = [];
         },
 
-        removeChannel: function (channelName) {
-            var index = this.channels.indexOf(channelName);
-            if (index !== -1) {
-                // no need to cancel if the channel was open more than one time
-                if (this.channels.indexOf(channelName, index + 1) === -1) {
-                    this._cancel();
-                    this._deferredStart();
-                }
-                this.channels.splice(index, 1);
-            }
-        },
-
-        _handleResult: function (data) {
+        _handleResult: function (data, since) {
             try {
                 if (!data || !data.last_seq) {
                     throw new Error("Wrong answer structure");
                 }
                 this._since = data.last_seq;
-                this._onResults(data, this._since);
+                this._onPackets(data, since);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -69,8 +64,8 @@ define(function (require, exports, module) {
             }
         },
 
-        _onResults: function (data, since) {
-            this.fire("channelPackets", {
+        _onPackets: function (data, since) {
+            this.fire("packets", {
                 lastSeq: data.last_seq,
                 since: since,
                 packets: data.results.map(function (res) { return {
@@ -83,7 +78,7 @@ define(function (require, exports, module) {
 
         _getUrl: function () {
             return this.url +
-                "/_changes?feed=longpoll&filter=channels/do&Channel=" + this._unique(this.channels).join(",") +
+                "/_changes?feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
                 "&include_docs=true&since=" + this._since;
         },
 
@@ -95,7 +90,7 @@ define(function (require, exports, module) {
                 dataType: "json",
                 context: this,
                 timeout: ajaxTimeout,
-                success: function (data, status, xhr) { this._handleResult(data); },
+                success: function (data, status, xhr) { this._handleResult(data, this._since); },
                 error: function (xhr, errorType, error) {
                     if (errorType !== "timeout" && errorType !== "abort") {
                         console.warn("Message polling failed: ", error || errorType);
@@ -105,10 +100,6 @@ define(function (require, exports, module) {
                     }
                 }
             });
-        },
-        _cancel: function () {
-            if (!this.channelsAjax) { return; }
-            this.channelsAjax.abort();
         },
         _deferredStart: function (timeout) {
             timeout = timeout || 4;
