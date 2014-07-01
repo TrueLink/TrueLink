@@ -61,4 +61,10 @@ define(function(require, exports, module) {
             first(name);
         }
     });
+
+    it("Bug from real world #1", function() {
+        expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(BitArray).bitLength()).to.equals(128);
+        expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
+    });
+
 });
