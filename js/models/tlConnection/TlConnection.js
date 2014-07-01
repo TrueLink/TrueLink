@@ -33,6 +33,13 @@ define(function (require, exports, module) {
             this._onChanged();
         },
 
+        run: function () {
+            if (this._initialTlec) {
+                this._initialTlec.run();
+            }
+            this._tlecs.forEach(function (tlec) { tlec.run(); });
+        },
+
         getStatus: function () {
             if (this.canSendMessages()) {
                 return TlecBuilder.STATUS_ESTABLISHED;
@@ -90,8 +97,6 @@ define(function (require, exports, module) {
 
         _linkFinishedTlec: function (tlecWrapper) {
             tlecWrapper.on("message", this._receiveMessage, this);
-            tlecWrapper.on("networkPacket", this._onNetworkPacket, this);
-            tlecWrapper.on("closeAddrIn", this._onCloseAddrIn, this);
         },
 
         _addTlec: function (tlecWrapper) {

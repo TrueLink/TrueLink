@@ -5,7 +5,9 @@ define(function (require, exports, module) {
 
     module.exports = {
         isModel: true,
-        _onChanged: function () { this.fire("changed", this); },
+        _onChanged: function () {
+            this.fire("changed", this);
+        },
         serializationNeeded: function () {
             return !this.getMeta() || !this.getMeta().id;
         },

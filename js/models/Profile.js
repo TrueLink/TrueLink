@@ -160,6 +160,7 @@ define(function (require, exports, module) {
             this.dialogs.forEach(this._linkDialog, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
+            this.tlConnections.forEach(function (con) { con.run(); });
 
         },
         _linkTlConnection: function (conn) {

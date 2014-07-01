@@ -27,8 +27,8 @@ define(function (require, exports, module) {
         this._sinces = {};
         // fetching => context
         this._fetchings = new Dictionary();
-        // url => [{channelName: "", data: ""}]
-        this._unsentPackets = {};
+        // [{channelName: "", data: ""}]
+        this._unsentPackets = [];
         // context => addr
         this._channels = {};
     }
@@ -45,6 +45,7 @@ define(function (require, exports, module) {
         // context will not appear in the request results for now
         // if a context will be needed in the results - rewrite _onPackets() to emit "packets" event this._channels.length times (for each context)
         beginPolling: function (channel, context) {
+            console.log("adding %s - %s to polling", channel.as(Hex), context);
             if (this._channels[context]) {
                 throw new Error("Context already exists");
             }
@@ -53,6 +54,7 @@ define(function (require, exports, module) {
         },
 
         endPolling: function (channel, context) {
+            console.log("removing %s - %s from polling", channel.as(Hex), context);
             delete this._channels[context];
             this._pollChannels();
         },
@@ -64,8 +66,10 @@ define(function (require, exports, module) {
         },
 
         fetchChannel: function (channel, since, context) {
+            console.log("fetching %s - %s", channel.as(Hex), context);
             // already polling this channel since given, so there will be no new packets
             if (this._polling.isPolling(channel.as(Hex).toString(), since)) {
+                console.log(" - not needed. already polling");
                 this._onPackets({
                     context: context,
                     since: since,
@@ -75,7 +79,7 @@ define(function (require, exports, module) {
                 return;
             }
             var fetching = new CouchFetching(this._pollingUrl, context);
-            fetching.on("packets", this._onPackets);
+            fetching.on("packets", this._onPackets, this);
             fetching.beginRequest(channel.as(Hex).toString(), since);
         },
 
@@ -87,6 +91,9 @@ define(function (require, exports, module) {
             var addr = args.addr;
             var packet = args.data;
 
+            if ((packet.as(Hex).toString().length * 4) % 128) {
+                debugger;
+            }
             this._unsentPackets.push({
                 channelName: addr.as(Hex).toString(),
                 data:  packet.as(Hex).toString()

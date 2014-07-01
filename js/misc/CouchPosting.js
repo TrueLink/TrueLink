@@ -21,7 +21,7 @@ define(function (require, exports, module) {
                 ChannelId: channelName,
                 DataString: data
             };
-            console.log("sending packet to %s, %s bytes", packet.ChannelId, JSON.stringify(packet).length);
+            console.log("sending packet to %s, total request length: %s bytes", packet.ChannelId, JSON.stringify(packet).length);
             $.ajax({
                 type: "POST",
                 contentType: "application/json",

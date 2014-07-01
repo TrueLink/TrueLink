@@ -35,9 +35,17 @@ define(function (require, exports, module) {
         },
 
         run: function () {
-
+            var adapters = this._transportAdapters, context;
+            for (context in adapters) {
+                if (adapters.hasOwnProperty(context)) {
+                    adapters[context].run();
+                }
+            }
         },
 
+        sendMessage: function (args) {
+            this._tlecBuilder.sendMessage(args);
+        },
         enterOffer: function (offer) {
             this._tlecBuilder.enterOffer(offer);
         },
@@ -47,7 +55,7 @@ define(function (require, exports, module) {
         },
 
         generateOffer: function () {
-            this._tlecBuilder.generate();
+            this._tlecBuilder.generateOffer();
         },
 
         getStatus: function () {
@@ -67,6 +75,7 @@ define(function (require, exports, module) {
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
         },
         deserialize: function (packet, context) {
+            console.log("--- couchtlec.deserialize");
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = context.deserialize(packet.getLink("_tlecBuilder"), factory.createTlecBuilder, factory);
@@ -76,13 +85,13 @@ define(function (require, exports, module) {
                     this._addAdapter(adContext, CouchAdapter.deserialize(this._transport, data.adapters[adContext]))
                 }
             }
-
+            this._link();
         },
 
         _link: function () {
             invariant(this._transport, "transport is not set");
             if (this._tlecBuilder) {
-
+                this._tlecBuilder.on("changed", this._onChanged, this);
                 this._tlecBuilder.on("done", this._onDone, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
@@ -99,17 +108,20 @@ define(function (require, exports, module) {
             var adapter = new CouchAdapter(this._transport, args);
             this._addAdapter(context, adapter);
             this._onChanged();
+            adapter.init();
         },
 
         _addAdapter: function (context, adapter) {
-            adapter.on("packet", this._tlecBuilder.processPacket, this._tlecBuilder);
+            adapter.on("packet", this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
+            adapter.on("changed", this._onChanged, this);
             this._transportAdapters[context] = adapter;
         },
         _onTlecCloseAddr: function (args) {
             var context = args.context;
             var adapter = this._transportAdapters[context];
             if (adapter) {
-                adapter.off("packet", this._tlecBuilder.processPacket, this._tlecBuilder);
+                adapter.off("packet", this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
+                adapter.off("changed", this._onChanged, this);
                 adapter.destroy();
                 delete this._transportAdapters[context];
                 this._onChanged();

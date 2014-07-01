@@ -11,13 +11,13 @@ define(function (require, exports, module) {
 
     function CouchAdapter(transport, options) {
         this._defineEvent("packet");
+        this._defineEvent("changed");
         invariant(transport, "Can i haz transport?");
         invariant(options, "Can i haz options?");
         invariant(options.addr instanceof Multivalue, "options.addr must be multivalue");
         invariant(options.context, "Can i haz options.context?");
-        invariant(options.since, "Can i haz options.since?");
 
-        this.transport = options.transport;
+        this.transport = transport;
         this.transport.on("packets", this._processPackets, this);
         this._packetCache = [];
         this._sinceCache = 0;
@@ -67,6 +67,7 @@ define(function (require, exports, module) {
             this._mergeWithStored(args.packets, args.lastSeq);
             if (args.since <= this._since) {
                 this._since = this._sinceCache;
+                this.fire("changed", this);
                 this._onPackets();
             } else {
                 this._requestFetch();
@@ -77,7 +78,7 @@ define(function (require, exports, module) {
         },
         _onPackets: function () {
             var packets = this._packetCache.sort(sortSeq);
-            packets.forEach(function (p) { this.fire("packet", p); });
+            packets.forEach(function (p) { this.fire("packet", p); }, this);
             this._packetCache = [];
         },
 
@@ -94,8 +95,9 @@ define(function (require, exports, module) {
         }
     });
     CouchAdapter.deserialize = function (transport, data) {
-        data.addr = Hex.deserialize(data.addr);
-        return new CouchAdapter(transport, data);
+        var deserData = extend({}, data);
+        deserData.addr = Hex.deserialize(data.addr);
+        return new CouchAdapter(transport, deserData);
     };
     module.exports = CouchAdapter;
 });

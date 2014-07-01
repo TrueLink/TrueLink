@@ -16,14 +16,13 @@ define(function (require, exports, module) {
 
     var ajaxTimeout = 20000;
 
-    extend(CouchFetching.prototype, {
+    extend(CouchFetching.prototype, eventEmitter, {
         _getUrl: function (channels, since) {
             return this.url +
                 "/_changes?feed=longpoll&filter=channels/do&Channel=" + channels.join(",") +
                 "&include_docs=true&since=" + since;
         },
         beginRequest: function (channelName, since) {
-            this.abort();
             var url = this._getUrl([channelName], since);
             this.ajax = $.ajax({
                 url: url,
@@ -36,10 +35,16 @@ define(function (require, exports, module) {
                         console.warn("Message polling failed: ", error || errorType);
                     }
                     if (errorType !== "abort") {
-                        this.get(errorType === "timeout" ? null : 5000);
+                        this._repeatRequest(channelName, since, errorType === "timeout" ? null : 5000);
                     }
                 }
             });
+        },
+
+        _repeatRequest: function (channelName, since, timeout) {
+            setTimeout((function () {
+                this.beginRequest(channelName, since);
+            }).bind(this), timeout);
         },
 
         _handleResult: function (data, since) {
@@ -54,7 +59,7 @@ define(function (require, exports, module) {
         },
 
         _onPackets: function (data, since) {
-            this.fire("channelPackets", {
+            this.fire("packets", {
                 context: this.context,
                 since: since,
                 lastSeq: data.last_seq,

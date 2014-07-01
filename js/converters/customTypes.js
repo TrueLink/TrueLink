@@ -16,9 +16,6 @@ define(function(require, exports, module) {
     converter.register("decBlocks", "hex", function(value) {
         var bi = leemon.str2bigInt(value, 10);
         var hex = new Hex(leemon.bigInt2str(bi, 16));
-        if (value.minBitLength) {
-            hex.expand(value.minBitLength);
-        }
         return hex;
     });
     converter.register("decBlocks", "bytes", function(value) {
