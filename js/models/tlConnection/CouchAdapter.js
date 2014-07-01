@@ -20,6 +20,7 @@ define(function (require, exports, module) {
         this.transport = options.transport;
         this.transport.on("packets", this._processPackets, this);
         this._packetCache = [];
+        this._sinceCache = 0;
         this._context = options.context;
         this._addr = options.addr;
         this._since = options.since || 0;
@@ -43,30 +44,34 @@ define(function (require, exports, module) {
 
         init: function () {
             this.transport.beginPolling(this._addr, this._context);
+            this._requestFetch();
         },
         run: function () { this.init(); },
 
         _requestFetch: function () {
             if (this._fetchingRequested) { return; }
             this._fetchingContext = urandom.int(0, 0xFFFFFFFF);
-            this.transport.fetchChannel(this._addr, this._fetchingContext, 0);
             this._fetchingRequested = true;
+            this.transport.fetchChannel(this._addr, this._since, this._fetchingContext);
         },
 
-        _mergeWithStored: function (packets) {
+        _mergeWithStored: function (packets, lastSeq) {
+            if (lastSeq > this._sinceCache) {
+                this._sinceCache = lastSeq;
+            }
             var newArr = this._packetCache.concat(packets);
             this._packetCache = tools.arrayUnique(newArr, searchSeq);
         },
+
         _processPackets: function (args) {
-            this._mergeWithStored(args.packets);
+            this._mergeWithStored(args.packets, args.lastSeq);
             if (args.since <= this._since) {
-                this.since = args.lastSeq;
+                this._since = this._sinceCache;
                 this._onPackets();
             } else {
                 this._requestFetch();
             }
             if (args.context === this._fetchingContext) {
-                this.since = args.lastSeq;
                 this._fetchingRequested = false;
             }
         },

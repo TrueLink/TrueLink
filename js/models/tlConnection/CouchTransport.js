@@ -5,7 +5,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
-    var Dictionary = require("modules/dictionary");
+    var Dictionary = require("modules/dictionary/dictionary");
     var Multivalue = require("modules/multivalue/multivalue");
     var Hex = require("modules/multivalue/hex");
 
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
         this._posting = null;
 
         // url => since
-        this._sinces = null;
+        this._sinces = {};
         // fetching => context
         this._fetchings = new Dictionary();
         // url => [{channelName: "", data: ""}]
@@ -64,6 +64,16 @@ define(function (require, exports, module) {
         },
 
         fetchChannel: function (channel, since, context) {
+            // already polling this channel since given, so there will be no new packets
+            if (this._polling.isPolling(channel.as(Hex).toString(), since)) {
+                this._onPackets({
+                    context: context,
+                    since: since,
+                    lastSeq: since,
+                    packets: []
+                });
+                return;
+            }
             var fetching = new CouchFetching(this._pollingUrl, context);
             fetching.on("packets", this._onPackets);
             fetching.beginRequest(channel.as(Hex).toString(), since);

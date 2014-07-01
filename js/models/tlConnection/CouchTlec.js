@@ -5,9 +5,9 @@ define(function (require, exports, module) {
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
+    var CouchAdapter = require("./CouchAdapter");
 
-
-    function TlecSuite() {
+    function CouchTlec() {
         this._defineEvent("changed");
         this._defineEvent("offer");
         this._defineEvent("auth");
@@ -15,16 +15,15 @@ define(function (require, exports, module) {
         this._defineEvent("done");
 
         this._tlecBuilder = null;
-        this._transportAdapters = [];
+        this._transportAdapters = {};
         this._transport = null;
 
     }
 
-    extend(TlecSuite.prototype, eventEmitter, serializable, model, {
+    extend(CouchTlec.prototype, eventEmitter, serializable, model, {
 
         setTransport: function (transport) {
             this._transport = transport;
-            this._transport.on("packets", this._onTransportPackets, this);
         },
 
         init: function () {
@@ -32,6 +31,7 @@ define(function (require, exports, module) {
             var factory = this._factory;
             this._tlecBuilder = factory.createTlecBuilder();
             this._link();
+            this._tlecBuilder.build();
         },
 
         run: function () {
@@ -55,14 +55,28 @@ define(function (require, exports, module) {
         },
 
         serialize: function (packet, context) {
-            packet.setData({});
+            var adapters = {}, adContext;
+            for (adContext in this._transportAdapters) {
+                if (this._transportAdapters.hasOwnProperty(adContext)) {
+                    adapters[adContext] = this._transportAdapters[adContext].serialize();
+                }
+            }
+            packet.setData({
+                adapters: adapters
+            });
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
         },
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
-            var data = packet.getData();
             this._tlecBuilder = context.deserialize(packet.getLink("_tlecBuilder"), factory.createTlecBuilder, factory);
+            var data = packet.getData(), adContext;
+            for (adContext in data.adapters) {
+                if (data.adapters.hasOwnProperty(adContext)) {
+                    this._addAdapter(adContext, CouchAdapter.deserialize(this._transport, data.adapters[adContext]))
+                }
+            }
+
         },
 
         _link: function () {
@@ -73,41 +87,33 @@ define(function (require, exports, module) {
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
-                this._tlecBuilder.on("openAddrIn", this._transport.beginPolling, this._transport);
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
-                this._tlecBuilder.on("closeAddrIn", this._transport.endPolling, this._transport);
+                this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
             }
 
         },
 
-        _onTlecOpenAddr: function (addr) {
-            if (!this.fetched) {
-                this._transport.fetchAll(addr);
-            }
+        _onTlecOpenAddr: function (args) {
+            var context = args.context;
+            var adapter = new CouchAdapter(this._transport, args);
+            this._addAdapter(context, adapter);
+            this._onChanged();
         },
 
-        _addPacketToCached: function (packet) {
-            if (!this._cachedPackets.some(function (p) {return p.seq === packet.seq; })) {
-                this._cachedPackets.push(packet);
-            }
+        _addAdapter: function (context, adapter) {
+            adapter.on("packet", this._tlecBuilder.processPacket, this._tlecBuilder);
+            this._transportAdapters[context] = adapter;
         },
-        _onTransportPackets: function (args) {
-            if (this.fetched) {
-                this._processPackets(this._cachedPackets);
-            } else {
-                this._cachedPackets.forEach(this._addPacketToCached, this);
-                if (args.since === 0) {
-                    this.fetched = true;
-                    this._processPackets(this._cachedPackets);
-                }
+        _onTlecCloseAddr: function (args) {
+            var context = args.context;
+            var adapter = this._transportAdapters[context];
+            if (adapter) {
+                adapter.off("packet", this._tlecBuilder.processPacket, this._tlecBuilder);
+                adapter.destroy();
+                delete this._transportAdapters[context];
+                this._onChanged();
             }
-        },
-
-        _processPackets: function (packets) {
-            packets
-                .sort(function (a, b) { return a.seq - b.seq; })
-                .forEach(this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
         },
 
         _onOffer: function (offer) {
@@ -131,5 +137,5 @@ define(function (require, exports, module) {
 
     });
 
-    module.exports = TlecSuite;
+    module.exports = CouchTlec;
 });

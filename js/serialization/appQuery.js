@@ -26,7 +26,7 @@ define(function (require, exports, module) {
             _tlecs: {propType: "many", type: "CouchTlec"}
         },
         CouchTlec: {
-            _tlecBuider: {propType: "one", type: "TlecBuilder"}
+            _tlecBuilder: {propType: "one", type: "TlecBuilder"}
         },
         TlecBuilder: {
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},

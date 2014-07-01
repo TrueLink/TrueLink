@@ -153,13 +153,13 @@ define(function (require, exports, module) {
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
+            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
             this.dialogs.forEach(this._linkDialog, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
-            this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
 
         },
         _linkTlConnection: function (conn) {

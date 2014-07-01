@@ -30,6 +30,10 @@ define(function (require, exports, module) {
             return this.channels.some(function (i) { return newChannels.indexOf(i) === -1; });
         },
 
+        isPolling: function (channelName, since) {
+            return this._since <= since && this.channels.indexOf(channelName) !== -1;
+        },
+
         beginPolling: function (channelNames) {
             var newChannels = tools.arrayUnique(channelNames);
             if (this._differentChannels(newChannels)) {
