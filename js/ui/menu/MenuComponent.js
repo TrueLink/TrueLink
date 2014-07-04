@@ -85,7 +85,7 @@ define(function (require, exports, module) {
                     currentProfile: this.state.currentProfile,
                     selectProfile: this.handleSelectProfile,
                     addProfile: this.handleAddProfile
-                })), menuItems);
+                })), menuItems, React.DOM.div(null, React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl)));
         }
     });
 });

@@ -3,6 +3,7 @@ define(function (require, exports, module) {
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
     var TlConnectionStatus = require("./TlConnectionStatus");
+    var EditableField = require("ui/common/EditableField");
     module.exports = React.createClass({
         displayName: "ContactPage",
         mixins: [reactObserver],
@@ -21,6 +22,9 @@ define(function (require, exports, module) {
             this.props.router.navigate("dialog", dialog);
             return false;
         },
+//        handleModelChange: function (fieldName, newValue) {
+//            this.props.pageModel.model.set(fieldName, newValue);
+//        },
         render: function () {
             var contact = this.state.model;
 //            var pageModel = this.state.pageModel;
@@ -32,10 +36,16 @@ define(function (require, exports, module) {
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("contacts", contact.profile)
-                    }, "〈 Contact details: " + contact.name)),
+                    }, "〈 Contact details")),
                 React.DOM.div({className: "app-page-content has-header"},
-                     TlConnectionStatus({tlConnection: contact.tlConnection}),
-                     React.DOM.a({className: "button", href: "", onClick: this.handleGoToDialog}, "Go to dialog")));
+                    EditableField({
+                        id: "contactName",
+                        onChanged: contact.set.bind(contact, "name"),
+                        label: "Name: ",
+                        value: contact.name
+                    }),
+                    TlConnectionStatus({tlConnection: contact.tlConnection}),
+                    React.DOM.a({className: "button", href: "", onClick: this.handleGoToDialog}, "Go to dialog")));
         }
     });
 });
