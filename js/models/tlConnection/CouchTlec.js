@@ -75,7 +75,6 @@ define(function (require, exports, module) {
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
         },
         deserialize: function (packet, context) {
-            console.log("--- couchtlec.deserialize");
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = context.deserialize(packet.getLink("_tlecBuilder"), factory.createTlecBuilder, factory);
