@@ -3,4 +3,5 @@ define(function (require, exports, module) {
     require("./crypto-js");
     require("./customTypes");
     require("./sjcl");
+    require("./forge");
 });
