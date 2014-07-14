@@ -18,11 +18,15 @@ define(function (require, exports, module) {
 
     converter.register("hex", "bigIntForge", function (value) {
         return new BigIntForge(value);
-    });
+    }, true);
 
     converter.register("bigIntForge", "bytes", function (value) {
         return new Bytes(value.toByteArray().map(function (n) { return n & 0xFF; }));
     });
+
+    converter.register("bytes", "bigIntForge", function (value) {
+        return new BigIntForge(new forge.jsbn.BigInteger(value, 256));
+    }, true);
 
     converter.register("bigIntForge", "decBlocks", function (value) {
         return new DecBlocks(value.toString(10));
@@ -30,11 +34,11 @@ define(function (require, exports, module) {
 
     converter.register("decBlocks", "bigIntForge", function (value) {
         return new BigIntForge(new forge.jsbn.BigInteger(value, 10));
-    });
+    }, true);
 
     converter.register("bigIntSjcl", "bigIntForge", function (value) {
         return new BigIntForge(value.toString().replace("0x", ""));
-    });
+    }, true);
 
     converter.register("bigIntForge", "bigIntSjcl", function (value) {
         return new BigIntSjcl(value.toString(16));

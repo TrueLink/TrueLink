@@ -45,7 +45,7 @@ define(function (require, exports, module) {
     });
     converter.register("bitArray", "utf8string", function (value) {
         return new Utf8String(codecString.fromBits(value));
-    });
+    }, true);
     // just an array
     converter.register("bytes", "bitArray", function (value) {
         return new BitArray(codecBytes.toBits(value));
@@ -60,13 +60,13 @@ define(function (require, exports, module) {
     });
     converter.register("bitArray", "bigIntSjcl",function (value) {
         return new BigIntSjcl(Bn.fromBits(value));
-    });
+    }, true);
     converter.register("bigIntSjcl", "hex", function (value) {
         return new Hex(value.toString().replace("0x", ""));
     });
     converter.register("hex", "bigIntSjcl", function (value) {
         return new BigIntSjcl(new Bn(value));
-    });
+    }, true);
 
     function escapeRegExp(string) {
         return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");

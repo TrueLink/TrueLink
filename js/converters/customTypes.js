@@ -168,7 +168,7 @@ define(function(require, exports, module) {
 
     converter.register("bytes", "utf8string", function(value) {
         return new Utf8String(decodeUtf8(value));
-    });
+    }, true);
 
     converter.register("utf8string", "bytes", function(value) {
         return new Bytes(encodeUtf8(value));
