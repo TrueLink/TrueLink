@@ -10,7 +10,7 @@ define(function (require, exports, module) {
     var ByteBuffer = require("modules/multivalue/byteBuffer");
     var Utf8String = require("modules/multivalue/utf8string");
 
-    var forge = require("modules/forge/forge")();
+    var forge = require("modules/forge");
 
     converter.register("bigIntForge", "hex", function (value) {
         return new Hex(value.toString(16));
