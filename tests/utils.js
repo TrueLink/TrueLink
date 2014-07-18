@@ -10,6 +10,7 @@ define(function(require, exports, module) {
     var Tlke = require("modules/channels/Tlke");
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
+    var Tlgr = require("modules/channels/Tlgr");
     var Route = require("modules/channels/Route");
     var TestTransport = require("modules/channels/TestTransport");
     var Random = require("modules/cryptography/random");
@@ -39,6 +40,9 @@ define(function(require, exports, module) {
         },
         createTlec: function() {
             return new Tlec(this);
+        },
+        createTlgr: function() {
+            return new Tlgr(this);
         },
         // temp solution for smoke testing
         createTransport: function() {
