@@ -95,7 +95,7 @@ define(function(require, exports, module) {
                 ]);
             });
 
-            it("can send long messages (16k)", function() {
+            it.skip("can send long messages (16k)", function() {
                 var message="-"
                 while(message.length < 10000) {
                     message = message + "|" + message;
@@ -105,7 +105,7 @@ define(function(require, exports, module) {
                 expect(this.aliceHistory).to.deep.equal([message]);
             });
 
-            it("can send many messages (100)", function() {
+            it.skip("can send many messages (100)", function() {
                 for(var i=0; i<100; i++) {
                     this.sendMessageFromAlice("message #" + i);
                 }
