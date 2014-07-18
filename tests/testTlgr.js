@@ -45,8 +45,8 @@ define(function(require, exports, module) {
     });
 
     describe("True Link Group Rekeying", function() {
-        
-        it("should send private messages", function() {
+
+        before(function () {
             var aliceTlgr = this.aliceTlgr = utils.factory.createTlgr();
             aliceTlgr.init();
             var bobTlgr = this.bobTlgr = utils.factory.createTlgr();
@@ -60,10 +60,28 @@ define(function(require, exports, module) {
             this.aliceTlgr.createChannel();
             var invite = this.aliceTlgr.generateInvite();
             this.bobTlgr.acceptInvite(invite);
+        });
 
-            var message = new Utf8String("hi");
+        it("should wrap private messages", function() {
+            var message = new Utf8String("hi яяя");
             var packet = this.aliceTlgr.privatize(this.bobTlgr._aid, message);
             expect(this.bobTlgr.deprivatize(packet).as(Utf8String).isEqualTo(message)).to.be.true;
+        });
+
+        it("should send public messages", function() {
+            var message = new Utf8String("hi яяя");
+            var packet = this.aliceTlgr.encrypt(message);
+            expect(this.bobTlgr.decrypt(packet).as(Utf8String).isEqualTo(message)).to.be.true;
+        });
+
+        it("should send private messages", function() {
+            var message = new Utf8String("hi яяя");
+            var packet = this.aliceTlgr.privatize(this.bobTlgr._aid, message);
+            var encrypted_packet = this.aliceTlgr.encrypt(packet);
+            var decrypted_packet = this.bobTlgr.decrypt(encrypted_packet);
+            var received = this.bobTlgr.deprivatize(decrypted_packet);
+            expect(decrypted_packet.as(ByteBuffer).isEqualTo(packet.as(ByteBuffer))).to.be.true;
+            expect(received.as(Utf8String).isEqualTo(message)).to.be.true;
         });
 
     });
