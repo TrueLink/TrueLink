@@ -71,14 +71,17 @@ define(function(require, exports, module) {
         it("should send public messages", function() {
             var message = new Utf8String("hi яяя");
             var packet = this.aliceTlgr.encrypt(message);
-            expect(this.bobTlgr.decrypt(packet).as(Utf8String).isEqualTo(message)).to.be.true;
+            var received = this.bobTlgr.decrypt(packet);
+            expect(received.message.as(Utf8String).isEqualTo(message)).to.be.true;
         });
 
         it("should send private messages", function() {
             var message = new Utf8String("hi яяя");
             var packet = this.aliceTlgr.privatize(this.bobTlgr._aid, message);
             var encrypted_packet = this.aliceTlgr.encrypt(packet);
-            var decrypted_packet = this.bobTlgr.decrypt(encrypted_packet);
+            var decrypted_packet_with_sender = this.bobTlgr.decrypt(encrypted_packet);
+            var decrypted_packet = decrypted_packet_with_sender.message
+            expect(decrypted_packet_with_sender.sender.aid.as(Hex).isEqualTo(this.aliceTlgr._aid.as(Hex))).to.be.true;
             var received = this.bobTlgr.deprivatize(decrypted_packet);
             expect(decrypted_packet.as(ByteBuffer).isEqualTo(packet.as(ByteBuffer))).to.be.true;
             expect(received.as(Utf8String).isEqualTo(message)).to.be.true;
