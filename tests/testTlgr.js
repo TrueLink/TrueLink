@@ -46,11 +46,12 @@ define(function(require, exports, module) {
 
     describe("True Link Group Rekeying", function() {
 
+        var Tlgr = require("modules/channels/Tlgr");
+
         before(function () {
-            var aliceTlgr = this.aliceTlgr = utils.factory.createTlgr();
-            aliceTlgr.init();
-            var bobTlgr = this.bobTlgr = utils.factory.createTlgr();
-            bobTlgr.init();
+            var random = utils.factory.createRandom();
+            var aliceTlgr = this.aliceTlgr = new Tlgr.Algo(random);
+            var bobTlgr = this.bobTlgr = new Tlgr.Algo(random);
 
             var aliceGJP = this.aliceTlgr.generateGroupJoinPackage();
             var bobGJP = this.bobTlgr.generateGroupJoinPackage();
