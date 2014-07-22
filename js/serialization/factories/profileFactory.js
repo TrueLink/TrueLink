@@ -13,7 +13,6 @@ define(function (require, exports, module) {
 
     var CouchTransport = require("models/tlConnection/CouchTransport");
 
-
     function ProfileFactory(serializer, profile) {
         invariant(serializer, "Can i haz serializer?");
         invariant(profile, "Can i haz profile?");
@@ -28,12 +27,21 @@ define(function (require, exports, module) {
             contact.setFactory(this);
             return this._observed(contact);
         },
+
         createDialog: function () {
             var dialog = new Dialog();
             dialog.setProfile(this.profile);
             dialog.setFactory(this);
             return this._observed(dialog);
         },
+
+        createGroupChat: function () {
+            var chat = new GroupChat();
+            chat.setProfile(this.profile);
+            chat.setFactory(this);
+            return this._observed(chat);
+        },
+
         createDocument: function () {
             var document = new Document();
             document.setProfile(this.profile);

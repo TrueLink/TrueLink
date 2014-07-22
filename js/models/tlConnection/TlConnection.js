@@ -46,6 +46,7 @@ define(function (require, exports, module) {
             }
             return this._initialTlec ? this._initialTlec.getStatus() : null;
         },
+        
         generateOffer: function () {
             this._initialTlec.generateOffer();
         },
@@ -80,6 +81,7 @@ define(function (require, exports, module) {
             packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
             packet.setLink("_tlecs", context.getPacket(this._tlecs));
         },
+
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
@@ -103,13 +105,16 @@ define(function (require, exports, module) {
             this._linkFinishedTlec(tlecWrapper);
             this._tlecs.push(tlecWrapper);
         },
+
         canSendMessages: function () {
             return this._tlecs.length > 0;
         },
+
         sendMessage: function (msg) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
             this._tlConnectionFilter.filter(msg);
         },
+
         _receiveMessage: function (messageData) {
             this._tlConnectionFilter.unfilter(messageData);
         },
@@ -133,13 +138,13 @@ define(function (require, exports, module) {
             this.offer = offer;
             this._onChanged();
         },
+
         _onInitialAuth: function (auth) {
             if (auth) {
                 this.auth = auth;
                 this._onChanged();
             }
         },
-
 
         _onMessage: function (msg) {
             this.fire("message", msg);

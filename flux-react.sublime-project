@@ -1,9 +1,14 @@
 {
-	"folders":
-	[
-		{
-			"follow_symlinks": true,
-			"path": "."
-		}
-	]
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "."
+        },
+        {
+            "name": "flux-modules",
+            "follow_symlinks": true,
+            "path": "./vendor/flux-modules/src"
+        }
+    ]
 }

@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     "use strict";
-    var utils = require("converters/all");
+    require("converters/all");
     var Hex = require("modules/multivalue/hex");
     var ByteBuffer = require("modules/multivalue/byteBuffer");
     var Utf8String = require("modules/multivalue/utf8string");
@@ -23,7 +23,7 @@ define(function(require, exports, module) {
             var aes = new AES(key);
             var data = new Utf8String("test test");
             var encrypted = aes.encryptCbc(data, iv);
-            expect(aes.decryptCbc(encrypted, iv).as(Utf8String).isEqualTo(data)).to.be.true
+            expect(aes.decryptCbc(encrypted, iv).as(Utf8String).isEqualTo(data)).to.be.true;
         });
     });
 

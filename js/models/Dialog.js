@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -22,34 +22,62 @@ define(function (require, exports, module) {
     }
 
     extend(Dialog.prototype, eventEmitter, serializable, model, {
-        setProfile: function (profile) {
+        setProfile: function(profile) {
             this.profile = profile;
         },
-        init: function (args) {
+
+        init: function(args) {
             invariant(args.name, "Can i haz args.name?");
             this.name = args.name;
             this._onChanged();
         },
-        addContact: function (contact) {
-            if (this.contacts.indexOf(contact) !== -1) { return; }
+
+        addContact: function(contact) {
+            if (this.contacts.indexOf(contact) !== -1) {
+                return;
+            }
             this.contacts.push(contact);
             contact.tlConnection.on("message", this.processMessage, this);
         },
 
-        sendMessage: function (message) {
-            var msg = {text: message, sender: this.profile.name + " (me)" };
-            this._pushMessage(extend({}, msg, {isMine: true}));
+        sendMessage: function(message) {
+            var msg = {
+                text: message,
+                sender: this.profile.name
+            };
+            this._pushMessage(extend({}, msg, {
+                isMine: true
+            }));
             this.typeFilter.unfilter(msg);
             this._onChanged();
         },
 
-        processMessage: function (message) {
+        processMessage: function(message) {
             this.typeFilter.filter(message);
         },
 
-        _processMessage: function (message) {
+        processInvite: function(invite) {
+            var message = {};
+            message.type = "tlgr-invite";
+            message.sender = invite.contact.name;
+            message.contact = invite.contact;
+            message.invite = invite.id;
+            message.unread = true;
+            message.accepted = null;
+            message.accept = (function() {
+                this.accepted = true;
+                this.contact.acceptInvite(this.invite)
+            }).bind(message);
+            message.reject = (function() {
+                this.accepted = false;
+                this.contact.rejectInvite(this.invite)
+            }).bind(message);
+            this._pushMessage(message);
+        },
+
+        _processMessage: function(message) {
             var tlConnection = message.metadata.tlConnection;
-            this.contacts.forEach(function (contact) {
+            this.contacts.forEach(function(contact) {
                 if (contact.tlConnection === tlConnection) {
                     message.sender = contact.name;
                 }
@@ -58,8 +86,9 @@ define(function (require, exports, module) {
             this._pushMessage(message);
         },
 
-        _pushMessage: function (message) {
+        _pushMessage: function(message) {
             message.time = new Date();
+            message.dialog = this;
             this.messages.push(message);
             if (message.unread) {
                 this.unreadCount += 1;
@@ -67,17 +96,20 @@ define(function (require, exports, module) {
             this._onChanged();
         },
 
-        markAsRead: function () {
+        markAsRead: function() {
             if (this.unreadCount) {
-                this.messages.forEach(function (msg) {
-                    if (msg.unread) { msg.unread = false; }
+                this.messages.forEach(function(msg) {
+                    if (msg.unread) {
+                        msg.unread = false;
+                    }
                 });
                 this.unreadCount = 0;
                 this._onChanged();
             }
         },
-        hasSecureChannels: function () {
-            var contacts = this.contacts, i;
+        hasSecureChannels: function() {
+            var contacts = this.contacts,
+                i;
             for (i = 0; i < contacts.length; i += 1) {
                 if (contacts[i].tlConnection.canSendMessages()) {
                     return true;
@@ -86,9 +118,10 @@ define(function (require, exports, module) {
             return false;
         },
 
-        serialize: function (packet, context) {
-            var firstUnreadIndex = null, lastUnreadIndex = null;
-            this.messages.forEach(function (msg, index) {
+        serialize: function(packet, context) {
+            var firstUnreadIndex = null,
+                lastUnreadIndex = null;
+            this.messages.forEach(function(msg, index) {
                 delete msg.metadata;
                 if (msg.unread) {
                     firstUnreadIndex = (firstUnreadIndex || firstUnreadIndex === 0) ? firstUnreadIndex : index;
@@ -103,7 +136,7 @@ define(function (require, exports, module) {
             });
             packet.setLink("contacts", context.getPacket(this.contacts));
         },
-        deserialize: function (packet, context) {
+        deserialize: function(packet, context) {
             this.checkFactory();
             var data = packet.getData();
             var factory = this._factory;
@@ -115,8 +148,8 @@ define(function (require, exports, module) {
             contacts.forEach(this.addContact, this);
         },
 
-        _onMessage: function (message) {
-            this.contacts.forEach(function (contact) {
+        _onMessage: function(message) {
+            this.contacts.forEach(function(contact) {
                 contact.tlConnection.sendMessage(message);
             }, this);
         }

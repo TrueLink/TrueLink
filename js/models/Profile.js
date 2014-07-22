@@ -66,6 +66,7 @@ define(function (require, exports, module) {
             this._onChanged();
             return document;
         },
+
         createContact: function () {
             this.checkFactory();
             var contact = this._factory.createContact(this);
@@ -76,6 +77,7 @@ define(function (require, exports, module) {
                 tlConnection: contactTlConnection
             });
             this.contacts.push(contact);
+            this._linkContact(contact);
             this._onChanged();
             return contact;
         },
@@ -86,7 +88,7 @@ define(function (require, exports, module) {
             if (!dialog) {
                 dialog = this._factory.createDialog();
                 dialog.init({name: contact.name});
-                dialog.addContact(contact);
+                dialog.addContact(contact); // FIX THIS
                 this.dialogs.push(dialog);
                 this._linkDialog(dialog);
                 if (firstMessage) {
@@ -95,6 +97,13 @@ define(function (require, exports, module) {
                 this._onChanged();
             }
             return dialog;
+        },
+
+        startGroupChat: function (invite) {
+            this.checkFactory();
+            var chat = this._factory.createGroupChat();
+            console.log("startGroupChat", invite);
+            return chat;
         },
 
         _linkDialog: function (dialog) {
@@ -145,6 +154,7 @@ define(function (require, exports, module) {
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
         },
+
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
@@ -156,15 +166,26 @@ define(function (require, exports, module) {
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
+            this.contacts.forEach(this._linkContact, this);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
-            this.dialogs.forEach(this._linkDialog, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
 
         },
+
         _linkTlConnection: function (conn) {
             conn.on("message", this._onTlConnectionMessage, this);
+        },
+
+        _linkContact: function (contact) {
+            contact.on("inviteReceived", this._inviteReceived, this);
+            contact.on("inviteAccepted", this.startGroupChat, this);
+        },
+
+        _inviteReceived: function(invite) {
+            var dialog = this.startDirectDialog(invite.contact);
+            dialog.processInvite(invite);
         },
 
         _onTlConnectionMessage: function (message, tlConnection) {
