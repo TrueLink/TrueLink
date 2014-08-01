@@ -24,18 +24,12 @@ define(function (require, exports, module) {
                 "props.pageModel and props.pageModel.model must be set");
             this.props.pageModel.on("changed", this._onModelChanged, this);
             this.props.pageModel.model.on("changed", this._onModelChanged, this);
-            if (typeof this._componentDidMount === "function") {
-                this._componentDidMount();
-            }
         },
         componentWillUnmount: function () {
             invariant(this.props.pageModel && this.props.pageModel.model,
                 "props.pageModel and props.pageModel.model must be set");
             this.props.pageModel.off("changed", this._onModelChanged, this);
             this.props.pageModel.model.off("changed", this._onModelChanged, this);
-            if (typeof this._componentDidMount === "function") {
-                this._componentWillUnmount();
-            }
         }
     };
 });

@@ -17,12 +17,12 @@ define(function (require, exports, module) {
             }
             return false;
         },
-        _componentDidMount: function () {
+        componentDidMount: function () {
             var dialog = this.props.pageModel.model;
             dialog.markAsRead();
             dialog.on("changed", dialog.markAsRead, dialog);
         },
-        _componentWillUnmount: function () {
+        componentWillUnmount: function () {
             var dialog = this.props.pageModel.model;
             dialog.off("changed", dialog.markAsRead, dialog);
         },

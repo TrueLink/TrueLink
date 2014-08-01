@@ -8,11 +8,11 @@ define(function (require, exports, module) {
         displayName: "ContactPage",
         mixins: [reactObserver],
 
-        _componentDidMount: function () {
+        componentDidMount: function () {
             var contact = this.props.pageModel.model;
             contact.tlConnection.on("changed", this._onModelChanged, this);
         },
-        _componentWillUnmount: function () {
+        componentWillUnmount: function () {
             var contact = this.props.pageModel.model;
             contact.tlConnection.off("changed", this._onModelChanged, this);
         },
