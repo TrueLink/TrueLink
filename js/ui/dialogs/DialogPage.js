@@ -18,42 +18,44 @@ define(function(require, exports, module) {
             }
             return false;
         },
-        componentDidMount: function() {
+        componentDidMount: function () {
             var dialog = this.props.pageModel.model;
             dialog.markAsRead();
             dialog.on("changed", dialog.markAsRead, dialog);
         },
-        componentWillUnmount: function() {
+        componentWillUnmount: function () {
             var dialog = this.props.pageModel.model;
             dialog.off("changed", dialog.markAsRead, dialog);
         },
-        _onAddPeople: function() {
+        _onAddPeople: function () {
             this.setState({ addPeople: true });
             //invite contact from current dialog to new group chat . test
             this._handleAddContact(null);
             return false;
         },
-        _handleAddContact: function(contact) {
+        _handleAddContact: function (contact) {
             var dialog = this.state.model;
             if(!dialog.hasSecureChannels()){
-                return false;
+                //return false;
             }
             var profile = dialog.profile;
-            var chat = profile.startGroupChat();
-            dialog.contacts[0].sendTlgrInvite({invite:"invite"});
+            var chat = profile.startGroupChat(dialog.contacts[0]);
+            //dialog.contacts[0].sendTlgrInvite({invite:"invite"});
+            this.props.router.createNavigateHandler("groupChat", chat)();
+            return false;
         },
-        _onConfigure: function() {
+        _onConfigure: function () {
             var dialog = this.props.pageModel.model;
             // TODO this is kinda dumb
             this.props.router.navigate("contact", dialog.contacts[0]);
         },
-        render: function() {
+        render: function () {
             var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
             var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
-            function randomItem(list) {
+            function randomItem (list) {
                 return list[Math.floor(Math.random() * list.length)];
             }
 
