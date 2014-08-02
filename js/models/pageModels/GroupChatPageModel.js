@@ -14,7 +14,7 @@ define(function (require, exports, module) {
         this._defineEvent("changed");
     }
 
-    DialogPageModel.prototype = new PageModel();
+    GroupChatPageModel.prototype = new PageModel();
 
     extend(GroupChatPageModel.prototype, eventEmitter, serializable, model, {
         constructor: GroupChatPageModel,

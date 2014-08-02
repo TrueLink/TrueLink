@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     var ContactPageModel = require("models/pageModels/ContactPageModel");
     var DialogsPageModel = require("models/pageModels/DialogsPageModel");
     var DialogPageModel = require("models/pageModels/DialogPageModel");
+    var GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
     var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
     var DocumentPageModel = require("models/pageModels/DocumentPageModel");
 
@@ -25,6 +26,8 @@ define(function (require, exports, module) {
         this.resolver.item(4, DialogPageModel);
         this.resolver.item(5, DocumentsPageModel);
         this.resolver.item(6, DocumentPageModel);
+        this.resolver.item(7, GroupChatPageModel);
+
         this.router = router;
     }
 

@@ -58,15 +58,15 @@ define(function(require, exports, module) {
                     React.DOM.a({
                         className: "title",
                         href: "",
-                        onClick: router.createNavigateHandler("dialogs", dialog.profile)
-                    }, "〈 Group Chat: " + dialog.name),
+                        onClick: router.createNavigateHandler("dialogs", groupChat.profile)
+                    }, "〈 Group Chat: " + groupChat.name),
                     React.DOM.a({
                         className: "header-button",
                         href: "",
                         onClick: this._onAddPeople
                     }, "Add People")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
-                    MessagesView({ messages: dialog.messages })),
+                    MessagesView({ messages: groupChat.messages })),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
