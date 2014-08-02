@@ -99,10 +99,14 @@ define(function (require, exports, module) {
             return dialog;
         },
 
-        startGroupChat: function (invite) {
+        startGroupChat: function () {
             this.checkFactory();
             var chat = this._factory.createGroupChat();
-            console.log("startGroupChat", invite);
+            chat.init({name: "grp chat"});
+            this.dialogs.push(chat);
+            this._linkDialog(chat);
+            this._onChanged();
+            //console.log("startGroupChat", invite);
             return chat;
         },
 
