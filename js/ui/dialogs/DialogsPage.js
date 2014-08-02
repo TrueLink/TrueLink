@@ -2,11 +2,19 @@ define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
+    var Dialog = require("models/Dialog");
+    var GroupChat = require("models/GroupChat");
+
     module.exports = React.createClass({
         displayName: "DialogsPage",
         mixins: [reactObserver],
         handleDialogClick: function (dialog) {
-            this.props.router.navigate("dialog", dialog);
+            //TODO: make something better here
+            var view = "dialog";
+            if(dialog instanceof GroupChat) {
+                view = "groupChat";
+            }
+            this.props.router.navigate(view, dialog);
             return false;
         },
         _appendDialogComponent: function (components, dialog) {

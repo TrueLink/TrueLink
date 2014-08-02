@@ -13,7 +13,9 @@ define(function (require, exports, module) {
     var ContactsPageModel = require("models/pageModels/ContactsPageModel");
     var ContactPageModel = require("models/pageModels/ContactPageModel");
     var DialogsPage = require("ui/dialogs/DialogsPage");
+    var GroupChatPage = require("ui/dialogs/GroupChatPage");
     var DialogsPageModel = require("models/pageModels/DialogsPageModel");
+    var GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
     var DialogPage = require("ui/dialogs/DialogPage");
     var DialogPageModel = require("models/pageModels/DialogPageModel");
     var DocumentsPage = require("ui/documents/DocumentsPage");
@@ -43,7 +45,10 @@ define(function (require, exports, module) {
             view: DialogPage,
             model: DialogPageModel
         },
-
+        "groupChat": {
+            view: GroupChatPage,
+            model: GroupChatPageModel
+        },
         "documents": {
             view: DocumentsPage,
             model: DocumentsPageModel
