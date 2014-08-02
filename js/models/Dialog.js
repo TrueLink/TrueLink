@@ -61,7 +61,7 @@ define(function(require, exports, module) {
             message.type = "tlgr-invite";
             message.sender = invite.contact.name;
             message.contact = invite.contact;
-            message.invite = invite.id;
+            message.inviteId = invite.id;
             message.unread = true;
             message.accepted = null;
             message.accept = (function() {
@@ -129,6 +129,7 @@ define(function(require, exports, module) {
                 }
             });
             packet.setData({
+                _type_: "Dialog",
                 name: this.name,
                 fields: this.fields,
                 unread: this.unreadCount,

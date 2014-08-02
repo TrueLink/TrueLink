@@ -36,6 +36,17 @@ define(function (require, exports, module) {
             return this._observed(dialog);
         },
 
+        createDialogLikeObj: function (packet) {
+            var data = packet.getData();
+            if(!data._type_) {
+                return this.createDialog();
+            }
+            if(data._type_ === "Dialog"){
+                return this.createDialog();
+            }else if(data._type_ === "GroupChat"){
+                return this.createGroupChat();
+            }
+        },
         createGroupChat: function () {
             var chat = new GroupChat();
             chat.setProfile(this.profile);

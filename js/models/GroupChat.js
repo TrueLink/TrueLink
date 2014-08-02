@@ -55,9 +55,14 @@ define(function(require, exports, module) {
         },
 
         serialize: function(packet, context) {
+            packet.setData({
+                _type_: "GroupChat",
+                name: this.name
+            })
         },
 
         deserialize: function(packet, context) {
+            this.name = packet.getData().name;
         },
 
     });

@@ -171,7 +171,7 @@ define(function (require, exports, module) {
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
-            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialog, factory);
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
