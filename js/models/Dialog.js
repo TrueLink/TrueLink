@@ -88,7 +88,7 @@ define(function(require, exports, module) {
 
         _pushMessage: function(message) {
             message.time = new Date();
-            message.dialog = this;
+            //message.dialog = this;
             this.messages.push(message);
             if (message.unread) {
                 this.unreadCount += 1;
