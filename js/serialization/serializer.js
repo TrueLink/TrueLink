@@ -33,16 +33,24 @@ define(function (require, exports, module) {
         createPacket: function (scheme, type, id, context, counterObj) {
             context = context || {};
             if (context[id]) { return context[id]; }
+
+            var packetData = db.getById(id);
+            if (!packetData) { return null; }
+            //some hacky magic:
+            var packet = this.dataToPacket(packetData);
+            if(type === "_auto") {
+                var d = packet.getData();
+                if(!d._type_) {
+                   throw new Error("Type information not found for a '_dataDefined' packet type"); 
+                }
+                type = d._type_;
+            }
             var typeDef = scheme[type];
             if (!typeDef) {
                 throw new Error("type with name " + type + " is not found in the scheme");
             }
 
-            var packetData = db.getById(id);
-            if (!packetData) { return null; }
-
             counterObj.dataLength += JSON.stringify(packetData).length;
-            var packet = this.dataToPacket(packetData);
             context[id] = packet;
             counterObj.objCount += 1;
 
