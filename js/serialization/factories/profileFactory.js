@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var Document = require("models/Document");
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
+    var GroupChat = require("models/GroupChat");
 
     var TlConnection = require("models/tlConnection/TlConnection");
     var TlConnectionFactory = require("./tlConnectionFactory");
