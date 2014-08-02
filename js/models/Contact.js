@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
+    var uuid = require("uuid");
     var model = require("mixins/model");
     var TypeFilter = require("models/filters/TypeFilter");
 
@@ -51,19 +52,19 @@ define(function (require, exports, module) {
             this._link();
         },
 
-        _link: function() {
+        _link: function () {
             this.tlConnection.on("message", this.processMessage, this);
         },
 
-        processMessage: function(message) {
+        processMessage: function (message) {
             this.tlgrFilter.filter(message);
         },
 
-        _generateInviteId: function() {
-            return "";
+        _generateInviteId: function () {
+            return uuid();
         },
 
-        _processTlgrInvite: function(message) {
+        _processTlgrInvite: function (message) {
             var invite = {};
             invite.id = this._generateInviteId();
             invite.message = message;
