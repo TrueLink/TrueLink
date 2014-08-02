@@ -29,7 +29,18 @@ define(function(require, exports, module) {
         },
         _onAddPeople: function() {
             this.setState({ addPeople: true });
+            //invite contact from current dialog to new group chat . test
+            this._handleAddContact(null);
             return false;
+        },
+        _handleAddContact: function(contact) {
+            var dialog = this.state.model;
+            if(!dialog.hasSecureChannels()){
+                return false;
+            }
+            var profile = dialog.profile;
+            var chat = profile.startGroupChat();
+            dialog.contacts[0].sendTlgrInvite({invite:"invite"});
         },
         _onConfigure: function() {
             var dialog = this.props.pageModel.model;
@@ -65,8 +76,8 @@ define(function(require, exports, module) {
                         onClick: this._onAddPeople
                     }, "Add People")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
-                    MessagesView({ messages: dialog.messages }),
-                    ContactList({ contacts: dialog.profile.contacts })),
+                    MessagesView({ messages: dialog.messages })),
+                   // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
                         React.DOM.div({ className: "tab-title" }, "Secure channel")),
