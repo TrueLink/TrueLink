@@ -3,7 +3,7 @@ define(function (require, exports, module) {
     var invariant = require("modules/invariant");
     var extend = require("extend");
     var prototype = require("./prototype");
-
+    var Tlgr = require("modules/channels/Tlgr");
     var Document = require("models/Document");
     var Contact = require("models/Contact");
     var Dialog = require("models/Dialog");
@@ -34,6 +34,15 @@ define(function (require, exports, module) {
             dialog.setProfile(this.profile);
             dialog.setFactory(this);
             return this._observed(dialog);
+        },
+        //probably shouldn't be here
+        //
+        createTlgr: function () {
+            var tlgr = new Tlgr(this);
+            return this._observed(tlgr);
+        },
+        createRandom: function () {
+            return this.getInstance("Random");
         },
 
         createDialogLikeObj: function (packet) {

@@ -10,6 +10,7 @@ define(function(require, exports, module) {
         this._defineEvent("changed");
 
         this.profile = null;
+        this.tlgr = null;
         this.name = null;
         this.messages = [];
         this.unreadCount = 0;
@@ -22,7 +23,11 @@ define(function(require, exports, module) {
 
         init: function(args) {
             invariant(args.name, "Can i haz args.name?");
+            invariant(args.tlgr, "Can i haz args.tlgr?");
+            
             this.name = args.name;
+            this.tlgr = args.tlgr;
+            
             this._onChanged();
         },
 
@@ -59,10 +64,14 @@ define(function(require, exports, module) {
                 _type_: "GroupChat",
                 name: this.name
             })
+            packet.setLink("tlgr", context.getPacket(this.tlgr));
         },
 
         deserialize: function(packet, context) {
+            this.checkFactory();
+            var factory = this._factory;
             this.name = packet.getData().name;
+            this.tlgr = context.deserialize(packet.getLink("tlgr"), factory.createTlgr, factory);
         },
 
     });

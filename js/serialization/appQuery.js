@@ -8,6 +8,7 @@ define(function (require, exports, module) {
             // type is a definition name within this query, not a class name
             // type "any" means that the corresponding model must be already deserialized
             // (see SerializationContext.deserialize() without constructor argument)
+            // type "_auto" - type is obtained from packet data (_type_ property) should get it from metadata instead i guess /by Murashko
             menu: {propType: "one", type: "Menu"},
             profiles: {propType: "many", type: "Profile"},
             currentProfile: {propType: "one", type: "Profile"},
@@ -18,7 +19,8 @@ define(function (require, exports, module) {
             tlConnections: {propType: "many", type: "TlConnection"},
             contacts: {propType: "many", type: "Contact"},
             documents: {propType: "many", type: "Document"},
-            dialogs: {propType: "many", type: "Dialog"},
+            dialogs: {propType: "many", type: "_auto"},
+            tlgrs: {propType: "many", type: "Tlgr"},
             transport: {propType: "one", type: "CouchTransport"}
         },
         TlConnection: {
@@ -46,8 +48,12 @@ define(function (require, exports, module) {
         Tlec: {},
         Tlht: {},
         Tlke: {},
+        Tlgr: {},
         Dialog: {
             contacts: {propType: "many", type: "Contact"}
+        },
+        GroupChat: {
+            tlgr: {propType: "one", type: "Tlgr"}
         },
         Menu: {},
         Document: {},

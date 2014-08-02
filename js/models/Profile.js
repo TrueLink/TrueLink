@@ -17,6 +17,7 @@ define(function (require, exports, module) {
         this.contacts = [];
         this.tlConnections = [];
         this.dialogs = [];
+        this.tlgrs = [];
         this.serverUrl = "";
         this.unreadCount = 0;
 
@@ -99,11 +100,18 @@ define(function (require, exports, module) {
             return dialog;
         },
 
-        startGroupChat: function () {
+        startGroupChat: function (contact/*the first contact ivited to this chat*/) {
             this.checkFactory();
             var chat = this._factory.createGroupChat();
-            chat.init({name: "grp chat"});
+            var tlgr = this._factory.createTlgr();
+            tlgr.init();
+            this.tlgrs.push(tlgr);
+            chat.init({
+                name: /*contact.name + */"...",
+                tlgr: tlgr
+            });
             this.dialogs.push(chat);
+            
             this._linkDialog(chat);
             this._onChanged();
             //console.log("startGroupChat", invite);
@@ -157,6 +165,7 @@ define(function (require, exports, module) {
             packet.setLink("dialogs", context.getPacket(this.dialogs));
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
+            packet.setLink("tlgrs", context.getPacket(this.tlgrs));
         },
 
         deserialize: function (packet, context) {
@@ -172,6 +181,7 @@ define(function (require, exports, module) {
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
+            this.tlgrs = context.deserialize(packet.getLink("tlgrs"), factory.createTlgr, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
