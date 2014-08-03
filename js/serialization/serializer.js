@@ -41,7 +41,7 @@ define(function (require, exports, module) {
             if(type === "_auto") {
                 var d = packet.getData();
                 if(!d._type_) {
-                   throw new Error("Type information not found for a '_dataDefined' packet type"); 
+                   throw new Error("Type information not found for a '_auto' packet type"); 
                 }
                 type = d._type_;
             }
