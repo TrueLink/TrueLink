@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
+    var CouchAdapter = require("models/tlConnection/CouchAdapter");
 
     function Profile() {
         this._defineEvent("changed");
@@ -104,7 +105,21 @@ define(function (require, exports, module) {
             this.checkFactory();
             var chat = this._factory.createGroupChat();
             var tlgr = this._factory.createTlgr();
-            tlgr.init();
+            tlgr.on("openAddrIn", function (args) {
+                var _couchAdapter = new CouchAdapter(this.transport, {
+                    context: args.context,
+                    addr: args.addr
+                });
+                _couchAdapter.on("packet", tlgr.onNetworkPacket, tlgr);
+                _couchAdapter.run();
+                
+            }.bind(this));
+            tlgr.on("packet", function (packet/*{addr, data}*/) {
+                this.transport.sendPacket(packet);
+            }.bind(this), tlgr);
+
+            tlgr.init({
+            });
             this.tlgrs.push(tlgr);
             chat.init({
                 name: /*contact.name + */"...",
