@@ -20,10 +20,9 @@ define(function(require, exports, module) {
             var key = new Hex("FE568E7F453CB6EB837EBD8D1EBB647A");
             var iv = new Hex("0810366058C4DF0A543397B8FF774F7E");
 
-            var aes = new AES(key);
             var data = new Utf8String("test test");
-            var encrypted = aes.encryptCbc(data, iv);
-            expect(aes.decryptCbc(encrypted, iv).as(Utf8String).isEqualTo(data)).to.be.true;
+            var encrypted = AES.encryptCbc(data, key, iv);
+            expect(AES.decryptCbc(encrypted, key, iv).as(Utf8String).isEqualTo(data)).to.be.true;
         });
     });
 
