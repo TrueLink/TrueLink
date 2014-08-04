@@ -188,9 +188,6 @@ define(function (require, exports, module) {
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("tlgrs", context.getPacket(this.tlgrs));
-            this.tlgrs.forEach(this._linkTlgr);
-            //hacky
-            this.tlgrs.forEach(function (tlgr) { tlgr.afterDeserialize(); });
 
         },
 
@@ -211,6 +208,9 @@ define(function (require, exports, module) {
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
+            this.tlgrs.forEach(this._linkTlgr, this);
+            //hacky
+            this.tlgrs.forEach(function (tlgr) { tlgr.afterDeserialize(); });
 
         },
 
