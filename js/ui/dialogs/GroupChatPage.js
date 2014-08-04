@@ -45,12 +45,11 @@ define(function(require, exports, module) {
             }
 
             var input = React.DOM.div({ className: "message-input" },
-                React.DOM.form({ onSubmit: this._onSubmit },
                     React.DOM.input({
+                        type: "text",
                         value: this.state.messageText,
-                        ref: "inputMessage",
-                        onChnage: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
-                    })),
+                        onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
+                    }),
                 React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
 
             return React.DOM.div({ className: "dialog-page app-page" },

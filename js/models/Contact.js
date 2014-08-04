@@ -77,7 +77,7 @@ define(function (require, exports, module) {
 
         acceptInvite: function(inviteId) {
             if (inviteId in this.invites) {
-                this.fire("inviteAccepted", this.invites[inviteId]);
+                this.fire("inviteAccepted", this.invites[inviteId].invite);
                 delete this.invites[inviteId];
                 this._onChanged();
             }

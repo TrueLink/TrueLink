@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         },
 
         _accept: function() {
-            this.props.accept();
+            this.props.accept(this.props.inviteId);
             this.setState({ accepted: true });
         },
 
