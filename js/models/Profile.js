@@ -101,24 +101,15 @@ define(function (require, exports, module) {
             return dialog;
         },
 
-        startGroupChat: function (contact/*the first contact ivited to this chat*/) {
+        startGroupChat: function (invite) {
             this.checkFactory();
             var chat = this._factory.createGroupChat();
             var tlgr = this._factory.createTlgr();
-            tlgr.on("openAddrIn", function (args) {
-                var _couchAdapter = new CouchAdapter(this.transport, {
-                    context: args.context,
-                    addr: args.addr
-                });
-                _couchAdapter.on("packet", tlgr.onNetworkPacket, tlgr);
-                _couchAdapter.run();
-                
-            }.bind(this));
-            tlgr.on("packet", function (packet/*{addr, data}*/) {
-                this.transport.sendPacket(packet);
-            }.bind(this), tlgr);
+            this._linkTlgr(tlgr);
 
             tlgr.init({
+                invite: invite,
+                userName: this.name
             });
             this.tlgrs.push(tlgr);
             chat.init({
@@ -135,6 +126,22 @@ define(function (require, exports, module) {
 
         _linkDialog: function (dialog) {
             dialog.on("changed", this._onDialogChanged, this);
+        },
+
+        _linkTlgr: function (tlgr) {
+            tlgr.on("openAddrIn", function (args) {
+                var _couchAdapter = new CouchAdapter(this.transport, {
+                    context: args.context,
+                    addr: args.addr
+                });
+                _couchAdapter.on("packet", tlgr.onNetworkPacket, tlgr);
+                _couchAdapter.run();
+                
+            }.bind(this));
+            tlgr.on("packet", function (packet/*{addr, data}*/) {
+                this.transport.sendPacket(packet);
+            }.bind(this), tlgr);
+
         },
 
         _onDialogChanged: function () {
@@ -181,6 +188,10 @@ define(function (require, exports, module) {
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("tlgrs", context.getPacket(this.tlgrs));
+            this.tlgrs.forEach(this._linkTlgr);
+            //hacky
+            this.tlgrs.forEach(function (tlgr) { tlgr.afterDeserialize(); });
+
         },
 
         deserialize: function (packet, context) {
