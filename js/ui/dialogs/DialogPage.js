@@ -35,12 +35,12 @@ define(function(require, exports, module) {
         },
         _handleAddContact: function (contact) {
             var dialog = this.state.model;
-            if(!dialog.hasSecureChannels()){
-                //return false;
-            }
             var profile = dialog.profile;
-            var chat = profile.startGroupChat(dialog.contacts[0]);
-            //dialog.contacts[0].sendTlgrInvite({invite:"invite"});
+            var chat = profile.startGroupChat();
+            if(dialog.hasSecureChannels()){
+                var invitation = chat.tlgr.generateInvitation();
+                dialog.contacts[0].sendTlgrInvite({invite: invitation});
+            }
             this.props.router.createNavigateHandler("groupChat", chat)();
             return false;
         },
