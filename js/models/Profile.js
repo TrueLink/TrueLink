@@ -7,6 +7,8 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
     var CouchAdapter = require("models/tlConnection/CouchAdapter");
+    var Dialog = require("models/Dialog");
+    var GroupChat = require("models/GroupChat");
 
     function Profile() {
         this._defineEvent("changed");
@@ -167,8 +169,10 @@ define(function (require, exports, module) {
         _findDirectDialog: function (contact) {
             var i;
             for (i = 0; i < this.dialogs.length; i += 1) {
-                if (this.dialogs[i].contacts.length === 1 &&  this.dialogs[i].contacts[0] === contact) {
-                    return this.dialogs[i];
+                if (this.dialogs[i] instanceof Dialog) {
+                    if (this.dialogs[i].contacts.length === 1 &&  this.dialogs[i].contacts[0] === contact) {
+                        return this.dialogs[i];
+                    }
                 }
             }
             return null;
