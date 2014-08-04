@@ -39,37 +39,87 @@ define(function(require, exports, module) {
         X32WordArray: X32WordArray,
     }
 
-    function second(from, to) 
-    {
-        it('to ' + to, function() {
-            var result = values[from].as(types[to]);
-            console.log(from, to, values[from], values[to], result)
-            expect(result).be.instanceof(types[to]).with.property("value")
-            expect(result.isEqualTo(values[to])).true;
+    describe('Multivalue', function() {
+        describe('Convertion', function () {
+            function testConvertersFor(from)
+            {
+                function testConversion(to) 
+                {
+                    it('to ' + to, function() {
+                        var result = values[from].as(types[to]);
+                        console.log(from, to, values[from], values[to], result)
+                        expect(result).be.instanceof(types[to]).with.property("value")
+                        expect(result.isEqualTo(values[to])).true;
+                    });
+
+                }
+
+                describe('converts ' + from, function() {
+                    for(var name in values)
+                    {
+                        testConversion(name);
+                    }
+                });
+            }
+
+            for(var name in values) 
+            {
+                testConvertersFor(name);
+            }
+
+            it("Bug from real world #1", function() {
+                expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(BitArray).bitLength()).to.equals(128);
+                expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
+            });
         });
 
-    }
+        describe('Comparison', function () {
 
-    function first(from)
-    {
-        describe('converts ' + from, function() {
+            function testComparatorsFor(from) {
+                function testFailComparison(to) 
+                {
+                    it(" and " + to + " should throw", function () {
+                        var fromValue = values[from];
+                        var toValue = values[to];
+                        expect(function() { fromValue.isEqualTo(toValue); }).to.throw();
+                    });
+                }
+
+                function testSelfComparison(to) 
+                {
+                    it(" and " + to + " should NOT throw", function () {
+                        var fromValue = values[from];
+                        var toValue = values[to];
+                        expect(function() { fromValue.isEqualTo(toValue); }).not.to.throw();
+                    });
+                }
+
+                function testCompareToNumber() {
+                    it(" and non-multivalue should throw", function () {
+                        var value = values[from]
+                        expect(function() { value.isEqualTo(1); }).to.throw();
+                    });
+                }
+
+                describe('compares ' + from, function() {
+
+                    testCompareToNumber();
+
+                    for(var name in values) 
+                    {
+                        if(name == from) {
+                            testSelfComparison(name);    
+                        } else {
+                            testFailComparison(name);
+                        }
+                    }
+                });
+            }
+
             for(var name in values)
             {
-                second(from, name);
+                testComparatorsFor(name);
             }
         });
-    }
-
-    describe('Multivalue', function() {
-        for(var name in values) 
-        {
-            first(name);
-        }
     });
-
-    it("Bug from real world #1", function() {
-        expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(BitArray).bitLength()).to.equals(128);
-        expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
-    });
-
 });
