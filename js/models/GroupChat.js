@@ -31,7 +31,17 @@ define(function(require, exports, module) {
             this._onChanged();
         },
 
-        sendMessage: function(message) {
+        sendMessage: function (message) {
+            var msg = {
+                text: message,
+                sender: "me"
+            }
+            this._pushMessage(msg);
+
+
+            this.tlgr.sendMessage(message);
+
+
         },
 
         processMessage: function(message) {
@@ -39,7 +49,6 @@ define(function(require, exports, module) {
 
         _pushMessage: function(message) {
             message.time = new Date();
-            message.dialog = this;
             this.messages.push(message);
             if (message.unread) {
                 this.unreadCount += 1;
