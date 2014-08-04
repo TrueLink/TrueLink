@@ -60,17 +60,16 @@ define(function(require, exports, module) {
             var message = {};
             message.type = "tlgr-invite";
             message.sender = invite.contact.name;
-            message.contact = invite.contact;
             message.inviteId = invite.id;
             message.unread = true;
             message.accepted = null;
             message.accept = (function() {
                 this.accepted = true;
-                this.contact.acceptInvite(this.invite)
+                this.contact.acceptInvite(message.inviteId)
             }).bind(message);
             message.reject = (function() {
                 this.accepted = false;
-                this.contact.rejectInvite(this.invite)
+                this.contact.rejectInvite(this.inviteId)
             }).bind(message);
             this._pushMessage(message);
         },
