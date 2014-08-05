@@ -19,7 +19,7 @@ define(function (require, exports, module) {
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
-        this.defaultPollingUrl = "http://localhost:5984/tl_channels";
+        this.defaultPollingUrl = "http://main.dev:5984/tl_channels";
     }
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
