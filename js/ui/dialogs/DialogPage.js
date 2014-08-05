@@ -36,7 +36,8 @@ define(function(require, exports, module) {
         _handleAddContact: function (contact) {
             var dialog = this.state.model;
             var profile = dialog.profile;
-            var chat = profile.startGroupChat();
+            contact = dialog.contacts[0];
+            var chat = profile.startGroupChat(null, contact);
             if(dialog.hasSecureChannels()){
                 var invitation = chat.tlgr.generateInvitation();
                 dialog.contacts[0].sendTlgrInvite({invite: invitation});
