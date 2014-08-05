@@ -5,14 +5,18 @@ define(function(require, exports, module) {
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
+    var CouchAdapter = require("models/tlConnection/CouchAdapter");
 
     function GroupChat() {
         this._defineEvent("changed");
 
+        console.log("Constructing GroupChat...");
         this.profile = null;
         this.tlgr = null;
         this.name = null;
         this.messages = [];
+        this.adapter = null;
+        this.since = 0;
         this.unreadCount = 0;
     }
 
@@ -27,24 +31,55 @@ define(function(require, exports, module) {
             
             this.name = args.name;
             this.tlgr = args.tlgr;
-            
+            this._setTlgrEventHandlers();
             this._onChanged();
+        },
+        _setTlgrEventHandlers: function () {
+            this.tlgr.on("message", this.processMessage, this);
+            this.tlgr.on("user_joined", function(user) {
+                if (user === this.tlgr.getMyAid()) {
+                    this._pushMessage({
+                        text: "You have joined a chat",
+                        sender: "system"
+                    });
+                } else {
+                    this._pushMessage({
+                        text: "user_"  + user + " joined this chat",
+                        sender: "system"
+                    });
+                }
+            }.bind(this));
+            this.tlgr.on("openAddrIn", function (args) {
+                console.log("Tlgr openAddrIn");
+                var _couchAdapter = new CouchAdapter(this.profile.transport, {
+                    context: args.context,
+                    addr: args.addr,
+                    since: this.since
+                   //was pretty bad idea to do this->  since: this.transport.getSince()
+                });
+                this.adapter = _couchAdapter;
+                _couchAdapter.on("packet", this.tlgr.onNetworkPacket, this.tlgr);
+                _couchAdapter.on("changed", function (obj) {
+                    this.fire("changed", this);
+                }, this);
+                _couchAdapter.run();
+            }.bind(this));
         },
 
         sendMessage: function (message) {
             var msg = {
                 text: message,
-                sender: "me"
+                sender: "user" + this.tlgr.getMyAid()
             }
+            msg.isMine = true;
             this._pushMessage(msg);
-
-
             this.tlgr.sendMessage(message);
-
-
         },
 
         processMessage: function(message) {
+            message.isMine = false;
+            this._pushMessage(message);
+
         },
 
         _pushMessage: function(message) {
@@ -71,7 +106,8 @@ define(function(require, exports, module) {
         serialize: function(packet, context) {
             packet.setData({
                 _type_: "GroupChat",
-                name: this.name
+                name: this.name,
+                since: (this.adapter)?(this.adapter._since):0
             })
             packet.setLink("tlgr", context.getPacket(this.tlgr));
         },
@@ -80,7 +116,9 @@ define(function(require, exports, module) {
             this.checkFactory();
             var factory = this._factory;
             this.name = packet.getData().name;
+            this.since = packet.getData().since;
             this.tlgr = context.deserialize(packet.getLink("tlgr"), factory.createTlgr, factory);
+            this._setTlgrEventHandlers();
         },
 
     });

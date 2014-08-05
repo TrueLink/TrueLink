@@ -103,19 +103,23 @@ define(function (require, exports, module) {
             return dialog;
         },
 
-        startGroupChat: function (invite) {
+        startGroupChat: function (invite, contact) {
             this.checkFactory();
+            if (invite) {
+                contact = invite.contact;
+            }
+            var chatCaption = (contact)?(contact.name + " and others..."):("...")
             var chat = this._factory.createGroupChat();
             var tlgr = this._factory.createTlgr();
             this._linkTlgr(tlgr);
 
             tlgr.init({
-                invite: invite,
+                invite: (invite)?(invite.invite):null,
                 userName: this.name
             });
             this.tlgrs.push(tlgr);
             chat.init({
-                name: /*contact.name + */"...",
+                name: chatCaption,
                 tlgr: tlgr
             });
             this.dialogs.push(chat);
@@ -131,15 +135,6 @@ define(function (require, exports, module) {
         },
 
         _linkTlgr: function (tlgr) {
-            tlgr.on("openAddrIn", function (args) {
-                var _couchAdapter = new CouchAdapter(this.transport, {
-                    context: args.context,
-                    addr: args.addr
-                });
-                _couchAdapter.on("packet", tlgr.onNetworkPacket, tlgr);
-                _couchAdapter.run();
-                
-            }.bind(this));
             tlgr.on("packet", function (packet/*{addr, data}*/) {
                 this.transport.sendPacket(packet);
             }.bind(this), tlgr);
@@ -192,7 +187,6 @@ define(function (require, exports, module) {
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("tlgrs", context.getPacket(this.tlgrs));
-
         },
 
         deserialize: function (packet, context) {
