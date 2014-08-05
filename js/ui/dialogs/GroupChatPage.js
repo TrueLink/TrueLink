@@ -9,7 +9,8 @@ define(function(require, exports, module) {
         mixins: [reactObserver],
         getInitialState: function () {
             return {
-                messageText: ""
+                messageText: "",
+                addContact: false
             };
         },
         _onSubmit: function() {
@@ -31,8 +32,19 @@ define(function(require, exports, module) {
             dialog.off("changed", dialog.markAsRead, dialog);
         },
         _onAddPeople: function() {
+            //this.setState({ addContact: !this.state.addContact });
+            this.state.pageModel.set("addContact", !this.state.pageModel.addContact);
+            return false;
         },
         _handleAddContact: function(contact) {
+            var groupChat = this.state.model;
+            var profile = groupChat.profile;
+            if(contact.tlConnection.canSendMessages()){
+                var invitation = groupChat.tlgr.generateInvitation();
+                contact.sendTlgrInvite({invite: invitation});
+            }
+            this.state.pageModel.set("addContact", false);
+            return false;
         },
         render: function() {
             var groupChat = this.state.model;
@@ -51,6 +63,12 @@ define(function(require, exports, module) {
                         onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
                     }),
                 React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
+            var content;
+            if (this.state.pageModel.addContact) {
+                content = ContactList({ contacts: groupChat.profile.contacts, onClick: this._handleAddContact });
+            } else {
+                content = MessagesView({ messages: groupChat.messages });
+            }
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
@@ -65,7 +83,7 @@ define(function(require, exports, module) {
                         onClick: this._onAddPeople
                     }, "Add People")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
-                    MessagesView({ messages: groupChat.messages })),
+                    content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },

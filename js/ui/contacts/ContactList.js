@@ -4,7 +4,8 @@ define(function(require, exports, module) {
     module.exports = React.createClass({
         displayName: "ContactList",
         propTypes: {
-            contacts: React.PropTypes.array
+            contacts: React.PropTypes.array,
+            onClick: React.PropTypes.func
         },
         getInitialState: function() {
             return {};
