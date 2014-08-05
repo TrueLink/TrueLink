@@ -13,7 +13,7 @@ define(function(require, exports, module) {
         this.profile = null;
         this.name = null;
         this.messages = [];
-        this.contacts = [];
+        this.contact = null;
         this.unreadCount = 0;
 
         this.typeFilter = new TypeFilter("receiver", "dialog");
@@ -32,12 +32,15 @@ define(function(require, exports, module) {
             this._onChanged();
         },
 
-        addContact: function(contact) {
-            if (this.contacts.indexOf(contact) !== -1) {
+        setContact: function(contact, skipChanged) {
+            if (this.contact) {
                 return;
             }
-            this.contacts.push(contact);
+            this.contact = contact;
             contact.tlConnection.on("message", this.processMessage, this);
+            if (!skipChanged) {
+                this._onChanged();
+            }
         },
 
         sendMessage: function(message) {
@@ -76,11 +79,9 @@ define(function(require, exports, module) {
 
         _processMessage: function(message) {
             var tlConnection = message.metadata.tlConnection;
-            this.contacts.forEach(function(contact) {
-                if (contact.tlConnection === tlConnection) {
-                    message.sender = contact.name;
-                }
-            });
+            if (this.contact.tlConnection === tlConnection) {
+                message.sender = this.contact.name;
+            }
             message.unread = true;
             this._pushMessage(message);
         },
@@ -107,14 +108,13 @@ define(function(require, exports, module) {
             }
         },
         hasSecureChannels: function() {
-            var contacts = this.contacts,
-                i;
-            for (i = 0; i < contacts.length; i += 1) {
-                if (contacts[i].tlConnection.canSendMessages()) {
-                    return true;
-                }
+            if (!this.contact) {
+                return false;
             }
-            return false;
+            if (!this.contact.tlConnection) {
+                return false;
+            }
+            return this.contact.tlConnection.canSendMessages() 
         },
 
         serialize: function(packet, context) {
@@ -134,7 +134,7 @@ define(function(require, exports, module) {
                 unread: this.unreadCount,
                 messages: this.unreadCount ? this.messages.slice(firstUnreadIndex, lastUnreadIndex + 1) : []
             });
-            packet.setLink("contacts", context.getPacket(this.contacts));
+            packet.setLink("contact", context.getPacket(this.contact));
         },
         deserialize: function(packet, context) {
             this.checkFactory();
@@ -144,18 +144,16 @@ define(function(require, exports, module) {
             this.fields = data.fields;
             this.unreadCount = data.unread;
             this.messages = data.messages || [];
-            var contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
-            contacts.forEach(this.addContact, this);
+            var contact = context.deserialize(packet.getLink("contact"), factory.createContact, factory);
+            // true = skip firing change event
+            this.setContact(contact, true);
         },
 
         _onMessage: function(message) {
-            this.contacts.forEach(function(contact) {
-                contact.tlConnection.sendMessage(message);
-            }, this);
+            if (this.contact) {
+                this.contact.tlConnection.sendMessage(message);
+            }
         }
-
-
-
     });
 
     module.exports = Dialog;

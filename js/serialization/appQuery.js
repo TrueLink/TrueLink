@@ -50,7 +50,7 @@ define(function (require, exports, module) {
         Tlke: {},
         Tlgr: {},
         Dialog: {
-            contacts: {propType: "many", type: "Contact"}
+            contact: {propType: "one", type: "Contact"}
         },
         GroupChat: {
             tlgr: {propType: "one", type: "Tlgr"}

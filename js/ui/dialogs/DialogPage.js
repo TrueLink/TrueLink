@@ -36,11 +36,11 @@ define(function(require, exports, module) {
         _handleAddContact: function (contact) {
             var dialog = this.state.model;
             var profile = dialog.profile;
-            contact = dialog.contacts[0];
+            contact = dialog.contact;
             var chat = profile.startGroupChat(null, contact);
             if(dialog.hasSecureChannels()){
                 var invitation = chat.tlgr.generateInvitation();
-                dialog.contacts[0].sendTlgrInvite({invite: invitation});
+                dialog.contact.sendTlgrInvite({invite: invitation});
             }
             this.props.router.createNavigateHandler("groupChat", chat)();
             return false;
@@ -48,7 +48,7 @@ define(function(require, exports, module) {
         _onConfigure: function () {
             var dialog = this.props.pageModel.model;
             // TODO this is kinda dumb
-            this.props.router.navigate("contact", dialog.contacts[0]);
+            this.props.router.navigate("contact", dialog.contact);
         },
         render: function () {
             var dialog = this.state.model;

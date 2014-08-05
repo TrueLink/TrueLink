@@ -92,7 +92,7 @@ define(function (require, exports, module) {
             if (!dialog) {
                 dialog = this._factory.createDialog();
                 dialog.init({name: contact.name});
-                dialog.addContact(contact); // FIX THIS
+                dialog.setContact(contact); 
                 this.dialogs.push(dialog);
                 this._linkDialog(dialog);
                 if (firstMessage) {
@@ -106,6 +106,7 @@ define(function (require, exports, module) {
         startGroupChat: function (invite, contact) {
             this.checkFactory();
             if (invite) {
+                //maybe we already have this group chat
                 contact = invite.contact;
             }
             var chatCaption = (contact)?(contact.name + " and others..."):("...")
@@ -113,15 +114,15 @@ define(function (require, exports, module) {
             var tlgr = this._factory.createTlgr();
             this._linkTlgr(tlgr);
 
+            chat.init({
+                name: chatCaption,
+                tlgr: tlgr
+            });
             tlgr.init({
                 invite: (invite)?(invite.invite):null,
                 userName: this.name
             });
             this.tlgrs.push(tlgr);
-            chat.init({
-                name: chatCaption,
-                tlgr: tlgr
-            });
             this.dialogs.push(chat);
             
             this._linkDialog(chat);
@@ -165,7 +166,7 @@ define(function (require, exports, module) {
             var i;
             for (i = 0; i < this.dialogs.length; i += 1) {
                 if (this.dialogs[i] instanceof Dialog) {
-                    if (this.dialogs[i].contacts.length === 1 &&  this.dialogs[i].contacts[0] === contact) {
+                    if (this.dialogs[i].contact === contact) {
                         return this.dialogs[i];
                     }
                 }
