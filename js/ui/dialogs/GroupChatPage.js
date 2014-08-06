@@ -10,6 +10,7 @@ define(function(require, exports, module) {
         getInitialState: function () {
             return {
                 messageText: "",
+                showMembers: false,
                 addContact: false
             };
         },
@@ -33,7 +34,12 @@ define(function(require, exports, module) {
         },
         _onAddPeople: function() {
             //this.setState({ addContact: !this.state.addContact });
+            this.state.showMembers = false;
             this.state.pageModel.set("addContact", !this.state.pageModel.addContact);
+            return false;
+        },
+        _handleMembers: function() {
+            this.setState({ showMembers: !this.state.showMembers });
             return false;
         },
         _handleAddContact: function(contact) {
@@ -54,7 +60,18 @@ define(function(require, exports, module) {
             return false;
         },
 
-        render: function() {
+        renderMembers: function () {
+            return this.state.model.tlgr.getUsers().map(function (aid) {
+                return React.DOM.div({
+                    className: "generic-block contact clearfix"
+                },
+                    React.DOM.div({ className: "contact-image" }, ""),
+                    React.DOM.div({ className: "contact-title" }, "user" + aid)
+                    );
+            }, this);
+        },
+
+        render: function () {
             var groupChat = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
@@ -74,6 +91,8 @@ define(function(require, exports, module) {
             var content;
             if (this.state.pageModel.addContact) {
                 content = ContactList({ contacts: groupChat.profile.contacts, onClick: this._handleAddContact });
+            } else if (this.state.showMembers) {
+                content = this.renderMembers();
             } else {
                 content = MessagesView({ messages: groupChat.messages });
             }
@@ -94,7 +113,12 @@ define(function(require, exports, module) {
                         className: "header-button",
                         href: "",
                         onClick: this._handleLeaveChat
-                    }, "Leave")),
+                    }, "Leave"),
+                    React.DOM.a({
+                        className: "header-button",
+                        href: "",
+                        onClick: this._handleMembers
+                    }, "Members")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
