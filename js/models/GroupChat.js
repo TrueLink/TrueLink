@@ -79,11 +79,20 @@ define(function(require, exports, module) {
             _couchAdapter.run();
         },
 
+        _handleCloseAddrIn: function (args) {
+            if (this.adapter) {
+                this.adapter.off("packet", this.tlgr.onNetworkPacket, this.tlgr);
+                this.adapter.destroy();
+                this.adapter = null;
+            }
+        },
+
         _setTlgrEventHandlers: function () {
             this.tlgr.on("message", this.processMessage, this);
             this.tlgr.on("user_joined", this._handleUserJoined, this);
             this.tlgr.on("user_left", this._handleUserLeft, this);
             this.tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
+            this.tlgr.on("closeAddrIn", this._handleCloseAddrIn, this);
         },
 
         sendMessage: function (message) {
