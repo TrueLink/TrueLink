@@ -34,36 +34,40 @@ define(function(require, exports, module) {
             this._setTlgrEventHandlers();
             this._onChanged();
         },
+        _handleUserJoined: function (user) {
+            if (user === this.tlgr.getMyAid()) {
+                this._pushMessage({
+                    text: "You have joined a chat",
+                    sender: "system"
+                });
+            } else {
+                this._pushMessage({
+                    text: "user_"  + user + " joined this chat",
+                    sender: "system"
+                });
+            }
+        },
+        
+        _handleOpenAddrIn: function (args) {
+            console.log("Tlgr openAddrIn");
+            var _couchAdapter = new CouchAdapter(this.profile.transport, {
+                context: args.context,
+                addr: args.addr,
+                since: this.since
+               //was pretty bad idea to do this->  since: this.transport.getSince()
+            });
+            this.adapter = _couchAdapter;
+            _couchAdapter.on("packet", this.tlgr.onNetworkPacket, this.tlgr);
+            _couchAdapter.on("changed", function (obj) {
+                this.fire("changed", this);
+            }, this);
+            _couchAdapter.run();
+        },
+
         _setTlgrEventHandlers: function () {
             this.tlgr.on("message", this.processMessage, this);
-            this.tlgr.on("user_joined", function(user) {
-                if (user === this.tlgr.getMyAid()) {
-                    this._pushMessage({
-                        text: "You have joined a chat",
-                        sender: "system"
-                    });
-                } else {
-                    this._pushMessage({
-                        text: "user_"  + user + " joined this chat",
-                        sender: "system"
-                    });
-                }
-            }.bind(this));
-            this.tlgr.on("openAddrIn", function (args) {
-                console.log("Tlgr openAddrIn");
-                var _couchAdapter = new CouchAdapter(this.profile.transport, {
-                    context: args.context,
-                    addr: args.addr,
-                    since: this.since
-                   //was pretty bad idea to do this->  since: this.transport.getSince()
-                });
-                this.adapter = _couchAdapter;
-                _couchAdapter.on("packet", this.tlgr.onNetworkPacket, this.tlgr);
-                _couchAdapter.on("changed", function (obj) {
-                    this.fire("changed", this);
-                }, this);
-                _couchAdapter.run();
-            }.bind(this));
+            this.tlgr.on("user_joined", this._handleUserJoined, this);
+            this.tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
         },
 
         sendMessage: function (message) {
