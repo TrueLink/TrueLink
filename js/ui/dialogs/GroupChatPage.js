@@ -60,6 +60,11 @@ define(function(require, exports, module) {
             return false;
         },
 
+        _handleRekey: function (e) {
+            e.preventDefault();
+            this.state.model.tlgr.initiateRekey();
+        },
+
         renderMembers: function () {
             return this.state.model.tlgr.getUsers().map(function (aid) {
                 return React.DOM.div({
@@ -108,17 +113,22 @@ define(function(require, exports, module) {
                         className: "header-button",
                         href: "",
                         onClick: this._onAddPeople
-                    }, "Add People"),
+                    }, "Add "),
                     React.DOM.a({
                         className: "header-button",
                         href: "",
                         onClick: this._handleLeaveChat
-                    }, "Leave"),
+                    }, "Leave "),
                     React.DOM.a({
                         className: "header-button",
                         href: "",
                         onClick: this._handleMembers
-                    }, "Members")),
+                    }, "M "),
+                    React.DOM.a({
+                        className: "header-button",
+                        href: "",
+                        onClick: this._handleRekey
+                    }, "RK")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
