@@ -107,6 +107,13 @@ define(function (require, exports, module) {
             this.checkFactory();
             if (invite) {
                 //maybe we already have this group chat
+                for (var key in this.dialogs) {
+                    if (this.dialogs[key] instanceof GroupChat) {
+                        if (this.dialogs[key].tlgr.getUID() === invite.invite.groupUid) {
+                            return this.dialogs[key];
+                        }
+                    }
+                }
                 contact = invite.contact;
             }
             var chatCaption = (contact)?(contact.name + " and others..."):("...")
