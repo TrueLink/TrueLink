@@ -47,6 +47,21 @@ define(function(require, exports, module) {
                 });
             }
         },
+
+        _handleUserLeft: function (user) {
+            if (user === this.tlgr.getMyAid()) {
+                //probably won't see this
+                this._pushMessage({
+                    text: "You have left this chat",
+                    sender: "system"
+                });
+            } else {
+                this._pushMessage({
+                    text: "user_"  + user + " has left this chat",
+                    sender: "system"
+                });
+            }
+        },
         
         _handleOpenAddrIn: function (args) {
             console.log("Tlgr openAddrIn");
@@ -67,6 +82,7 @@ define(function(require, exports, module) {
         _setTlgrEventHandlers: function () {
             this.tlgr.on("message", this.processMessage, this);
             this.tlgr.on("user_joined", this._handleUserJoined, this);
+            this.tlgr.on("user_left", this._handleUserLeft, this);
             this.tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
         },
 
@@ -77,7 +93,26 @@ define(function(require, exports, module) {
             }
             msg.isMine = true;
             this._pushMessage(msg);
-            this.tlgr.sendMessage(message);
+            if (this.tlgr) {
+                this.tlgr.sendMessage(message);
+            }
+        },
+
+        destroy: function () {
+            if (this.adapter) {
+                this.adapter.off("packet", this.tlgr.onNetworkPacket, this.tlgr);
+                //this.adapter.off("changed");
+                this.adapter.destroy();
+                this.adapter = null;
+            }
+            if (this.tlgr) {
+                this.tlgr.sendChannelAbandoned();
+                //this.tlgr.off("message");
+                //this.tlgr.off("user_joined");
+                //this.tlgr.off("user_left");
+                //this.tlgr.off("openAddrIn");
+                this.tlgr = null;
+            }
         },
 
         processMessage: function(message) {

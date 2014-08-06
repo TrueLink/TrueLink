@@ -103,6 +103,19 @@ define(function (require, exports, module) {
             return dialog;
         },
 
+        leaveGroupChat: function (groupChat) {
+            groupChat.destroy();
+
+            var i = this.dialogs.indexOf(groupChat);
+            if (i !== -1) {
+                this.dialogs.splice(i, 1);
+            }
+
+            groupChat.off("changed", this._onDialogChanged, this);
+            groupChat.destroy();
+            this._onChanged();
+        },
+
         startGroupChat: function (invite, contact) {
             this.checkFactory();
             if (invite) {

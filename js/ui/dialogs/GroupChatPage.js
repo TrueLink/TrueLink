@@ -46,6 +46,14 @@ define(function(require, exports, module) {
             this.state.pageModel.set("addContact", false);
             return false;
         },
+
+        _handleLeaveChat: function (e) {
+            e.preventDefault();
+            this.state.model.profile.leaveGroupChat(this.state.model);
+            this.props.router.createNavigateHandler("dialogs", this.state.model.profile)();
+            return false;
+        },
+
         render: function() {
             var groupChat = this.state.model;
             //            var pageModel = this.state.pageModel;
@@ -81,7 +89,12 @@ define(function(require, exports, module) {
                         className: "header-button",
                         href: "",
                         onClick: this._onAddPeople
-                    }, "Add People")),
+                    }, "Add People"),
+                    React.DOM.a({
+                        className: "header-button",
+                        href: "",
+                        onClick: this._handleLeaveChat
+                    }, "Leave")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
