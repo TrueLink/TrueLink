@@ -70,6 +70,7 @@ define(function (require, exports, module) {
             invite.message = message;
             invite.contact = this;
             invite.metadata = message.metadata;         
+            message.contact = this;
             this.invites[invite.id] = message;
             this._onChanged();
             this.fire("inviteReceived", invite);
