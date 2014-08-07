@@ -69,14 +69,14 @@ define(function (require, exports, module) {
             invite.id = this._generateInviteId();
             invite.message = message;
             invite.contact = this;
-            invite.metadata = message.metadata;         
+            invite.metadata = message.metadata;
             message.contact = this;
             this.invites[invite.id] = message;
             this._onChanged();
             this.fire("inviteReceived", invite);
         },
 
-        acceptInvite: function(inviteId) {
+        acceptInvite: function (inviteId) {
             if (inviteId in this.invites) {
                 this.fire("inviteAccepted", this.invites[inviteId]);
                 delete this.invites[inviteId];
@@ -84,19 +84,19 @@ define(function (require, exports, module) {
             }
         },
 
-        rejectInvite: function(inviteId) {
+        rejectInvite: function (inviteId) {
             if (inviteId in this.invites) {
                 delete this.invites[inviteId];
                 this._onChanged();
             }
         },
 
-        sendTlgrInvite: function(message) {
+        sendTlgrInvite: function (message) {
             this.tlgrFilter.unfilter(message);
         },
 
-        _sendMessage: function(message) {
-            this.tlConnection.sendMessage(message);          
+        _sendMessage: function (message) {
+            this.tlConnection.sendMessage(message);
         }
     });
 
