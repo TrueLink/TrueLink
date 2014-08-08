@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -21,11 +21,11 @@ define(function(require, exports, module) {
     }
 
     extend(GroupChat.prototype, eventEmitter, serializable, model, {
-        setProfile: function(profile) {
+        setProfile: function (profile) {
             this.profile = profile;
         },
 
-        init: function(args) {
+        init: function (args) {
             invariant(args.name, "Can i haz args.name?");
             invariant(args.tlgr, "Can i haz args.tlgr?");
             
@@ -124,13 +124,13 @@ define(function(require, exports, module) {
             }
         },
 
-        processMessage: function(message) {
+        processMessage: function (message) {
             message.isMine = false;
             this._pushMessage(message);
 
         },
 
-        _pushMessage: function(message) {
+        _pushMessage: function (message) {
             message.time = new Date();
             this.messages.push(message);
             if (message.unread) {
@@ -139,9 +139,9 @@ define(function(require, exports, module) {
             this._onChanged();
         },
 
-        markAsRead: function() {
+        markAsRead: function () {
             if (this.unreadCount) {
-                this.messages.forEach(function(msg) {
+                this.messages.forEach(function (msg) {
                     if (msg.unread) {
                         msg.unread = false;
                     }
@@ -151,23 +151,23 @@ define(function(require, exports, module) {
             }
         },
 
-        serialize: function(packet, context) {
+        serialize: function (packet, context) {
             packet.setData({
                 _type_: "GroupChat",
                 name: this.name,
-                since: (this.adapter)?(this.adapter._since):0
-            })
+                since: (this.adapter) ? (this.adapter._since) : 0
+            });
             packet.setLink("tlgr", context.getPacket(this.tlgr));
         },
 
-        deserialize: function(packet, context) {
+        deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
             this.name = packet.getData().name;
             this.since = packet.getData().since;
             this.tlgr = context.deserialize(packet.getLink("tlgr"), factory.createTlgr, factory);
             this._setTlgrEventHandlers();
-        },
+        }
 
     });
 
