@@ -72,7 +72,7 @@ define(function (require, exports, module) {
             }).bind(message);
             message.reject = (function () {
                 this.accepted = false;
-                this.contact.rejectInvite(this.inviteId);
+                invite.contact.rejectInvite(this.inviteId);
             }).bind(message);
             this._pushMessage(message);
         },
