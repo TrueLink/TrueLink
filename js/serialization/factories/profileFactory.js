@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     var GroupChat = require("models/GroupChat");
 
     var TlConnection = require("models/tlConnection/TlConnection");
+    var GrConnection = require("models/grConnection/GrConnection");
     var TlConnectionFactory = require("./tlConnectionFactory");
 
     var CouchTransport = require("models/tlConnection/CouchTransport");
@@ -73,6 +74,12 @@ define(function (require, exports, module) {
         createTransport: function () {
             return this._observed(new CouchTransport());
         },
+
+        createGrConnection: function () {
+            var grConnection = new GrConnection();
+            var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
+            grConnection.setFactory(grConnectionFactory);
+        }
 
         createTlConnection: function () {
             var tlConnection = new TlConnection();
