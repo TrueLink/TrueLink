@@ -17,8 +17,14 @@ define(function (require, exports, module) {
 
         },
 
+        _handleGoToChat: function (chatId) {
+
+            this.props.onGoToChat(chatId);
+        },
+
         _renderMessage: function(message) {
             if (message.type === "tlgr-invite") {
+                message.onGoToChat = this._handleGoToChat;
                 return new GroupChatInviteMessage(message);
             }
             if(message.isMine) {

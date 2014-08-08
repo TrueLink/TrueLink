@@ -50,6 +50,12 @@ define(function(require, exports, module) {
             // TODO this is kinda dumb
             this.props.router.navigate("contact", dialog.contact);
         },
+
+        _handleGoToChat: function (id) {
+            var chat = this.state.model.profile.groupChatByInviteId(id);
+            this.props.router.createNavigateHandler("groupChat", chat)();
+        },
+
         render: function () {
             var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
@@ -79,7 +85,7 @@ define(function(require, exports, module) {
                         onClick: this._onAddPeople
                     }, "Add People")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
-                    MessagesView({ messages: dialog.messages })),
+                    MessagesView({ messages: dialog.messages, onGoToChat: this._handleGoToChat })),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },

@@ -22,13 +22,18 @@ define(function(require, exports, module) {
             this.setState({ accepted: false });
         },
 
+        _handleGoToChat: function (e) {
+            e.preventDefault();
+        },
+
         render: function() {
             if (this.state.accepted === true) {
                 return React.DOM.div({
                         className: "bubble bubble-right"
                     },
                     "You have accepted invitation to group chat from ",
-                    this.props.sender
+                    this.props.sender, 
+                    React.DOM.button({ style: { "display": "block" }, onClick: this.props.onGoToChat.bind(null, this.props.inviteId) }, "Go to chat")
                 );
             }
             if (this.state.accepted === false) {

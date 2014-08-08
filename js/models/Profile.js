@@ -31,6 +31,7 @@ define(function (require, exports, module) {
         setApp: function (app) {
             this.app = app;
             this.serverUrl = app.defaultPollingUrl;
+            this._gcByInviteId = {};
         },
 
         init: function (args) {
@@ -107,12 +108,21 @@ define(function (require, exports, module) {
 
             var i = this.dialogs.indexOf(groupChat);
             if (i !== -1) {
+                for (var key in this._gcByInviteId) {
+                    if (this._gcByInviteId[key] == this.dialogs[i]){
+                        delete this._gcByInviteId[key];
+                    }
+                }
                 this.dialogs.splice(i, 1);
             }
 
             groupChat.off("changed", this._onDialogChanged, this);
             groupChat.destroy();
             this._onChanged();
+        },
+
+        groupChatByInviteId: function (id) {
+            return this._gcByInviteId[id];
         },
 
         startGroupChat: function (invite, contact) {
@@ -143,6 +153,9 @@ define(function (require, exports, module) {
             });
             this.grConnections.push(grConnection);
             this.dialogs.push(chat);
+            if (invite) {
+                this._gcByInviteId[invite.id] = chat;
+            }
             
             this._linkDialog(chat);
             this._onChanged();
