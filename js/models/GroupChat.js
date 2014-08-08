@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
         console.log("Constructing GroupChat...");
         this.profile = null;
-        this.tlgr = null;
+        this.grConnection = null;
         this.name = null;
         this.messages = [];
         this.adapter = null;
@@ -27,15 +27,16 @@ define(function (require, exports, module) {
 
         init: function (args) {
             invariant(args.name, "Can i haz args.name?");
-            invariant(args.tlgr, "Can i haz args.tlgr?");
+            invariant(args.grConnection, "Can i haz args.grConnection?");
             
             this.name = args.name;
-            this.tlgr = args.tlgr;
+            this.grConnection = args.grConnection;
             this._setTlgrEventHandlers();
             this._onChanged();
         },
+
         _handleUserJoined: function (user) {
-            if (user === this.tlgr.getMyAid()) {
+            if (user === this.grConnection.getMyAid()) {
                 this._pushMessage({
                     text: "You have joined a chat",
                     sender: "system"
@@ -49,7 +50,7 @@ define(function (require, exports, module) {
         },
 
         _handleUserLeft: function (user) {
-            if (user === this.tlgr.getMyAid()) {
+            if (user === this.grConnection.getMyAid()) {
                 //probably won't see this
                 this._pushMessage({
                     text: "You have left this chat",
@@ -62,72 +63,32 @@ define(function (require, exports, module) {
                 });
             }
         },
-        
-        _handleOpenAddrIn: function (args) {
-            console.log("Tlgr openAddrIn");
-            var _couchAdapter = new CouchAdapter(this.profile.transport, {
-                context: args.context,
-                addr: args.addr,
-                since: this.since
-               //was pretty bad idea to do this->  since: this.transport.getSince()
-            });
-            this.adapter = _couchAdapter;
-            _couchAdapter.on("packet", this.tlgr.onNetworkPacket, this.tlgr);
-            _couchAdapter.on("changed", function (obj) {
-                this.fire("changed", this);
-            }, this);
-            _couchAdapter.run();
-        },
-
-        _handleCloseAddrIn: function (args) {
-            if (this.adapter) {
-                this.adapter.off("packet", this.tlgr.onNetworkPacket, this.tlgr);
-                this.adapter.destroy();
-                this.adapter = null;
-            }
-        },
 
         _setTlgrEventHandlers: function () {
-            this.tlgr.on("message", this.processMessage, this);
-            this.tlgr.on("user_joined", this._handleUserJoined, this);
-            this.tlgr.on("user_left", this._handleUserLeft, this);
-            this.tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
-            this.tlgr.on("closeAddrIn", this._handleCloseAddrIn, this);
+            this.grConnection.on("message", this.processMessage, this);
+            this.grConnection.on("user_joined", this._handleUserJoined, this);
+            this.grConnection.on("user_left", this._handleUserLeft, this);
         },
 
         sendMessage: function (message) {
             var msg = {
                 text: message,
-                sender: "user" + this.tlgr.getMyAid()
+                sender: "user" + this.grConnection.getMyAid()
             }
             msg.isMine = true;
             this._pushMessage(msg);
-            if (this.tlgr) {
-                this.tlgr.sendMessage(message);
+            if (this.grConnection) {
+                this.grConnection.sendMessage(message);
             }
         },
 
         destroy: function () {
-            if (this.adapter) {
-                this.adapter.off("packet", this.tlgr.onNetworkPacket, this.tlgr);
-                //this.adapter.off("changed");
-                this.adapter.destroy();
-                this.adapter = null;
-            }
-            if (this.tlgr) {
-                this.tlgr.sendChannelAbandoned();
-                //this.tlgr.off("message");
-                //this.tlgr.off("user_joined");
-                //this.tlgr.off("user_left");
-                //this.tlgr.off("openAddrIn");
-                this.tlgr = null;
-            }
+            this.grConnection.destroy();
         },
 
         processMessage: function (message) {
             message.isMine = false;
             this._pushMessage(message);
-
         },
 
         _pushMessage: function (message) {
@@ -155,17 +116,15 @@ define(function (require, exports, module) {
             packet.setData({
                 _type_: "GroupChat",
                 name: this.name,
-                since: (this.adapter) ? (this.adapter._since) : 0
             });
-            packet.setLink("tlgr", context.getPacket(this.tlgr));
+            packet.setLink("grConnection", context.getPacket(this.grConnection));
         },
 
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
             this.name = packet.getData().name;
-            this.since = packet.getData().since;
-            this.tlgr = context.deserialize(packet.getLink("tlgr"), factory.createTlgr, factory);
+            this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
             this._setTlgrEventHandlers();
         }
 

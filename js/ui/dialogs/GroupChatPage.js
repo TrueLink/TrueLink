@@ -46,7 +46,7 @@ define(function(require, exports, module) {
             var groupChat = this.state.model;
             var profile = groupChat.profile;
             if(contact.tlConnection.canSendMessages()){
-                var invitation = groupChat.tlgr.generateInvitation();
+                var invitation = groupChat.grConnection._activeTlgr.generateInvitation();
                 contact.sendTlgrInvite({invite: invitation});
             }
             this.state.pageModel.set("addContact", false);
@@ -62,11 +62,11 @@ define(function(require, exports, module) {
 
         _handleRekey: function (e) {
             e.preventDefault();
-            this.state.model.tlgr.initiateRekey();
+            this.state.model.grConnection._activeTlgr.initiateRekey();
         },
 
         renderMembers: function () {
-            return this.state.model.tlgr.getUsers().map(function (aid) {
+            return this.state.model.grConnection._activeTlgr.getUsers().map(function (aid) {
                 return React.DOM.div({
                     className: "generic-block contact clearfix"
                 },
