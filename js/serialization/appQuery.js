@@ -20,8 +20,11 @@ define(function (require, exports, module) {
             contacts: {propType: "many", type: "Contact"},
             documents: {propType: "many", type: "Document"},
             dialogs: {propType: "many", type: "_auto"},
-            tlgrs: {propType: "many", type: "Tlgr"},
+            grConnections: {propType: "many", type: "GrConnection"},
             transport: {propType: "one", type: "CouchTransport"}
+        },
+        GrConnection: {
+            activeTlgr: {propType: "one", type: "Tlgr"}
         },
         TlConnection: {
             _initialTlec: {propType: "one", type: "CouchTlec"},
@@ -53,7 +56,7 @@ define(function (require, exports, module) {
             contact: {propType: "one", type: "Contact"}
         },
         GroupChat: {
-            tlgr: {propType: "one", type: "Tlgr"}
+            grConnection: {propType: "one", type: "GrConnection"}
         },
         Menu: {},
         Document: {},
