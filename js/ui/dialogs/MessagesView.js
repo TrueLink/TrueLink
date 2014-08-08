@@ -8,6 +8,15 @@ define(function (require, exports, module) {
     module.exports = React.createClass({
         displayName: "MessagesView",
 
+        componentDidUpdate: function (nextProps) {
+            //if (nextProps.messages.length > this.props.messages.length) {
+                var elem = this.refs.messageView.getDOMNode();
+                elem = elem.parentNode;
+                elem.scrollTop = elem.scrollHeight;
+            //}
+
+        },
+
         _renderMessage: function(message) {
             if (message.type === "tlgr-invite") {
                 return new GroupChatInviteMessage(message);
@@ -25,7 +34,7 @@ define(function (require, exports, module) {
                 var message = this.props.messages[i];
                 msgs["msg_" + i] = this._renderMessage(message);
             }
-            return React.DOM.div(null, msgs);
+            return React.DOM.div({ className: "message-view", ref: "messageView" }, msgs);
         }
     });
 });
