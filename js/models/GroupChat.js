@@ -88,6 +88,7 @@ define(function (require, exports, module) {
 
         processMessage: function (message) {
             message.isMine = false;
+            message.unread = true;
             this._pushMessage(message);
         },
 
