@@ -42,12 +42,15 @@ define(function(require, exports, module) {
             this.setState({ showMembers: !this.state.showMembers });
             return false;
         },
-        _handleAddContact: function(contact) {
+        _handleAddContact: function(contacts) {
             var groupChat = this.state.model;
             var profile = groupChat.profile;
-            if(contact.tlConnection.canSendMessages()){
-                var invitation = groupChat.grConnection._activeTlgr.generateInvitation();
-                contact.sendTlgrInvite({invite: invitation});
+            for (var key in contacts) {
+                var contact = contacts[key];
+                if(contact.tlConnection.canSendMessages()){
+                    var invitation = groupChat.grConnection._activeTlgr.generateInvitation();
+                    contact.sendTlgrInvite({invite: invitation});
+                }
             }
             this.state.pageModel.set("addContact", false);
             return false;
@@ -96,7 +99,12 @@ define(function(require, exports, module) {
                 React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words)))));
             var content;
             if (this.state.pageModel.addContact) {
-                content = ContactList({ contacts: groupChat.profile.contacts, onClick: this._handleAddContact });
+                content = ContactList({
+                    buttonText: "Invite",
+                    checkBoxes: true,
+                    contacts: groupChat.profile.contacts,
+                    onCommand: this._handleAddContact
+                });
             } else if (this.state.showMembers) {
                 content = this.renderMembers();
             } else {
