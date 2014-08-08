@@ -36,12 +36,6 @@ define(function (require, exports, module) {
             dialog.setFactory(this);
             return this._observed(dialog);
         },
-        //probably shouldn't be here
-        //
-        createTlgr: function () {
-            var tlgr = new Tlgr(this);
-            return this._observed(tlgr);
-        },
         createRandom: function () {
             return this.getInstance("Random");
         },

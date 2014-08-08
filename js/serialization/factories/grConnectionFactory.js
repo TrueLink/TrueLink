@@ -15,6 +15,10 @@ define(function (require, exports, module) {
     }
 
     extend(TlConnectionFactory.prototype, prototype, {
+        createTlgr: function () {
+            var tlgr = new Tlgr(this);
+            return this._observed(tlgr);
+        },
 
     })
 });
