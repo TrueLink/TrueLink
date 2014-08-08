@@ -20,7 +20,7 @@ define(function (require, exports, module) {
         this.contacts = [];
         this.tlConnections = [];
         this.dialogs = [];
-        this.tlgrs = [];
+        this.grConnections = [];
         this.serverUrl = "";
         this.unreadCount = 0;
 
@@ -122,27 +122,27 @@ define(function (require, exports, module) {
                 //maybe we already have this group chat
                 for (var key in this.dialogs) {
                     if (this.dialogs[key] instanceof GroupChat) {
-                        if (this.dialogs[key].tlgr.getUID() === invite.invite.groupUid) {
-                            return this.dialogs[key];
-                        }
+                        //if (this.dialogs[key].tlgr.getUID() === invite.invite.groupUid) {
+                         //   return this.dialogs[key];
+                       // }
                     }
                 }
                 contact = invite.contact;
             }
             var chatCaption = (contact)?(contact.name + " and others..."):("...")
             var chat = this._factory.createGroupChat();
-            var tlgr = this._factory.createTlgr();
-            this._linkTlgr(tlgr);
+            var grConnection = this._factory.createGrConnection();
+            grConnection.init({
+                invite: (invite)?(invite.invite):null,
+                userName: this.name,
+                transport: this.transport
+            });
 
             chat.init({
                 name: chatCaption,
-                tlgr: tlgr
+                grConnection: grConnection
             });
-            tlgr.init({
-                invite: (invite)?(invite.invite):null,
-                userName: this.name
-            });
-            this.tlgrs.push(tlgr);
+            this.grConnections.push(grConnection);
             this.dialogs.push(chat);
             
             this._linkDialog(chat);
@@ -153,13 +153,6 @@ define(function (require, exports, module) {
 
         _linkDialog: function (dialog) {
             dialog.on("changed", this._onDialogChanged, this);
-        },
-
-        _linkTlgr: function (tlgr) {
-            tlgr.on("packet", function (packet/*{addr, data}*/) {
-                this.transport.sendPacket(packet);
-            }.bind(this), tlgr);
-
         },
 
         _onDialogChanged: function () {
@@ -207,7 +200,7 @@ define(function (require, exports, module) {
             packet.setLink("dialogs", context.getPacket(this.dialogs));
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
-            packet.setLink("tlgrs", context.getPacket(this.tlgrs));
+            packet.setLink("grConnections", context.getPacket(this.grConnections));
         },
 
         deserialize: function (packet, context) {
@@ -223,13 +216,12 @@ define(function (require, exports, module) {
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
-            this.tlgrs = context.deserialize(packet.getLink("tlgrs"), factory.createTlgr, factory);
+            this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
-            this.tlgrs.forEach(this._linkTlgr, this);
             //hacky
-            this.tlgrs.forEach(function (tlgr) { tlgr.afterDeserialize(); });
+            this.grConnections.forEach(function (grConnection) { grConnection.afterDeserialize(); });
 
         },
 
