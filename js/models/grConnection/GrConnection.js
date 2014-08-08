@@ -18,8 +18,24 @@ define(function (require, exports, module) {
         this._transport = null;
     }
 
+    //interface IGrConnectionInitParams {
+    //
+    //}
     extend(GrConnection.prototype, eventEmitter, serializable, model, {
-        init: function () {
+        //called when creating totally new connection (not when deserialized)
+        init: function (args) {
+            this._transport = args.transport;
+            var tlgr = this._factory.createTlgr();
+
+            tlgr.init({
+                invite: args.invite,
+                userName: args.userName
+            });
+
+            tlgr.on("packet", function (packet/*{addr, data}*/) {
+                this._transport.sendPacket(packet);
+            }.bind(this), tlgr);
+
         }
     })
 });
