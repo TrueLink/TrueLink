@@ -24,7 +24,8 @@ define(function (require, exports, module) {
             transport: {propType: "one", type: "CouchTransport"}
         },
         GrConnection: {
-            activeTlgr: {propType: "one", type: "Tlgr"}
+            activeTlgr: {propType: "one", type: "Tlgr"},
+            transport: {propType: "one", type: "CouchTransport"}
         },
         TlConnection: {
             _initialTlec: {propType: "one", type: "CouchTlec"},

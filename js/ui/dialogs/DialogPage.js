@@ -39,7 +39,7 @@ define(function(require, exports, module) {
             contact = dialog.contact;
             var chat = profile.startGroupChat(null, contact);
             if(dialog.hasSecureChannels()){
-                var invitation = chat.tlgr.generateInvitation();
+                var invitation = chat.grConnection._activeTlgr.generateInvitation();
                 dialog.contact.sendTlgrInvite({invite: invitation});
             }
             this.props.router.createNavigateHandler("groupChat", chat)();

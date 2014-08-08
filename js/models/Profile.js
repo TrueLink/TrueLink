@@ -6,7 +6,6 @@ define(function (require, exports, module) {
     var serializable = require("modules/serialization/serializable");
     var model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
-    var CouchAdapter = require("models/tlConnection/CouchAdapter");
     var Dialog = require("models/Dialog");
     var GroupChat = require("models/GroupChat");
 
@@ -215,14 +214,11 @@ define(function (require, exports, module) {
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
-            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
             this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
+            this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
-            //hacky
-            this.grConnections.forEach(function (grConnection) { grConnection.afterDeserialize(); });
-
         },
 
         _linkTlConnection: function (conn) {

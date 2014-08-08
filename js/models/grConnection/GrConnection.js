@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var model = require("mixins/model");
     var Hex = require("modules/multivalue/hex");
     var TlecBuilder = require("modules/channels/TlecBuilder");
+    var CouchAdapter = require("models/tlConnection/CouchAdapter");
 
     function GrConnection() {
         this._defineEvent("changed");
@@ -27,15 +28,14 @@ define(function (require, exports, module) {
             this._transport = args.transport;
             this._activeTlgr = this._factory.createTlgr();
 
+            
+            this._setTlgrEventHandlers(this._activeTlgr);
+
             this._activeTlgr.init({
                 invite: args.invite,
                 userName: args.userName
             });
-
-            this._activeTlgr.on("packet", function (packet/*{addr, data}*/) {
-                this._transport.sendPacket(packet);
-            }.bind(this), this._activeTlgr);
-            this._setTlgrEventHandlers(this._activeTlgr);
+            this.fire("changed", this);
         },
 
         getMyAid: function () {
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
 
         _handleOpenAddrIn: function (args) {
             console.log("Tlgr openAddrIn");
-            var _couchAdapter = new CouchAdapter(this.profile.transport, {
+            var _couchAdapter = new CouchAdapter(this._transport, {
                 context: args.context,
                 addr: args.addr,
                 since: this.since
@@ -84,40 +84,50 @@ define(function (require, exports, module) {
 
         destroy: function () {
             if (this.adapter) {
-                this.adapter.off("packet", this.activeTlgr.onNetworkPacket, this.activeTlgr);
+                this.adapter.off("packet", this._activeTlgr.onNetworkPacket, this._activeTlgr);
                 //this.adapter.off("changed");
                 this.adapter.destroy();
                 this.adapter = null;
             }
-            if (this.activeTlgr) {
-                this.activeTlgr.sendChannelAbandoned();
+            if (this._activeTlgr) {
+                this._activeTlgr.sendChannelAbandoned();
                 //this.tlgr.off("message");
                 //this.tlgr.off("user_joined");
                 //this.tlgr.off("user_left");
                 //this.tlgr.off("openAddrIn");
-                this.activeTlgr = null;
+                this._activeTlgr = null;
             }
         },
 
         _setTlgrEventHandlers: function (tlgr) {
+            tlgr.on("packet", function (packet/*{addr, data}*/) {
+                this._transport.sendPacket(packet);
+            }.bind(this), this._activeTlgr);
             tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
             tlgr.on("closeAddrIn", this._handleCloseAddrIn, this);
             tlgr.on("message", this._handleMessage, this);
+            tlgr.on("user_left", this._handleUserLeft, this);
+            tlgr.on("user_joined", this._handleUserJoined, this);
         },
 
         serialize: function (packet, context) {
             packet.setData({
                 since: (this.adapter) ? (this.adapter._since) : 0
             });
-            packet.setLink("activeTlgr", context.getPacket(this.activeTlgr));
+            packet.setLink("activeTlgr", context.getPacket(this._activeTlgr));
+            packet.setLink("transport", context.getPacket(this._transport));
         },
 
         deserialize: function (packet, context) {
             this.checkFactory();
             var factory = this._factory;
             this.since = packet.getData().since;
-            this.activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
+            this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
+            this._transport = context.deserialize(packet.getLink("transport"));
+            this._setTlgrEventHandlers(this._activeTlgr);
+            this._activeTlgr.afterDeserialize();
         },
     })
+    module.exports = GrConnection;
 });
 

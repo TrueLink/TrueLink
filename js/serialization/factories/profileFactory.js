@@ -11,6 +11,7 @@ define(function (require, exports, module) {
 
     var TlConnection = require("models/tlConnection/TlConnection");
     var GrConnection = require("models/grConnection/GrConnection");
+    var GrConnectionFactory = require("./grConnectionFactory");
     var TlConnectionFactory = require("./tlConnectionFactory");
 
     var CouchTransport = require("models/tlConnection/CouchTransport");
@@ -73,6 +74,7 @@ define(function (require, exports, module) {
             var grConnection = new GrConnection();
             var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
             grConnection.setFactory(grConnectionFactory);
+            return grConnection;
         },
 
         createTlConnection: function () {

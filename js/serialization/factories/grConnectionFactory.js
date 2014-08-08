@@ -6,7 +6,7 @@ define(function (require, exports, module) {
 
     var Tlgr = require("modules/channels/Tlgr");
 
-    function TlConnectionFactory(serializer, grConnection, profile) {
+    function GrConnectionFactory(serializer, grConnection, profile) {
         invariant(serializer, "Can i haz serializer?");
         invariant(grConnection, "Can i haz grConnection?");
         this.serializer = serializer;
@@ -14,12 +14,17 @@ define(function (require, exports, module) {
         this.profile = profile;
     }
 
-    extend(TlConnectionFactory.prototype, prototype, {
+    extend(GrConnectionFactory.prototype, prototype, {
         createTlgr: function () {
             var tlgr = new Tlgr(this);
             return this._observed(tlgr);
         },
 
+        createRandom: function () {
+            return this.getInstance("Random");
+        }
+
     })
+    module.exports = GrConnectionFactory;
 });
 
