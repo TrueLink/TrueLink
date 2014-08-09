@@ -83,7 +83,10 @@ define(function (require, exports, module) {
         },
 
         destroy: function () {
-            this.grConnection.destroy();
+            if (this.grConnection) {
+                this.grConnection.destroy();
+            }
+            this.grConnection = null;
         },
 
         processMessage: function (message) {
