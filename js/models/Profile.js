@@ -104,8 +104,6 @@ define(function (require, exports, module) {
         },
 
         leaveGroupChat: function (groupChat) {
-            groupChat.destroy();
-
             var i = this.dialogs.indexOf(groupChat);
             if (i !== -1) {
                 for (var key in this._gcByInviteId) {
@@ -117,6 +115,10 @@ define(function (require, exports, module) {
             }
 
             groupChat.off("changed", this._onDialogChanged, this);
+            i = this.grConnections.indexOf(groupChat.grConnection);
+            if(i !== -1) {
+                this.grConnections.splice(i, 1);
+            }
             groupChat.destroy();
             this._onChanged();
         },
@@ -231,6 +233,7 @@ define(function (require, exports, module) {
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
             this.dialogs.forEach(this._linkDialog, this);
+            //this.grConnections.forEach(function (grCon) { grCon.on("changed", this._onChanged, this); }, this);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
         },
