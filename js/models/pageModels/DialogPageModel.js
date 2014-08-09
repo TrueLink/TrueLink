@@ -19,10 +19,15 @@ define(function (require, exports, module) {
     extend(DialogPageModel.prototype, eventEmitter, serializable, model, {
         constructor: DialogPageModel,
         serialize: function (packet, context) {
+            //mode. mode="addPeople" is for displaying contact list with checkboxes
+            packet.setData({
+                mode: this.mode
+            });
             this._serializeModel(packet, context);
         },
         deserialize: function (packet, context) {
             var data = packet.getData();
+            this.mode = data.mode;
             this._deserializeModel(packet, context);
         }
 

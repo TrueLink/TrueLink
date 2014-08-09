@@ -47,6 +47,7 @@ define(function(require, exports, module) {
         },
 
         render: function() {
+            var cancelButton = (this.props.onCancel) ? (React.DOM.input({ type: "button", onClick: this.props.onCancel , value: "Cancel" } )) : null;
             return React.DOM.div({},
                 this.props.contacts.map(function(contact, index) {
                     return React.DOM.div({
@@ -57,7 +58,8 @@ define(function(require, exports, module) {
                         React.DOM.div({ className: "contact-title" }, contact.name, 
                             React.DOM.input({ type: "checkbox", onClick: this.onClick.bind(null, index), checked: this.state.checked[index]})));
                 }, this),
-                React.DOM.input({ type: "button", onClick: this.onCommand , value: this.props.buttonText} )
+                React.DOM.input({ type: "button", onClick: this.onCommand , value: this.props.buttonText} ),
+                cancelButton
                 );
         }
     });

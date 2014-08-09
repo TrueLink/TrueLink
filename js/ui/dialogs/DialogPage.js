@@ -28,19 +28,30 @@ define(function(require, exports, module) {
             dialog.off("changed", dialog.markAsRead, dialog);
         },
         _onAddPeople: function () {
-            this.setState({ addPeople: true });
+            this.state.pageModel.set("mode", "addPeople");
             //invite contact from current dialog to new group chat . test
-            this._handleAddContact(null);
+            //this._handleAddContact(null);
             return false;
         },
-        _handleAddContact: function (contact) {
+
+        _handleCancelAddContact: function () {
+            this.state.pageModel.set("mode", "messages");
+        },
+
+        _handleAddContact: function (contacts) {
             var dialog = this.state.model;
             var profile = dialog.profile;
-            contact = dialog.contact;
-            var chat = profile.startGroupChat(null, contact);
-            if(dialog.hasSecureChannels()){
-                var invitation = chat.grConnection._activeTlgr.generateInvitation();
-                dialog.contact.sendTlgrInvite({invite: invitation});
+            if (contacts.indexOf(dialog.contact) == -1) {
+                contacts.push(dialog.contact);
+            }
+
+            var chat = profile.startGroupChat(null, dialog.contact);
+            for (var key in contacts) {
+                var contact = contacts[key];
+                if(contact.tlConnection.canSendMessages()){
+                    var invitation = chat.grConnection._activeTlgr.generateInvitation();
+                    contact.sendTlgrInvite({invite: invitation});
+                }
             }
             this.props.router.createNavigateHandler("groupChat", chat)();
             return false;
@@ -53,7 +64,9 @@ define(function(require, exports, module) {
 
         _handleGoToChat: function (id) {
             var chat = this.state.model.profile.groupChatByInviteId(id);
-            this.props.router.createNavigateHandler("groupChat", chat)();
+            if (chat) {
+                this.props.router.createNavigateHandler("groupChat", chat)();
+            }
         },
 
         render: function () {
@@ -71,6 +84,18 @@ define(function(require, exports, module) {
                 React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
+            var content = null;
+            if (this.state.pageModel.mode === "addPeople") {
+                content = ContactList({
+                    buttonText: "Invite",
+                    contacts: dialog.profile.contacts,
+                    checkBoxes: true,
+                    onCancel: this._handleCancelAddContact,
+                    onCommand: this._handleAddContact
+                });
+            }else {
+                content = MessagesView({ messages: dialog.messages, onGoToChat: this._handleGoToChat });
+            }
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
@@ -85,7 +110,7 @@ define(function(require, exports, module) {
                         onClick: this._onAddPeople
                     }, "Add People")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
-                    MessagesView({ messages: dialog.messages, onGoToChat: this._handleGoToChat })),
+                    content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
