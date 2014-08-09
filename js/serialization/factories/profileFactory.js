@@ -74,7 +74,7 @@ define(function (require, exports, module) {
             var grConnection = new GrConnection();
             var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
             grConnection.setFactory(grConnectionFactory);
-            return grConnection;
+            return this._observed(grConnection);
         },
 
         createTlConnection: function () {
