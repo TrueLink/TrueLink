@@ -27,7 +27,6 @@ define(function (require, exports, module) {
         init: function (args) {
             this._transport = args.transport;
             this._activeTlgr = this._factory.createTlgr();
-
             
             this._setTlgrEventHandlers(this._activeTlgr);
 
@@ -56,9 +55,7 @@ define(function (require, exports, module) {
             });
             this.adapter = _couchAdapter;
             _couchAdapter.on("packet", this._activeTlgr.onNetworkPacket, this._activeTlgr);
-            _couchAdapter.on("changed", function (obj) {
-                this.fire("changed", this);
-            }, this);
+            _couchAdapter.on("changed", this._onChanged, this);
             _couchAdapter.run();
         },
 
@@ -70,16 +67,58 @@ define(function (require, exports, module) {
             }
         },
 
-        _handleUserJoined: function (user) {
-            this.fire("user_joined", user, this);
+        _handleUserJoined: function (user, tlgr) {
+            if (tlgr == this._oldTlgr) {
+                this.fire("user_joined", "oldchannel: " + user, this);
+            } else if (tlgr == this._activeTlgr) {
+                this.fire("user_joined", user, this);
+            }
         },
 
-        _handleUserLeft: function (user) {
-            this.fire("user_left", user, this);
+        _handleUserLeft: function (user, tlgr) {
+            if (tlgr == this._oldTlgr) {
+                this.fire("user_left", "oldchannel: " + user, this);
+            } else if (tlgr == this._activeTlgr) {
+                this.fire("user_left", user, this);
+            }
         },
 
-        _handleMessage: function (msg) {
-            this.fire("message", msg, this);
+        _handleMessage: function (msg, tlgr) {
+            if (tlgr == this._oldTlgr) {
+                msg.sender = "oldchannel: "  + msg.sender;
+                this.fire("message", msg , this);
+            } else if (tlgr == this._activeTlgr) {
+                this.fire("message", msg, this);
+            }
+        },
+
+        _handleRekeyInfo: function (rekeyInfo) {
+            console.log("Got rekey info", rekeyInfo);
+            this._oldTlgr = this._activeTlgr;
+            this._oldTlgr.sendChannelAbandoned();
+            this._activeTlgr = this._factory.createTlgr();
+            this._setTlgrEventHandlers(this._activeTlgr);
+            this._activeTlgr.init({
+                invite: rekeyInfo
+            });
+            this.fire("changed", this);
+        },
+
+        initiateRekey: function () {
+            this._oldTlgr = this._activeTlgr;
+            var users = this._oldTlgr.getUsers();
+            var myAid = this._oldTlgr.getMyAid();
+            var i = users.indexOf(myAid);
+            if(i==-1) {
+                this._oldTlgr = null;
+                return;
+            }
+            users.splice(i, 1);
+            this._activeTlgr = this._factory.createTlgr();
+            this._setTlgrEventHandlers(this._activeTlgr);
+            this._activeTlgr.init({} );
+            this._oldTlgr.sendRekeyInfo(users, this._activeTlgr.generateInvitation());
+            this._oldTlgr.sendChannelAbandoned();
         },
 
         destroy: function () {
@@ -97,6 +136,7 @@ define(function (require, exports, module) {
                 //this.tlgr.off("openAddrIn");
                 this._activeTlgr = null;
             }
+            this.fire("changed", this);
         },
 
         _setTlgrEventHandlers: function (tlgr) {
@@ -108,6 +148,8 @@ define(function (require, exports, module) {
             tlgr.on("message", this._handleMessage, this);
             tlgr.on("user_left", this._handleUserLeft, this);
             tlgr.on("user_joined", this._handleUserJoined, this);
+            tlgr.on("rekey", this._handleRekeyInfo, this);
+            tlgr.on("changed", this._onChanged, this);
         },
 
         serialize: function (packet, context) {

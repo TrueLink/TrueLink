@@ -65,7 +65,7 @@ define(function(require, exports, module) {
 
         _handleRekey: function (e) {
             e.preventDefault();
-            this.state.model.grConnection._activeTlgr.initiateRekey();
+            this.state.model.grConnection.initiateRekey();
         },
 
         renderMembers: function () {
