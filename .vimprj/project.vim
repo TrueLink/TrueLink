@@ -6,3 +6,28 @@ let g:vimprj_root = getcwd()
 echo g:vimprj_root
 
 :nnoremap <leader>pr :execute "cd ".g:vimprj_root<cr>
+
+:augroup javascript
+:    autocmd!
+:    au BufWritePost *.js :call ValidateJSFile()
+:augroup END
+
+
+function! ValidateJSFile()
+    :cclo
+    let oldmakeprg = &makeprg
+    set makeprg=esvalidate\ %
+
+    exe "setl errorformat=Error:\\ Line\\ %l:\\ %m"
+    sil :make 
+    let qfl = getqflist()
+    if len(qfl) > 0
+        let curb = bufnr('%')
+        for item in qfl
+            let item.bufnr = curb
+        endfor
+        :call setqflist(qfl)
+        :copen
+    endif
+    let &makeprg = oldmakeprg
+endfunction
