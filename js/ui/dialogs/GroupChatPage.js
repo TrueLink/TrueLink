@@ -69,20 +69,18 @@ define(function(require, exports, module) {
         },
 
         _handleRemoveMembers: function (membersToRemove) {
-            membersToRemove = membersToRemove.map(function (item) {return item.name; })
+            membersToRemove = membersToRemove.map(function (item) {return item.aid; })
             var members = this.state.model.grConnection._activeTlgr.getUsers().filter(function (item) {
-                return membersToRemove.indexOf(item) === -1;
+                return membersToRemove.indexOf(item.aid) === -1;
             });
             if (membersToRemove.length === 0) {
-                members = this.state.model.grConnection._activeTlgr.getUsers();
+                members = this.state.model.grConnection._activeTlgr.getUsers().map(function(i){return i.aid;});
             }
             this.state.model.grConnection.initiateRekey(members);
         },
 
         renderMembers: function () {
-            var contacts = this.state.model.grConnection._activeTlgr.getUsers().map(function (aid) {
-                return { name : aid };
-            });
+            var contacts = this.state.model.grConnection._activeTlgr.getUsers();
             return ContactList({
                     buttonText: "remove",
                     checkBoxes: true,

@@ -24,8 +24,11 @@ define(function (require, exports, module) {
 
         _renderMessage: function(message) {
             if (message.type === "tlgr-invite") {
-                message.onGoToChat = this._handleGoToChat;
-                return new GroupChatInviteMessage(message);
+                return new GroupChatInviteMessage({ 
+                    message: message,
+                    onGoToChat : this._handleGoToChat,
+                    profileName: this.props.profile.name 
+                });
             }
             if(message.isMine) {
                 return new MyTextMessage(message);

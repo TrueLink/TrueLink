@@ -69,54 +69,64 @@ define(function (require, exports, module) {
 
         _handleUserJoined: function (user, tlgr) {
             if (tlgr == this._oldTlgr) {
-                this.fire("user_joined", "oldchannel: " + user, this);
-            } else if (tlgr == this._activeTlgr) {
-                this.fire("user_joined", user, this);
+                user.oldchannel = true;
             }
+            this.fire("user_joined", user, this);
         },
 
         _handleUserLeft: function (user, tlgr) {
             if (tlgr == this._oldTlgr) {
-                this.fire("user_left", "oldchannel: " + user, this);
-            } else if (tlgr == this._activeTlgr) {
-                this.fire("user_left", user, this);
+                user.oldchannel = true;
             }
+            this.fire("user_left", user, this);
         },
 
         _handleMessage: function (msg, tlgr) {
             if (tlgr == this._oldTlgr) {
-                msg.sender = "oldchannel: "  + msg.sender;
-                this.fire("message", msg , this);
-            } else if (tlgr == this._activeTlgr) {
-                this.fire("message", msg, this);
+                msg.sender.oldchannel = true;
             }
+            this.fire("message", msg , this);
         },
 
         _handleRekeyInfo: function (rekeyInfo) {
             console.log("Got rekey info", rekeyInfo);
             this._oldTlgr = this._activeTlgr;
+            var myName = this._activeTlgr.getMyName();
             this._oldTlgr.sendChannelAbandoned();
             this._activeTlgr = this._factory.createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
-                invite: rekeyInfo
+                invite: rekeyInfo,
+                userName: myName
             });
             this.fire("changed", this);
+        },
+
+        getMyName: function () {
+            return this._activeTlgr.getMyName();
         },
 
         initiateRekey: function (members) {
             this._oldTlgr = this._activeTlgr;
             var myAid = this._oldTlgr.getMyAid();
-            var i = members.indexOf(myAid);
+            var i = -1;
+            members.forEach(function (m, ind) {
+                if (m.aid === myAid) {
+                    i = ind;
+                }
+            });
             if(i==-1) {
                 this._oldTlgr = null;
                 return;
             }
+            var myName = members[i].name;
             members.splice(i, 1);
             this._activeTlgr = this._factory.createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
-            this._activeTlgr.init({} );
-            this._oldTlgr.sendRekeyInfo(members, this._activeTlgr.generateInvitation());
+            this._activeTlgr.init({
+                userName: myName 
+            } );
+            this._oldTlgr.sendRekeyInfo(members.map(function (m) { return m.aid; }), this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
         },
 

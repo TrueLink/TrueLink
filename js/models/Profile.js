@@ -127,7 +127,11 @@ define(function (require, exports, module) {
             return this._gcByInviteId[id];
         },
 
-        startGroupChat: function (invite, contact) {
+        _handleInviteAccepted: function (obj/*displayName, invite*/) {
+            this.startGroupChat(obj.invite, null, obj.displayName);
+        },
+
+        startGroupChat: function (invite, contact, displayName) {
             this.checkFactory();
             if (invite) {
                 //maybe we already have this group chat
@@ -139,13 +143,13 @@ define(function (require, exports, module) {
                     }
                 }
                 contact = invite.contact;
-            }
+            } 
             var chatCaption = (contact)?(contact.name + " and others..."):("...")
             var chat = this._factory.createGroupChat();
             var grConnection = this._factory.createGrConnection();
             grConnection.init({
                 invite: (invite)?(invite.invite):null,
-                userName: this.name,
+                userName: displayName,
                 transport: this.transport
             });
 
@@ -244,7 +248,7 @@ define(function (require, exports, module) {
 
         _linkContact: function (contact) {
             contact.on("inviteReceived", this._inviteReceived, this);
-            contact.on("inviteAccepted", this.startGroupChat, this);
+            contact.on("inviteAccepted", this._handleInviteAccepted, this);
         },
 
         _inviteReceived: function(invite) {

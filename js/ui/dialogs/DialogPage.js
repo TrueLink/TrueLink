@@ -7,6 +7,11 @@ define(function(require, exports, module) {
     module.exports = React.createClass({
         displayName: "DialogPage",
         mixins: [reactObserver],
+        getInitialState: function () {
+            return {
+                gcDisplayName: this.props.pageModel.model.profile.name
+            }
+        },
         _onSubmit: function() {
             try {
                 var node = this.refs.inputMessage.getDOMNode();
@@ -45,7 +50,7 @@ define(function(require, exports, module) {
                 contacts.push(dialog.contact);
             }
 
-            var chat = profile.startGroupChat(null, dialog.contact);
+            var chat = profile.startGroupChat(null, dialog.contact, this.state.gcDisplayName);
             for (var key in contacts) {
                 var contact = contacts[key];
                 if(contact.tlConnection.canSendMessages()){
@@ -86,15 +91,24 @@ define(function(require, exports, module) {
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;
             if (this.state.pageModel.mode === "addPeople") {
-                content = ContactList({
-                    buttonText: "Invite",
-                    contacts: dialog.profile.contacts,
-                    checkBoxes: true,
-                    onCancel: this._handleCancelAddContact,
-                    onCommand: this._handleAddContact
-                });
+                content = [
+                    ContactList({
+                        buttonText: "Invite",
+                        contacts: dialog.profile.contacts,
+                        checkBoxes: true,
+                        onCancel: this._handleCancelAddContact,
+                        onCommand: this._handleAddContact
+                    }),
+                    React.DOM.input({
+                        type: "text",
+                        onChange: function (e) {
+                            this.setState({ gcDisplayName: e.target.value });
+                        }.bind(this),
+                        value: this.state.gcDisplayName
+                    })
+                ];
             }else {
-                content = MessagesView({ messages: dialog.messages, onGoToChat: this._handleGoToChat });
+                content = MessagesView({ profile: dialog.profile, messages: dialog.messages, onGoToChat: this._handleGoToChat });
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },
@@ -119,5 +133,5 @@ define(function(require, exports, module) {
                         dialog.hasSecureChannels() ? input : configure)));
         }
     });
-})
+});
 

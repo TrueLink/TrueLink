@@ -66,9 +66,9 @@ define(function (require, exports, module) {
             message.inviteId = invite.id;
             message.unread = true;
             message.accepted = null;
-            message.accept = (function () {
+            message.accept = (function (inviteId, displayName) {
                 this.accepted = true;
-                invite.contact.acceptInvite(message.inviteId);
+                invite.contact.acceptInvite(message.inviteId, displayName);
             }).bind(message);
             message.reject = (function () {
                 this.accepted = false;

@@ -36,14 +36,18 @@ define(function (require, exports, module) {
         },
 
         _handleUserJoined: function (user) {
-            if (user === this.grConnection.getMyAid()) {
+            if (user.aid === this.grConnection.getMyAid()) {
                 this._pushMessage({
                     text: "You have joined a chat",
                     sender: "system"
                 });
             } else {
+                var t = user.name + " (" + user.aid.substring(0,4) + ")" + " joined this chat";
+                if (user.oldchannel) {
+                    t = "old channel: " + t;
+                }
                 this._pushMessage({
-                    text: "user_"  + user + " joined this chat",
+                    text: t,
                     sender: "system"
                 });
             }
@@ -57,8 +61,12 @@ define(function (require, exports, module) {
                     sender: "system"
                 });
             } else {
+                var t = user.name + " (" + user.aid.substring(0,4) + ")" + " has left this chat";
+                if (user.oldchannel) {
+                    t = "old channel: " + t;
+                }
                 this._pushMessage({
-                    text: "user_"  + user + " has left this chat",
+                    text: t,
                     sender: "system"
                 });
             }
@@ -73,7 +81,7 @@ define(function (require, exports, module) {
         sendMessage: function (message) {
             var msg = {
                 text: message,
-                sender: "user" + this.grConnection.getMyAid()
+                sender: this.grConnection.getMyName() + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
             }
             msg.isMine = true;
             this._pushMessage(msg);
@@ -89,9 +97,12 @@ define(function (require, exports, module) {
             this.grConnection = null;
         },
 
+        //handleMessage
         processMessage: function (message) {
             message.isMine = false;
             message.unread = true;
+            message.sender = message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4)
+
             this._pushMessage(message);
         },
 

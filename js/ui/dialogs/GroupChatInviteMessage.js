@@ -8,17 +8,18 @@ define(function(require, exports, module) {
         getInitialState: function() {
             var state = {};
             console.log(this.props);
-            state.accepted = this.props.accepted;
+            state.accepted = this.props.message.accepted;
+            state.visibleName = this.props.profileName;
             return state;
         },
 
         _accept: function() {
-            this.props.accept(this.props.inviteId);
+            this.props.message.accept(this.props.message.inviteId, this.state.visibleName);
             this.setState({ accepted: true });
         },
 
         _reject: function() {
-            this.props.reject();
+            this.props.message.reject();
             this.setState({ accepted: false });
         },
 
@@ -32,8 +33,8 @@ define(function(require, exports, module) {
                         className: "bubble bubble-right"
                     },
                     "You have accepted invitation to group chat from ",
-                    this.props.sender, 
-                    React.DOM.button({ style: { "display": "block" }, onClick: this.props.onGoToChat.bind(null, this.props.inviteId) }, "Go to chat")
+                    this.props.message.sender, 
+                    React.DOM.button({ style: { "display": "block" }, onClick: this.props.onGoToChat.bind(null, this.props.message.inviteId) }, "Go to chat")
                 );
             }
             if (this.state.accepted === false) {
@@ -43,14 +44,14 @@ define(function(require, exports, module) {
                     "You have ", 
                     React.DOM.strong(null, "rejected"), 
                     " invitation to group chat from ",
-                    this.props.sender
+                    this.props.message.sender
                 );
             }
             return React.DOM.div({
                     className: "bubble bubble-right"
                 },
                 React.DOM.p(null,
-                    this.props.sender,
+                    this.props.message.sender,
                     " invited you to group chat"
                 ),
                 React.DOM.button({
@@ -58,7 +59,16 @@ define(function(require, exports, module) {
                 }, "Accept"),
                 React.DOM.button({
                     onClick: this._reject
-                }, "Reject")
+                }, "Reject"),
+                React.DOM.span({ }, " Name: "),
+                React.DOM.input({ 
+                    value: this.state.visibleName,
+                    type: "text",
+                    onChanged: function (e) {
+                        this.setState({ visibleName: e.target.value });
+                    }.bind(this)
+                })
+
             );
         }
     });
