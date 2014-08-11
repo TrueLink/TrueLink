@@ -65,18 +65,31 @@ define(function(require, exports, module) {
 
         _handleRekey: function (e) {
             e.preventDefault();
-            this.state.model.grConnection.initiateRekey();
+            this.state.model.grConnection.initiateRekey(this.state.model.grConnection._activeTlgr.getUsers());
+        },
+
+        _handleRemoveMembers: function (membersToRemove) {
+            membersToRemove = membersToRemove.map(function (item) {return item.name; })
+            var members = this.state.model.grConnection._activeTlgr.getUsers().filter(function (item) {
+                return membersToRemove.indexOf(item) === -1;
+            });
+            if (membersToRemove.length === 0) {
+                members = this.state.model.grConnection._activeTlgr.getUsers();
+            }
+            this.state.model.grConnection.initiateRekey(members);
         },
 
         renderMembers: function () {
-            return this.state.model.grConnection._activeTlgr.getUsers().map(function (aid) {
-                return React.DOM.div({
-                    className: "generic-block contact clearfix"
-                },
-                    React.DOM.div({ className: "contact-image" }, ""),
-                    React.DOM.div({ className: "contact-title" }, "user" + aid)
-                    );
-            }, this);
+            var contacts = this.state.model.grConnection._activeTlgr.getUsers().map(function (aid) {
+                return { name : aid };
+            });
+            return ContactList({
+                    buttonText: "remove",
+                    checkBoxes: true,
+                    contacts: contacts,
+                    onCommand: this._handleRemoveMembers
+            });
+
         },
 
         render: function () {

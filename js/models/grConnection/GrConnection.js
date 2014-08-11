@@ -104,20 +104,19 @@ define(function (require, exports, module) {
             this.fire("changed", this);
         },
 
-        initiateRekey: function () {
+        initiateRekey: function (members) {
             this._oldTlgr = this._activeTlgr;
-            var users = this._oldTlgr.getUsers();
             var myAid = this._oldTlgr.getMyAid();
-            var i = users.indexOf(myAid);
+            var i = members.indexOf(myAid);
             if(i==-1) {
                 this._oldTlgr = null;
                 return;
             }
-            users.splice(i, 1);
+            members.splice(i, 1);
             this._activeTlgr = this._factory.createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({} );
-            this._oldTlgr.sendRekeyInfo(users, this._activeTlgr.generateInvitation());
+            this._oldTlgr.sendRekeyInfo(members, this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
         },
 
