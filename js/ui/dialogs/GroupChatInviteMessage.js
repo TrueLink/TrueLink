@@ -64,7 +64,7 @@ define(function(require, exports, module) {
                 React.DOM.input({ 
                     value: this.state.visibleName,
                     type: "text",
-                    onChanged: function (e) {
+                    onChange: function (e) {
                         this.setState({ visibleName: e.target.value });
                     }.bind(this)
                 })
