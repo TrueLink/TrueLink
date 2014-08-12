@@ -31,3 +31,13 @@ function! ValidateJSFile()
     endif
     let &makeprg = oldmakeprg
 endfunction
+
+function! CompileMessanger()
+    :cclo
+    :silent :make ts/main.ts --module amd --outDir binjs
+    if len(getqflist()) > 0
+        :copen
+	  
+    endif
+endfunction
+:noremap <F5> :call CompileMessanger()<cr>
