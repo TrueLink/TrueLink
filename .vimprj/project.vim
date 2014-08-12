@@ -34,7 +34,7 @@ endfunction
 
 function! CompileMessanger()
     :cclo
-    :silent :make ts/main.ts --module amd --outDir binjs
+    :silent :make ts/config.ts --module amd --outDir binjs
     if len(getqflist()) > 0
         :copen
 	  
