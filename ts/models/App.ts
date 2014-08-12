@@ -18,7 +18,7 @@
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
-        this.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
+        this.defaultPollingUrl = "http://locahost:5984/tl_channels";
     }
     
     Application.id = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
