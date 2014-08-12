@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -113,5 +112,4 @@ define(function (require, exports, module) {
             this.timeoutDefer = setTimeout((function () { this._start(); }).bind(this), timeout);
         }
     });
-    module.exports = CouchPolling;
-});
+    export = CouchPolling;

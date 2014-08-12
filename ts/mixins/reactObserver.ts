@@ -1,8 +1,7 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
 
-    module.exports = {
+    export = {
         getInitialState: function () {
             invariant(this.props.pageModel && this.props.pageModel.model,
                 "props.pageModel and props.pageModel.model must be set");
@@ -32,4 +31,3 @@ define(function (require, exports, module) {
             this.props.pageModel.model.off("changed", this._onModelChanged, this);
         }
     };
-});

@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Filter = require("modules/filter/Filter");
     var tools = require("modules/tools");
@@ -35,5 +34,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = TlConnectionFilter;
-});
+    export = TlConnectionFilter;

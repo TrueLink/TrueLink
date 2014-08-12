@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -99,5 +98,4 @@ define(function (require, exports, module) {
         deserData.addr = Hex.deserialize(data.addr);
         return new CouchAdapter(transport, deserData);
     };
-    module.exports = CouchAdapter;
-});
+    export = CouchAdapter;

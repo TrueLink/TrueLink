@@ -1,7 +1,5 @@
 // serializer / sync
-define(function (require, exports, module) {
     "use strict";
-
     var db = require("serialization/fakeDb");
     var SerializationContext = require("modules/serialization/SerializationContext");
     var SerializationPacket = require("modules/serialization/SerializationPacket");
@@ -170,7 +168,4 @@ define(function (require, exports, module) {
         }
     });
 
-
-
-    module.exports = Serializer;
-});
+    export = Serializer;

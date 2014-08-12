@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var SerializationPacket = require("modules/serialization/SerializationPacket");
@@ -79,5 +78,4 @@ define(function (require, exports, module) {
 
     window.fakeDb = fake;
 
-    module.exports = fake;
-});
+    export = fake;

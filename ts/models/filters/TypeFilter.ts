@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Filter = require("modules/filter/Filter");
     var extend = require("modules/tools").extend;
@@ -26,5 +25,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = TypeFilter;
-});
+    export = TypeFilter;

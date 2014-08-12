@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -10,7 +9,7 @@ define(function (require, exports, module) {
 
     var maxBgIndex = 3;
 
-    function Application() {
+    var Application:any = function () {
         this._defineEvent("changed");
         this.fixedId = Application.id;
         this.transport = null;
@@ -21,6 +20,8 @@ define(function (require, exports, module) {
         this.router = null;
         this.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
     }
+    
+    Application.id = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
 
     extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
         serialize: function (packet, context) {
@@ -130,8 +131,6 @@ define(function (require, exports, module) {
 
     });
 
-    Application.id = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
-    module.exports = Application;
-});
+    export = Application;
 
 

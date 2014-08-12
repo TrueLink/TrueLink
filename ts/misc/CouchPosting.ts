@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var extend = require("extend");
     var invariant = require("modules/invariant");
@@ -35,5 +34,4 @@ define(function (require, exports, module) {
             });
         }
     });
-    module.exports = CouchPosting;
-});
+    export = CouchPosting;

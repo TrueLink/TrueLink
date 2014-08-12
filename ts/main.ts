@@ -1,3 +1,7 @@
+/// <reference path="typings/flux-react.d.ts"/>
+/// <reference path="../vendor/typings/require/require.d.ts"/>
+import Application = require("./models/App");
+import query = require("serialization/appQuery");
 (function (require) {
     "use strict";
     require.config({
@@ -31,8 +35,6 @@
     ], function () {
 
         var $ = require("zepto");
-        var Application = require("models/App");
-        var query = require("serialization/appQuery");
         var Serializer = require("serialization/serializer");
 
         var AppComponent = require("ui/AppComponent");

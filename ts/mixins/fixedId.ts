@@ -1,8 +1,7 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
 
-    module.exports = {
+    var exp = {
         _getMeta: function () {
             invariant(this.fixedId, "object must have fixedId");
             var meta = this.meta || {};
@@ -19,4 +18,4 @@ define(function (require, exports, module) {
             packet.setMetaData(meta);
         }
     };
-});
+export = exp;

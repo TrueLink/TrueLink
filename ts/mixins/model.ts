@@ -1,9 +1,8 @@
-define(function (require, exports, module) {
     "use strict";
 
     var invariant = require("modules/invariant");
 
-    module.exports = {
+    var exp = {
         isModel: true,
         // use from ui:
         set: function (obj, newVal) {
@@ -38,4 +37,4 @@ define(function (require, exports, module) {
             invariant(this._factory, "factory is not set");
         }
     };
-});
+export = exp;

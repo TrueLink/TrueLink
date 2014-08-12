@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Filter = require("modules/filter/Filter");
     var serializable = require("modules/serialization/serializable");
@@ -53,5 +52,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = TlConnectionsFilter;
-});
+    export = TlConnectionsFilter;

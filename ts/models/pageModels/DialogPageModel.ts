@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -33,5 +32,4 @@ define(function (require, exports, module) {
 
     });
 
-    module.exports = DialogPageModel;
-});
+    export = DialogPageModel;

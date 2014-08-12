@@ -1,6 +1,5 @@
-define(function (require, exports, module) {
     "use strict";
-    module.exports = {
+    var exp = {
 
         Application: {
             // key is a link name
@@ -73,4 +72,4 @@ define(function (require, exports, module) {
         CouchTransport: {},
         Random: {}
     };
-});
+export = exp;
