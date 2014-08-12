@@ -7,7 +7,7 @@ require.config({
             "zepto_ajax": "../vendor/zepto/src/ajax",
             "zepto_event": "../vendor/zepto/src/event",
             "bind": "tools/bind",
-            "uuid": "tools/uuid",
+            "uuid": "../vendor/uuid/uuid",
             "extend": "tools/extend",
             "modules": "../vendor/flux-modules/src",
             "react": "../vendor/react/build/react"
