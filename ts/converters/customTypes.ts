@@ -1,6 +1,4 @@
-define(function(require, exports, module) {
-    "use strict";
-    import converter = require("modules/multivalue/converter").getInstance();
+    import converter_mod = require("modules/multivalue/converter");
     import DecBlocks = require("modules/multivalue/decBlocks");
     import Hex = require("modules/multivalue/hex");
     import leemon = require("modules/leemon/BigInt");
@@ -8,6 +6,8 @@ define(function(require, exports, module) {
     import Base64 = require("modules/multivalue/base64");
     import Base64Url = require("modules/multivalue/base64url");
     import Utf8String = require("modules/multivalue/utf8string");
+    "use strict";
+    var converter = converter_mod.getInstance();
 
     converter.register("hex", "decBlocks", function(value) {
         var bi = leemon.str2bigInt(value, 16);
@@ -173,4 +173,5 @@ define(function(require, exports, module) {
     converter.register("utf8string", "bytes", function(value) {
         return new Bytes(encodeUtf8(value));
     });
-});
+    var _blank = { };
+    export = _blank;

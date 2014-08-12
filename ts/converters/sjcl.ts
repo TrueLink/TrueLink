@@ -1,6 +1,5 @@
-define(function (require, exports, module) {
     "use strict";
-    import converter = require("modules/multivalue/converter").getInstance();
+    import converter_mod = require("modules/multivalue/converter");
     import codecBase64 = require("modules/sjcl/codecBase64");
     import codecBytes = require("modules/sjcl/codecBytes");
     import codecHex = require("modules/sjcl/codecHex");
@@ -15,6 +14,7 @@ define(function (require, exports, module) {
     import X32WordArray = require("modules/multivalue/x32wordArray");
     import Bytes = require("modules/multivalue/bytes");
     import BigIntSjcl = require("modules/multivalue/bigIntSjcl");
+    var converter = converter_mod.getInstance();
 
     converter.register("x32wordArray", "bitArray", function(value) {
         return new BitArray(value.words);
@@ -92,4 +92,5 @@ define(function (require, exports, module) {
         return new Base64(result);
     });
 
-});
+    var _blank = { };
+    export = _blank;

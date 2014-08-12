@@ -1,6 +1,5 @@
-define(function (require, exports, module) {
     "use strict";
-    import converter = require("modules/multivalue/converter").getInstance();
+    import converter_mod = require("modules/multivalue/converter");
     import BigIntForge = require("modules/multivalue/bigIntForge");
     import Hex = require("modules/multivalue/hex");
     import Base64 = require("modules/multivalue/base64");
@@ -11,6 +10,7 @@ define(function (require, exports, module) {
     import Utf8String = require("modules/multivalue/utf8string");
 
     import forge = require("modules/forge");
+    var converter = converter_mod.getInstance();
 
     converter.register("bigIntForge", "hex", function (value) {
         return new Hex(value.toString(16));
@@ -69,4 +69,5 @@ define(function (require, exports, module) {
     converter.register("utf8string", "byteBuffer", function (value) {
         return new ByteBuffer(forge.util.encodeUtf8(value));
     });
-});
+    var _blank = { };
+    export = _blank;

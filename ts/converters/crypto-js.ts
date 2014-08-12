@@ -1,6 +1,5 @@
-define(function (require, exports, module) {
     "use strict";
-    import converter = require("modules/multivalue/converter").getInstance();
+    import converter_mod = require("modules/multivalue/converter");
     import encUTF8 = require("modules/crypto-js/enc-utf8");
     import encBase64 = require("modules/crypto-js/enc-base64");
     import encHex = require("modules/crypto-js/enc-hex");
@@ -8,6 +7,8 @@ define(function (require, exports, module) {
     import Utf8String = require("modules/multivalue/utf8string");
     import Base64 = require("modules/multivalue/base64");
     import Hex = require("modules/multivalue/hex");
+
+    var converter = converter_mod.getInstance();
 
     converter.register("utf8string", "x32wordArray", function (value) {
         return new X32WordArray(encUTF8.parse(value));
@@ -28,4 +29,5 @@ define(function (require, exports, module) {
         return new Hex(encHex.stringify(value));
     });
 
-});
+    var _blank = { };
+    export = _blank;
