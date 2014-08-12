@@ -19,7 +19,6 @@ require.config({
         }
     });
 require(["main",
-        "modules/invariant",
         "zepto_ajax",
         "converters/all",
     ]);
