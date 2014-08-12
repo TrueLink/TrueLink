@@ -1,5 +1,7 @@
 syntax: glob
 .idea/*
+binjs
+*.swp
 start.lnk
 start2.lnk
 server2.js
