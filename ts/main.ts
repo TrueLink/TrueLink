@@ -4,8 +4,8 @@ import Application = require("./models/App");
 import AppComponent = require("ui/AppComponent");
 import Serializer = require("serialization/serializer");
 import query = require("serialization/appQuery");
-        import $ = require("zepto");
-        import React = require("react");
+import $ = require("zepto");
+import React = require("react");
     "use strict";
 
         var serializer = new Serializer();
