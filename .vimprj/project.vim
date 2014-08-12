@@ -34,14 +34,11 @@ endfunction
 
 function! CompileMessanger()
     :cclo
-    :silent :make ts/config.ts --module amd --outDir binjs
+    :silent :make ts/config.ts ts/main.ts ts/converters/all.ts --module amd --outDir binjs
     if len(getqflist()) > 0
         :copen
-    endif
-    :silent :make ts/main.ts --module amd --outDir binjs
-    if len(getqflist()) > 0
-        :copen
-	  
     endif
 endfunction
 :noremap <F5> :call CompileMessanger()<cr>
+
+
