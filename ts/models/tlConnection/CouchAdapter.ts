@@ -93,7 +93,7 @@
             this.transport.off("packets", this._processPackets, this);
         }
     });
-    CouchAdapter.deserialize = function (transport, data) {
+    (<any>CouchAdapter).deserialize = function (transport, data) {
         var deserData = extend({}, data);
         deserData.addr = Hex.deserialize(data.addr);
         return new CouchAdapter(transport, deserData);

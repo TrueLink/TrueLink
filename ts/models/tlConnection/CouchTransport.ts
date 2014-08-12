@@ -3,14 +3,14 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import model = require("mixins/model");
     var Dictionary = require("modules/dictionary/dictionary");
     var Multivalue = require("modules/multivalue/multivalue");
     var Hex = require("modules/multivalue/hex");
 
-    var CouchPolling = require("misc/CouchPolling");
-    var CouchPosting = require("misc/CouchPosting");
-    var CouchFetching = require("misc/CouchFetching");
+    import CouchPolling = require("misc/CouchPolling");
+    import CouchPosting = require("misc/CouchPosting");
+    import CouchFetching = require("misc/CouchFetching");
 
 
     function CouchTransport() {

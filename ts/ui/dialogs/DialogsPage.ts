@@ -1,11 +1,10 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
-    var Dialog = require("models/Dialog");
-    var GroupChat = require("models/GroupChat");
+    import Dialog = require("models/Dialog");
+    import GroupChat = require("models/GroupChat");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "DialogsPage",
         mixins: [reactObserver],
         handleDialogClick: function (dialog) {
@@ -56,4 +55,4 @@ define(function (require, exports, module) {
                     ));
         }
     });
-});
+export = exp;

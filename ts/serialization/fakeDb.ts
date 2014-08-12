@@ -12,18 +12,19 @@
     var objData = ls.getItem("objs");
     var objs = objData ? JSON.parse(objData) : {};
 
-    function dump() {
+var priv = {
+    dump : function () {
         ls.setItem("objs", JSON.stringify(objs));
         ls.setItem("links", JSON.stringify(lnks));
-    }
+    },
 
-    function getLinks(fromId, type) {
+   getLinks : function (fromId, type) {
         return lnks.filter(function (l) {
             return l.fromId === fromId && l.type === type;
         });
-    }
+    },
 
-    function indexOfLink(fromId, type) {
+              indexOfLink : function (fromId, type) {
         var i;
         for (i = 0; i < lnks.length; i += 1) {
             if (lnks[i].fromId === fromId && lnks[i].type === type) {
@@ -31,49 +32,49 @@
             }
         }
         return -1;
-    }
+    },
 
 
-    function removeLinks(fromId, linkName) {
+                            removeLinks : function (fromId, linkName) {
         var index;
-        while ((index = indexOfLink(fromId, linkName)) !== -1) {
+        while ((index = priv.indexOfLink(fromId, linkName)) !== -1) {
             lnks.splice(index, 1);
         }
-        dump();
-    }
+        priv.dump();
+    },
 
-    function addLink(fromId, toId, linkName) {
+                                          addLink : function (fromId, toId, linkName) {
         lnks.push({
             fromId: fromId,
             toId: toId,
             type: linkName
         });
-        dump();
-    }
+        priv.dump();
+    },
 
-    function save(data) {
+                                                    save : function (data) {
         objs[data.id] = $.extend({}, data);
-        dump();
-    }
+        priv.dump();
+    },
 
-    function getById(id) {
+                                                    getById : function (id) {
         if (!objs[id]) { return null; }
         return $.extend({}, objs[id]);
-    }
+    },
 
-    function clear() {
+    clear : function () {
         lnks = [];
         objs = {};
-        dump();
+        priv.dump();
     }
-
+}
     var fake = {
-        getById: getById,
-        save: save,
-        addLink: addLink,
-        removeLinks: removeLinks,
-        getLinks: getLinks,
-        clear: clear
+        getById: priv.getById,
+        save: priv.save,
+        addLink: priv.addLink,
+        removeLinks: priv.removeLinks,
+        getLinks: priv.getLinks,
+        clear: priv.clear
     };
 
     window.fakeDb = fake;

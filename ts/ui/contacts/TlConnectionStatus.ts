@@ -1,10 +1,9 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var Hex = require("modules/multivalue/hex");
     var TlecBuilder = require("modules/channels/TlecBuilder");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "TlConnectionStatus",
         handleGenerate: function () {
             try {
@@ -36,12 +35,12 @@ define(function (require, exports, module) {
         },
         render: function () {
             var tlConnection = this.props.tlConnection;
+            var tlStatus = undefined;
             if (!tlConnection) {
                 return React.DOM.div(null, "tlConnection is not set");
             }
             var offer = tlConnection.offer ? tlConnection.offer.as(Hex).toString() : null;
             var auth =  tlConnection.auth ? tlConnection.auth.as(Hex).toString() : null;
-            var tlStatus = "undefined";
             var status = tlConnection.getStatus();
             switch (status) {
             case TlecBuilder.STATUS_NOT_STARTED:
@@ -103,4 +102,4 @@ define(function (require, exports, module) {
                 offerDisplay, authDisplay, generateButton, abortButton, offerInput, authInput);
         }
     });
-});
+    export = exp;

@@ -1,16 +1,15 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
     var prototype = require("./prototype");
 
-    var Router = require("models/Router");
+    import Router = require("models/Router");
     var Random = require("modules/cryptography/random");
-    var Menu = require("models/Menu");
-    var Profile = require("models/Profile");
+    import Menu = require("models/Menu");
+    import Profile = require("models/Profile");
 
-    var ProfileFactory = require("./profileFactory");
-    var RouterFactory = require("./routerFactory");
+    import ProfileFactory = require("./profileFactory");
+    import RouterFactory = require("./routerFactory");
 
     function AppFactory(serializer, app) {
         invariant(serializer, "Can i haz serializer?");
@@ -29,7 +28,7 @@ define(function (require, exports, module) {
         },
 
         _createRouter: function () {
-            var router = new Router(this);
+            var router = new (<any>Router)(this);
             var routerFactory = new RouterFactory(this.serializer, router);
             router.setFactory(routerFactory);
             return this._observed(router);
@@ -53,5 +52,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = AppFactory;
-});
+    export = AppFactory;

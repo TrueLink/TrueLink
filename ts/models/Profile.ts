@@ -3,10 +3,10 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
-    var Dialog = require("models/Dialog");
-    var GroupChat = require("models/GroupChat");
+    import Dialog = require("models/Dialog");
+    import GroupChat = require("models/GroupChat");
 
     function Profile() {
         this._defineEvent("changed");

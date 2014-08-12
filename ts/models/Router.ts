@@ -3,22 +3,22 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import model = require("mixins/model");
 
-    var HomePage = require("ui/home/HomePage");
-    var HomePageModel = require("models/pageModels/HomePageModel");
-    var ContactsPage = require("ui/contacts/ContactsPage");
-    var ContactPage = require("ui/contacts/ContactPage");
-    var ContactsPageModel = require("models/pageModels/ContactsPageModel");
-    var ContactPageModel = require("models/pageModels/ContactPageModel");
-    var DialogsPage = require("ui/dialogs/DialogsPage");
-    var GroupChatPage = require("ui/dialogs/GroupChatPage");
-    var DialogsPageModel = require("models/pageModels/DialogsPageModel");
-    var GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
-    var DialogPage = require("ui/dialogs/DialogPage");
-    var DialogPageModel = require("models/pageModels/DialogPageModel");
-    var DocumentsPage = require("ui/documents/DocumentsPage");
-    var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
+    import HomePage = require("ui/home/HomePage");
+    import HomePageModel = require("models/pageModels/HomePageModel");
+    import ContactsPage = require("ui/contacts/ContactsPage");
+    import ContactPage = require("ui/contacts/ContactPage");
+    import ContactsPageModel = require("models/pageModels/ContactsPageModel");
+    import ContactPageModel = require("models/pageModels/ContactPageModel");
+    import DialogsPage = require("ui/dialogs/DialogsPage");
+    import GroupChatPage = require("ui/dialogs/GroupChatPage");
+    import DialogsPageModel = require("models/pageModels/DialogsPageModel");
+    import GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
+    import DialogPage = require("ui/dialogs/DialogPage");
+    import DialogPageModel = require("models/pageModels/DialogPageModel");
+    import DocumentsPage = require("ui/documents/DocumentsPage");
+    import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
 
     var pages = {
         "home": {

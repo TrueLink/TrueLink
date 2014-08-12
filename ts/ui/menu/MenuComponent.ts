@@ -1,8 +1,7 @@
-define(function (require, exports, module) {
     "use strict";
-    var MenuSelectProfile = require("./MenuSelectProfile");
+    import MenuSelectProfile = require("./MenuSelectProfile");
     var React = require("react");
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "MenuComponent",
         getInitialState: function () {
             return this._getState();
@@ -33,7 +32,7 @@ define(function (require, exports, module) {
                 },
                 "Clear storage (temp)": {
                     handler: function () {
-                        fakeDb.clear();
+                        window.fakeDb.clear();
                         location.reload(true);
                     },
                     className: "menu-item secondary"
@@ -88,4 +87,4 @@ define(function (require, exports, module) {
                 })), menuItems, React.DOM.div(null, React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl)));
         }
     });
-});
+export = exp;

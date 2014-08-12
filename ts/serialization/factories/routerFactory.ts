@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var Dictionary = require("modules/dictionary/dictionary");
@@ -51,5 +50,4 @@ define(function (require, exports, module) {
 
     });
 
-    module.exports = RouterFactory;
-});
+    export = RouterFactory;

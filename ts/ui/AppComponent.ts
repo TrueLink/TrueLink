@@ -1,8 +1,7 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
-    var MenuComponent = require("ui/menu/MenuComponent");
-    module.exports = React.createClass({
+    import MenuComponent = require("ui/menu/MenuComponent");
+    var exp = React.createClass({
         displayName: "AppComponent",
         getInitialState: function () {
             return this._getState();
@@ -30,4 +29,4 @@ define(function (require, exports, module) {
                     this.state.currentPage));
         }
     });
-});
+export = exp;

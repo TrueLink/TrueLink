@@ -1,11 +1,10 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
     var prototype = require("./prototype");
-    var AppFactory = require("./appFactory");
+    import AppFactory = require("./appFactory");
 
-    var App = require("models/App");
+    import App = require("models/App");
 
     function Factory(serializer) {
         invariant(serializer, "Can i haz serializer?");
@@ -21,5 +20,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = Factory;
-});
+    export = Factory;

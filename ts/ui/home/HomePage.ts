@@ -1,8 +1,7 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "HomePage",
         mixins: [reactObserver],
         render: function () {
@@ -21,4 +20,4 @@ define(function (require, exports, module) {
                 React.DOM.ul(null, profileComponents));
         }
     });
-});
+export = exp;

@@ -1,11 +1,10 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
-    var MyTextMessage = require("./MyTextMessage");
-    var OthersTextMessage = require("./OthersTextMessage");
-    var GroupChatInviteMessage = require("./GroupChatInviteMessage");
+    import MyTextMessage = require("./MyTextMessage");
+    import OthersTextMessage = require("./OthersTextMessage");
+    import GroupChatInviteMessage = require("./GroupChatInviteMessage");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "MessagesView",
 
         componentDidUpdate: function (nextProps) {
@@ -46,4 +45,4 @@ define(function (require, exports, module) {
             return React.DOM.div({ className: "message-view", ref: "messageView" }, msgs);
         }
     });
-});
+export = exp;

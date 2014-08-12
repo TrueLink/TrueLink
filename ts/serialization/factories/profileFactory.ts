@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
     var extend = require("extend");
@@ -9,12 +8,12 @@ define(function (require, exports, module) {
     var Dialog = require("models/Dialog");
     var GroupChat = require("models/GroupChat");
 
-    var TlConnection = require("models/tlConnection/TlConnection");
-    var GrConnection = require("models/grConnection/GrConnection");
-    var GrConnectionFactory = require("./grConnectionFactory");
-    var TlConnectionFactory = require("./tlConnectionFactory");
+    import TlConnection = require("models/tlConnection/TlConnection");
+    import GrConnection = require("models/grConnection/GrConnection");
+    import GrConnectionFactory = require("./grConnectionFactory");
+    import TlConnectionFactory = require("./tlConnectionFactory");
 
-    var CouchTransport = require("models/tlConnection/CouchTransport");
+    import CouchTransport = require("models/tlConnection/CouchTransport");
 
     function ProfileFactory(serializer, profile) {
         invariant(serializer, "Can i haz serializer?");
@@ -85,5 +84,4 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = ProfileFactory;
-});
+    export = ProfileFactory;

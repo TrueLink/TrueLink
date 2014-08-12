@@ -1,10 +1,9 @@
-define(function(require, exports, module) {
     "use strict";
     var React = require("react");
-    var reactObserver = require("mixins/reactObserver");
-    var MessagesView = require("./MessagesView");
-    var ContactList = require("ui/contacts/ContactList");
-    module.exports = React.createClass({
+    import reactObserver = require("mixins/reactObserver");
+    import MessagesView = require("./MessagesView");
+    import ContactList = require("ui/contacts/ContactList");
+    var exp = React.createClass({
         displayName: "DialogPage",
         mixins: [reactObserver],
         getInitialState: function () {
@@ -133,5 +132,4 @@ define(function(require, exports, module) {
                         dialog.hasSecureChannels() ? input : configure)));
         }
     });
-});
-
+export = exp;

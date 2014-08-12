@@ -1,7 +1,7 @@
     "use strict";
     var invariant = require("modules/invariant");
 
-    export = {
+    var exp = {
         getInitialState: function () {
             invariant(this.props.pageModel && this.props.pageModel.model,
                 "props.pageModel and props.pageModel.model must be set");
@@ -31,3 +31,4 @@
             this.props.pageModel.model.off("changed", this._onModelChanged, this);
         }
     };
+export = exp;

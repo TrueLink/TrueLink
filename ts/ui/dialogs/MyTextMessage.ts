@@ -1,8 +1,7 @@
-define(function(require, exports, module) {
     "use strict";
     var React = require("react");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "MyTextMessage",
         render: function() {
             return React.DOM.div({
@@ -12,4 +11,4 @@ define(function(require, exports, module) {
             );
         }
     });
-});
+export = exp;

@@ -3,8 +3,8 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
-    var CouchAdapter = require("models/tlConnection/CouchAdapter");
+    import model = require("mixins/model");
+    import CouchAdapter = require("models/tlConnection/CouchAdapter");
 
     function GroupChat() {
         this._defineEvent("changed");
@@ -78,7 +78,7 @@
         },
 
         sendMessage: function (message) {
-            var msg = {
+            var msg : any = {
                 text: message,
                 sender: this.grConnection.getMyName() + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
             }

@@ -4,7 +4,7 @@
     var tools = require("modules/tools");
     var extend = tools.extend;
     var invariant = require("modules/invariant");
-    var model = require("mixins/model");
+    import model = require("mixins/model");
 
     // NOT SO INTUITIVE
     // passes if one of (or itself, if not array) value.metadata.tlConnection is found in this._tlConnections

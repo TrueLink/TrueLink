@@ -3,8 +3,8 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
-    var TypeFilter = require("models/filters/TypeFilter");
+    import model = require("mixins/model");
+    import TypeFilter = require("models/filters/TypeFilter");
 
     function Dialog() {
         this._defineEvent("changed");
@@ -59,7 +59,7 @@
         },
 
         processInvite: function (invite) {
-            var message = {};
+            var message : any = {};
             message.type = "tlgr-invite";
             message.sender = invite.contact.name;
             message.inviteId = invite.id;

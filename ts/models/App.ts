@@ -3,8 +3,8 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var fixedId = require("mixins/fixedId");
-    var model = require("mixins/model");
+    import fixedId = require("mixins/fixedId");
+    import model = require("mixins/model");
     var urandom = require("modules/urandom/urandom");
 
     var maxBgIndex = 3;

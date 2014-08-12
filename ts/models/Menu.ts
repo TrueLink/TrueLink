@@ -3,9 +3,9 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
-    var fixedId = require("mixins/fixedId");
-    var bind = require("mixins/bind");
+    import model = require("mixins/model");
+    import fixedId = require("mixins/fixedId");
+    import bind = require("mixins/bind");
 
     function Menu() {
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";

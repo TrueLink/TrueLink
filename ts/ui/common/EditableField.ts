@@ -1,7 +1,6 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "EditableField",
         propTypes: {
             onChanged: React.PropTypes.func.isRequired,
@@ -55,4 +54,4 @@ define(function (require, exports, module) {
                 this.state.isEditing ? editMode : displayMode);
         }
     });
-});
+export = exp;

@@ -1,9 +1,8 @@
-define(function (require, exports, module) {
     "use strict";
 
     var React = require("react");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "MenuSelectProfile",
 
         handleSelect: function (evt) {
@@ -44,4 +43,4 @@ define(function (require, exports, module) {
                 );
         }
     });
-});
+export = exp;

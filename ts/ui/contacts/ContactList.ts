@@ -1,7 +1,6 @@
-define(function(require, exports, module) {
     "use strict";
     var React = require("react");
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "ContactList",
         propTypes: {
             contacts: React.PropTypes.array,
@@ -63,8 +62,8 @@ define(function(require, exports, module) {
                 );
         }
     });
-});
 
 
 
 
+export = exp;

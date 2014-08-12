@@ -1,10 +1,9 @@
-define(function(require, exports, module) {
     "use strict";
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
-    var MessagesView = require("./MessagesView");
-    var ContactList = require("ui/contacts/ContactList");
-    module.exports = React.createClass({
+    import MessagesView = require("./MessagesView");
+    import ContactList = require("ui/contacts/ContactList");
+    var exp = React.createClass({
         displayName: "GroupChatPage",
         mixins: [reactObserver],
         getInitialState: function () {
@@ -159,5 +158,5 @@ define(function(require, exports, module) {
                         input)));
         }
     });
-})
 
+export = exp;

@@ -4,8 +4,8 @@
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
     var uuid = require("uuid");
-    var model = require("mixins/model");
-    var TypeFilter = require("models/filters/TypeFilter");
+    import model = require("mixins/model");
+    import TypeFilter = require("models/filters/TypeFilter");
 
     function Contact() {
         this._defineEvent("changed");

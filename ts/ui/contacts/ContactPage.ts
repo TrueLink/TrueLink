@@ -1,10 +1,9 @@
-define(function (require, exports, module) {
     "use strict";
     var React = require("react");
     var reactObserver = require("mixins/reactObserver");
-    var TlConnectionStatus = require("./TlConnectionStatus");
-    var EditableField = require("ui/common/EditableField");
-    module.exports = React.createClass({
+    import TlConnectionStatus = require("./TlConnectionStatus");
+    import EditableField = require("ui/common/EditableField");
+    var exp = React.createClass({
         displayName: "ContactPage",
         mixins: [reactObserver],
 
@@ -48,4 +47,4 @@ define(function (require, exports, module) {
                     React.DOM.a({className: "button", href: "", onClick: this.handleGoToDialog}, "Go to dialog")));
         }
     });
-});
+export = exp;

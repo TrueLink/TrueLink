@@ -1,43 +1,19 @@
 /// <reference path="typings/flux-react.d.ts"/>
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 import Application = require("./models/App");
+import AppComponent = require("ui/AppComponent");
+import Serializer = require("serialization/serializer");
 import query = require("serialization/appQuery");
-(function (require) {
     "use strict";
-    require.config({
-        baseUrl: "/js",
-        paths: {
-            "zepto": "../vendor/zepto/src/zepto",
-            "zepto_ajax": "../vendor/zepto/src/ajax",
-            "zepto_event": "../vendor/zepto/src/event",
-            "bind": "tools/bind",
-            "uuid": "tools/uuid",
-            "extend": "tools/extend",
-            "modules": "../vendor/flux-modules/src",
-            "react": "../vendor/react/build/react"
-        },
-        shim: {
-            "zepto": { exports: "Zepto" },
-            "zepto_ajax": { deps: ["zepto", "zepto_event"] },
-            "zepto_event": { deps: ["zepto"] }
-        }
-    });
 
     require([
         "zepto",
         "zepto_ajax",
         "converters/all",
-        "models/App",
-        "serialization/appQuery",
-        "serialization/serializer",
-        "ui/AppComponent",
-        "react"
     ], function () {
 
         var $ = require("zepto");
-        var Serializer = require("serialization/serializer");
 
-        var AppComponent = require("ui/AppComponent");
         var React = require("react");
 
         var serializer = new Serializer();
@@ -65,4 +41,3 @@ import query = require("serialization/appQuery");
 
         });
     });
-}(require));

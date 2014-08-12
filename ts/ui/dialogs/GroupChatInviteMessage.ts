@@ -1,12 +1,11 @@
-define(function(require, exports, module) {
     "use strict";
     var React = require("react");
 
-    module.exports = React.createClass({
+    var exp = React.createClass({
         displayName: "GroupChatInviteMessage",
 
         getInitialState: function() {
-            var state = {};
+            var state : any = {};
             console.log(this.props);
             state.accepted = this.props.message.accepted;
             state.visibleName = this.props.profileName;
@@ -72,4 +71,4 @@ define(function(require, exports, module) {
             );
         }
     });
-});
+export = exp;

@@ -3,7 +3,7 @@
     var extend = require("extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import model = require("mixins/model");
     var CouchAdapter = require("./CouchAdapter");
 
     function CouchTlec() {
