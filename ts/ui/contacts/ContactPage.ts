@@ -1,6 +1,6 @@
     "use strict";
-    var React = require("react");
-    var reactObserver = require("mixins/reactObserver");
+    import React = require("react");
+    import reactObserver = require("mixins/reactObserver");
     import TlConnectionStatus = require("./TlConnectionStatus");
     import EditableField = require("ui/common/EditableField");
     var exp = React.createClass({

@@ -1,6 +1,6 @@
     "use strict";
-    var React = require("react");
-    var reactObserver = require("mixins/reactObserver");
+    import React = require("react");
+    import reactObserver = require("mixins/reactObserver");
     export = React.createClass({
         displayName: "ProfilePage",
         mixins: [reactObserver],

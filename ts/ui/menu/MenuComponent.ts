@@ -1,6 +1,6 @@
     "use strict";
     import MenuSelectProfile = require("./MenuSelectProfile");
-    var React = require("react");
+    import React = require("react");
     var exp = React.createClass({
         displayName: "MenuComponent",
         getInitialState: function () {

@@ -1,5 +1,5 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
 
     var exp = {
         _getMeta: function () {

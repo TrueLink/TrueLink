@@ -1,4 +1,4 @@
     "use strict";
-    var $ = require("zepto");
+    import $ = require("zepto");
     var exp = $.extend;
     export = exp;

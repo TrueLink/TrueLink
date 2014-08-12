@@ -1,11 +1,11 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
     import fixedId = require("mixins/fixedId");
     import model = require("mixins/model");
-    var urandom = require("modules/urandom/urandom");
+    import urandom = require("modules/urandom/urandom");
 
     var maxBgIndex = 3;
 

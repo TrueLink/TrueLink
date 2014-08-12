@@ -1,10 +1,10 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
-    var CouchAdapter = require("./CouchAdapter");
+    import CouchAdapter = require("./CouchAdapter");
 
     function CouchTlec() {
         this._defineEvent("changed");
@@ -80,7 +80,7 @@
             var data = packet.getData(), adContext;
             for (adContext in data.adapters) {
                 if (data.adapters.hasOwnProperty(adContext)) {
-                    this._addAdapter(adContext, CouchAdapter.deserialize(this._transport, data.adapters[adContext]))
+                    this._addAdapter(adContext, (<any>CouchAdapter).deserialize(this._transport, data.adapters[adContext]))
                 }
             }
             this._link();

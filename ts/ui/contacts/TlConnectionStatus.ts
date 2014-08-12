@@ -1,7 +1,7 @@
     "use strict";
-    var React = require("react");
-    var Hex = require("modules/multivalue/hex");
-    var TlecBuilder = require("modules/channels/TlecBuilder");
+    import React = require("react");
+    import Hex = require("modules/multivalue/hex");
+    import TlecBuilder = require("modules/channels/TlecBuilder");
 
     var exp = React.createClass({
         displayName: "TlConnectionStatus",

@@ -1,12 +1,12 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var prototype = require("./prototype");
-    var Tlgr = require("modules/channels/Tlgr");
-    var Document = require("models/Document");
-    var Contact = require("models/Contact");
-    var Dialog = require("models/Dialog");
-    var GroupChat = require("models/GroupChat");
+    import prototype = require("./prototype");
+    import Tlgr = require("modules/channels/Tlgr");
+    import Document = require("models/Document");
+    import Contact = require("models/Contact");
+    import Dialog = require("models/Dialog");
+    import GroupChat = require("models/GroupChat");
 
     import TlConnection = require("models/tlConnection/TlConnection");
     import GrConnection = require("models/grConnection/GrConnection");

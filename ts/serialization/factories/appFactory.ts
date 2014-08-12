@@ -1,10 +1,10 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var prototype = require("./prototype");
+    import prototype = require("./prototype");
 
     import Router = require("models/Router");
-    var Random = require("modules/cryptography/random");
+    import Random = require("modules/cryptography/random");
     import Menu = require("models/Menu");
     import Profile = require("models/Profile");
 

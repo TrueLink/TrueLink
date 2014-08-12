@@ -1,8 +1,8 @@
     "use strict";
     import extend = require("tools/extend");
-    var invariant = require("modules/invariant");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var $ = require("zepto");
+    import invariant = require("modules/invariant");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import $ = require("zepto");
 
     // works with strings, not multivalues
 

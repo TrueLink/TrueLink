@@ -1,6 +1,6 @@
     "use strict";
-    var React = require("react");
-    var reactObserver = require("mixins/reactObserver");
+    import React = require("react");
+    import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import ContactList = require("ui/contacts/ContactList");
     var exp = React.createClass({

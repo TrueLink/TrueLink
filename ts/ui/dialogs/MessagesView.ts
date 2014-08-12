@@ -1,5 +1,5 @@
     "use strict";
-    var React = require("react");
+    import React = require("react");
     import MyTextMessage = require("./MyTextMessage");
     import OthersTextMessage = require("./OthersTextMessage");
     import GroupChatInviteMessage = require("./GroupChatInviteMessage");

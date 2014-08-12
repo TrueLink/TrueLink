@@ -1,8 +1,8 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var $ = require("zepto");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import $ = require("zepto");
 
     function CouchFetching(url, context) {
         invariant(url, "Can i haz url?");

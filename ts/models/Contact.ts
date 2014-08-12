@@ -1,9 +1,9 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
-    var uuid = require("uuid");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
+    import uuid = require("uuid");
     import model = require("mixins/model");
     import TypeFilter = require("models/filters/TypeFilter");
 
@@ -64,7 +64,7 @@
         },
 
         _processTlgrInvite: function (message) {
-            var invite = {};
+            var invite: any = {};
             invite.id = this._generateInviteId();
             invite.message = message;
             invite.contact = this;

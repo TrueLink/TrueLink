@@ -1,12 +1,12 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
+    import model = require("mixins/model");
 
-    var PageModel = require("./PageModel");
-    var Profile = require("models/Profile");
+    import PageModel = require("./PageModel");
+    import Profile = require("models/Profile");
 
     function DialogsPageModel() {
         this.accepts = Profile;

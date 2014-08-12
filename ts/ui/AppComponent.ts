@@ -1,5 +1,5 @@
     "use strict";
-    var React = require("react");
+    import React = require("react");
     import MenuComponent = require("ui/menu/MenuComponent");
     var exp = React.createClass({
         displayName: "AppComponent",

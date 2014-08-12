@@ -1,12 +1,12 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
+    import model = require("mixins/model");
 
-    var App = require("models/App");
-    var PageModel = require("./PageModel");
+    import App = require("models/App");
+    import PageModel = require("./PageModel");
 
 
     function HomePageModel() {

@@ -1,16 +1,16 @@
 define(function (require, exports, module) {
     "use strict";
-    var converter = require("modules/multivalue/converter").getInstance();
-    var BigIntForge = require("modules/multivalue/bigIntForge");
-    var Hex = require("modules/multivalue/hex");
-    var Base64 = require("modules/multivalue/base64");
-    var Bytes = require("modules/multivalue/bytes");
-    var DecBlocks = require("modules/multivalue/decBlocks");
-    var BigIntSjcl = require("modules/multivalue/bigIntSjcl");
-    var ByteBuffer = require("modules/multivalue/byteBuffer");
-    var Utf8String = require("modules/multivalue/utf8string");
+    import converter = require("modules/multivalue/converter").getInstance();
+    import BigIntForge = require("modules/multivalue/bigIntForge");
+    import Hex = require("modules/multivalue/hex");
+    import Base64 = require("modules/multivalue/base64");
+    import Bytes = require("modules/multivalue/bytes");
+    import DecBlocks = require("modules/multivalue/decBlocks");
+    import BigIntSjcl = require("modules/multivalue/bigIntSjcl");
+    import ByteBuffer = require("modules/multivalue/byteBuffer");
+    import Utf8String = require("modules/multivalue/utf8string");
 
-    var forge = require("modules/forge");
+    import forge = require("modules/forge");
 
     converter.register("bigIntForge", "hex", function (value) {
         return new Hex(value.toString(16));

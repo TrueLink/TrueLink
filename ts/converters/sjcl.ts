@@ -1,20 +1,20 @@
 define(function (require, exports, module) {
     "use strict";
-    var converter = require("modules/multivalue/converter").getInstance();
-    var codecBase64 = require("modules/sjcl/codecBase64");
-    var codecBytes = require("modules/sjcl/codecBytes");
-    var codecHex = require("modules/sjcl/codecHex");
-    var codecString = require("modules/sjcl/codecString");
-    var Bn = require("modules/sjcl/bn");
-    var Ba = require("modules/sjcl/bitArray");
-    var Base64 = require("modules/multivalue/base64");
-    var Base64Url = require("modules/multivalue/base64url");
-    var BitArray = require("modules/multivalue/bitArray");
-    var Hex = require("modules/multivalue/hex");
-    var Utf8String = require("modules/multivalue/utf8string");
-    var X32WordArray = require("modules/multivalue/x32wordArray");
-    var Bytes = require("modules/multivalue/bytes");
-    var BigIntSjcl = require("modules/multivalue/bigIntSjcl");
+    import converter = require("modules/multivalue/converter").getInstance();
+    import codecBase64 = require("modules/sjcl/codecBase64");
+    import codecBytes = require("modules/sjcl/codecBytes");
+    import codecHex = require("modules/sjcl/codecHex");
+    import codecString = require("modules/sjcl/codecString");
+    import Bn = require("modules/sjcl/bn");
+    import Ba = require("modules/sjcl/bitArray");
+    import Base64 = require("modules/multivalue/base64");
+    import Base64Url = require("modules/multivalue/base64url");
+    import BitArray = require("modules/multivalue/bitArray");
+    import Hex = require("modules/multivalue/hex");
+    import Utf8String = require("modules/multivalue/utf8string");
+    import X32WordArray = require("modules/multivalue/x32wordArray");
+    import Bytes = require("modules/multivalue/bytes");
+    import BigIntSjcl = require("modules/multivalue/bigIntSjcl");
 
     converter.register("x32wordArray", "bitArray", function(value) {
         return new BitArray(value.words);

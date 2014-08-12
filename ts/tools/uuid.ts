@@ -32,7 +32,6 @@
  *   "098F4D35"
  */
 
-define(function (require, exports, module) {
     "use strict";
     // Private array of chars to use
     var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
@@ -92,5 +91,4 @@ define(function (require, exports, module) {
         });
     };
 
-    module.exports = Math.uuid;
-});
+    export = Math.uuid;

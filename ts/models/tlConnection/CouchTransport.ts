@@ -1,12 +1,12 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
-    var Dictionary = require("modules/dictionary/dictionary");
-    var Multivalue = require("modules/multivalue/multivalue");
-    var Hex = require("modules/multivalue/hex");
+    import Dictionary = require("modules/dictionary/dictionary");
+    import Multivalue = require("modules/multivalue/multivalue");
+    import Hex = require("modules/multivalue/hex");
 
     import CouchPolling = require("misc/CouchPolling");
     import CouchPosting = require("misc/CouchPosting");

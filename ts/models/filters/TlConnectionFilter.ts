@@ -1,9 +1,8 @@
     "use strict";
-    var Filter = require("modules/filter/Filter");
-    var tools = require("modules/tools");
-    import extend = tools.extend;
-    var invariant = require("modules/invariant");
-    var Utf8String = require("modules/multivalue/utf8string");
+    import Filter = require("modules/filter/Filter");
+    import extend = require("tools/extend");
+    import invariant = require("modules/invariant");
+    import Utf8String = require("modules/multivalue/utf8string");
 
     // not serializable, removes value.metadata and transforms object to multivalue
     // passes always (for now)

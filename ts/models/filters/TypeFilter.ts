@@ -1,7 +1,7 @@
     "use strict";
-    var Filter = require("modules/filter/Filter");
+    import Filter = require("modules/filter/Filter");
     import extend = require("tools/extend");
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
 
     function TypeFilter(typeKey, type) {
         invariant(typeKey && type !== undefined, "typeKey and type must be provided");

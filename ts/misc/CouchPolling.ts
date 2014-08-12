@@ -1,9 +1,9 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var $ = require("zepto");
-    var tools = require("modules/tools");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import $ = require("zepto");
+    import tools = require("modules/tools");
 
     var ajaxTimeout = 20000;
 

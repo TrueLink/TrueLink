@@ -1,8 +1,8 @@
     "use strict";
 
-    var SerializationPacket = require("modules/serialization/SerializationPacket");
+    import SerializationPacket = require("modules/serialization/SerializationPacket");
     var nullPacket = SerializationPacket.nullPacket;
-    var $ = require("zepto");
+    import $ = require("zepto");
     var isArray = $.isArray;
 
     var ls = localStorage;

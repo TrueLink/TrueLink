@@ -1,11 +1,11 @@
 // serializer / sync
     "use strict";
     import db = require("serialization/fakeDb");
-    var SerializationContext = require("modules/serialization/SerializationContext");
-    var SerializationPacket = require("modules/serialization/SerializationPacket");
-    var $ = require("zepto");
+    import SerializationContext = require("modules/serialization/SerializationContext");
+    import SerializationPacket = require("modules/serialization/SerializationPacket");
+    import $ = require("zepto");
     var isArray = $.isArray;
-    var newUuid = require("uuid");
+    import newUuid = require("uuid");
     import RootFactory = require("./factories/rootFactory");
     import extend = require("tools/extend");
 

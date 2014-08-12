@@ -1,12 +1,12 @@
     "use strict";
-    var invariant = require("modules/invariant");
+    import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    var eventEmitter = require("modules/events/eventEmitter");
-    var serializable = require("modules/serialization/serializable");
-    var model = require("mixins/model");
-    var Hex = require("modules/multivalue/hex");
-    var TlecBuilder = require("modules/channels/TlecBuilder");
-    var CouchAdapter = require("models/tlConnection/CouchAdapter");
+    import eventEmitter = require("modules/events/eventEmitter");
+    import serializable = require("modules/serialization/serializable");
+    import model = require("mixins/model");
+    import Hex = require("modules/multivalue/hex");
+    import TlecBuilder = require("modules/channels/TlecBuilder");
+    import CouchAdapter = require("models/tlConnection/CouchAdapter");
 
     function GrConnection() {
         this._defineEvent("changed");

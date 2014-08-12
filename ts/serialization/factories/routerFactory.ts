@@ -1,6 +1,6 @@
     "use strict";
-    var invariant = require("modules/invariant");
-    var Dictionary = require("modules/dictionary/dictionary");
+    import invariant = require("modules/invariant");
+    import Dictionary = require("modules/dictionary/dictionary");
     import extend = require("tools/extend");
     import prototype = require("./prototype");
 
