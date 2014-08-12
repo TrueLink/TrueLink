@@ -1,17 +1,17 @@
     "use strict";
     var invariant = require("modules/invariant");
     var Dictionary = require("modules/dictionary/dictionary");
-    var extend = require("extend");
-    var prototype = require("./prototype");
+    import extend = require("tools/extend");
+    import prototype = require("./prototype");
 
-    var HomePageModel = require("models/pageModels/HomePageModel");
-    var ContactsPageModel = require("models/pageModels/ContactsPageModel");
-    var ContactPageModel = require("models/pageModels/ContactPageModel");
-    var DialogsPageModel = require("models/pageModels/DialogsPageModel");
-    var DialogPageModel = require("models/pageModels/DialogPageModel");
-    var GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
-    var DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
-    var DocumentPageModel = require("models/pageModels/DocumentPageModel");
+    import HomePageModel = require("models/pageModels/HomePageModel");
+    import ContactsPageModel = require("models/pageModels/ContactsPageModel");
+    import ContactPageModel = require("models/pageModels/ContactPageModel");
+    import DialogsPageModel = require("models/pageModels/DialogsPageModel");
+    import DialogPageModel = require("models/pageModels/DialogPageModel");
+    import GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
+    import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
+    import DocumentPageModel = require("models/pageModels/DocumentPageModel");
 
     function RouterFactory(serializer, router) {
         invariant(serializer, "Can i haz serializer?");

@@ -37,6 +37,10 @@ function! CompileMessanger()
     :silent :make ts/config.ts --module amd --outDir binjs
     if len(getqflist()) > 0
         :copen
+    endif
+    :silent :make ts/main.ts --module amd --outDir binjs
+    if len(getqflist()) > 0
+        :copen
 	  
     endif
 endfunction

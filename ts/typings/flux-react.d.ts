@@ -14,3 +14,14 @@ interface Window {
 */
 
 declare var $ : any;
+
+declare module "react" {
+    export = $;
+}
+declare module "zepto" {
+    export = $;
+}
+declare module "modules/events/eventEmitter" {
+    export = $;
+}
+

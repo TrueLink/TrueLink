@@ -1,6 +1,6 @@
     "use strict";
     var invariant = require("modules/invariant");
-    var extend = require("extend");
+    import extend = require("tools/extend");
     var eventEmitter = require("modules/events/eventEmitter");
     var $ = require("zepto");
 

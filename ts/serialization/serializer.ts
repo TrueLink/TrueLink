@@ -7,7 +7,7 @@
     var isArray = $.isArray;
     var newUuid = require("uuid");
     import RootFactory = require("./factories/rootFactory");
-    var extend = require("extend");
+    import extend = require("tools/extend");
 
     function Serializer() {
         this.objCache = {};

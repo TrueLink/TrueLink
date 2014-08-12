@@ -1,7 +1,7 @@
     "use strict";
     var invariant = require("modules/invariant");
-    var extend = require("extend");
-    var prototype = require("./prototype");
+    import extend = require("tools/extend");
+    import prototype = require("./prototype");
 
     var TlkeBuilder = require("modules/channels/TlkeBuilder");
     var TlhtBuilder = require("modules/channels/TlhtBuilder");
@@ -11,7 +11,7 @@
     var Tlht = require("modules/channels/Tlht");
     var Tlec = require("modules/channels/Tlec");
     var Route = require("modules/channels/Route");
-    var CouchTlec = require("models/tlConnection/CouchTlec");
+    import CouchTlec = require("models/tlConnection/CouchTlec");
 
 
     function TlConnectionFactory(serializer, tlConnection, profile) {

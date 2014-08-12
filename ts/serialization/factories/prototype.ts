@@ -1,11 +1,10 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("modules/invariant");
-    var extend = require("extend");
-    var model = require("mixins/model");
+    import extend = require("tools/extend");
+    import model = require("mixins/model");
     var tools = require("modules/tools");
 
-    module.exports = {
+    var exp = {
         singletons: {},
         _observed: function (obj) {
             invariant(this.serializer, "serializer is not defined");
@@ -26,4 +25,4 @@ define(function (require, exports, module) {
             return this.singletons[name];
         }
     };
-});
+export = exp;

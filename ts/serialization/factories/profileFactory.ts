@@ -1,6 +1,6 @@
     "use strict";
     var invariant = require("modules/invariant");
-    var extend = require("extend");
+    import extend = require("tools/extend");
     var prototype = require("./prototype");
     var Tlgr = require("modules/channels/Tlgr");
     var Document = require("models/Document");

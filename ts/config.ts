@@ -1,7 +1,7 @@
 
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 require.config({
-        baseUrl: "/js",
+        baseUrl: "/binjs",
         paths: {
             "zepto": "../vendor/zepto/src/zepto",
             "zepto_ajax": "../vendor/zepto/src/ajax",
@@ -18,4 +18,8 @@ require.config({
             "zepto_event": { deps: ["zepto"] }
         }
     });
-require(["main"]);
+require(["main",
+        "modules/invariant",
+        "zepto_ajax",
+        "converters/all",
+    ]);

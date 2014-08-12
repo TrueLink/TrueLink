@@ -4,17 +4,9 @@ import Application = require("./models/App");
 import AppComponent = require("ui/AppComponent");
 import Serializer = require("serialization/serializer");
 import query = require("serialization/appQuery");
+        import $ = require("zepto");
+        import React = require("react");
     "use strict";
-
-    require([
-        "zepto",
-        "zepto_ajax",
-        "converters/all",
-    ], function () {
-
-        var $ = require("zepto");
-
-        var React = require("react");
 
         var serializer = new Serializer();
 
@@ -40,4 +32,3 @@ import query = require("serialization/appQuery");
             React.renderComponent(AppComponent({model: app}), document.body);
 
         });
-    });

@@ -1,5 +1,4 @@
-define(function (require, exports, module) {
     "use strict";
     var $ = require("zepto");
-    module.exports = $.extend;
-});
+    var exp = $.extend;
+    export = exp;

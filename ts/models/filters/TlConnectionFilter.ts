@@ -1,7 +1,7 @@
     "use strict";
     var Filter = require("modules/filter/Filter");
     var tools = require("modules/tools");
-    var extend = tools.extend;
+    import extend = tools.extend;
     var invariant = require("modules/invariant");
     var Utf8String = require("modules/multivalue/utf8string");
 

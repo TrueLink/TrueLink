@@ -1,6 +1,5 @@
-define(function (require, exports, module) {
     "use strict";
-    module.exports = function (array1, array2) {
+    var exp = function (array1, array2) {
         // if the other array1 is a falsy value, return
         if (!array1 || !array2)
             return false;
@@ -23,4 +22,4 @@ define(function (require, exports, module) {
         }
         return true;
     }
-});
+export = exp;

@@ -1,7 +1,7 @@
     "use strict";
     var invariant = require("modules/invariant");
-    var extend = require("extend");
-    var prototype = require("./prototype");
+    import extend = require("tools/extend");
+    import prototype = require("./prototype");
     import AppFactory = require("./appFactory");
 
     import App = require("models/App");
