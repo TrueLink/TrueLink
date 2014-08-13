@@ -1,1 +1,1 @@
-tsc ts/config.ts ts/main.ts ts/converters/all.ts --module amd --outDir binjs
+tsc ts/config.ts ts/main.ts ts/converters/all.ts --module amd --outDir lib
