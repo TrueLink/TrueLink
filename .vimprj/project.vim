@@ -41,4 +41,17 @@ function! CompileMessanger()
 endfunction
 :noremap <F5> :call CompileMessanger()<cr>
 
+function! DeployToNginx() 
+python << EOF
+import shutil
+import os
+nginx = "E:\\nginx\\root\\html\\"
+projectRoot = "C:\\workspace\\flux-react\\"
+IGNORE_PATTERNS =  ('node_modules','ts','jsOLD','.hg')
+if os.path.isdir(nginx):
+    shutil.rmtree(nginx)
+shutil.copytree(projectRoot, nginx, ignore=shutil.ignore_patterns(*IGNORE_PATTERNS))
+
+EOF
+endfunction
 
