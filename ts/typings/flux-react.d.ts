@@ -14,6 +14,82 @@ interface Window {
     }
 */
 
+interface IEventEmitter {
+    _defineEvent :  (name : any) => any;
+    _checkEvent :  (name : any) => any;
+    on :  (name : any, cb : any, context : any) => any;
+    off :  (name : any, cb : any, context : any) => any;
+    fire :  (name : any, args : any) => any;
+    checkEventHandlers :  () => any;
+}
+
+interface ISerializable {
+    looksLikeSerializable :  (obj : any) => any;
+    serialize :  (packet : any, context : any) => any;
+    deserialize :  (packet : any, context : any) => any;
+    serializationNeeded :  () => any;
+    getMeta :  () => any;
+    exportMeta :  (packet : any, context : any) => any;
+    importMeta :  (packet : any, context : any) => any;
+}
+
+interface ITlgrInvitation{
+    pVer : any;
+    inviteId : string;
+    groupUid : string;
+    channelId : string;
+    sharedKey : string;
+}
+
+interface ITlgrGroupJoinPackage{
+    ver : any;
+    ht : string;
+    meta : any;
+    pk : string;
+    aid : string;
+    invite : string; //inviteID
+    sign: string;
+}
+
+interface ITlgrUserData{
+    //Multivalues
+    aid : any;
+    publicKey : any;
+    meta : any;
+    ht : any;
+}
+
+interface ITlgrShortUserInfo {
+    aid: string;
+    name: string;
+}
+
+//wrapper because this is what we pass to "message" event listener,
+//this is not what comes from transport
+interface ITlgrTextMessageWrapper {
+    sender: ITlgrShortUserInfo;
+    text: string;
+}
+
+interface ITlgr extends IEventEmitter, ISerializable {
+    //serializeUsers :  () => any;
+    //deserializeUsers :  (byAid : any) => any;
+    serialize :  (packet : any, context : any) => any;
+    deserialize :  (packet : any, context : any) => any;
+    getUID :  () => any;
+    getUsers :  () => any;
+    makePrivateMessage :  (aid : any, message : any) => any;
+    sendRekeyInfo :  (aidList : any, rekeyInfo : any) => any;
+    sendChannelAbandoned :  (reasonRekey : any) => any;
+    afterDeserialize :  () => any;
+    getMyAid :  () => any;
+    getMyName :  () => any;
+    onNetworkPacket :  (networkPacket : any) => any;
+    generateInvitation :  () => any;
+    sendMessage :  (text : any) => any;
+    init :  (args : any) => any;
+}
+
 declare var $ : any;
 
 declare module "modules/channels/OverTlecBuilder" {
