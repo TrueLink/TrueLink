@@ -2,6 +2,7 @@ syntax: glob
 .idea/*
 binjs
 *.swp
+lib
 start.lnk
 start2.lnk
 server2.js
