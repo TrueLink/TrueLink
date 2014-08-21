@@ -84,6 +84,7 @@
             var contacts = this.state.model.grConnection._activeTlgr.getUsers();
             return ContactList({
                     buttonText: "remove",
+                    currentUser: this.state.model.grConnection.getMyName(),
                     checkBoxes: true,
                     contacts: contacts,
                     onCommand: this._handleRemoveMembers
