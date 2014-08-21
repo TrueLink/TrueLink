@@ -15,8 +15,10 @@
         },
         _onSubmit: function() {
             try {
-                this.props.pageModel.model.sendMessage(this.state.messageText);
-                this.setState({messageText:""});
+                if(this.state.messageText.trim()) {
+                    this.props.pageModel.model.sendMessage(this.state.messageText);
+                    this.setState({messageText:""});
+                }
             } catch (ex) {
                 console.error(ex);
             }
