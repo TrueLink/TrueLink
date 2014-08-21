@@ -1,7 +1,7 @@
 
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 require.config({
-        baseUrl: "/binjs",
+        baseUrl: "/lib",
         paths: {
             "zepto": "../vendor/zepto/src/zepto",
             "zepto_ajax": "../vendor/zepto/src/ajax",
