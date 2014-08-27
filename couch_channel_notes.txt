@@ -1,0 +1,18 @@
+channels notes: 
+CouchTransport links to CouchPosting and CouchPolling and CouchFetching
+
+Route
+Route has addr in, addr out
+Route takes bunch of network packets fires "packet" for packets with addr in.
+If you give Route a packet it will fire "networkPacket" with packet and addr out in parameters.
+
+CouchAdapter
+CouchAdapter has addr context and CouchTransport
+if you call Addapter.run it will tell transport to poll packets with addr, and fetch them aswell( with all other packets from another addrs)
+CouchAdapter listens "packets" event on CouchTransport: it sorts them and fires "packet" for each.
+
+CouchFetching
+get packets from channels once
+
+CouchPolling repeatedle get packets from given channels
+
