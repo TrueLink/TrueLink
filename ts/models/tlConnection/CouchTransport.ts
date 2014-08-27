@@ -191,4 +191,5 @@
 
     });
 
-    export = CouchTransport;
+    var typeAdapter: ICouchTransport = <ICouchTransport><any>CouchTransport;
+    export = typeAdapter;

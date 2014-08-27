@@ -65,7 +65,7 @@
             return this._observed(document);
         },
 
-        createTransport: function () {
+        createTransport: function () : ICouchTransport {
             return this._observed(new CouchTransport());
         },
 

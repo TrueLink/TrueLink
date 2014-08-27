@@ -13,24 +13,51 @@ interface Window {
         checkEventHandlers: Function;
     }
 */
-
+interface IModel{
+    //isModel : any;
+    set?: (obj : any, newVal : any) => any;
+    _onChanged?: () => void;
+    serializationNeeded?: () => any;
+    setFactory?: (factory : any) => void;
+    checkFactory?: () => void;
+}
 interface IEventEmitter {
-    _defineEvent :  (name : any) => any;
-    _checkEvent :  (name : any) => any;
-    on :  (name : any, cb : any, context : any) => any;
-    off :  (name : any, cb : any, context : any) => any;
-    fire :  (name : any, args : any) => any;
-    checkEventHandlers :  () => any;
+    _defineEvent?:  (name : any) => any;
+    _checkEvent?:  (name : any) => any;
+    on?:  (name : any, cb : any, context : any) => any;
+    off?:  (name : any, cb : any, context : any) => any;
+    fire?:  (name : any, args : any) => any;
+    checkEventHandlers?:  () => any;
 }
 
 interface ISerializable {
-    looksLikeSerializable :  (obj : any) => any;
-    serialize :  (packet : any, context : any) => any;
-    deserialize :  (packet : any, context : any) => any;
-    serializationNeeded :  () => any;
-    getMeta :  () => any;
-    exportMeta :  (packet : any, context : any) => any;
-    importMeta :  (packet : any, context : any) => any;
+    looksLikeSerializable?:  (obj : any) => any;
+    serialize?:  (packet : any, context : any) => any;
+    deserialize?:  (packet : any, context : any) => any;
+    serializationNeeded?:  () => any;
+    getMeta?:  () => any;
+    exportMeta?:  (packet : any, context : any) => any;
+    importMeta?:  (packet : any, context : any) => any;
+}
+
+interface ICouchTransport extends ISerializable, IEventEmitter, IModel {
+    new ();
+    init : (args : any) => void;
+    beginPolling : (channel : any, context : any) => void;
+    endPolling : (channel : any, context : any) => void;
+    //_pollChannels : () => any;
+    fetchChannel : (channel : any, since : any, context : any) => any;
+    sendPacket : (args : any) => void;
+    serialize : (packet : any, context : any) => void;
+    deserialize : (packet : any, context : any) => void;
+    //_setPollingUrl : (newUrl : any) => void;
+    //_setPostingUrl : (newUrl : any) => void;
+    //_onPollingPackets : (args : any, sender : any) => void;
+    //_onPackets : (args : any) => any;
+    //_onPostingSuccess : (args : any) => void;
+    //_onPostingError : (errorType : any) => void;
+    //_sendNextPacket : () => any;
+    destroy : () => void;
 }
 
 interface ITlgrInvitation{
