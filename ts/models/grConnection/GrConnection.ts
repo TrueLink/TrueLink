@@ -46,7 +46,7 @@
 
         _handleOpenAddrIn: function (args) {
             console.log("Tlgr openAddrIn");
-            var _couchAdapter = new CouchAdapter(this._transport, {
+            var _couchAdapter = new CouchAdapter.CouchAdapter(this._transport, {
                 context: args.context,
                 addr: args.addr,
                 since: this.since

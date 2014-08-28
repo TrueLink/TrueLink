@@ -73,7 +73,7 @@
                 });
                 return;
             }
-            var fetching = new CouchFetching(this._pollingUrl, context);
+            var fetching = new CouchFetching.CouchFetching(this._pollingUrl, context);
             fetching.on("packets", this._onPackets, this);
             fetching.beginRequest(channel.as(Hex).toString(), since);
         },
@@ -127,8 +127,9 @@
             if (!this._sinces[newUrl]) {
                 this._sinces[newUrl] = 0;
             }
-            this._polling = new CouchPolling(newUrl, this._sinces[newUrl]);
-            this._polling.on("packets", this._onPollingPackets, this);
+            this._polling = new CouchPolling.CouchPolling(newUrl, this._sinces[newUrl]);
+            //Event subscription
+            this._polling.onPackets.on(this._onPollingPackets, this);
             this._onChanged();
         },
 
@@ -145,13 +146,13 @@
             this._onChanged();
         },
 
-        _onPollingPackets: function (args, sender) {
+        _onPollingPackets: function (args: CouchPolling.ICouchPollPackets, sender) {
             this._sinces[sender.url] = args.lastSeq;
             this._onChanged();
             this._onPackets(args);
         },
 
-        _onPackets: function (args) {
+        _onPackets: function (args: CouchPolling.ICouchPollPackets) {
             args.packets = args.packets.map(function (packet) {
                 return {
                     addr: Hex.fromString(packet.channelName),

@@ -1,115 +1,144 @@
-    "use strict";
-    import invariant = require("modules/invariant");
-    import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
-    import $ = require("zepto");
-    import tools = require("modules/tools");
+"use strict";
+import invariant = require("modules/invariant");
+import extend = require("tools/extend");
+import Event = require("tools/event");
+import eventEmitter = require("modules/events/eventEmitter");
+import $ = require("zepto");
+import tools = require("modules/tools");
 
-    var ajaxTimeout = 20000;
+var ajaxTimeout = 20000;
 
-
+export interface ICouchPollPackets {
+    //context: any;
+    since: any;
+    lastSeq: any;
+    packets: Array<ICouchPacket>;
+}
+interface ICouchLongpollEntry {
+    changes: Array<any>;
+    doc: any;
+    seq: number;
+    id: string;
+}
+//this is what comes from the server
+interface ICouchLongpollResponse {
+    last_seq: number;
+    results: Array<ICouchLongpollEntry>;
+    since: number;
+}
     // works with strings, not multivalues
 
-    function CouchPolling(url, since) {
-        invariant(url, "Can i haz url?");
-        invariant(since || since === 0, "Can i haz since?");
+export var CouchPolling = function(url, since) {
+    invariant(url, "Can i haz url?");
+    invariant(since || since === 0, "Can i haz since?");
+    this.channels = [];
+    this.url = url;
+    this._since = since;
+    this.onPackets = new Event.Event<ICouchPollPackets>();
+    this.channelsAjax = null;
+    this.timeoutDefer = null;
+}
+
+extend(CouchPolling.prototype, eventEmitter, {
+    on: function(eName, handler, context) {
+        if (eName === "packets") {
+            this.onPackets.on(handler, context);
+        } else {
+            console.log("unknown event in CouchPolling");
+        }
+    },
+
+    _differentChannels: function(newChannels) {
+        if (this.channels.length !== newChannels.length) {
+            return true;
+        }
+        return this.channels.some(function(i) { return newChannels.indexOf(i) === -1; });
+    },
+
+    isPolling: function(channelName, since) {
+        return this._since <= since && this.channels.indexOf(channelName) !== -1;
+    },
+
+    beginPolling: function(channelNames) {
+        var newChannels = tools.arrayUnique(channelNames);
+        if (this._differentChannels(newChannels)) {
+            this.endPolling();
+            this.channels = newChannels;
+            this._deferredStart();
+        }
+    },
+
+    _abort: function() {
+        if (this.timeoutDefer) { clearTimeout(this.timeoutDefer); }
+        if (!this.channelsAjax) { return; }
+        this.channelsAjax.abort();
+    },
+
+    endPolling: function() {
+        this._abort();
         this.channels = [];
-        this.url = url;
-        this._since = since;
-        this._defineEvent("packets");
-        this.channelsAjax = null;
-        this.timeoutDefer = null;
-    }
+    },
 
-    extend(CouchPolling.prototype, eventEmitter, {
-        _differentChannels: function (newChannels) {
-            if (this.channels.length !== newChannels.length) {
-                return true;
+    _handleResult: function(data : ICouchLongpollResponse, since) {
+        try {
+            if (!data || !data.last_seq) {
+                throw new Error("Wrong answer structure");
             }
-            return this.channels.some(function (i) { return newChannels.indexOf(i) === -1; });
-        },
+            this._since = data.last_seq;
+            this._onPackets(data, since);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            this._deferredStart();
+        }
+    },
 
-        isPolling: function (channelName, since) {
-            return this._since <= since && this.channels.indexOf(channelName) !== -1;
-        },
-
-        beginPolling: function (channelNames) {
-            var newChannels = tools.arrayUnique(channelNames);
-            if (this._differentChannels(newChannels)) {
-                this.endPolling();
-                this.channels = newChannels;
-                this._deferredStart();
-            }
-        },
-
-        _abort: function () {
-            if (this.timeoutDefer) { clearTimeout(this.timeoutDefer); }
-            if (!this.channelsAjax) { return; }
-            this.channelsAjax.abort();
-        },
-
-        endPolling: function () {
-            this._abort();
-            this.channels = [];
-        },
-
-        _handleResult: function (data, since) {
-            try {
-                if (!data || !data.last_seq) {
-                    throw new Error("Wrong answer structure");
-                }
-                this._since = data.last_seq;
-                this._onPackets(data, since);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                this._deferredStart();
-            }
-        },
-
-        _onPackets: function (data, since) {
-            this.fire("packets", {
-                lastSeq: data.last_seq,
-                since: since,
-                packets: data.results.map(function (res) { return {
+    _onPackets: function(data: ICouchLongpollResponse, since) {
+        var packets : ICouchPollPackets = {
+            lastSeq: data.last_seq,
+            since: since,
+            packets: data.results.map(function(res: ICouchLongpollEntry) {
+                return {
                     channelName: res.doc.ChannelId,
                     data: res.doc.DataString,
                     seq: res.seq
-                }; })
-            });
-        },
+                };
+            })
+        };
+        this.onPackets.emit(packets, this);
+    },
 
-        _getUrl: function () {
-            return this.url +
-                "/_changes?feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
-                "&include_docs=true&since=" + this._since;
-        },
+    _getUrl: function() {
+        return this.url +
+            "/_changes?feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
+            "&include_docs=true&since=" + this._since;
+    },
 
-        _start: function () {
-            if (!this.channels.length) { return; }
-            var url = this._getUrl();
-            this.channelsAjax = $.ajax({
-                url: url,
-                dataType: "json",
-                context: this,
-                timeout: ajaxTimeout,
-                success: function (data, status, xhr) { this._handleResult(data, this._since); },
-                error: function (xhr, errorType, error) {
-                    if (errorType !== "timeout" && errorType !== "abort") {
-                        console.warn("Message polling failed: ", error || errorType);
-                    }
-                    if (errorType !== "abort") {
-                        this._deferredStart(errorType === "timeout" ? null : 5000);
-                    }
+    _start: function() {
+        if (!this.channels.length) { return; }
+        var url = this._getUrl();
+        this.channelsAjax = $.ajax({
+            url: url,
+            dataType: "json",
+            context: this,
+            timeout: ajaxTimeout,
+            success: function(data, status, xhr) { this._handleResult(data, this._since); },
+            error: function(xhr, errorType, error) {
+                if (errorType !== "timeout" && errorType !== "abort") {
+                    console.warn("Message polling failed: ", error || errorType);
                 }
-            });
-        },
-        _deferredStart: function (timeout) {
-            timeout = timeout || 4;
-            if (this.timeoutDefer) {
-                clearTimeout(this.timeoutDefer);
+                if (errorType !== "abort") {
+                    this._deferredStart(errorType === "timeout" ? null : 5000);
+                }
             }
-            this.timeoutDefer = setTimeout((function () { this._start(); }).bind(this), timeout);
+        });
+    },
+    _deferredStart: function(timeout) {
+        timeout = timeout || 4;
+        if (this.timeoutDefer) {
+            clearTimeout(this.timeoutDefer);
         }
-    });
-    export = CouchPolling;
+        this.timeoutDefer = setTimeout((function() { this._start(); }).bind(this), timeout);
+    }
+});
+

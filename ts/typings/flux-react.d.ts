@@ -13,6 +13,12 @@ interface Window {
         checkEventHandlers: Function;
     }
 */
+interface ICouchPacket {
+
+    channelName : string;
+    data : string;
+    seq : any;
+}
 interface IModel{
     //isModel : any;
     set?: (obj : any, newVal : any) => any;

@@ -103,7 +103,7 @@
 
         _onTlecOpenAddr: function (args) {
             var context = args.context;
-            var adapter = new CouchAdapter(this._transport, args);
+            var adapter = new CouchAdapter.CouchAdapter(this._transport, args);
             this._addAdapter(context, adapter);
             this._onChanged();
             adapter.init();
