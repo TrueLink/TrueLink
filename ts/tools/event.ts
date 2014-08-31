@@ -45,15 +45,16 @@ export class Event<T> implements IEvent<T> {
                 var handler = this._handlers[i];
                 if (handler.callback != callback) continue;
                 if (handler.context != context) continue;
-                remaining.push(handler);
+                this._handlers.splice(i, 1);
+                break;
             }
         } else {
             for (var i = 0; i < this._handlers.length; i++) {
                 var handler = this._handlers[i];
                 if (handler.callback != callback) continue;
-                remaining.push(handler);
+                this._handlers.splice(i, 1);
+                break;
             }
         }
-        this._handlers = remaining;
     }
 }
