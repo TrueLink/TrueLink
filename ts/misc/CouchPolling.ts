@@ -8,24 +8,6 @@ import tools = require("modules/tools");
 
 var ajaxTimeout = 20000;
 
-export interface ICouchPollPackets {
-    //context: any;
-    since: any;
-    lastSeq: any;
-    packets: Array<ICouchPacket>;
-}
-interface ICouchLongpollEntry {
-    changes: Array<any>;
-    doc: any;
-    seq: number;
-    id: string;
-}
-//this is what comes from the server
-interface ICouchLongpollResponse {
-    last_seq: number;
-    results: Array<ICouchLongpollEntry>;
-    since: number;
-}
     // works with strings, not multivalues
 
 export var CouchPolling = function(url, since) {
@@ -34,7 +16,7 @@ export var CouchPolling = function(url, since) {
     this.channels = [];
     this.url = url;
     this._since = since;
-    this.onPackets = new Event.Event<ICouchPollPackets>();
+    this.onPackets = new Event.Event<ICouchPackets>();
     this.channelsAjax = null;
     this.timeoutDefer = null;
 }
@@ -94,7 +76,7 @@ extend(CouchPolling.prototype, eventEmitter, {
     },
 
     _onPackets: function(data: ICouchLongpollResponse, since) {
-        var packets : ICouchPollPackets = {
+        var packets : ICouchPackets = {
             lastSeq: data.last_seq,
             since: since,
             packets: data.results.map(function(res: ICouchLongpollEntry) {

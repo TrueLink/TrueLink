@@ -5,16 +5,10 @@ import Event = require("tools/event");
 import eventEmitter = require("modules/events/eventEmitter");
 import $ = require("zepto");
 
-export interface ICouchFetchResponse {
-    context: any;
-    since: any;
-    lastSeq: any;
-    packets: Array<ICouchPacket>;
-}
 
 export var CouchFetching = function(url, context) {
     invariant(url, "Can i haz url?");
-    this.onPackets = new Event.Event<ICouchFetchResponse>();
+    this.onPackets = new Event.Event<ICouchPackets>();
 
     this.url = url;
     this.context = context;
@@ -61,7 +55,7 @@ extend(CouchFetching.prototype, {
         }).bind(this), timeout);
     },
 
-    _handleResult: function(data, since) {
+    _handleResult: function(data: ICouchFetchedPackets, since) {
         try {
             if (!data || !data.last_seq) {
                 throw new Error("Wrong answer structure");
@@ -72,7 +66,7 @@ extend(CouchFetching.prototype, {
         }
     },
 
-    _onPackets: function(data, since) {
+    _onPackets: function(data: ICouchFetchedPackets, since) {
         this.onPackets.emit({
             context: this.context,
             since: since,

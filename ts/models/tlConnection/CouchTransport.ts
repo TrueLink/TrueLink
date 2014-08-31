@@ -74,7 +74,7 @@
                 return;
             }
             var fetching = new CouchFetching.CouchFetching(this._pollingUrl, context);
-            fetching.on("packets", this._onPackets, this);
+            fetching.onPackets.on(this._onPackets, this);
             fetching.beginRequest(channel.as(Hex).toString(), since);
         },
 
@@ -146,21 +146,26 @@
             this._onChanged();
         },
 
-        _onPollingPackets: function (args: CouchPolling.ICouchPollPackets, sender) {
+        _onPollingPackets: function (args: ICouchPackets, sender) {
             this._sinces[sender.url] = args.lastSeq;
             this._onChanged();
             this._onPackets(args);
         },
 
-        _onPackets: function (args: CouchPolling.ICouchPollPackets) {
-            args.packets = args.packets.map(function (packet) {
+        _onPackets: function (args: ICouchPackets) {
+            var new_packets = args.packets.map(function (packet) {
                 return {
                     addr: Hex.fromString(packet.channelName),
                     data: Hex.fromString(packet.data),
                     seq: packet.seq
                 };
             });
-            this.fire("packets", args);
+            var p: ICouchMultivaluePackets = { 
+                since : args.since,
+                lastSeq : args.lastSeq,
+                packets : new_packets
+            }
+            this.fire("packets", p);
         },
 
         _onPostingSuccess: function (args) {
