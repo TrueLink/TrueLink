@@ -4,18 +4,19 @@
     import eventEmitter = require("modules/events/eventEmitter");
     import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
+    import Event = require("tools/event");
     import Dictionary = require("modules/dictionary/dictionary");
     import Multivalue = require("modules/multivalue/multivalue");
     import Hex = require("modules/multivalue/hex");
-
     import CouchPolling = require("misc/CouchPolling");
     import CouchPosting = require("misc/CouchPosting");
     import CouchFetching = require("misc/CouchFetching");
 
 
     function CouchTransport() {
-        this._defineEvent("changed");
-        this._defineEvent("packets");
+
+        this.onChanged = new Event.Event<any>();
+        this.onPackets = new Event.Event<ICouchMultivaluePackets>();
 
         this._pollingUrl = null;
         this._polling = null;
@@ -55,6 +56,27 @@
             delete this._channels[context];
             this._pollChannels();
         },
+
+        on: function(eName, handler, context) {
+            if (eName === "packets") {
+                this.onPackets.on(handler, context);
+            } else if (eName === "changed") {
+                this.onChanged.on(handler, context);
+            } else {
+                console.log("unknown event in CouchTransport");
+            }
+        },
+
+        fire: function (eName: string, args, sender) {
+            if (eName === "changed") {
+                this.onChanged.emit(args, sender);
+            } else if (eName === "packets") {
+                this.onPackets.emit(args, sender);
+            } else {
+                console.log("unknown event fired on CouchTransport");
+            }
+        },
+
         _pollChannels: function () {
             invariant(this._polling, "polling url was not set");
             var dict = this._channels;
@@ -161,11 +183,12 @@
                 };
             });
             var p: ICouchMultivaluePackets = { 
+                context : args.context,
                 since : args.since,
                 lastSeq : args.lastSeq,
                 packets : new_packets
             }
-            this.fire("packets", p);
+            this.onPackets.emit(p);
         },
 
         _onPostingSuccess: function (args) {

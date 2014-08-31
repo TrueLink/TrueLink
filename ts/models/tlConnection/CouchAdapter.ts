@@ -108,7 +108,7 @@ extend(CouchAdapter.prototype, {
     },
     destroy: function() {
         this.transport.endPolling(this._addr, this._context);
-        this.transport.off("packets", this._processPackets, this);
+        this.transport.onPackets.off(this._processPackets, this);
     }
 });
 export var deserialize = function(transport, data) {

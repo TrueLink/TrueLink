@@ -98,7 +98,6 @@
                 this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
             }
-
         },
 
         _onTlecOpenAddr: function (args) {
@@ -110,16 +109,16 @@
         },
 
         _addAdapter: function (context, adapter) {
-            adapter.on("packet", this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
-            adapter.on("changed", this._onChanged, this);
+            adapter.onPacket.on(this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
+            adapter.onChanged.on(this._onChanged, this);
             this._transportAdapters[context] = adapter;
         },
         _onTlecCloseAddr: function (args) {
             var context = args.context;
             var adapter = this._transportAdapters[context];
             if (adapter) {
-                adapter.off("packet", this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
-                adapter.off("changed", this._onChanged, this);
+                adapter.onPacket.off(this._tlecBuilder.processNetworkPacket, this._tlecBuilder);
+                adapter.onChanged.off(this._onChanged, this);
                 adapter.destroy();
                 delete this._transportAdapters[context];
                 this._onChanged();
