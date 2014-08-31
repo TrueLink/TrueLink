@@ -20,7 +20,7 @@ interface ICouchLongpollEntry {
 }
 //==============================================
 interface ICouchPackets {
-    //context: any;
+    context?: any;
     since: any;
     lastSeq: any;
     packets: Array<ICouchPacket>;
@@ -33,7 +33,7 @@ interface ICouchPacket {
 }
 // =============================================
 interface ICouchMultivaluePackets {
-    //context: any;
+    context?: any;
     since: any;
     lastSeq: any;
     packets: Array<ICouchMultivaluePacket>;
