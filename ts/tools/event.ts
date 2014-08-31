@@ -22,7 +22,7 @@ export class Event<T> implements IEvent<T> {
         this._context = context;
     }
 
-    public emit(value: T, sender: any): void {
+    public emit(value: T, sender?: any): void {
         this._handlers.forEach((handler) => {
             handler.callback.call(handler.context || this._context, value, sender);
         });

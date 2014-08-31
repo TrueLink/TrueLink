@@ -83,7 +83,8 @@
                     return {
                         channelName: res.doc.ChannelId,
                         data: res.doc.DataString,
-                        seq: res.seq
+                        seq: res.seq,
+                        id: res.id
                     };
                 })
             };
@@ -93,7 +94,7 @@
         _getUrl: function() {
             return this.url +
                 "/_changes?feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
-                "&include_docs=true&since=" + this._since;
+                "&include_docs=true&since=now";// + this._since;
         },
 
         _start: function() {

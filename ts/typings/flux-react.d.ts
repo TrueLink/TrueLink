@@ -5,6 +5,11 @@ interface Window {
     profile: any;
 }
 
+interface IMultivalueNetworkPacket {
+    data: any;
+    addr: any;
+}
+
 interface IModel{
     //isModel : any;
     set?: (obj : any, newVal : any) => any;

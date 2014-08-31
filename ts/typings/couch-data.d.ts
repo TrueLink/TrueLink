@@ -26,10 +26,10 @@ interface ICouchPackets {
     packets: Array<ICouchPacket>;
 }
 interface ICouchPacket {
-
+    id?: string;
     channelName : string;
     data : string;
-    seq : any;
+    seq?: any;
 }
 // =============================================
 interface ICouchMultivaluePackets {

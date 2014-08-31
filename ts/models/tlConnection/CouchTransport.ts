@@ -85,16 +85,7 @@
         },
 
         fetchChannel: function (channel, since, context) {
-            // already polling this channel since given, so there will be no new packets
-            if (this._polling.isPolling(channel.as(Hex).toString(), since)) {
-                this._onPackets({
-                    context: context,
-                    since: since,
-                    lastSeq: since,
-                    packets: []
-                });
-                return;
-            }
+            
             var fetching = new CouchFetching.CouchFetching(this._pollingUrl, context);
             fetching.onPackets.on(this._onPackets, this);
             fetching.beginRequest(channel.as(Hex).toString(), since);
@@ -179,7 +170,8 @@
                 return {
                     addr: Hex.fromString(packet.channelName),
                     data: Hex.fromString(packet.data),
-                    seq: packet.seq
+                    seq: packet.seq,
+                    id: packet.id
                 };
             });
             var p: ICouchMultivaluePackets = { 

@@ -5,6 +5,17 @@ import Event = require("tools/event");
 import eventEmitter = require("modules/events/eventEmitter");
 import $ = require("zepto");
 
+interface ICouchAllChannelMessages {
+    offset: number;
+    rows: Array<ICouchChannelMessage>;
+    total_rows: number;
+}
+
+interface ICouchChannelMessage {
+    id: string;
+    key: string;
+    value: any;
+}
 
 export var CouchFetching = function(url, context) {
     invariant(url, "Can i haz url?");
@@ -19,9 +30,8 @@ var ajaxTimeout = 20000;
 
 extend(CouchFetching.prototype, {
     _getUrl: function(channels, since) {
-        return this.url +
-            "/_changes?feed=longpoll&filter=channels/do&Channel=" + channels.join(",") +
-            "&include_docs=true&since=" + since;
+        //return this.url + "/_changes?feed=longpoll&filter=channels/do&Channel=" + channels.join(",") + "&include_docs=true&since=" + since;
+        return this.url + "/_design/allChannelMessages/_view/titles?startkey=\""+channels[0]+"\"&endkey=\""+channels[0] + "\"";
     },
     on: function(eName, handler, context) {
         if (eName === "packets") {
@@ -55,9 +65,9 @@ extend(CouchFetching.prototype, {
         }).bind(this), timeout);
     },
 
-    _handleResult: function(data: ICouchFetchedPackets, since) {
+    _handleResult: function(data: ICouchAllChannelMessages, since) {
         try {
-            if (!data || !data.last_seq) {
+            if (!data || !data.rows) {
                 throw new Error("Wrong answer structure");
             }
             this._onPackets(data, since);
@@ -66,16 +76,17 @@ extend(CouchFetching.prototype, {
         }
     },
 
-    _onPackets: function(data: ICouchFetchedPackets, since) {
+    _onPackets: function(data: ICouchAllChannelMessages, since) {
         this.onPackets.emit({
             context: this.context,
             since: since,
-            lastSeq: data.last_seq,
-            packets: data.results.map(function(res) {
+            lastSeq: undefined,
+            packets: data.rows.map(function(res : ICouchChannelMessage) {
                 return {
-                    channelName: res.doc.ChannelId,
-                    data: res.doc.DataString,
-                    seq: res.seq
+                    channelName: res.value.ChannelId,
+                    data: res.value.DataString,
+                    seq: undefined,
+                    id: res.id
                 };
             })
         }, this);
