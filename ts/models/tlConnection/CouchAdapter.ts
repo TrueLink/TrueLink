@@ -76,6 +76,7 @@ export class CouchAdapter {
     }
 
     private handleFetchResult (packets: ICouchPackets) {
+        console.log("Fetching done for channel: ", this._addr, packets)
         this._processPackets(packets);
     }
 
