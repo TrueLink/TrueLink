@@ -37,7 +37,8 @@ export class CouchAdapter {
 
     init() {
         this.transport.beginPolling(this._addr, this._context);
-        this._requestFetch();
+        //TODO: this is hacky
+        setTimeout( this._requestFetch(), 250);
     }
 
     run() { this.init(); }
@@ -76,7 +77,7 @@ export class CouchAdapter {
     }
 
     private handleFetchResult (packets: ICouchPackets) {
-        console.log("Fetching done for channel: ", this._addr, packets)
+        console.log("Fetching done for channel: ", this._addr, packets);
         this._processPackets(packets);
     }
 
