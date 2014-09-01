@@ -166,6 +166,7 @@
         },
 
         _onPackets: function (args: ICouchPackets) {
+            console.log("CouchTransport onPackets", args);
             var new_packets = args.packets.map(function (packet) {
                 return {
                     addr: Hex.fromString(packet.channelName),
