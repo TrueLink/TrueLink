@@ -5,19 +5,27 @@ import Event = require("tools/event");
 import eventEmitter = require("modules/events/eventEmitter");
 import $ = require("zepto");
 
-interface ICouchAllChannelMessages {
+export interface ICouchAllChannelMessages {
     offset: number;
     rows: Array<ICouchChannelMessage>;
     total_rows: number;
 }
 
-interface ICouchChannelMessage {
+export interface ICouchChannelMessage {
     id: string;
     key: string;
     value: any;
 }
 
-export var CouchFetching = function(url, context) {
+var ajaxTimeout = 20000;
+
+export class CouchFetching {
+    private url : string;
+    private context : number;
+    private ajax : any;
+    public onPackets : Event.Event<ICouchPackets>;
+
+    constructor (url, context) {
     invariant(url, "Can i haz url?");
     this.onPackets = new Event.Event<ICouchPackets>();
 
@@ -26,21 +34,19 @@ export var CouchFetching = function(url, context) {
     this.ajax = null;
 }
 
-var ajaxTimeout = 20000;
 
-extend(CouchFetching.prototype, {
-    _getUrl: function(channels, since) {
+    _getUrl (channels, since) {
         //return this.url + "/_changes?feed=longpoll&filter=channels/do&Channel=" + channels.join(",") + "&include_docs=true&since=" + since;
         return this.url + "/_design/allChannelMessages/_view/titles?startkey=\""+channels[0]+"\"&endkey=\""+channels[0] + "\"";
-    },
-    on: function(eName, handler, context) {
+    }
+    on (eName, handler, context) {
         if (eName === "packets") {
             this.onPackets.on(handler, context);
         } else {
             console.log("unknown event in CouchFetching");
         }
-    },
-    beginRequest: function(channelName, since) {
+    }
+    beginRequest (channelName, since) {
         var url = this._getUrl([channelName], since);
         this.ajax = $.ajax({
             url: url,
@@ -57,15 +63,15 @@ extend(CouchFetching.prototype, {
                 }
             }
         });
-    },
+    }
 
-    _repeatRequest: function(channelName, since, timeout) {
+    _repeatRequest (channelName, since, timeout) {
         setTimeout((function() {
             this.beginRequest(channelName, since);
         }).bind(this), timeout);
-    },
+    }
 
-    _handleResult: function(data: ICouchAllChannelMessages, since) {
+    _handleResult (data: ICouchAllChannelMessages, since) {
         try {
             if (!data || !data.rows) {
                 throw new Error("Wrong answer structure");
@@ -74,9 +80,9 @@ extend(CouchFetching.prototype, {
         } catch (e) {
             console.error(e);
         }
-    },
+    }
 
-    _onPackets: function(data: ICouchAllChannelMessages, since) {
+    _onPackets (data: ICouchAllChannelMessages, since) {
         this.onPackets.emit({
             context: this.context,
             since: since,
@@ -90,13 +96,13 @@ extend(CouchFetching.prototype, {
                 };
             })
         }, this);
-    },
+    }
 
-    endRequest: function() {
+    endRequest () {
         if (this.ajax) {
             this.ajax.abort();
         }
     }
-});
+};
 
 
