@@ -99,9 +99,10 @@
         }
 
         _getUrl () {
+            var s: string = (this._since == 0)?("now"):this._since.toString();
             return this.url +
-                "/_changes?feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
-                "&include_docs=true&since=now";// + this._since;
+                "/_changes?timeout=5000&feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
+                "&include_docs=true&since=" + s;
         }
 
         _start () {
