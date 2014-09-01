@@ -66,7 +66,7 @@
         },
 
         createTransport: function () : ICouchTransport {
-            return this._observed(new CouchTransport());
+            return this._observed(new CouchTransport.CouchTransport());
         },
 
         createGrConnection: function () {
