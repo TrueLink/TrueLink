@@ -13,10 +13,11 @@ export class CouchAdapter {
     public onPacket: Event.Event<ICouchPacket>;
     public onChanged: Event.Event<any>;
     public transport: any;
+    public _since: number;
+
     private _packetCache: Array<any>;
     private _context: number;
     private _addr: any;
-    private _since: number;
     private processedPackets : { [key:string]: any };
 
     constructor(transport, options) {

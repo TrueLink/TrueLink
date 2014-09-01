@@ -104,7 +104,7 @@ interface ITlgr extends IEventEmitter, ISerializable {
     getUsers :  () => any;
     makePrivateMessage :  (aid : any, message : any) => any;
     sendRekeyInfo :  (aidList : any, rekeyInfo : any) => any;
-    sendChannelAbandoned :  (reasonRekey : any) => any;
+    sendChannelAbandoned :  (reasonRekey?: any) => any;
     afterDeserialize :  () => any;
     getMyAid :  () => any;
     getMyName :  () => any;

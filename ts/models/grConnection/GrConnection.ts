@@ -5,14 +5,28 @@
     import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
     import Hex = require("modules/multivalue/hex");
+    import Event = require("tools/event");
+    import Model = require("tools/model");
     import TlecBuilder = require("modules/channels/TlecBuilder");
     import CouchAdapter = require("models/tlConnection/CouchAdapter");
+    import CouchTransport = require("models/tlConnection/CouchTransport");
 
-    function GrConnection() {
-        this._defineEvent("changed");
-        this._defineEvent("user_joined");
-        this._defineEvent("user_left");
-        this._defineEvent("message");
+    export class GrConnection extends Model.Model implements ISerializable {
+        public onUserJoined : Event.Event<any>;
+        public onUserLeft : Event.Event<any>;
+        public onMessage : Event.Event<any>;
+
+        private _activeTlgr : ITlgr;
+        private _oldTlgr : ITlgr;
+        private _transport : CouchTransport.CouchTransport;
+        private since : number;
+        private adapter : CouchAdapter.CouchAdapter;
+
+        constructor () {
+            super();
+            this.onUserJoined = new Event.Event<any>();
+            this.onUserLeft = new Event.Event<any>();
+            this.onMessage = new Event.Event<any>();
 
         this._activeTlgr = null;
         this._transport = null;
@@ -21,11 +35,10 @@
     //interface IGrConnectionInitParams {
     //
     //}
-    extend(GrConnection.prototype, eventEmitter, serializable, model, {
         //called when creating totally new connection (not when deserialized)
-        init: function (args) {
+        init  (args) {
             this._transport = args.transport;
-            this._activeTlgr = this._factory.createTlgr();
+            this._activeTlgr = this.getFactory().createTlgr();
             
             this._setTlgrEventHandlers(this._activeTlgr);
 
@@ -33,83 +46,82 @@
                 invite: args.invite,
                 userName: args.userName
             });
-            this.fire("changed", this);
-        },
+            this.onChanged.emit(this);
+        }
 
-        getMyAid: function () {
+        getMyAid  () {
             return this._activeTlgr.getMyAid();
-        },
+        }
 
-        sendMessage: function (message) {
+        sendMessage  (message) {
             this._activeTlgr.sendMessage(message);
-        },
+        }
 
-        _handleOpenAddrIn: function (args) {
+        private _handleOpenAddrIn  (args) {
             console.log("Tlgr openAddrIn");
             var _couchAdapter = new CouchAdapter.CouchAdapter(this._transport, {
                 context: args.context,
                 addr: args.addr,
                 since: this.since
-               //was pretty bad idea to do this->  since: this.transport.getSince()
             });
             this.adapter = _couchAdapter;
-            _couchAdapter.on("packet", this._activeTlgr.onNetworkPacket, this._activeTlgr);
-            _couchAdapter.on("changed", this._onChanged, this);
+            _couchAdapter.onPacket.on(this._activeTlgr.onNetworkPacket, this._activeTlgr);
+            _couchAdapter.onChanged.on(this._onChanged, this);
             _couchAdapter.run();
-        },
+        }
 
-        _handleCloseAddrIn: function (args) {
+        private _handleCloseAddrIn  (args) {
             if (this.adapter) {
-                this.adapter.off("packet", this._activeTlgr.onNetworkPacket, this._activeTlgr);
+                this.adapter.onPacket.off(this._activeTlgr.onNetworkPacket, this._activeTlgr);
                 this.adapter.destroy();
                 this.adapter = null;
             }
-        },
+        }
 
-        _handleUserJoined: function (user, tlgr) {
+        private _handleUserJoined  (user, tlgr : ITlgr) {
             if (tlgr == this._oldTlgr) {
                 user.oldchannel = true;
             }
-            this.fire("user_joined", user, this);
-        },
+            this.onUserJoined.emit(user, this);
+        }
 
-        _handleUserLeft: function (user, tlgr) {
+        private _handleUserLeft  (user, tlgr : ITlgr) {
             if (tlgr == this._oldTlgr) {
                 user.oldchannel = true;
             }
-            this.fire("user_left", user, this);
-        },
+            this.onUserLeft.emit(user, this);
+        }
 
-        _handleMessage: function (msg, tlgr) {
+        private _handleMessage  (msg, tlgr : ITlgr) {
             if (tlgr == this._oldTlgr) {
                 msg.sender.oldchannel = true;
             }
-            this.fire("message", msg , this);
-        },
+            this.onMessage.emit(msg , this);
+        }
 
-        _handleRekeyInfo: function (rekeyInfo) {
+        private _handleRekeyInfo  (rekeyInfo) {
             console.log("Got rekey info", rekeyInfo);
             this._oldTlgr = this._activeTlgr;
             var myName = this._activeTlgr.getMyName();
             this._oldTlgr.sendChannelAbandoned();
-            this._activeTlgr = this._factory.createTlgr();
+            this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
                 invite: rekeyInfo,
                 userName: myName
             });
-            this.fire("changed", this);
-        },
+            this.onChanged.emit(this);
+        }
 
-        getMyName: function () {
+        getMyName  () {
             return this._activeTlgr.getMyName();
-        },
+        }
 
-        initiateRekey: function (members) {
+        initiateRekey  (members : Array<ITlgrShortUserInfo>/*not sure about this interface*/) {
             this._oldTlgr = this._activeTlgr;
             var myAid = this._oldTlgr.getMyAid();
             var i = -1;
-            members.forEach(function (m, ind) {
+            members.forEach(function (m : ITlgrShortUserInfo, ind) {
                 if (m.aid === myAid) {
                     i = ind;
                 }
@@ -120,18 +132,18 @@
             }
             var myName = members[i].name;
             members.splice(i, 1);
-            this._activeTlgr = this._factory.createTlgr();
+            this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
                 userName: myName 
             } );
             this._oldTlgr.sendRekeyInfo(members.map(function (m) { return m.aid; }), this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
-        },
+        }
 
-        destroy: function () {
+        destroy  () {
             if (this.adapter) {
-                this.adapter.off("packet", this._activeTlgr.onNetworkPacket, this._activeTlgr);
+                this.adapter.onPacket.off(this._activeTlgr.onNetworkPacket, this._activeTlgr);
                 //this.adapter.off("changed");
                 this.adapter.destroy();
                 this.adapter = null;
@@ -144,10 +156,10 @@
                 //this.tlgr.off("openAddrIn");
                 this._activeTlgr = null;
             }
-            this.fire("changed", this);
-        },
+            this.onChanged.emit(this);
+        }
 
-        _setTlgrEventHandlers: function (tlgr) {
+        private _setTlgrEventHandlers  (tlgr : ITlgr) {
             tlgr.on("packet", function (packet/*{addr, data}*/) {
                 this._transport.sendPacket(packet);
             }.bind(this), this._activeTlgr);
@@ -158,24 +170,24 @@
             tlgr.on("user_joined", this._handleUserJoined, this);
             tlgr.on("rekey", this._handleRekeyInfo, this);
             tlgr.on("changed", this._onChanged, this);
-        },
+        }
 
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
             packet.setData({
                 since: (this.adapter) ? (this.adapter._since) : 0
             });
             packet.setLink("activeTlgr", context.getPacket(this._activeTlgr));
             packet.setLink("transport", context.getPacket(this._transport));
-        },
+        }
 
-        deserialize: function (packet, context) {
-            this.checkFactory();
-            var factory = this._factory;
+        deserialize  (packet, context) {
+            invariant(this.getFactory(), "factory is not set");
+            var factory = this.getFactory();
             this.since = packet.getData().since;
             this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
             this._transport = context.deserialize(packet.getLink("transport"));
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.afterDeserialize();
-        },
-    })
-    export = GrConnection;
+        }
+    }
+extend(GrConnection.prototype, serializable);
