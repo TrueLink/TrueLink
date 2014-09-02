@@ -1,18 +1,15 @@
+/// <reference path="couch-data.d.ts"/>
 interface Window {
     app: any;
     fakeDb: any;
     profile: any;
 }
 
-/*   interface EventEmitter {
-        _defineEvent: Function;
-        _checkEvent: Function;
-        on: Function;
-        off: Function;
-        fire: Function;
-        checkEventHandlers: Function;
-    }
-*/
+interface IMultivalueNetworkPacket {
+    data: any;
+    addr: any;
+}
+
 interface IModel{
     //isModel : any;
     set?: (obj : any, newVal : any) => any;
@@ -107,7 +104,7 @@ interface ITlgr extends IEventEmitter, ISerializable {
     getUsers :  () => any;
     makePrivateMessage :  (aid : any, message : any) => any;
     sendRekeyInfo :  (aidList : any, rekeyInfo : any) => any;
-    sendChannelAbandoned :  (reasonRekey : any) => any;
+    sendChannelAbandoned :  (reasonRekey?: any) => any;
     afterDeserialize :  () => any;
     getMyAid :  () => any;
     getMyName :  () => any;

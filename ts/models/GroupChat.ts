@@ -72,9 +72,9 @@
         },
 
         _setTlgrEventHandlers: function () {
-            this.grConnection.on("message", this.processMessage, this);
-            this.grConnection.on("user_joined", this._handleUserJoined, this);
-            this.grConnection.on("user_left", this._handleUserLeft, this);
+            this.grConnection.onMessage.on(this.processMessage, this);
+            this.grConnection.onUserJoined.on(this._handleUserJoined, this);
+            this.grConnection.onUserLeft.on(this._handleUserLeft, this);
         },
 
         sendMessage: function (message) {

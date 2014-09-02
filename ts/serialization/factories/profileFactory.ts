@@ -66,11 +66,11 @@
         },
 
         createTransport: function () : ICouchTransport {
-            return this._observed(new CouchTransport());
+            return this._observed(new CouchTransport.CouchTransport());
         },
 
         createGrConnection: function () {
-            var grConnection = new GrConnection();
+            var grConnection = new GrConnection.GrConnection();
             var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
             grConnection.setFactory(grConnectionFactory);
             return this._observed(grConnection);
