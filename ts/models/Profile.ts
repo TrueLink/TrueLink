@@ -1,17 +1,36 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
+    import Event = require("tools/event");
     import eventEmitter = require("modules/events/eventEmitter");
     import serializable = require("modules/serialization/serializable");
-    import model = require("mixins/model");
+    import Model = require("tools/model");
     import urandom = require("modules/urandom/urandom");
     import Dialog = require("models/Dialog");
+    import GrConnection = require("models/grConnection/GrConnection");
+    import CouchTransport = require("models/tlConnection/CouchTransport");
     import GroupChat = require("models/GroupChat");
 
-    function Profile() {
-        this._defineEvent("changed");
-        this._defineEvent("urlChanged");
+    export class Profile extends Model.Model implements ISerializable {
+        public onUrlChanged : Event.Event<any>;
+        public grConnections : Array<GrConnection.GrConnection>;
+        public dialogs : Array<any>;
+        public app : any;
+        public bg : any;
+        public documents : any;
+        public contacts : any;
+        public name : string;
+        public tlConnections : any;
+        public serverUrl : string;
+        public unreadCount : number;
+        public transport : CouchTransport.CouchTransport;
 
+        private _gcByInviteId : any;
+
+        constructor () {
+            super();
+
+            this.onUrlChanged = new Event.Event<any>();
         this.app = null;
         this.bg = null;
         this.documents = [];
@@ -25,15 +44,14 @@
         this.transport = null;
     }
 
-    extend(Profile.prototype, eventEmitter, serializable, model, {
         // called by factory
-        setApp: function (app) {
+        setApp  (app) {
             this.app = app;
             this.serverUrl = app.defaultPollingUrl;
             this._gcByInviteId = {};
-        },
+        }
 
-        init: function (args) {
+        init  (args) {
             invariant(args, "args required");
             invariant(args.name && (typeof args.name === "string"), "args.name must be non-empty string");
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
@@ -43,12 +61,12 @@
             this.bg = args.bg;
             this.serverUrl = args.serverUrl;
 
-            this.transport = this._factory.createTransport();
+            this.transport = this.getFactory().createTransport();
             this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
             this._onChanged();
-        },
+        }
 
-        setUrl: function (url) {
+        setUrl  (url) {
             url = url.toLowerCase().replace(/\/$/g, "");
             if (this.serverUrl !== url) {
                 this.serverUrl = url;
@@ -57,22 +75,22 @@
 //                this.transport.setPostingUrl(url);
                 this._onChanged();
             }
-        },
+        }
 
-        createDocument: function () {
+        createDocument  () {
             this.checkFactory();
-            var document = this._factory.createDocument();
+            var document = this.getFactory().createDocument();
             document.init({
                 name: urandom.animal()
             });
             this.documents.push(document);
             this._onChanged();
             return document;
-        },
+        }
 
-        createContact: function () {
+        createContact  () {
             this.checkFactory();
-            var contact = this._factory.createContact(this);
+            var contact = this.getFactory().createContact(this);
             var contactTlConnection = this._createTlConnection();
             this._addTlConnection(contactTlConnection);
             contact.init({
@@ -83,13 +101,13 @@
             this._linkContact(contact);
             this._onChanged();
             return contact;
-        },
+        }
 
-        startDirectDialog: function (contact, firstMessage) {
+        startDirectDialog  (contact, firstMessage?: any) {
             this.checkFactory();
             var dialog = this._findDirectDialog(contact);
             if (!dialog) {
-                dialog = this._factory.createDialog();
+                dialog = this.getFactory().createDialog();
                 dialog.init({name: contact.name});
                 dialog.setContact(contact); 
                 this.dialogs.push(dialog);
@@ -100,9 +118,9 @@
                 this._onChanged();
             }
             return dialog;
-        },
+        }
 
-        leaveGroupChat: function (groupChat) {
+        leaveGroupChat  (groupChat) {
             var i = this.dialogs.indexOf(groupChat);
             if (i !== -1) {
                 for (var key in this._gcByInviteId) {
@@ -120,22 +138,22 @@
             }
             groupChat.destroy();
             this._onChanged();
-        },
+        }
 
-        groupChatByInviteId: function (id) {
+        groupChatByInviteId  (id) {
             return this._gcByInviteId[id];
-        },
+        }
 
-        _handleInviteAccepted: function (obj/*displayName, invite*/) {
+        private _handleInviteAccepted  (obj/*displayName, invite*/) {
             this.startGroupChat(obj.invite, null, obj.displayName);
-        },
+        }
 
-        startGroupChat: function (invite, contact, displayName) {
+        startGroupChat  (invite, contact, displayName) {
             this.checkFactory();
             if (invite) {
                 //maybe we already have this group chat
                 for (var key in this.dialogs) {
-                    if (this.dialogs[key] instanceof GroupChat) {
+                    if (this.dialogs[key] instanceof GroupChat.GroupChat) {
                         //if (this.dialogs[key].tlgr.getUID() === invite.invite.groupUid) {
                          //   return this.dialogs[key];
                        // }
@@ -144,8 +162,8 @@
                 contact = invite.contact;
             } 
             var chatCaption = (contact)?(contact.name + " and others..."):("...")
-            var chat = this._factory.createGroupChat();
-            var grConnection = this._factory.createGrConnection();
+            var chat = this.getFactory().createGroupChat();
+            var grConnection = this.getFactory().createGrConnection();
             grConnection.init({
                 invite: (invite)?(invite.invite):null,
                 userName: displayName,
@@ -166,45 +184,45 @@
             this._onChanged();
             //console.log("startGroupChat", invite);
             return chat;
-        },
+        }
 
-        _linkDialog: function (dialog) {
-            dialog.on("changed", this._onDialogChanged, this);
-        },
+        private _linkDialog  (dialog) {
+            dialog.onChanged.on(this._onDialogChanged, this);
+        }
 
-        _onDialogChanged: function () {
+        private _onDialogChanged  () {
             var havingUnread = this.dialogs.filter(function (dialog) { return dialog.unreadCount > 0; });
             if (havingUnread.length !== this.unreadCount) {
                 this.unreadCount = havingUnread.length;
                 this._onChanged();
             }
-        },
+        }
 
-        _createTlConnection: function () {
+        private _createTlConnection  () {
             this.checkFactory();
-            var tlConnection = this._factory.createTlConnection();
+            var tlConnection = this.getFactory().createTlConnection();
             tlConnection.init();
             return tlConnection;
-        },
+        }
 
-        _addTlConnection: function (conn) {
+        private _addTlConnection  (conn) {
             this._linkTlConnection(conn);
             this.tlConnections.push(conn);
-        },
+        }
 
-        _findDirectDialog: function (contact) {
+        private _findDirectDialog  (contact) {
             var i;
             for (i = 0; i < this.dialogs.length; i += 1) {
-                if (this.dialogs[i] instanceof Dialog) {
+                if (this.dialogs[i] instanceof Dialog.Dialog) {
                     if (this.dialogs[i].contact === contact) {
                         return this.dialogs[i];
                     }
                 }
             }
             return null;
-        },
+        }
 
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
             packet.setData({
                 name: this.name,
                 bg: this.bg,
@@ -218,11 +236,11 @@
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("grConnections", context.getPacket(this.grConnections));
-        },
+        }
 
-        deserialize: function (packet, context) {
+        deserialize  (packet, context) {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
             this.bg = data.bg;
@@ -239,23 +257,23 @@
             //this.grConnections.forEach(function (grCon) { grCon.on("changed", this._onChanged, this); }, this);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
-        },
+        }
 
-        _linkTlConnection: function (conn) {
-            conn.on("message", this._onTlConnectionMessage, this);
-        },
+        private _linkTlConnection  (conn) {
+            conn.onMessage.on(this._onTlConnectionMessage, this);
+        }
 
-        _linkContact: function (contact) {
-            contact.on("inviteReceived", this._inviteReceived, this);
-            contact.on("inviteAccepted", this._handleInviteAccepted, this);
-        },
+        private _linkContact  (contact) {
+            contact.onInviteReceived.on(this._inviteReceived, this);
+            contact.onInviteAccepted.on(this._handleInviteAccepted, this);
+        }
 
-        _inviteReceived: function(invite) {
+        private _inviteReceived (invite) {
             var dialog = this.startDirectDialog(invite.contact);
             dialog.processInvite(invite);
-        },
+        }
 
-        _onTlConnectionMessage: function (message, tlConnection) {
+        private _onTlConnectionMessage  (message, tlConnection) {
             var found = this.contacts.filter(function (contact) {
                 return contact.tlConnection === tlConnection;
             });
@@ -266,6 +284,6 @@
         }
 
 
-    });
+    };
+extend(Profile.prototype, serializable);
 
-    export = Profile;

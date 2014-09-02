@@ -1,18 +1,30 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
+    import Event = require("tools/event");
+    import Model = require("tools/model");
     import serializable = require("modules/serialization/serializable");
-    import model = require("mixins/model");
     import Hex = require("modules/multivalue/hex");
     import TlecBuilder = require("modules/channels/TlecBuilder");
+    import CouchTransport = require("models/tlConnection/CouchTransport");
     import TlConnectionFilter = require("models/filters/TlConnectionFilter");
 
-    function TlConnection() {
+    export class TlConnection extends Model.Model implements ISerializable {
 
-        this._defineEvent("changed");
-        this._defineEvent("message");
+        public onMessage : Event.Event<any>;
+        public offer : any;
+        public auth : any;
 
+        private _initialTlec : any;
+        private _tlecs : Array<any>;
+        private _addrIns : Array<any>;
+        private _tlConnectionFilter : any;
+        private _transport : CouchTransport.CouchTransport;
+
+        constructor () {
+            super();
+
+            this.onMessage = new Event.Event<any>();
         this.offer = null;
         this.auth = null;
         this._initialTlec = null;
@@ -24,41 +36,40 @@
         this._transport = null;
     }
 
-    extend(TlConnection.prototype, eventEmitter, serializable, model, {
-        init: function () {
-            this._initialTlec = this._factory.createCouchTlec();
+        init  () {
+            this._initialTlec = this.getFactory().createCouchTlec();
             this._linkInitial();
             this._initialTlec.init();
             this._onChanged();
-        },
+        }
 
-        run: function () {
+        run  () {
             if (this._initialTlec) {
                 this._initialTlec.run();
             }
             this._tlecs.forEach(function (tlec) { tlec.run(); });
-        },
+        }
 
-        getStatus: function () {
+        getStatus  () {
             if (this.canSendMessages()) {
                 return TlecBuilder.STATUS_ESTABLISHED;
             }
             return this._initialTlec ? this._initialTlec.getStatus() : null;
-        },
+        }
         
-        generateOffer: function () {
+        generateOffer  () {
             this._initialTlec.generateOffer();
-        },
+        }
 
-        enterOffer: function (offer) {
+        enterOffer  (offer) {
             this._initialTlec.enterOffer(offer);
-        },
+        }
 
-        enterAuth: function (auth) {
+        enterAuth  (auth) {
             this._initialTlec.enterAuth(auth);
-        },
+        }
 
-        abortTlke: function () {
+        abortTlke  () {
             this.offer = null;
             this.auth = null;
             if (this._initialTlec) {
@@ -67,9 +78,9 @@
             this._tlecs.forEach(function (builder) { builder.destroy(); });
             this._tlecs = [];
             this.init();
-        },
+        }
 
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
 
             packet.setData({
                 offer: this.offer ? this.offer.as(Hex).serialize() : null,
@@ -79,11 +90,11 @@
 
             packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
             packet.setLink("_tlecs", context.getPacket(this._tlecs));
-        },
+        }
 
-        deserialize: function (packet, context) {
+        deserialize  (packet, context) {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             var data = packet.getData();
 
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
@@ -94,66 +105,66 @@
             this._linkInitial();
             this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createCouchTlec, factory);
             this._tlecs.forEach(this._linkFinishedTlec, this);
-        },
+        }
 
-        _linkFinishedTlec: function (tlecWrapper) {
+        _linkFinishedTlec  (tlecWrapper) {
             tlecWrapper.on("message", this._receiveMessage, this);
-        },
+        }
 
-        _addTlec: function (tlecWrapper) {
+        _addTlec  (tlecWrapper) {
             this._linkFinishedTlec(tlecWrapper);
             this._tlecs.push(tlecWrapper);
-        },
+        }
 
-        canSendMessages: function () {
+        canSendMessages  () {
             return this._tlecs.length > 0;
-        },
+        }
 
-        sendMessage: function (msg) {
+        sendMessage  (msg) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
             this._tlConnectionFilter.filter(msg);
-        },
+        }
 
-        _receiveMessage: function (messageData) {
+        _receiveMessage  (messageData) {
             this._tlConnectionFilter.unfilter(messageData);
-        },
+        }
 
-        _linkInitial: function () {
+        _linkInitial  () {
             var builder = this._initialTlec;
             if (!builder) { return; }
             builder.on("changed", this._onChanged, this);
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
-        },
+        }
 
-        _onInitialTlecBuilderDone: function (builder) {
+        _onInitialTlecBuilderDone  (builder) {
             this._initialTlec = null;
             this._addTlec(builder);
             this._onChanged();
-        },
+        }
 
-        _onInitialOffer: function (offer) {
+        _onInitialOffer  (offer) {
             this.offer = offer;
             this._onChanged();
-        },
+        }
 
-        _onInitialAuth: function (auth) {
+        _onInitialAuth  (auth) {
             if (auth) {
                 this.auth = auth;
                 this._onChanged();
             }
-        },
+        }
 
-        _onMessage: function (msg) {
-            this.fire("message", msg);
-        },
+        _onMessage  (msg) {
+            this.onMessage.emit(msg);
+        }
 
-        _onMessageSend: function (msg) {
+        _onMessageSend  (msg) {
             var activeTlec = this._tlecs[0];
             activeTlec.sendMessage(msg);
         }
 
-    });
+    };
+extend(TlConnection.prototype, serializable);
 
-    export = TlConnection;

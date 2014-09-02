@@ -1,16 +1,27 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
+    import Event = require("tools/event");
+    import Model = require("tools/model");
+    import Profile = require("models/Profile");
     import serializable = require("modules/serialization/serializable");
     import uuid = require("uuid");
-    import model = require("mixins/model");
     import TypeFilter = require("models/filters/TypeFilter");
 
-    function Contact() {
-        this._defineEvent("changed");
-        this._defineEvent("inviteReceived");
-        this._defineEvent("inviteAccepted");
+    export class Contact extends Model.Model implements ISerializable {
+        public onInviteReceived : Event.Event<any>;
+        public onInviteAccepted : Event.Event<any>;
+
+        public name : string;
+        public profile : Profile.Profile;
+        public tlConnection : any;
+        public invites : any;
+        public tlgrFilter : any;
+
+        constructor () {
+           super(); 
+            this.onInviteReceived = new Event.Event<any>();
+            this.onInviteAccepted = new Event.Event<any>();
         this.name = null;
         this.profile = null;
         this.tlConnection = null;
@@ -21,8 +32,15 @@
         this.tlgrFilter.on("unfiltered", this._sendMessage, this);
     }
 
-    extend(Contact.prototype, eventEmitter, serializable, model, {
-        init: function (args) {
+        on (eName: string, handler : any, context : any) {
+            if (eName === "inviteReceived") {
+                this.onInviteReceived.on(handler, context);
+            } else if (eName === "inviteAccepted") {
+                this.onInviteAccepted.on(handler, context);
+            }
+        }
+
+        init  (args) {
             invariant(args.tlConnection, "Can i haz args.tlConnection?");
             invariant(args.name, "Can i haz args.name?");
             this.tlConnection = args.tlConnection;
@@ -30,40 +48,40 @@
             
             this._link();
             this._onChanged();
-        },
+        }
 
-        setProfile: function (profile) {
+        setProfile  (profile) {
             this.profile = profile;
             window.profile = profile;
-        },
+        }
 
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
             packet.setData({name: this.name});
             packet.setLink("tlConnection", context.getPacket(this.tlConnection));
-        },
+        }
 
-        deserialize: function (packet, context) {
+        deserialize  (packet, context) {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
             this._link();
-        },
+        }
 
-        _link: function () {
-            this.tlConnection.on("message", this.processMessage, this);
-        },
+        _link  () {
+            this.tlConnection.onMessage.on(this.processMessage, this);
+        }
 
-        processMessage: function (message) {
+        processMessage  (message) {
             this.tlgrFilter.filter(message);
-        },
+        }
 
-        _generateInviteId: function () {
+        _generateInviteId  () {
             return uuid();
-        },
+        }
 
-        _processTlgrInvite: function (message) {
+        _processTlgrInvite  (message) {
             var invite: any = {};
             invite.id = this._generateInviteId();
             invite.message = message;
@@ -73,34 +91,34 @@
             message.id = invite.id;
             this.invites[invite.id] = message;
             this._onChanged();
-            this.fire("inviteReceived", invite);
-        },
+            this.onInviteReceived.emit(invite);
+        }
 
-        acceptInvite: function (inviteId, displayName) {
+        acceptInvite  (inviteId, displayName) {
             if (inviteId in this.invites) {
-                this.fire("inviteAccepted", { 
+                this.onInviteAccepted.emit({ 
                     invite: this.invites[inviteId],
                     displayName: displayName
                 });
                 delete this.invites[inviteId];
                 this._onChanged();
             }
-        },
+        }
 
-        rejectInvite: function (inviteId) {
+        rejectInvite  (inviteId) {
             if (inviteId in this.invites) {
                 delete this.invites[inviteId];
                 this._onChanged();
             }
-        },
+        }
 
-        sendTlgrInvite: function (message) {
+        sendTlgrInvite  (message) {
             this.tlgrFilter.unfilter(message);
-        },
+        }
 
-        _sendMessage: function (message) {
+        _sendMessage  (message) {
             this.tlConnection.sendMessage(message);
         }
-    });
+    };
+extend(Contact.prototype, serializable);
 
-    export = Contact;

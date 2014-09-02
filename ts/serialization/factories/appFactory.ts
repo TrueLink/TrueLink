@@ -20,7 +20,7 @@
 
     extend(AppFactory.prototype, prototype, {
         createProfile: function () {
-            var profile = new Profile();
+            var profile = new Profile.Profile();
             var profileFactory = new ProfileFactory(this.serializer, profile);
             profile.setFactory(profileFactory);
             profile.setApp(this.app);
@@ -45,7 +45,7 @@
         },
 
         createMenu: function () {
-            var menu = new Menu();
+            var menu = new Menu.Menu();
             menu.setFactory(this);
             menu.setApp(this.app);
             return this._observed(menu);

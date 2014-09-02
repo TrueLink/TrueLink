@@ -1,16 +1,30 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
+    import Event = require("tools/event");
     import serializable = require("modules/serialization/serializable");
+    import CouchTransport = require("models/tlConnection/CouchTransport");
+    import Profile = require("models/Profile");
     import fixedId = require("mixins/fixedId");
-    import model = require("mixins/model");
+    import Model = require("tools/model");
     import urandom = require("modules/urandom/urandom");
 
     var maxBgIndex = 3;
 
-    var Application:any = function () {
-        this._defineEvent("changed");
+    export class Application extends Model.Model implements ISerializable {
+        public transport : CouchTransport.CouchTransport;
+        public random : any;
+        public menu : any;
+        public profiles : Array<Profile.Profile>;
+        public currentProfile : Profile.Profile;
+        public router : any;
+        public defaultPollingUrl : string;
+        public fixedId : string;
+
+        constructor () {
+            super();
+
+
         this.fixedId = Application.id;
         this.transport = null;
         this.random = null;
@@ -21,10 +35,9 @@
         this.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
     }
     
-    Application.id = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
+    public static id:string = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
 
-    extend(Application.prototype, eventEmitter, serializable, fixedId, model, {
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
             packet.setData({});
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("profiles", context.getPacket(this.profiles));
@@ -33,10 +46,10 @@
             packet.setLink("router", context.getPacket(this.router));
             packet.setLink("random", context.getPacket(this.random));
 
-        },
-        deserialize: function (packet, context) {
+        }
+        deserialize  (packet, context) {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             this.random = context.deserialize(packet.getLink("random"), factory.createRandom, factory);
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile, factory);
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile, factory);
@@ -45,21 +58,21 @@
                 this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu, factory));
             } catch (ex) {
                 console.error(ex);
-                this.setMenu(this._factory.createMenu());
+                this.setMenu(this.getFactory().createMenu());
             }
 
             try {
                 this.setRouter(context.deserialize(packet.getLink("router"), factory.createRouter, factory));
             } catch (ex) {
                 console.error(ex);
-                this.setRouter(this._factory.createRouter());
+                this.setRouter(this.getFactory().createRouter());
                 this.router.navigate("home", this);
             }
 
-        },
+        }
 
 
-        setMenu: function (menu) {
+        setMenu  (menu) {
             if (this.menu) {
                 this.menu.off("currentProfileChanged", this.setCurrentProfile, this);
                 this.menu.off("addProfile", this.addProfile, this);
@@ -71,9 +84,9 @@
             }
 
             this.menu = menu;
-        },
+        }
 
-        setRouter: function (router) {
+        setRouter  (router) {
             if (this.router) {
                 this.router.off("changed", this._onChanged, this);
             }
@@ -81,11 +94,11 @@
                 router.on("changed", this._onChanged, this);
             }
             this.router = router;
-        },
+        }
 
-        init: function () {
+        init  () {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             console.log("app init");
             this.random = factory.createRandom();
 
@@ -94,31 +107,31 @@
             this.addProfile();
             this.router.navigate("home", this);
 
-        },
+        }
 
-        getProfiles: function () {
+        getProfiles  () {
             return this.profiles;
-        },
+        }
 
-        getCurrentProfile: function () {
+        getCurrentProfile  () {
             return this.currentProfile;
-        },
-        setCurrentProfile: function (profile) {
+        }
+        setCurrentProfile  (profile) {
             this.currentProfile = profile;
             this._onChanged();
-        },
+        }
 
-        _getNextBgIndex: function () {
+        _getNextBgIndex  () {
             var nextBgIndex = 0;
             this.profiles.forEach(function (profile) {
                 if (profile.bg >= nextBgIndex) { nextBgIndex = profile.bg + 1; }
                 if (nextBgIndex > maxBgIndex) { nextBgIndex = 0; }
             });
             return nextBgIndex;
-        },
+        }
 
-        addProfile: function () {
-            var profile = this._factory.createProfile();
+        addProfile  () {
+            var profile = this.getFactory().createProfile();
             profile.init({
                 name: urandom.name(),
                 bg: this._getNextBgIndex(),
@@ -129,8 +142,7 @@
             this._onChanged();
         }
 
-    });
+    };
 
-    export = Application;
-
+extend(Application.prototype, serializable, fixedId);
 

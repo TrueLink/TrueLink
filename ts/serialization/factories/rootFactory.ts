@@ -13,7 +13,7 @@
 
     extend(Factory.prototype, prototype, {
         createApp: function () {
-            var app = new App();
+            var app = new App.Application();
             var appFactory = new AppFactory(this.serializer, app);
             app.setFactory(appFactory);
             return this._observed(app);

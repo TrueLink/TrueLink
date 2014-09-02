@@ -24,18 +24,19 @@
 
     extend(ProfileFactory.prototype, prototype, {
         createContact: function () {
-            var contact = new Contact();
+            var contact = new Contact.Contact();
             contact.setProfile(this.profile);
             contact.setFactory(this);
             return this._observed(contact);
         },
 
         createDialog: function () {
-            var dialog = new Dialog();
+            var dialog = new Dialog.Dialog();
             dialog.setProfile(this.profile);
             dialog.setFactory(this);
             return this._observed(dialog);
         },
+
         createRandom: function () {
             return this.getInstance("Random");
         },
@@ -51,8 +52,9 @@
                 return this.createGroupChat();
             }
         },
+
         createGroupChat: function () {
-            var chat = new GroupChat();
+            var chat = new GroupChat.GroupChat();
             chat.setProfile(this.profile);
             chat.setFactory(this);
             return this._observed(chat);
@@ -77,7 +79,7 @@
         },
 
         createTlConnection: function () {
-            var tlConnection = new TlConnection();
+            var tlConnection = new TlConnection.TlConnection();
             var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile);
             tlConnection.setFactory(tlConnectionFactory);
             return this._observed(tlConnection);
