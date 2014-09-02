@@ -11,7 +11,7 @@
 
     export class TlConnection extends Model.Model implements ISerializable {
 
-        public onMessage : Event.Event<any>;
+        public onMessage : Event.Event<IUserMessage>;
         public offer : any;
         public auth : any;
 
@@ -24,7 +24,7 @@
         constructor () {
             super();
 
-            this.onMessage = new Event.Event<any>();
+            this.onMessage = new Event.Event<IUserMessage>();
         this.offer = null;
         this.auth = null;
         this._initialTlec = null;
@@ -120,7 +120,7 @@
             return this._tlecs.length > 0;
         }
 
-        sendMessage  (msg) {
+        sendMessage  (msg : IUserMessage) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
             this._tlConnectionFilter.filter(msg);
         }
@@ -156,7 +156,7 @@
             }
         }
 
-        _onMessage  (msg) {
+        _onMessage  (msg : IUserMessage) {
             this.onMessage.emit(msg);
         }
 
@@ -164,7 +164,6 @@
             var activeTlec = this._tlecs[0];
             activeTlec.sendMessage(msg);
         }
-
     };
 extend(TlConnection.prototype, serializable);
 

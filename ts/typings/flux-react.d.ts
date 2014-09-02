@@ -26,6 +26,16 @@ interface IEventEmitter {
     fire?:  (name : any, args : any) => any;
     checkEventHandlers?:  () => any;
 }
+interface ITlgrInvitationMessage extends IUserMessage {
+
+    invitation : ITlgrInvitation;
+}
+interface ITlgrInvitationWrapper {
+            id : string;
+            message : ITlgrInvitationMessage;
+            contact : any;
+            metadata : any;
+}
 
 interface ISerializable {
     looksLikeSerializable?:  (obj : any) => any;
@@ -35,6 +45,19 @@ interface ISerializable {
     getMeta?:  () => any;
     exportMeta?:  (packet : any, context : any) => any;
     importMeta?:  (packet : any, context : any) => any;
+}
+interface IUserMessage {
+    isMine?: boolean;
+    time?: Date;
+    unread?: boolean;
+    sender?: string;
+    metadata?: any;
+    //hacks for invitations to tlgr
+    id?: string;
+    contact?: any;
+}
+interface ITextMessage extends IUserMessage { 
+    text : string;
 }
 
 interface ICouchTransport extends ISerializable, IEventEmitter, IModel {
@@ -86,6 +109,8 @@ interface ITlgrUserData{
 interface ITlgrShortUserInfo {
     aid: string;
     name: string;
+    //little hack
+    oldchannel?:boolean;
 }
 
 //wrapper because this is what we pass to "message" event listener,

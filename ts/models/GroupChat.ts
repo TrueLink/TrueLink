@@ -7,13 +7,14 @@
     import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
     import CouchAdapter = require("models/tlConnection/CouchAdapter");
+    import Profile = require("models/Profile");
 
     export class GroupChat extends Model.Model implements ISerializable {
-        public profile : any;
+        public profile : Profile.Profile;
         public grConnection : GrConnection.GrConnection;
         public name : string;
         
-        private messages : Array<any>;
+        private messages : Array<IUserMessage>;
         private unreadCount : number;
         
         constructor () {
@@ -40,7 +41,7 @@
             this._onChanged();
         }
 
-        _handleUserJoined  (user) {
+        _handleUserJoined  (user : ITlgrShortUserInfo) {
             if (user.aid === this.grConnection.getMyAid()) {
                 this._pushMessage({
                     text: "You have joined a chat",
@@ -58,7 +59,7 @@
             }
         }
 
-        _handleUserLeft  (user) {
+        _handleUserLeft  (user: ITlgrShortUserInfo) {
             if (user === this.grConnection.getMyAid()) {
                 //probably won't see this
                 this._pushMessage({
@@ -83,8 +84,8 @@
             this.grConnection.onUserLeft.on(this._handleUserLeft, this);
         }
 
-        sendMessage  (message) {
-            var msg : any = {
+        sendMessage  (message : string) {
+            var msg : ITextMessage = {
                 text: message,
                 sender: this.grConnection.getMyName() + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
             }
@@ -103,15 +104,18 @@
         }
 
         //handleMessage
-        processMessage  (message) {
-            message.isMine = false;
-            message.unread = true;
-            message.sender = message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4)
+        processMessage  (message: ITlgrTextMessageWrapper) {
+            var m : ITextMessage = {
+                isMine : false,
+                unread : true,
+                sender : message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4),
+                text : message.text
+            }
 
-            this._pushMessage(message);
+            this._pushMessage(m);
         }
 
-        _pushMessage  (message) {
+        _pushMessage  (message: ITextMessage) {
             message.time = new Date();
             this.messages.push(message);
             if (message.unread) {

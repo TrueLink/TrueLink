@@ -11,7 +11,7 @@
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
         public name : string;
-        public messages : Array<any>;
+        public messages : Array<IUserMessage>;
         public contact : Contact.Contact;
         public unreadCount : number;
         public typeFilter : any;
@@ -30,7 +30,7 @@
         this.typeFilter.on("unfiltered", this._onMessage, this);
     }
 
-        setProfile  (profile) {
+        setProfile  (profile: Profile.Profile) {
             this.profile = profile;
         }
 
@@ -40,7 +40,7 @@
             this._onChanged();
         }
 
-        setContact  (contact, skipChanged) {
+        setContact  (contact:Contact.Contact, skipChanged) {
             if (this.contact) {
                 return;
             }
@@ -51,8 +51,8 @@
             }
         }
 
-        sendMessage  (message) {
-            var msg = {
+        sendMessage  (message: string) {
+            var msg: ITextMessage = {
                 text: message,
                 sender: this.profile.name
             };
@@ -67,7 +67,7 @@
             this.typeFilter.filter(message);
         }
 
-        processInvite  (invite) {
+        processInvite  (invite : ITlgrInvitationWrapper) {
             var message : any = {};
             message.type = "tlgr-invite";
             message.sender = invite.contact.name;
@@ -85,7 +85,7 @@
             this._pushMessage(message);
         }
 
-        _processMessage  (message) {
+        _processMessage  (message : IUserMessage) {
             var tlConnection = message.metadata.tlConnection;
             if (this.contact.tlConnection === tlConnection) {
                 message.sender = this.contact.name;
@@ -94,7 +94,7 @@
             this._pushMessage(message);
         }
 
-        _pushMessage  (message) {
+        _pushMessage  (message : IUserMessage) {
             message.time = new Date();
             //message.dialog = this;
             this.messages.push(message);
@@ -115,7 +115,7 @@
                 this._onChanged();
             }
         }
-        hasSecureChannels  () {
+        hasSecureChannels () {
             if (!this.contact) {
                 return false;
             }
@@ -155,7 +155,7 @@
             this.setContact(contact, true);
         }
 
-        _onMessage  (message) {
+        _onMessage  (message : IUserMessage) {
             if (this.contact) {
                 this.contact.tlConnection.sendMessage(message);
             }

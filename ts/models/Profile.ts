@@ -268,7 +268,7 @@
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
         }
 
-        private _inviteReceived (invite) {
+        private _inviteReceived (invite : ITlgrInvitationWrapper) {
             var dialog = this.startDirectDialog(invite.contact);
             dialog.processInvite(invite);
         }

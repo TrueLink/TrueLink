@@ -8,19 +8,24 @@
     import uuid = require("uuid");
     import TypeFilter = require("models/filters/TypeFilter");
 
+    export interface IInviteAccepted {
+        displayName: string;
+        invite : ITlgrInvitationMessage;
+    }
+
     export class Contact extends Model.Model implements ISerializable {
-        public onInviteReceived : Event.Event<any>;
-        public onInviteAccepted : Event.Event<any>;
+        public onInviteReceived : Event.Event<ITlgrInvitationWrapper>;
+        public onInviteAccepted : Event.Event<IInviteAccepted>;
 
         public name : string;
         public profile : Profile.Profile;
         public tlConnection : any;
-        public invites : any;
+        public invites : {[key:string] : ITlgrInvitationMessage };
         public tlgrFilter : any;
 
         constructor () {
            super(); 
-            this.onInviteReceived = new Event.Event<any>();
+            this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>();
             this.onInviteAccepted = new Event.Event<any>();
         this.name = null;
         this.profile = null;
@@ -81,12 +86,13 @@
             return uuid();
         }
 
-        _processTlgrInvite  (message) {
-            var invite: any = {};
-            invite.id = this._generateInviteId();
-            invite.message = message;
-            invite.contact = this;
-            invite.metadata = message.metadata;
+        _processTlgrInvite  (message: ITlgrInvitationMessage) {
+            var invite: ITlgrInvitationWrapper = {
+            id : this._generateInviteId(),
+                message : message,
+                contact : this,
+                metadata : message.metadata
+            }
             message.contact = this;
             message.id = invite.id;
             this.invites[invite.id] = message;
@@ -94,7 +100,7 @@
             this.onInviteReceived.emit(invite);
         }
 
-        acceptInvite  (inviteId, displayName) {
+        acceptInvite  (inviteId : string, displayName) {
             if (inviteId in this.invites) {
                 this.onInviteAccepted.emit({ 
                     invite: this.invites[inviteId],
@@ -105,18 +111,18 @@
             }
         }
 
-        rejectInvite  (inviteId) {
+        rejectInvite (inviteId : string) {
             if (inviteId in this.invites) {
                 delete this.invites[inviteId];
                 this._onChanged();
             }
         }
 
-        sendTlgrInvite  (message) {
+        sendTlgrInvite  (message : ITlgrInvitationMessage) {
             this.tlgrFilter.unfilter(message);
         }
 
-        _sendMessage  (message) {
+        _sendMessage (message : IUserMessage) {
             this.tlConnection.sendMessage(message);
         }
     };

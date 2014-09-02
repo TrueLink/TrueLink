@@ -12,9 +12,9 @@
     import CouchTransport = require("models/tlConnection/CouchTransport");
 
     export class GrConnection extends Model.Model implements ISerializable {
-        public onUserJoined : Event.Event<any>;
-        public onUserLeft : Event.Event<any>;
-        public onMessage : Event.Event<any>;
+        public onUserJoined : Event.Event<ITlgrShortUserInfo>;
+        public onUserLeft : Event.Event<ITlgrShortUserInfo>;
+        public onMessage : Event.Event<ITlgrTextMessageWrapper>;
 
         private _activeTlgr : ITlgr;
         private _oldTlgr : ITlgr;
@@ -24,8 +24,8 @@
 
         constructor () {
             super();
-            this.onUserJoined = new Event.Event<any>();
-            this.onUserLeft = new Event.Event<any>();
+            this.onUserJoined = new Event.Event<ITlgrShortUserInfo>();
+            this.onUserLeft = new Event.Event<ITlgrShortUserInfo>();
             this.onMessage = new Event.Event<any>();
 
         this._activeTlgr = null;
@@ -53,7 +53,7 @@
             return this._activeTlgr.getMyAid();
         }
 
-        sendMessage  (message) {
+        sendMessage  (message : string) {
             this._activeTlgr.sendMessage(message);
         }
 
@@ -78,7 +78,7 @@
             }
         }
 
-        private _handleUserJoined  (user, tlgr : ITlgr) {
+        private _handleUserJoined  (user : ITlgrShortUserInfo, tlgr : ITlgr) {
             if (tlgr == this._oldTlgr) {
                 user.oldchannel = true;
             }
@@ -92,7 +92,7 @@
             this.onUserLeft.emit(user, this);
         }
 
-        private _handleMessage  (msg, tlgr : ITlgr) {
+        private _handleMessage  (msg: ITlgrTextMessageWrapper, tlgr : ITlgr) {
             if (tlgr == this._oldTlgr) {
                 msg.sender.oldchannel = true;
             }

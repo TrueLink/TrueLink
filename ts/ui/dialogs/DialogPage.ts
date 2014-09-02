@@ -53,7 +53,7 @@
             for (var key in contacts) {
                 var contact = contacts[key];
                 if(contact.tlConnection.canSendMessages()){
-                    var invitation = chat.grConnection._activeTlgr.generateInvitation();
+                    var invitation: ITlgrInvitation = chat.grConnection._activeTlgr.generateInvitation();
                     contact.sendTlgrInvite({invite: invitation});
                 }
             }
