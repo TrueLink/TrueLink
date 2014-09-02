@@ -6,7 +6,6 @@
     import Profile = require("models/Profile");
     import Contact = require("models/Contact");
     import Model = require("tools/model");
-    import TypeFilter = require("models/filters/TypeFilter");
 
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
@@ -14,7 +13,6 @@
         public messages : Array<IUserMessage>;
         public contact : Contact.Contact;
         public unreadCount : number;
-        public typeFilter : any;
 
         constructor () {
 
@@ -25,9 +23,6 @@
         this.contact = null;
         this.unreadCount = 0;
 
-        this.typeFilter = new TypeFilter("receiver", "dialog");
-        this.typeFilter.on("filtered", this._processMessage, this);
-        this.typeFilter.on("unfiltered", this._onMessage, this);
     }
 
         setProfile  (profile: Profile.Profile) {
@@ -45,7 +40,7 @@
                 return;
             }
             this.contact = contact;
-            contact.tlConnection.onMessage.on(this.processMessage, this);
+            contact.tlConnection.onMessage.on(this._processMessage, this);
             if (!skipChanged) {
                 this._onChanged();
             }
@@ -59,12 +54,10 @@
             this._pushMessage(extend({}, msg, {
                 isMine: true
             }));
-            this.typeFilter.unfilter(msg);
+            if (this.contact) {
+                this.contact.tlConnection.sendMessage(msg);
+            }
             this._onChanged();
-        }
-
-        processMessage  (message) {
-            this.typeFilter.filter(message);
         }
 
         processInvite  (invite : ITlgrInvitationWrapper) {
@@ -156,9 +149,7 @@
         }
 
         _onMessage  (message : IUserMessage) {
-            if (this.contact) {
-                this.contact.tlConnection.sendMessage(message);
-            }
+          
         }
     };
 

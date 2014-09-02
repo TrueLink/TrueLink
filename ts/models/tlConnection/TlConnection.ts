@@ -7,7 +7,7 @@
     import Hex = require("modules/multivalue/hex");
     import TlecBuilder = require("modules/channels/TlecBuilder");
     import CouchTransport = require("models/tlConnection/CouchTransport");
-    import TlConnectionFilter = require("models/filters/TlConnectionFilter");
+    import Utf8String = require("modules/multivalue/utf8string");
 
     export class TlConnection extends Model.Model implements ISerializable {
 
@@ -18,7 +18,6 @@
         private _initialTlec : any;
         private _tlecs : Array<any>;
         private _addrIns : Array<any>;
-        private _tlConnectionFilter : any;
         private _transport : CouchTransport.CouchTransport;
 
         constructor () {
@@ -30,9 +29,6 @@
         this._initialTlec = null;
         this._tlecs = [];
         this._addrIns = [];
-        this._tlConnectionFilter = new TlConnectionFilter(this);
-        this._tlConnectionFilter.on("filtered", this._onMessageSend, this);
-        this._tlConnectionFilter.on("unfiltered", this._onMessage, this);
         this._transport = null;
     }
 
@@ -122,11 +118,16 @@
 
         sendMessage  (msg : IUserMessage) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
-            this._tlConnectionFilter.filter(msg);
+            var data = Utf8String.fromString(JSON.stringify(msg));
+            var activeTlec = this._tlecs[0];
+            activeTlec.sendMessage(data);
         }
 
         _receiveMessage  (messageData) {
-            this._tlConnectionFilter.unfilter(messageData);
+            var result = JSON.parse(messageData.as(Utf8String).toString());
+            result.metadata = result.metadata || {};
+            result.metadata.tlConnection = this;
+            this.onMessage.emit(result);
         }
 
         _linkInitial  () {
@@ -154,15 +155,6 @@
                 this.auth = auth;
                 this._onChanged();
             }
-        }
-
-        _onMessage  (msg : IUserMessage) {
-            this.onMessage.emit(msg);
-        }
-
-        _onMessageSend  (msg) {
-            var activeTlec = this._tlecs[0];
-            activeTlec.sendMessage(msg);
         }
     };
 extend(TlConnection.prototype, serializable);

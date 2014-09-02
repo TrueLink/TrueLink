@@ -6,7 +6,6 @@
     import Profile = require("models/Profile");
     import serializable = require("modules/serialization/serializable");
     import uuid = require("uuid");
-    import TypeFilter = require("models/filters/TypeFilter");
 
     export interface IInviteAccepted {
         displayName: string;
@@ -31,10 +30,6 @@
         this.profile = null;
         this.tlConnection = null;
         this.invites = {};
-
-        this.tlgrFilter = new TypeFilter("type", "tlgr-invite");
-        this.tlgrFilter.on("filtered", this._processTlgrInvite, this);
-        this.tlgrFilter.on("unfiltered", this._sendMessage, this);
     }
 
         on (eName: string, handler : any, context : any) {
@@ -79,7 +74,9 @@
         }
 
         processMessage  (message) {
-            this.tlgrFilter.filter(message);
+            if(message.type === "tlgr-invite") {
+                this._processTlgrInvite (message);
+            }
         }
 
         _generateInviteId  () {
@@ -119,7 +116,8 @@
         }
 
         sendTlgrInvite  (message : ITlgrInvitationMessage) {
-            this.tlgrFilter.unfilter(message);
+            message.type = "tlgr-invite";
+            this._sendMessage(message);
         }
 
         _sendMessage (message : IUserMessage) {

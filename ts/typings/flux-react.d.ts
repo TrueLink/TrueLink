@@ -52,12 +52,14 @@ interface IUserMessage {
     unread?: boolean;
     sender?: string;
     metadata?: any;
+    type?:any;
     //hacks for invitations to tlgr
     id?: string;
     contact?: any;
 }
 interface ITextMessage extends IUserMessage { 
     text : string;
+    
 }
 
 interface ICouchTransport extends ISerializable, IEventEmitter, IModel {
