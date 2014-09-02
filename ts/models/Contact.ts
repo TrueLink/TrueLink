@@ -90,7 +90,7 @@
                 contact : this,
                 metadata : message.metadata
             }
-            message.contact = this;
+            //message.contact = this;
             message.id = invite.id;
             this.invites[invite.id] = message;
             this._onChanged();
