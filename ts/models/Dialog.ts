@@ -49,7 +49,8 @@
         sendMessage  (message: string) {
             var msg: ITextMessage = {
                 text: message,
-                sender: this.profile.name
+                sender: this.profile.name,
+                type: "text"
             };
             this._pushMessage(extend({}, msg, {
                 isMine: true
@@ -79,6 +80,9 @@
         }
 
         _processMessage  (message : IUserMessage) {
+            if(message.type !== "text") {
+                return;
+            }
             var tlConnection = message.metadata.tlConnection;
             if (this.contact.tlConnection === tlConnection) {
                 message.sender = this.contact.name;
@@ -148,9 +152,6 @@
             this.setContact(contact, true);
         }
 
-        _onMessage  (message : IUserMessage) {
-          
-        }
     };
 
 extend(Dialog.prototype, serializable);
