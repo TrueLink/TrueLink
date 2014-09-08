@@ -19,6 +19,8 @@
     import DialogPageModel = require("models/pageModels/DialogPageModel");
     import DocumentsPage = require("ui/documents/DocumentsPage");
     import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
+    import ProfileSettingsPage = require("ui/profile/ProfileSettingsPage");
+    import ProfileSettingsPageModel = require("models/pageModels/ProfileSettingsPageModel");
 
     var pages = {
         "home": {
@@ -28,6 +30,11 @@
         "contacts": {
             view: ContactsPage,
             model: ContactsPageModel
+        },
+
+        "profileSettings": {
+            view: ProfileSettingsPage,
+            model: ProfileSettingsPageModel
         },
 
         "contact": {

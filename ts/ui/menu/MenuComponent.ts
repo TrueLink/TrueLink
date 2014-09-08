@@ -27,7 +27,7 @@
                     className: "menu-item last"
                 },
                 "Profile settings": {
-                    handler: router.createNavigateHandler("profile", currentProfile),
+                    handler: router.createNavigateHandler("profileSettings", currentProfile),
                     className: "menu-item secondary"
                 },
                 "Clear storage (temp)": {
