@@ -10,7 +10,7 @@
         handleDialogClick: function (dialog) {
             //TODO: make something better here
             var view = "dialog";
-            if(dialog instanceof GroupChat) {
+            if(dialog instanceof GroupChat.GroupChat) {
                 view = "groupChat";
             }
             this.props.router.navigate(view, dialog);

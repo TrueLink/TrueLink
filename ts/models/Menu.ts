@@ -1,70 +1,74 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
+    import Event = require("tools/event");
     import serializable = require("modules/serialization/serializable");
-    import model = require("mixins/model");
+    import Model = require("tools/model");
+    import Application = require("models/App");
+    import Profile = require("models/Profile");
     import fixedId = require("mixins/fixedId");
     import bind = require("mixins/bind");
 
-    function Menu() {
+    export class Menu extends Model.Model implements ISerializable {
+        public fixedId : string;
+        public onCurrentProfileChanged : Event.Event<any>;
+        public onAddProfile : Event.Event<any>;
+        public app : Application.Application;
+
+        constructor () {
+            super();
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";
-        this._defineEvent("changed");
-        this._defineEvent("currentProfileChanged");
-        this._defineEvent("addProfile");
+        this.onCurrentProfileChanged = new Event.Event<any>();
+        this.onAddProfile = new Event.Event<any>();
         this.app = null;
     }
 
-    extend(Menu.prototype, eventEmitter, serializable, fixedId, model, bind, {
-
-        setApp: function (app) {
+        setApp  (app) {
             if (this.app) {
-                this.app.off("changed", this._onAppChanged, this);
+                this.app.onChanged.off(this._onAppChanged, this);
             }
-            app.on("changed", this._onAppChanged, this);
+            app.onChanged.on(this._onAppChanged, this);
             this.app = app;
-        },
-        serialize: function (packet, context) {
+        }
+        serialize  (packet, context) {
 
-        },
-        deserialize: function (packet, context) {
+        }
+        deserialize  (packet, context) {
 
-        },
+        }
 
-        getCurrentProfile: function () {
+        getCurrentProfile  () {
             this._checkApp();
             return this.app.getCurrentProfile();
-        },
+        }
 
-        setCurrentProfile: function (profile) {
-            this.fire("currentProfileChanged", profile);
-        },
+        setCurrentProfile  (profile) {
+            this.onCurrentProfileChanged.emit(profile);
+        }
 
-        getProfiles: function () {
+        getProfiles  () {
             this._checkApp();
             return this.app.getProfiles();
-        },
+        }
 
-        addProfile: function () {
+        addProfile  () {
             this._checkApp();
-            this.fire("addProfile");
-        },
+            this.onAddProfile.emit(null);
+        }
 
-        _checkApp: function () {
+        _checkApp  () {
             invariant(this.app, "app is not set");
-        },
+        }
 
-        _relinkProfile: function (profile) {
-            profile.off("changed", this._onChanged, this);
-            profile.on("changed", this._onChanged, this);
-        },
+        _relinkProfile  (profile) {
+            profile.onChanged.off(this._onChanged, this);
+            profile.onChanged.on(this._onChanged, this);
+        }
 
-        _onAppChanged: function () {
+        _onAppChanged  () {
             this.app.profiles.forEach(this._relinkProfile, this);
             // everything will be reconstructed anyway on app "changed"
             this._onChanged();
         }
-
-    });
-
-    export = Menu;
+    };
+extend(Menu.prototype, serializable, fixedId, bind);

@@ -9,7 +9,7 @@
     import GroupChat = require("models/GroupChat");
 
     function GroupChatPageModel() {
-        this.accepts = GroupChat;
+        this.accepts = GroupChat.GroupChat;
         this._defineEvent("changed");
     }
 

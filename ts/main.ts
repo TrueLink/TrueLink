@@ -20,7 +20,7 @@ import React = require("react");
                 linkCount: 0,
                 objCount: 0
             };
-            var appPacket = serializer.createPacket(query, "Application", Application.id, null, counterObj), app;
+            var appPacket = serializer.createPacket(query, "Application", Application.Application.id, null, counterObj), app;
             if (appPacket) {
                 app = serializer.deserialize(appPacket, serializer.createApp, serializer);
                 console.log("app deserialized: %s objects (~%s KB), %s links", counterObj.objCount, (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);

@@ -9,7 +9,7 @@
     import Profile = require("models/Profile");
 
     function DialogsPageModel() {
-        this.accepts = Profile;
+        this.accepts = Profile.Profile;
         this._defineEvent("changed");
     }
 

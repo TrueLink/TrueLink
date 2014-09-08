@@ -9,7 +9,7 @@
     import Contact = require("models/Contact");
 
     function ContactPageModel() {
-        this.accepts = Contact;
+        this.accepts = Contact.Contact;
         this._defineEvent("changed");
     }
 

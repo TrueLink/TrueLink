@@ -1,30 +1,37 @@
     "use strict";
     import invariant = require("modules/invariant");
     import extend = require("tools/extend");
+    import Model = require("tools/model");
+    import GrConnection = require("models/grConnection/GrConnection");
     import eventEmitter = require("modules/events/eventEmitter");
     import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
     import CouchAdapter = require("models/tlConnection/CouchAdapter");
+    import Profile = require("models/Profile");
 
-    function GroupChat() {
-        this._defineEvent("changed");
+    export class GroupChat extends Model.Model implements ISerializable {
+        public profile : Profile.Profile;
+        public grConnection : GrConnection.GrConnection;
+        public name : string;
+        
+        private messages : Array<IUserMessage>;
+        private unreadCount : number;
+        
+        constructor () {
+            super();
+            console.log("Constructing GroupChat...");
+            this.profile = null;
+            this.grConnection = null;
+            this.name = null;
+            this.messages = [];
+            this.unreadCount = 0;
+        }
 
-        console.log("Constructing GroupChat...");
-        this.profile = null;
-        this.grConnection = null;
-        this.name = null;
-        this.messages = [];
-        this.adapter = null;
-        this.since = 0;
-        this.unreadCount = 0;
-    }
-
-    extend(GroupChat.prototype, eventEmitter, serializable, model, {
-        setProfile: function (profile) {
+        setProfile (profile) {
             this.profile = profile;
-        },
+        }
 
-        init: function (args) {
+        init  (args) {
             invariant(args.name, "Can i haz args.name?");
             invariant(args.grConnection, "Can i haz args.grConnection?");
             
@@ -32,9 +39,9 @@
             this.grConnection = args.grConnection;
             this._setTlgrEventHandlers();
             this._onChanged();
-        },
+        }
 
-        _handleUserJoined: function (user) {
+        _handleUserJoined  (user : ITlgrShortUserInfo) {
             if (user.aid === this.grConnection.getMyAid()) {
                 this._pushMessage({
                     text: "You have joined a chat",
@@ -50,9 +57,9 @@
                     sender: "system"
                 });
             }
-        },
+        }
 
-        _handleUserLeft: function (user) {
+        _handleUserLeft  (user: ITlgrShortUserInfo) {
             if (user === this.grConnection.getMyAid()) {
                 //probably won't see this
                 this._pushMessage({
@@ -69,16 +76,16 @@
                     sender: "system"
                 });
             }
-        },
+        }
 
-        _setTlgrEventHandlers: function () {
+        _setTlgrEventHandlers  () {
             this.grConnection.onMessage.on(this.processMessage, this);
             this.grConnection.onUserJoined.on(this._handleUserJoined, this);
             this.grConnection.onUserLeft.on(this._handleUserLeft, this);
-        },
+        }
 
-        sendMessage: function (message) {
-            var msg : any = {
+        sendMessage  (message : string) {
+            var msg : ITextMessage = {
                 text: message,
                 sender: this.grConnection.getMyName() + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
             }
@@ -87,34 +94,37 @@
             if (this.grConnection) {
                 this.grConnection.sendMessage(message);
             }
-        },
+        }
 
-        destroy: function () {
+        destroy  () {
             if (this.grConnection) {
                 this.grConnection.destroy();
             }
             this.grConnection = null;
-        },
+        }
 
         //handleMessage
-        processMessage: function (message) {
-            message.isMine = false;
-            message.unread = true;
-            message.sender = message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4)
+        processMessage  (message: ITlgrTextMessageWrapper) {
+            var m : ITextMessage = {
+                isMine : false,
+                unread : true,
+                sender : message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4),
+                text : message.text
+            }
 
-            this._pushMessage(message);
-        },
+            this._pushMessage(m);
+        }
 
-        _pushMessage: function (message) {
+        _pushMessage  (message: ITextMessage) {
             message.time = new Date();
             this.messages.push(message);
             if (message.unread) {
                 this.unreadCount += 1;
             }
             this._onChanged();
-        },
+        }
 
-        markAsRead: function () {
+        markAsRead  () {
             if (this.unreadCount) {
                 this.messages.forEach(function (msg) {
                     if (msg.unread) {
@@ -124,24 +134,23 @@
                 this.unreadCount = 0;
                 this._onChanged();
             }
-        },
+        }
 
-        serialize: function (packet, context) {
+        serialize  (packet, context) {
             packet.setData({
                 _type_: "GroupChat",
                 name: this.name,
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
-        },
+        }
 
-        deserialize: function (packet, context) {
+        deserialize  (packet, context) {
             this.checkFactory();
-            var factory = this._factory;
+            var factory = this.getFactory();
             this.name = packet.getData().name;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
             this._setTlgrEventHandlers();
         }
 
-    });
-
-    export = GroupChat;
+    }
+extend(GroupChat.prototype, serializable);

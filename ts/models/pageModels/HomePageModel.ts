@@ -10,7 +10,7 @@
 
 
     function HomePageModel() {
-        this.accepts = App;
+        this.accepts = App.Application;
         this._defineEvent("changed");
 
     }

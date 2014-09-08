@@ -9,7 +9,7 @@
     import Dialog = require("models/Dialog");
 
     function DialogPageModel() {
-        this.accepts = Dialog;
+        this.accepts = Dialog.Dialog;
         this._defineEvent("changed");
     }
 
