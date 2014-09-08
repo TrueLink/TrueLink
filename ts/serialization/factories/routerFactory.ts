@@ -12,6 +12,7 @@
     import GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
     import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
     import DocumentPageModel = require("models/pageModels/DocumentPageModel");
+    import ProfileSettingsPageModel = require("models/pageModels/ProfileSettingsPageModel");
 
     function RouterFactory(serializer, router) {
         invariant(serializer, "Can i haz serializer?");
@@ -26,7 +27,7 @@
         this.resolver.item(5, DocumentsPageModel);
         this.resolver.item(6, DocumentPageModel);
         this.resolver.item(7, GroupChatPageModel);
-
+        this.resolver.item(8, ProfileSettingsPageModel);
         this.router = router;
     }
 
