@@ -4,6 +4,7 @@
     import Event = require("tools/event");
     import Model = require("tools/model");
     import Profile = require("models/Profile");
+    import MessageHistory = require("models/MessageHistory");
     import serializable = require("modules/serialization/serializable");
     import uuid = require("uuid");
 
@@ -21,6 +22,7 @@
         public tlConnection : any;
         public invites : {[key:string] : ITlgrInvitationMessage };
         public tlgrFilter : any;
+        public history : MessageHistory.MessageHistory;
 
         constructor () {
            super(); 
@@ -58,6 +60,7 @@
         serialize  (packet, context) {
             packet.setData({name: this.name});
             packet.setLink("tlConnection", context.getPacket(this.tlConnection));
+            packet.setLink("history", context.getPacket(this.history));
         }
 
         deserialize  (packet, context) {
@@ -66,6 +69,11 @@
             var data = packet.getData();
             this.name = data.name;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
+            this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
+            if (!this.history) {
+                this.history = new MessageHistory.MessageHistory();
+            }
+            
             this._link();
         }
 

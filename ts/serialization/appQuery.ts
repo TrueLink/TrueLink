@@ -61,8 +61,10 @@
         Menu: {},
         Document: {},
         Contact: {
-            tlConnection: {propType: "one", type: "TlConnection"}
+            tlConnection: {propType: "one", type: "TlConnection"},
+            history: {propType: "one", type: "MessageHistory"}
         },
+        MessageHistory: {},
         Router: {
             pageModel: {propType: "one", type: "PageModel"}
         },

@@ -7,6 +7,7 @@
     import Contact = require("models/Contact");
     import Dialog = require("models/Dialog");
     import GroupChat = require("models/GroupChat");
+    import MessageHistory = require("models/MessageHistory");
 
     import TlConnection = require("models/tlConnection/TlConnection");
     import GrConnection = require("models/grConnection/GrConnection");
@@ -76,6 +77,12 @@
             var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
             grConnection.setFactory(grConnectionFactory);
             return this._observed(grConnection);
+        },
+
+        createMessageHistory: function () {
+            var history = new MessageHistory.MessageHistory();
+            history.setFactory(this);
+            return this._observed(history);
         },
 
         createTlConnection: function () {
