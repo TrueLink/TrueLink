@@ -33,6 +33,7 @@
     }
 
         on (eName: string, handler : any, context : any) {
+            super.on(eName, handler, context);
             if (eName === "inviteReceived") {
                 this.onInviteReceived.on(handler, context);
             } else if (eName === "inviteAccepted") {
