@@ -5,12 +5,13 @@
     import Model = require("tools/model");
     import serializable = require("modules/serialization/serializable");
 
-    export interface IHistoryEntry {
-        date: Date;
-    }
-
     export class MessageHistory extends Model.Model implements ISerializable {
-        private messages: Array<IHistoryEntry>;
+        private messages: Array<IUserMessage>;
+
+        constructor () {
+            super ();
+            this.messages = [];
+        }
 
         serialize(packet, context) {
             packet.setData({
@@ -24,12 +25,12 @@
         }
         
         recordMessage (m: IUserMessage) {
+            this.messages.push(m);
         }
 
-        getHistory () : Array<IHistoryEntry> {
+        getHistory () : Array<IUserMessage> {
             return this.messages;
         }
-        
     }
     
 extend(MessageHistory.prototype, serializable);
