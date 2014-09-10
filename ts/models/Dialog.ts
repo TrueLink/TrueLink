@@ -5,12 +5,13 @@
     import serializable = require("modules/serialization/serializable");
     import Profile = require("models/Profile");
     import Contact = require("models/Contact");
+    import MessageHistory = require("models/MessageHistory");
     import Model = require("tools/model");
 
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
         public name : string;
-        public messages : Array<IUserMessage>;
+        public history : MessageHistory.MessageHistory;
         public contact : Contact.Contact;
         public unreadCount : number;
 
@@ -19,7 +20,7 @@
             super();
         this.profile = null;
         this.name = null;
-        this.messages = [];
+        this.history = null;
         this.contact = null;
         this.unreadCount = 0;
 
@@ -32,6 +33,7 @@
         init  (args) {
             invariant(args.name, "Can i haz args.name?");
             this.name = args.name;
+            this.history = new MessageHistory.MessageHistory();
             this._onChanged();
         }
 
@@ -93,8 +95,11 @@
 
         _pushMessage  (message : IUserMessage) {
             message.time = new Date();
+            if (message.metadata) {
+                delete message.metadata;
+            }
             //message.dialog = this;
-            this.messages.push(message);
+            this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
             }
@@ -103,7 +108,7 @@
 
         markAsRead  () {
             if (this.unreadCount) {
-                this.messages.forEach(function (msg) {
+                this.history.getHistory().forEach(function (msg) {
                     if (msg.unread) {
                         msg.unread = false;
                     }
@@ -125,18 +130,11 @@
         serialize  (packet, context) {
             var firstUnreadIndex = null,
                 lastUnreadIndex = null;
-            this.messages.forEach(function (msg, index) {
-                delete msg.metadata;
-                if (msg.unread) {
-                    firstUnreadIndex = (firstUnreadIndex || firstUnreadIndex === 0) ? firstUnreadIndex : index;
-                    lastUnreadIndex = index;
-                }
-            });
+            packet.setLink("history", context.getPacket(this.history));
             packet.setData({
                 _type_: "Dialog",
                 name: this.name,
-                unread: this.unreadCount,
-                messages: this.unreadCount ? this.messages.slice(firstUnreadIndex, lastUnreadIndex + 1) : []
+                unread: this.unreadCount
             });
             packet.setLink("contact", context.getPacket(this.contact));
         }
@@ -146,8 +144,11 @@
             var factory = this.getFactory();
             this.name = data.name;
             this.unreadCount = data.unread;
-            this.messages = data.messages || [];
             var contact = context.deserialize(packet.getLink("contact"), factory.createContact, factory);
+            this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
+            if (!this.history) {
+                this.history = new MessageHistory.MessageHistory();
+            }
             // true = skip firing change event
             this.setContact(contact, true);
         }
