@@ -39,6 +39,7 @@ export class CouchAdapter {
         this._packetCache = [];
         this._context = options.context;
         this._addr = options.addr;
+        this._since = options.since ? options.since : 0;
     }
 
     init(opts : IAdapterRunOptions) {
@@ -77,6 +78,10 @@ export class CouchAdapter {
     }
 
     private _processPackets (packets: ICouchPackets) {
+        //if packets came from poll we should know the since
+        if(packets.lastSeq) {
+            this._since = packets.lastSeq;
+        }
         packets.packets.forEach((p: ICouchPacket) => {
             var changes = false;
             if(!this.processedPackets[p.id]) {

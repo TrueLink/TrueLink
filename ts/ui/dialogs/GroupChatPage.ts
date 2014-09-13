@@ -3,6 +3,9 @@
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import ContactList = require("ui/contacts/ContactList");
+    import GroupChat = require("models/GroupChat");
+    import Profile = require("models/Profile");
+
     var exp = React.createClass({
         displayName: "GroupChatPage",
         mixins: [reactObserver],
@@ -44,8 +47,8 @@
             return false;
         },
         _handleAddContact: function(contacts) {
-            var groupChat = this.state.model;
-            var profile = groupChat.profile;
+            var groupChat: GroupChat.GroupChat = this.state.model;
+            var profile: Profile.Profile = groupChat.profile;
             for (var key in contacts) {
                 var contact = contacts[key];
                 if(contact.tlConnection.canSendMessages()){
@@ -93,7 +96,7 @@
         },
 
         render: function () {
-            var groupChat = this.state.model;
+            var groupChat : GroupChat.GroupChat = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
@@ -121,7 +124,7 @@
             } else if (this.state.showMembers) {
                 content = this.renderMembers();
             } else {
-                content = MessagesView({ messages: groupChat.messages });
+                content = MessagesView({ messages: groupChat.history.getHistory() });
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },
