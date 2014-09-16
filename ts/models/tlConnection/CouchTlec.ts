@@ -33,11 +33,12 @@
             this._tlecBuilder.build();
         },
 
+        //runs only after deserializing established connection
         run: function () {
             var adapters = this._transportAdapters, context;
             for (context in adapters) {
                 if (adapters.hasOwnProperty(context)) {
-                    adapters[context].run();
+                    adapters[context].init({fetchIfZeroSince : true});
                 }
             }
         },
@@ -105,7 +106,7 @@
             var adapter = new CouchAdapter.CouchAdapter(this._transport, args);
             this._addAdapter(context, adapter);
             this._onChanged();
-            adapter.init();
+            adapter.init({});
         },
 
         _addAdapter: function (context, adapter) {

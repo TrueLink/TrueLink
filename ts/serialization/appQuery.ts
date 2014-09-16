@@ -53,16 +53,19 @@
         Tlke: {},
         Tlgr: {},
         Dialog: {
-            contact: {propType: "one", type: "Contact"}
+            contact: {propType: "one", type: "Contact"},
+            history: {propType: "one", type: "MessageHistory"}
         },
         GroupChat: {
-            grConnection: {propType: "one", type: "GrConnection"}
+            grConnection: {propType: "one", type: "GrConnection"},
+            history: {propType: "one", type: "MessageHistory"}
         },
         Menu: {},
         Document: {},
         Contact: {
-            tlConnection: {propType: "one", type: "TlConnection"}
+            tlConnection: {propType: "one", type: "TlConnection"},
         },
+        MessageHistory: {},
         Router: {
             pageModel: {propType: "one", type: "PageModel"}
         },

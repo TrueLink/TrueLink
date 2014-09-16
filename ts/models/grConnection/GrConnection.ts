@@ -16,7 +16,7 @@
         public onUserLeft : Event.Event<ITlgrShortUserInfo>;
         public onMessage : Event.Event<ITlgrTextMessageWrapper>;
 
-        private _activeTlgr : ITlgr;
+        public _activeTlgr : ITlgr;
         private _oldTlgr : ITlgr;
         private _transport : CouchTransport.CouchTransport;
         private since : number;
@@ -37,6 +37,7 @@
     //}
         //called when creating totally new connection (not when deserialized)
         init  (args) {
+            this.since = 0;
             this._transport = args.transport;
             this._activeTlgr = this.getFactory().createTlgr();
             
@@ -67,7 +68,7 @@
             this.adapter = _couchAdapter;
             _couchAdapter.onPacket.on(this._activeTlgr.onNetworkPacket, this._activeTlgr);
             _couchAdapter.onChanged.on(this._onChanged, this);
-            _couchAdapter.run();
+            _couchAdapter.init({ fetchIfZeroSince : true });
         }
 
         private _handleCloseAddrIn  (args) {

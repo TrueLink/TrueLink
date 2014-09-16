@@ -8,13 +8,14 @@
     import model = require("mixins/model");
     import CouchAdapter = require("models/tlConnection/CouchAdapter");
     import Profile = require("models/Profile");
+    import MessageHistory = require("models/MessageHistory");
 
     export class GroupChat extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
         public grConnection : GrConnection.GrConnection;
         public name : string;
         
-        private messages : Array<IUserMessage>;
+        public history : MessageHistory.MessageHistory;
         private unreadCount : number;
         
         constructor () {
@@ -23,7 +24,7 @@
             this.profile = null;
             this.grConnection = null;
             this.name = null;
-            this.messages = [];
+            this.history = new MessageHistory.MessageHistory();
             this.unreadCount = 0;
         }
 
@@ -117,7 +118,7 @@
 
         _pushMessage  (message: ITextMessage) {
             message.time = new Date();
-            this.messages.push(message);
+            this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
             }
@@ -126,7 +127,7 @@
 
         markAsRead  () {
             if (this.unreadCount) {
-                this.messages.forEach(function (msg) {
+                this.history.getHistory().forEach(function (msg) {
                     if (msg.unread) {
                         msg.unread = false;
                     }
@@ -142,6 +143,7 @@
                 name: this.name,
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
+            packet.setLink("history", context.getPacket(this.history));
         }
 
         deserialize  (packet, context) {
@@ -149,6 +151,7 @@
             var factory = this.getFactory();
             this.name = packet.getData().name;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
+            this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
             this._setTlgrEventHandlers();
         }
 

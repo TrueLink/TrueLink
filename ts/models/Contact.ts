@@ -4,6 +4,7 @@
     import Event = require("tools/event");
     import Model = require("tools/model");
     import Profile = require("models/Profile");
+    import MessageHistory = require("models/MessageHistory");
     import serializable = require("modules/serialization/serializable");
     import uuid = require("uuid");
 
@@ -67,6 +68,7 @@
             var data = packet.getData();
             this.name = data.name;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
+            
             this._link();
         }
 

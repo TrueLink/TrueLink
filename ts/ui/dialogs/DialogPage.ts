@@ -107,7 +107,7 @@
                     })
                 ];
             }else {
-                content = MessagesView({ profile: dialog.profile, messages: dialog.messages, onGoToChat: this._handleGoToChat });
+                content = MessagesView({ profile: dialog.profile, messages: dialog.history.getHistory(), onGoToChat: this._handleGoToChat });
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },

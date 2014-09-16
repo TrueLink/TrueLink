@@ -9,6 +9,11 @@ import Multivalue = require("modules/multivalue/multivalue");
 import urandom = require("modules/urandom/urandom");
 import tools = require("modules/tools");
 
+export interface IAdapterRunOptions {
+    dontFetch?: boolean;
+    fetchIfZeroSince?: boolean;
+}
+
 export class CouchAdapter {
     public onPacket: Event.Event<ICouchPacket>;
     public onChanged: Event.Event<any>;
@@ -34,15 +39,24 @@ export class CouchAdapter {
         this._packetCache = [];
         this._context = options.context;
         this._addr = options.addr;
+        this._since = options.since ? options.since : 0;
     }
 
-    init() {
+    init(opts : IAdapterRunOptions) {
         this.transport.beginPolling(this._addr, this._context);
         //TODO: this is hacky
-        setTimeout( this._requestFetch(), 250);
+                    //setTimeout( this._requestFetch(), 250);
+                    //return;
+        if(!opts.dontFetch) {
+            if(opts.fetchIfZeroSince && this._since == 0) {
+                setTimeout( this._requestFetch(), 250);
+            } else {
+                if(!opts.fetchIfZeroSince) {
+                    setTimeout( this._requestFetch(), 250);
+                }
+            }
+        }
     }
-
-    run() { this.init(); }
 
     on(eName: string, handler: any, context: any) {
         if (eName === "changed") {
@@ -64,6 +78,10 @@ export class CouchAdapter {
     }
 
     private _processPackets (packets: ICouchPackets) {
+        //if packets came from poll we should know the since
+        if(packets.lastSeq) {
+            this._since = packets.lastSeq;
+        }
         packets.packets.forEach((p: ICouchPacket) => {
             var changes = false;
             if(!this.processedPackets[p.id]) {

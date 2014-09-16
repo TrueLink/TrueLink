@@ -124,6 +124,9 @@
         }
 
         _receiveMessage  (messageData) {
+            if (messageData.metadata) {
+                delete messageData.metadata;
+            }
             var result = JSON.parse(messageData.as(Utf8String).toString());
             result.metadata = result.metadata || {};
             result.metadata.tlConnection = this;

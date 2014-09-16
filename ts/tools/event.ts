@@ -8,7 +8,7 @@ export interface Callback<T> {
 }
 
 export interface IEvent<T> {
-    emit(value: T, sender: any): void;
+    emit(value: T, sender?: any): void;
     on(callback: Callback<T>, context?: any): void;
     off(callback: Callback<T>, context?: any): void;
 }
@@ -23,7 +23,7 @@ export class Event<T> implements IEvent<T> {
     }
 
     public emit(value: T, sender?: any): void {
-        this._handlers.forEach((handler) => {
+        this._handlers.concat().forEach((handler) => {
             handler.callback.call(handler.context || this._context, value, sender);
         });
     }
@@ -32,7 +32,7 @@ export class Event<T> implements IEvent<T> {
         if (arguments.length == 2) {
             for (var i = 0; i < this._handlers.length; i++) {
                 var handler = this._handlers[i];
-                if (handler.callback == callback && handler.context == context) return;
+                if (handler.callback === callback && handler.context === context) return;
             }
         }
         this._handlers.push({ callback: callback, context: context });
@@ -40,21 +40,13 @@ export class Event<T> implements IEvent<T> {
 
     public off(callback: Callback<T>, context?: any): void {
         var remaining: Handler[] = [];
-        if (arguments.length == 2) {
-            for (var i = 0; i < this._handlers.length; i++) {
-                var handler = this._handlers[i];
-                if (handler.callback != callback) continue;
-                if (handler.context != context) continue;
-                this._handlers.splice(i, 1);
-                break;
-            }
-        } else {
-            for (var i = 0; i < this._handlers.length; i++) {
-                var handler = this._handlers[i];
-                if (handler.callback != callback) continue;
-                this._handlers.splice(i, 1);
-                break;
-            }
+        for (var i = 0; i < this._handlers.length; i++) {
+            var handler = this._handlers[i];
+            if (callback === null && handler.context === context) continue;
+            if (arguments.length == 1 && handler.callback === callback) continue;
+            if (handler.callback === callback && handler.context === context) continue;
+            remaining.push(handler);
         }
+        this._handlers = remaining;
     }
 }
