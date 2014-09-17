@@ -4,7 +4,8 @@
         displayName: "EditableField",
         propTypes: {
             onChanged: React.PropTypes.func.isRequired,
-            id: React.PropTypes.string.isRequired
+            id: React.PropTypes.string.isRequired,
+            inline: React.PropTypes.bool
         },
         getInitialState: function () {
             return {
@@ -32,15 +33,16 @@
         },
         render: function () {
             var props = this.props;
+            var basicTag = (!!this.props.inline)?React.DOM.span:React.DOM.div;
             var displayMode = [
-                React.DOM.div({className: "editable-display", key: 0}, props.value),
-                React.DOM.div({
+                React.DOM.span({className: "editable-display", key: 0}, props.value),
+                React.DOM.span({
                     key: 1,
                     className: "editable-edit-button",
                     onClick: this.editMode
                 }, "✍")
             ];
-            var editMode = React.DOM.div({className: "editable-input"},
+            var editMode = basicTag({className: "editable-input"},
                 React.DOM.form({onSubmit: this.onSubmit}, React.DOM.input({
                     style: { "width" : "100%" },
                     ref: "editBox",
@@ -50,8 +52,8 @@
                     onKeyUp: this.onKeyUp,
                     onBlur: this.onSubmit
                 })));
-            return React.DOM.div({className: "editable-field"},
-                React.DOM.div({className: "editable-label"}, React.DOM.label({htmlFor: props.id}, props.label)),
+            return basicTag({className: "editable-field"},
+                basicTag({className: "editable-label"}, React.DOM.label({htmlFor: props.id}, props.label)),
                 this.state.isEditing ? editMode : displayMode);
         }
     });

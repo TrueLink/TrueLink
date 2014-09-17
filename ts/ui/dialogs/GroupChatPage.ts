@@ -1,5 +1,6 @@
     "use strict";
     import React = require("react");
+    import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import ContactList = require("ui/contacts/ContactList");
@@ -133,23 +134,30 @@
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", groupChat.profile)
-                    }, "〈 Group Chat: " + groupChat.name),
-                    React.DOM.a({
+                    }, "〈 "),
+                    EditableField({
+                        id: "gcName",
+                        inline: true,
+                        onChanged: groupChat.set.bind(groupChat, "name"),
+                        label: "Chat: ",
+                        value: groupChat.name
+                    })," | ",
+                    React.DOM.button({
                         className: "header-button",
                         href: "",
                         onClick: this._onAddPeople
                     }, "Add "),
-                    React.DOM.a({
+                    React.DOM.button({
                         className: "header-button",
                         href: "",
                         onClick: this._handleLeaveChat
                     }, "Leave "),
-                    React.DOM.a({
+                    React.DOM.button({
                         className: "header-button",
                         href: "",
                         onClick: this._handleMembers
                     }, "M "),
-                    React.DOM.a({
+                    React.DOM.button({
                         className: "header-button",
                         href: "",
                         onClick: this._handleRekey

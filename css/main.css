@@ -364,3 +364,7 @@ a.button:hover {
 .user-background-3 {
     background-image: url("/img/bgs/bkgWood.jpg");
 }
+
+.editable-display{
+    background-color: rgba(255,255,255,0.3);
+}
