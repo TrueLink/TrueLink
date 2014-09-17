@@ -8,3 +8,4 @@ start2.lnk
 server2.js
 *.sublime-workspace
 node_modules
+*.orig

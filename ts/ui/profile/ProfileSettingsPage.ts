@@ -11,6 +11,12 @@
                 React.DOM.div(null, "Profile Settings: " + profile.name),
                 React.DOM.div({className: "app-page-content has-header"},
                     EditableField({
+                        id: "profileName",
+                        onChanged: profile.set.bind(profile, "name"),
+                        label: "Name: ",
+                        value: profile.name
+                    }),
+                    EditableField({
                         id: "serverUrl",
                         onChanged: profile.set.bind(profile, "serverUrl"),
                         label: "Server URL: ",
