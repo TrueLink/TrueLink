@@ -353,16 +353,16 @@ a.button:hover {
 }
 
 .user-background-0 {
-    background-image: url("/img/bgs/bkgLeaf.jpg");
+    background-image: url("../img/bgs/bkgLeaf.jpg");
 }
 .user-background-1 {
-    background-image: url("/img/bgs/bkgCity.jpg");
+    background-image: url("../img/bgs/bkgCity.jpg");
 }
 .user-background-2 {
-    background-image: url("/img/bgs/bkgEarth.jpg");
+    background-image: url("../img/bgs/bkgEarth.jpg");
 }
 .user-background-3 {
-    background-image: url("/img/bgs/bkgWood.jpg");
+    background-image: url("../img/bgs/bkgWood.jpg");
 }
 
 .editable-display{

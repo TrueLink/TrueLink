@@ -2,59 +2,59 @@
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 300;
-  src: local('Open Sans Light'), local('OpenSans-Light'), url("/css/fonts/opensans-light.woff") format('woff');
+  src: local('Open Sans Light'), local('OpenSans-Light'), url("../css/fonts/opensans-light.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 400;
-  src: local('Open Sans'), local('OpenSans'), url("/css/fonts/opensans.woff") format('woff');
+  src: local('Open Sans'), local('OpenSans'), url("../css/fonts/opensans.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 600;
-  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url("/css/fonts/opensans-semibold.woff") format('woff');
+  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url("../css/fonts/opensans-semibold.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 700;
-  src: local('Open Sans Bold'), local('OpenSans-Bold'), url("/css/fonts/opensans-bold.woff") format('woff');
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url("../css/fonts/opensans-bold.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 800;
-  src: local('Open Sans Extrabold'), local('OpenSans-Extrabold'), url("/css/fonts/opensans-extrabold.woff") format('woff');
+  src: local('Open Sans Extrabold'), local('OpenSans-Extrabold'), url("../css/fonts/opensans-extrabold.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
   font-weight: 300;
-  src: local('Open Sans Light Italic'), local('OpenSansLight-Italic'), url("/css/fonts/opensans-light-italic.woff") format('woff');
+  src: local('Open Sans Light Italic'), local('OpenSansLight-Italic'), url("../css/fonts/opensans-light-italic.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
   font-weight: 400;
-  src: local('Open Sans Italic'), local('OpenSans-Italic'), url("/css/fonts/opensans-italic.woff") format('woff');
+  src: local('Open Sans Italic'), local('OpenSans-Italic'), url("../css/fonts/opensans-italic.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
   font-weight: 600;
-  src: local('Open Sans Semibold Italic'), local('OpenSans-SemiboldItalic'), url("/css/fonts/opensans-semibold-italic.woff") format('woff');
+  src: local('Open Sans Semibold Italic'), local('OpenSans-SemiboldItalic'), url("../css/fonts/opensans-semibold-italic.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
   font-weight: 700;
-  src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url("/css/fonts/opensans-bold-italic.woff") format('woff');
+  src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url("../css/fonts/opensans-bold-italic.woff") format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
   font-weight: 800;
-  src: local('Open Sans Extrabold Italic'), local('OpenSans-ExtraboldItalic'), url("/css/fonts/opensans-extrabold-italic.woff") format('woff');
+  src: local('Open Sans Extrabold Italic'), local('OpenSans-ExtraboldItalic'), url("../css/fonts/opensans-extrabold-italic.woff") format('woff');
 }
