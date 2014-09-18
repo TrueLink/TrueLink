@@ -1,6 +1,7 @@
     "use strict";
     import React = require("react");
     import Hex = require("modules/multivalue/hex");
+    import DecBlocks = require("modules/multivalue/decBlocks");
     import TlecBuilder = require("modules/channels/TlecBuilder");
 
     var exp = React.createClass({
@@ -25,12 +26,12 @@
         },
 
         handleOfferInput: function () {
-            var offer = Hex.fromString(this.refs.offer.getDOMNode().value);
+            var offer = DecBlocks.fromString(this.refs.offer.getDOMNode().value);
             this.props.tlConnection.enterOffer(offer);
         },
 
         handleAuthInput: function () {
-            var offer = Hex.fromString(this.refs.auth.getDOMNode().value);
+            var offer = DecBlocks.fromString(this.refs.auth.getDOMNode().value);
             this.props.tlConnection.enterAuth(offer);
         },
         render: function () {
@@ -39,8 +40,8 @@
             if (!tlConnection) {
                 return React.DOM.div(null, "tlConnection is not set");
             }
-            var offer = tlConnection.offer ? tlConnection.offer.as(Hex).toString() : null;
-            var auth =  tlConnection.auth ? tlConnection.auth.as(Hex).toString() : null;
+            var offer = tlConnection.offer ? tlConnection.offer.as(DecBlocks).toString() : null;
+            var auth =  tlConnection.auth ? tlConnection.auth.as(DecBlocks).toString() : null;
             var status = tlConnection.getStatus();
             switch (status) {
             case TlecBuilder.STATUS_NOT_STARTED:

@@ -32,8 +32,10 @@
                 },
                 "Clear storage (temp)": {
                     handler: function () {
-                        window.fakeDb.clear();
-                        location.reload(true);
+                        if(confirm("this will delete ALL KEYS AND MESSAGES!")){
+                            window.fakeDb.clear();                        
+                            location.reload(true);
+                        }
                     },
                     className: "menu-item secondary"
                 }
