@@ -36,8 +36,9 @@
                 "Clear storage (temp)": {
                     handler: function () {
                         if(confirm("this will delete ALL KEYS AND MESSAGES!")){
-                            window.fakeDb.clear();                        
-                            location.reload(true);
+                            window.fakeDb.clear().then(function(){
+                                location.reload(true);    
+                            });                                                    
                         }
                     },
                     className: "menu-item secondary"
@@ -72,9 +73,28 @@
         _onModelChanged: function () { this.setState(this._getState()); },
         componentDidMount: function () {
             this.props.model.on("changed", this._onModelChanged, this);
+            this.resendInterval = setInterval(function(){
+                // EVEN LARGER HACK
+                try{
+                    this.setState({tmp: Math.random()});
+                    this.state.currentProfile.transport._sendNextPacket()
+                    }catch(e){
+                        console.log(e);
+                    }
+                }.bind(this), 4000);
         },
         componentWillUnmount: function () {
             this.props.model.off("changed", this._onModelChanged, this);
+            clearInterval(this.resendInterval);
+        },
+        getUnsent: function(){
+            try{
+                // HACK!!!!
+                return ""+this.state.currentProfile.transport._unsentPackets.length;
+            }catch(e){
+                console.log(e);
+                return "unknown";
+            }
         },
         render: function () {
             var menuItems = {}, items = this.getMenuItems(), title, item;
@@ -94,7 +114,12 @@
                     currentProfile: this.state.currentProfile,
                     selectProfile: this.handleSelectProfile,
                     addProfile: this.handleAddProfile
-                })), menuItems, React.DOM.div(null, React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl)));
+                })), menuItems, 
+                    React.DOM.div(null, 
+                        React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl),
+                        React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent())
+                    )
+                );
         }
     });
 export = exp;

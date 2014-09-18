@@ -73,7 +73,9 @@ var priv = {
     clear: function () {
         lnks = [];
         objs = {};
-        return priv.dump();
+        return lf.setItem("objs", {}).then(function(){
+            return lf.setItem("links", []);
+        }).then(function(){console.log("lf erase finished")});
     }
 }
 var fake = {
