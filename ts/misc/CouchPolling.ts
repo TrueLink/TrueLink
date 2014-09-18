@@ -127,7 +127,7 @@
                         console.warn("Message polling failed: ", error || errorType);
                     }
                     // poll anyway
-                    this._deferredStart(errorType === "timeout" ? null : 5000);
+                    this._deferredStart(errorType === "timeout" ? 4 : 500);
                 }
             });
         }

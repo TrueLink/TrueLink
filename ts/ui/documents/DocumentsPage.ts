@@ -10,6 +10,7 @@
         addDocument: function () {
             //var doc = this.props.pageModel.model.createDocument();
             //this.props.router
+            alert("Not implemented!");
             return false;
         },
         render: function () {

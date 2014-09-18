@@ -27,11 +27,11 @@
                 },
                 "Contacts": {
                     handler: router.createNavigateHandler("contacts", currentProfile),
-                    className: "menu-item last"
+                    className: "menu-item"
                 },
                 "Profile settings": {
                     handler: router.createNavigateHandler("profileSettings", currentProfile),
-                    className: "menu-item secondary"
+                    className: "menu-item last"
                 },
                 "Clear storage (temp)": {
                     handler: function () {
@@ -138,7 +138,7 @@
                     addProfile: this.handleAddProfile
                 })), menuItems, 
                     React.DOM.div(null, 
-                        React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl),
+                        React.DOM.small(null, React.DOM.br(null), "Version 14.MM.DD-RERERERE, URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl),
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
                         React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
                     )

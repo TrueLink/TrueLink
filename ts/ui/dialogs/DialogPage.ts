@@ -93,11 +93,12 @@
                 content = [
                     ContactList({
                         buttonText: "Invite",
-                        contacts: dialog.profile.contacts,
+                        contacts: dialog.profile.contacts.filter((c) => c.name != dialog.contact.name), // TODO better filter?
                         checkBoxes: true,
                         onCancel: this._handleCancelAddContact,
                         onCommand: this._handleAddContact
                     }),
+                    "My Name: ",
                     React.DOM.input({
                         type: "text",
                         onChange: function (e) {

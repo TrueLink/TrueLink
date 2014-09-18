@@ -161,7 +161,7 @@
                 }
                 contact = invite.contact;
             } 
-            var chatCaption = (contact)?(contact.name + " and others..."):("...")
+            var chatCaption = (contact)?("Group: " + contact.name + " and others..."):("Group Chat " + Math.random())
             var chat = this.getFactory().createGroupChat();
             var grConnection = this.getFactory().createGrConnection();
             grConnection.init({
