@@ -12,18 +12,28 @@ var objs = {};
 var priv = {
     loadLocalForage: function(){
         console.log("fetching from localForage...");
-        return lf.getItem<any[]>("links").then(function(linkJson){
-            lnks = linkJson || [];
-            return lf.getItem("objs");
+        return lf.getItem<string>("links").then(function(linkJson){
+            try{
+                lnks = JSON.parse(linkJson) || [];
+            }catch(e){
+                console.log(e);
+                lnks=[];
+            }
+            return lf.getItem<string>("objs");
         }).then(function(objJson){
-            objs = objJson || {};
+            try{
+                objs = JSON.parse(objJson) || {};
+            }catch(e){
+                console.log(e);
+                lnks=[];
+            }
         }).then(function(){console.log("lf fetch finished")});
     },
 
     dump: function () {
         console.log("writing localForage...");
-        return lf.setItem("objs", objs).then(function(){
-            return lf.setItem("links", lnks);
+        return lf.setItem("objs", JSON.stringify(objs)).then(function(){
+            return lf.setItem("links", JSON.stringify(lnks)); // "object cannot be cloned"
         }).then(function(){console.log("lf commit finished")});
     },
 
