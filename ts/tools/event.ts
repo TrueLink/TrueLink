@@ -34,7 +34,7 @@ export class Event<T> implements IEvent<T> {
             handler.callback.call(handler.context || this._context, value, sender);
         });
         if(!thereWereHandlers){
-            console.error("Unhandled event ", name, value, "emitted by", sender);
+            console.error("Unhandled event ", this._name, value, "emitted by", sender);
         }
     }
 

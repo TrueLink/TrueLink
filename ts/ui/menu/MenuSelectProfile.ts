@@ -4,6 +4,9 @@
 
     var exp = React.createClass({
         displayName: "MenuSelectProfile",
+        propTypes:{
+            addProfile: React.PropTypes.func.isRequired,
+        },
 
         handleSelect: function (evt) {
             var value = evt.target.value;

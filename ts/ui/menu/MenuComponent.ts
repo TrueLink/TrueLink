@@ -6,6 +6,9 @@
         getInitialState: function () {
             return this._getState();
         },
+        propTypes:{
+            model: React.PropTypes.object.isRequired,
+        },
 
         getMenuItems: function () {
             // model is Menu here (menu is not like pages)

@@ -3,6 +3,9 @@
     import MenuComponent = require("ui/menu/MenuComponent");
     var exp = React.createClass({
         displayName: "AppComponent",
+        propTypes:{
+            model: React.PropTypes.object.isRequired,
+        },
         getInitialState: function () {
             return this._getState();
         },

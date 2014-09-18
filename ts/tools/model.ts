@@ -42,7 +42,7 @@
             if(eName === "changed") {
                 this.onChanged.off(handler, context);
             } else {
-                console.log("Model 'off' called with unknown event name");
+                console.log("Model 'off' called with unknown event name", eName);
             }
         }
 
@@ -50,7 +50,7 @@
             if(eName === "changed") {
                 this.onChanged.on(handler, context);
             } else {
-                console.log("Model 'on' called with unknown event name");
+                console.log("Model 'on' called with unknown event name", eName);
             }
         }
         serializationNeeded  () {

@@ -74,14 +74,16 @@
 
         setMenu  (menu) {
             if (this.menu) {
-                this.menu.off("currentProfileChanged", this.setCurrentProfile, this);
-                this.menu.off("addProfile", this.addProfile, this);
+                menu.onCurrentProfileChanged.off(this.setCurrentProfile, this);
+                menu.onAddProfile.off(this.addProfile, this);
             }
 
             if (menu) {
-                menu.on("currentProfileChanged", this.setCurrentProfile, this);
-                menu.on("addProfile", this.addProfile, this);
+                menu.onCurrentProfileChanged.on(this.setCurrentProfile, this);
+                menu.onAddProfile.on(this.addProfile, this);
             }
+            // TODO: not sure if it helps
+            menu.setApp(this);
 
             this.menu = menu;
         }
