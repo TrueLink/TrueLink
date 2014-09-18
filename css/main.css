@@ -368,3 +368,21 @@ a.button:hover {
 .editable-display{
     background-color: rgba(255,255,255,0.3);
 }
+
+.editable-label{
+    color: #fff;
+}
+
+.pageTitle{
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.editable-display{
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.editable-edit-button{
+    padding:3px;
+}

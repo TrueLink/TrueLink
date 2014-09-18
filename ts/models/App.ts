@@ -142,6 +142,7 @@
             this.currentProfile = profile;
             this.profiles.push(profile);
             this._onChanged();
+            return profile;
         }
 
     };

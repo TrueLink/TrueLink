@@ -8,12 +8,12 @@
         render: function () {
             var profile = this.state.model;
             return React.DOM.div(null, 
-                React.DOM.div(null, "Profile Settings: " + profile.name),
+                React.DOM.div({className: 'pageTitle'}, "Settings for " + profile.name),
                 React.DOM.div({className: "app-page-content has-header"},
                     EditableField({
                         id: "profileName",
                         onChanged: profile.set.bind(profile, "name"),
-                        label: "Name: ",
+                        label: "Profile Name (My Name): ",
                         value: profile.name
                     }),
                     EditableField({

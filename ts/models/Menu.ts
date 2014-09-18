@@ -53,7 +53,7 @@
 
         addProfile  () {
             this._checkApp();
-            this.onAddProfile.emit(null);
+            return this.onAddProfile.emit(null);
         }
 
         _checkApp  () {

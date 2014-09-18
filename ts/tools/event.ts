@@ -29,13 +29,19 @@ export class Event<T> implements IEvent<T> {
 
     public emit(value: T, sender?: any): void {
         var thereWereHandlers = false;
+        var lastResult = undefined;
         this._handlers.concat().forEach((handler) => {
             thereWereHandlers = true;
-            handler.callback.call(handler.context || this._context, value, sender);
+            var newResult = handler.callback.call(handler.context || this._context, value, sender);
+            if(lastResult && newResult){
+                console.log("multiple results returned, result lost - ", this._name, lastResult);
+            }
+            lastResult = newResult;
         });
         if(!thereWereHandlers){
             console.error("Unhandled event ", this._name, value, "emitted by", sender);
         }
+        return lastResult;
     }
 
     public on(callback: Callback<T>, context?: any): void {

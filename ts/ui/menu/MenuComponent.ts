@@ -59,8 +59,13 @@
 
         handleAddProfile: function () {
             var model = this.props.model;
-            model.addProfile();
-            this.props.router.navigate("home", model.app);
+            var np = model.addProfile();
+            this.props.router.createNavigateHandler("profileSettings", np)();
+            setTimeout(function(){
+                // HACK
+                $("div[data-id='profileName'] .editable-edit-button").click();
+            }, 20);
+            //this.props.router.navigate("home", model.app);
             return false;
         },
 
