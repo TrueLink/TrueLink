@@ -16,16 +16,26 @@ export interface IEvent<T> {
 export class Event<T> implements IEvent<T> {
     private _handlers: Handler[];
     private _context: any;
+    private _name: string;
 
-    constructor(context?: any) {
+    constructor(name: string, context?: any) {
+        if(typeof name !== 'string'){
+            throw new Error("event must have a name!");
+        }
+        this._name = name;
         this._handlers = [];
         this._context = context;
     }
 
     public emit(value: T, sender?: any): void {
+        var thereWereHandlers = false;
         this._handlers.concat().forEach((handler) => {
+            thereWereHandlers = true;
             handler.callback.call(handler.context || this._context, value, sender);
         });
+        if(!thereWereHandlers){
+            console.error("Unhandled event ", name, value, "emitted by", sender);
+        }
     }
 
     public on(callback: Callback<T>, context?: any): void {

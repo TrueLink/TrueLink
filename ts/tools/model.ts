@@ -9,7 +9,7 @@
         public onChanged : Event.Event<any>;
 
         constructor() {
-            this.onChanged = new Event.Event<any>();
+            this.onChanged = new Event.Event<any>("Model.onChanged");
         }
 
         getFactory () {

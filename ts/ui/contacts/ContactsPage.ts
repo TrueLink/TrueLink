@@ -1,6 +1,8 @@
     "use strict";
     import React = require("react");
     import reactObserver = require("mixins/reactObserver");
+    import $ = require("zepto");
+
     var exp = React.createClass({
         displayName: "ContactsPage",
         mixins: [reactObserver],
@@ -9,6 +11,10 @@
                 var contact = this.props.pageModel.model.createContact();
                 var dialog = contact.profile.startDirectDialog(contact);
                 this.props.router.navigate("contact", contact);
+                setTimeout(function(){
+                    // HACK
+                    $("div[data-id='contactName'] .editable-edit-button").click();
+                }, 20);
             } catch (ex) {
                 console.error(ex);
             }

@@ -25,8 +25,8 @@
 
         constructor () {
            super(); 
-            this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>();
-            this.onInviteAccepted = new Event.Event<any>();
+            this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>("Contact.onInviteReceived");
+            this.onInviteAccepted = new Event.Event<any>("Contact.onInviteAccepted");
         this.name = null;
         this.profile = null;
         this.tlConnection = null;

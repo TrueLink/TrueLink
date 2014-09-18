@@ -23,7 +23,7 @@
         constructor () {
             super();
 
-            this.onMessage = new Event.Event<IUserMessage>();
+            this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
         this.offer = null;
         this.auth = null;
         this._initialTlec = null;

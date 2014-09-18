@@ -18,8 +18,8 @@
         constructor () {
             super();
         this.fixedId = "0D7F92D8-8047-4E37-8E55-BCB009D541C8";
-        this.onCurrentProfileChanged = new Event.Event<any>();
-        this.onAddProfile = new Event.Event<any>();
+        this.onCurrentProfileChanged = new Event.Event<any>("Menu.onCurrentProfileChanged");
+        this.onAddProfile = new Event.Event<any>("Menu.onAddProfile");
         this.app = null;
     }
 

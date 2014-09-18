@@ -52,7 +52,7 @@
                     onKeyUp: this.onKeyUp,
                     onBlur: this.onSubmit
                 })));
-            return basicTag({className: "editable-field"},
+            return basicTag({className: "editable-field", "data-id":props.id},
                 basicTag({className: "editable-label"}, React.DOM.label({htmlFor: props.id}, props.label)),
                 this.state.isEditing ? editMode : displayMode);
         }

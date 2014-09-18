@@ -24,7 +24,7 @@
         this.channels = [];
         this.url = url;
         this._since = since;
-        this.onPackets = new Event.Event<ICouchPackets>();
+        this.onPackets = new Event.Event<ICouchPackets>("CouchPolling.onPackets");
         this.channelsAjax = null;
         this.timeoutDefer = null;
     }

@@ -30,7 +30,7 @@
         constructor () {
             super();
 
-            this.onUrlChanged = new Event.Event<any>();
+            this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
         this.app = null;
         this.bg = null;
         this.documents = [];
