@@ -17,6 +17,8 @@
         private timeoutDefer : number;
         private channelsAjax : any;
         private _since : number;
+        private _lastSuccess: number;
+        private _lastError: number;
 
         constructor (url, since) {
         invariant(url, "Can i haz url?");
@@ -24,6 +26,8 @@
         this.channels = [];
         this.url = url;
         this._since = since;
+        this._lastSuccess = 0;
+        this._lastError = 0;
         this.onPackets = new Event.Event<ICouchPackets>("CouchPolling.onPackets");
         this.channelsAjax = null;
         this.timeoutDefer = null;
@@ -101,7 +105,7 @@
         _getUrl () {
             var s: string = (this._since == 0)?("now"):this._since.toString();
             return this.url +
-                "/_changes?timeout=5000&feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
+                "/_changes?timeout=15000&feed=longpoll&filter=channels/do&Channel=" + this.channels.join(",") +
                 "&include_docs=true&since=" + s;
         }
 
@@ -113,14 +117,17 @@
                 dataType: "json",
                 context: this,
                 timeout: ajaxTimeout,
-                success: function(data, status, xhr) { this._handleResult(data, this._since); },
+                success: function(data, status, xhr) { 
+                    this._lastSuccess = (+new Date());
+                    this._handleResult(data, this._since); 
+                },
                 error: function(xhr, errorType, error) {
-                    if (errorType !== "timeout" && errorType !== "abort") {
+                    if (errorType !== "timeout") {
+                        this._lastError = (+new Date());
                         console.warn("Message polling failed: ", error || errorType);
                     }
-                    if (errorType !== "abort") {
-                        this._deferredStart(errorType === "timeout" ? null : 5000);
-                    }
+                    // poll anyway
+                    this._deferredStart(errorType === "timeout" ? null : 5000);
                 }
             });
         }

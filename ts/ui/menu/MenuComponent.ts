@@ -96,6 +96,28 @@
                 return "unknown";
             }
         },
+        getNetstat: function(){
+            try{
+                // HACK!!!!
+                var q = this.state.currentProfile.transport._polling;
+                var instant = (+new Date());
+                if(!q){
+                    return "unknown";
+                }
+                var diff = "Network ";
+                if(q._lastSuccess > q._lastError){
+                        diff = diff + "OK, updated " + Math.floor((instant - q._lastSuccess)/1000) + " sec ago";
+                }else if(q._lastError){
+                    diff = diff + "OFFLINE";
+                }else{
+                        diff = diff + "probably OK";
+                }
+                return diff;
+            }catch(e){
+                console.log(e);
+                return "unknown";
+            }
+        },
         render: function () {
             var menuItems = {}, items = this.getMenuItems(), title, item;
             for (title in items) {
@@ -117,7 +139,8 @@
                 })), menuItems, 
                     React.DOM.div(null, 
                         React.DOM.small(null, React.DOM.br(null), "URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl),
-                        React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent())
+                        React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
+                        React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
                     )
                 );
         }
