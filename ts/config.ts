@@ -10,7 +10,8 @@ require.config({
             "uuid": "../vendor/uuid/uuid",
             "extend": "tools/extend",
             "modules": "../vendor/flux-modules/src",
-            "react": "../vendor/react/build/react"
+            "react": "../vendor/react/build/react",
+            "localforage": "../vendor/localforage/localforage"
         },
         shim: {
             "zepto": { exports: "Zepto" },

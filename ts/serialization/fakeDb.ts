@@ -4,18 +4,27 @@ import SerializationPacket = require("modules/serialization/SerializationPacket"
 var nullPacket = SerializationPacket.nullPacket;
 import $ = require("zepto");
 var isArray = $.isArray;
+import lf = require("localforage");
 
-var ls = localStorage;
-var linksData = ls.getItem("links");
-var lnks = linksData ? JSON.parse(linksData) : [];
-
-var objData = ls.getItem("objs");
-var objs = objData ? JSON.parse(objData) : {};
+var lnks = [];
+var objs = {};
 
 var priv = {
+    loadLocalForage: function(){
+        console.log("fetching from localForage...");
+        return lf.getItem<any[]>("links").then(function(linkJson){
+            lnks = linkJson || [];
+            return lf.getItem("objs");
+        }).then(function(objJson){
+            objs = objJson || {};
+        }).then(function(){console.log("lf fetch finished")});
+    },
+
     dump: function () {
-        ls.setItem("objs", JSON.stringify(objs));
-        ls.setItem("links", JSON.stringify(lnks));
+        console.log("writing localForage...");
+        return lf.setItem("objs", objs).then(function(){
+            return lf.setItem("links", lnks);
+        }).then(function(){console.log("lf commit finished")});
     },
 
     getLinks: function (fromId, type) {
@@ -64,7 +73,7 @@ var priv = {
     clear: function () {
         lnks = [];
         objs = {};
-        priv.dump();
+        return priv.dump();
     }
 }
 var fake = {
@@ -74,7 +83,8 @@ var fake = {
     removeLinks: priv.removeLinks,
     getLinks: priv.getLinks,
     clear: priv.clear,
-    commit: priv.dump
+    commit: priv.dump,
+    init: priv.loadLocalForage
 };
 
 window.fakeDb = fake;
