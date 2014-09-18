@@ -123,7 +123,7 @@
 
             this._onChanged();
 
-            if (this._unsentPackets.length === 1) {
+            if (this._unsentPackets.length > 0) {
                 this._sendNextPacket();
             }
         }
