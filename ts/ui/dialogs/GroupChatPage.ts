@@ -119,7 +119,7 @@
                 content = ContactList({
                     buttonText: "Invite",
                     checkBoxes: true,
-                    contacts: groupChat.profile.contacts,
+                    contacts: groupChat.profile.contacts, // TODO somehow filter for already added....
                     onCommand: this._handleAddContact
                 });
             } else if (this.state.showMembers) {
