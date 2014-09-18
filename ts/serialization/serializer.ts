@@ -151,7 +151,7 @@
             if (!this.runningContext) { return; }
             var ctx = this.runningContext;
             this.runningContext = null;
-            return this.storeContext(this.runningContext);
+            return this.storeContext(ctx);
         },
         onObjectChanged: function (obj, sender) {
             if (!this.runningContext) {
