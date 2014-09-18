@@ -40,7 +40,6 @@ var priv = {
         while ((index = priv.indexOfLink(fromId, linkName)) !== -1) {
             lnks.splice(index, 1);
         }
-        priv.dump();
     },
 
     addLink: function (fromId, toId, linkName) {
@@ -49,12 +48,10 @@ var priv = {
             toId: toId,
             type: linkName
         });
-        priv.dump();
     },
 
     save: function (data) {
         objs[data.id] = $.extend({}, data);
-        priv.dump();
     },
 
     getById: function (id) {
@@ -76,7 +73,8 @@ var fake = {
     addLink: priv.addLink,
     removeLinks: priv.removeLinks,
     getLinks: priv.getLinks,
-    clear: priv.clear
+    clear: priv.clear,
+    commit: priv.dump
 };
 
 window.fakeDb = fake;

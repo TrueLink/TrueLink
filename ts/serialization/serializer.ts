@@ -138,6 +138,7 @@
             }, this);
             context.deepSyncMeta(packets);
             this.updateObjCache(context);
+            db.commit();
             console.log("context stored: %s objects (~%s KB), %s links", packets.length, (counterObj.dataLength / 1024.0).toFixed(2), counterObj.linkCount);
             return packets;
         },
