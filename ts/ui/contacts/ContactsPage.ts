@@ -7,7 +7,8 @@
         handleAddContact: function () {
             try {
                 var contact = this.props.pageModel.model.createContact();
-//                this.props.router
+                var dialog = contact.profile.startDirectDialog(contact);
+                this.props.router.navigate("contact", contact);
             } catch (ex) {
                 console.error(ex);
             }
