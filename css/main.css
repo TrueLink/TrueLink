@@ -386,3 +386,53 @@ a.button:hover {
 .editable-edit-button{
     padding:3px;
 }
+
+
+
+
+.sidebar-hider {
+    position: relative;
+}
+.sidebar-hider-bar-container {    
+    position: absolute;
+    height: 100%;  
+}
+.sidebar-hider-toggler {
+    display: none;
+}
+.sidebar-hider-bar {
+    height: 100%;
+    display: inline-block;    
+    width: 130px;
+}
+.sidebar-hider-content {
+    margin-left: 130px;    
+}   
+
+.bar {
+    background-color: red;    
+    height: 100%;
+}
+.content {
+    background-color: green;
+    height: 100%;
+}
+
+@media screen and (max-width:350px) {  
+    .sidebar-hider-bar-shown {        
+    }
+    .sidebar-hider-bar-hidden {
+        display: none;
+    }
+    .sidebar-hider-toggler {
+        display: inline-block;
+        background-color: #8888ff;
+        height: 100%;
+        position: absolute;
+        width: 20px;
+        text-align: center;
+    }
+    .sidebar-hider-content {
+        margin-left: 20px;    
+    }    
+}
