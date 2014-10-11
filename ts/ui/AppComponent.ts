@@ -1,6 +1,7 @@
     "use strict";
     import React = require("react");
     import MenuComponent = require("ui/menu/MenuComponent");
+    import SidebarHiderComponent = require("ui/common/SidebarHider");
     var exp = React.createClass({
         displayName: "AppComponent",
         propTypes:{
@@ -27,9 +28,10 @@
             var pageCustomClass = !currentProfile ? "" :
                 " stretch-background user-background-" + currentProfile.bg;
             return React.DOM.div({id: "app"},
-                MenuComponent({model: this.state.menu, className: "app-menu", router: router}),
-                React.DOM.div({className: "app-view" + pageCustomClass},
-                    this.state.currentPage));
+                SidebarHiderComponent(null,
+                    MenuComponent({model: this.state.menu, className: "app-menu", router: router}),
+                    React.DOM.div({className: "app-view" + pageCustomClass},
+                        this.state.currentPage)));
         }
     });
 export = exp;
