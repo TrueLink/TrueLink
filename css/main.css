@@ -409,33 +409,36 @@ a.button:hover {
 .sidebar-hider-content {
     margin-left: 250px;    
     height: 100%;
-    z-index: 0; 
 }   
 
-.bar {
-    background-color: red;    
-    height: 100%;
-}
-.content {
-    background-color: green;
-    height: 100%;
-}
-
 @media screen and (max-width: 650px) {  
-    .sidebar-hider-bar-shown {        
+    .sidebar-hider-shown .sidebar-hider-bar-container {
+        width: 100%;
     }
-    .sidebar-hider-bar-hidden {
+    .sidebar-hider-shown .sidebar-hider-toggler {
+        display: inline-block;
+        opacity: .3;
+        background-color: black;
+        height: 100%;
+        width: 100%;        
+        left: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .sidebar-hider-hidden .sidebar-hider-bar {
         display: none;
     }
-    .sidebar-hider-toggler {
+    .sidebar-hider-hidden .sidebar-hider-toggler {
         display: inline-block;
         background-color: #8888ff;
-        height: 100%;
+        height: 50px;
         position: absolute;
-        width: 60px;
+        width: 50px;
         text-align: center;
     }
+
     .sidebar-hider-content {
-        margin-left: 60px;    
-    }    
+        margin-left: 0;    
+    }
 }

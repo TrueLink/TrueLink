@@ -5,14 +5,15 @@ var exp = React.createClass({
         return {isBarShown: !!this.props.shown};
     },
     render: function() {
-        return React.DOM.div({className: "sidebar-hider"},
-            React.DOM.div({className: "sidebar-hider-bar-container"},
-                React.DOM.div({
-                        className: "sidebar-hider-bar"
+        return React.DOM.div({
+                className: "sidebar-hider"
                             + (this.state.isBarShown
-                                ? " sidebar-hider-bar-shown"
-                                : " sidebar-hider-bar-hidden")
-                    }, this.props.children[0]),
+                                ? " sidebar-hider-shown"
+                                : " sidebar-hider-hidden")
+            },
+            React.DOM.div({className: "sidebar-hider-bar-container"},
+                React.DOM.div({className: "sidebar-hider-bar"},
+                    this.props.children[0]),
                 React.DOM.div({
                         className: "sidebar-hider-toggler",
                         onClick: function() {
