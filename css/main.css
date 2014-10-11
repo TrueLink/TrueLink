@@ -400,6 +400,7 @@ a.button:hover {
 }
 .sidebar-hider-toggler {
     display: none;
+    cursor: pointer;
 }
 .sidebar-hider-bar {
     height: 100%;
@@ -436,6 +437,10 @@ a.button:hover {
         position: absolute;
         width: 50px;
         text-align: center;
+    }
+
+    .sidebar-hider-hidden .app-page-header {
+        left: 50px;
     }
 
     .sidebar-hider-content {
