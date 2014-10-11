@@ -68,7 +68,6 @@ a.title {
 }
 
 .app-view {
-    margin-left: 250px;
     height: 100%;
     overflow: hidden;
     position: relative;
@@ -385,4 +384,66 @@ a.button:hover {
 
 .editable-edit-button{
     padding:3px;
+}
+
+
+
+
+.sidebar-hider {
+    position: relative;
+    height: 100%;  
+}
+.sidebar-hider-bar-container {    
+    position: absolute;
+    height: 100%;
+    z-index: 1000;  
+}
+.sidebar-hider-toggler {
+    display: none;
+    cursor: pointer;
+}
+.sidebar-hider-bar {
+    height: 100%;
+    display: inline-block;    
+    width: 250px;
+}
+.sidebar-hider-content {
+    margin-left: 250px;    
+    height: 100%;
+}   
+
+@media screen and (max-width: 650px) {  
+    .sidebar-hider-shown .sidebar-hider-bar-container {
+        width: 100%;
+    }
+    .sidebar-hider-shown .sidebar-hider-toggler {
+        display: inline-block;
+        opacity: .3;
+        background-color: black;
+        height: 100%;
+        width: 100%;        
+        left: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .sidebar-hider-hidden .sidebar-hider-bar {
+        display: none;
+    }
+    .sidebar-hider-hidden .sidebar-hider-toggler {
+        display: inline-block;
+        background-color: #8888ff;
+        height: 50px;
+        position: absolute;
+        width: 50px;
+        text-align: center;
+    }
+
+    .sidebar-hider-hidden .app-page-header {
+        left: 50px;
+    }
+
+    .sidebar-hider-content {
+        margin-left: 0;    
+    }
 }
