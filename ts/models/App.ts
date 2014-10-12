@@ -155,8 +155,18 @@
         addProfile  () {
             var profile = this.getFactory().createProfile();
             this.watchProfileUnreadObjects(profile);
+            var name = urandom.name();
+            if (this.profiles.length == 0 && window.location.hash.match(/#nickname=([^&]*)/)) {
+                try {
+                    var cand = decodeURIComponent(window.location.hash.match(/#nickname=([^&]*)/)[1]);
+                    if (cand.length >= 3) {
+                        name = cand;
+                        window.location.hash = "";
+                    }
+                } catch (e) { }
+            }
             profile.init({
-                name: urandom.name(),
+                name: name,
                 bg: this._getNextBgIndex(),
                 serverUrl: this.defaultPollingUrl
             });
