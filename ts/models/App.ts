@@ -21,6 +21,7 @@
         public defaultPollingUrl : string;
         public fixedId : string;
         public title : string;
+        private lastUnreadObjectsCount : number;
 
         constructor () {
             super();
@@ -34,6 +35,7 @@
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
+        this.lastUnreadObjectsCount = 0;
         this.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
     }
     
@@ -148,8 +150,24 @@
         watchProfileUnreadObjects (profile) {
             profile.onChanged.on(function () {
                 var total = this.getTotalUnreadObjectsCount();
-                (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
+                if (this.lastUnreadObjectsCount < total) {
+                    this.notifyAboutUnreadItems(total);
+                    this.lastUnreadObjectsCount = total;
+                    (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
+                }
             }, this);
+        }
+
+        notifyAboutUnreadItems (count: number) {
+            if ('Notification' in window) {
+                var options = {
+                    body: "There is a total of " + count + " unread items.",
+                    tag: "custom"
+                };
+                window.Notification.requestPermission(() => {
+                    var notification = new window.Notification(this.title, options);
+                });
+            }
         }
 
         addProfile  () {

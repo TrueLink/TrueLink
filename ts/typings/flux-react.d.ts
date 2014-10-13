@@ -2,6 +2,7 @@
 interface Window {
     app: any;
     fakeDb: any;
+    Notification: any;
     profile: any;
 }
 
