@@ -44,7 +44,7 @@
                 React.DOM.select({
                     ref: "select",
                     className: "title",
-                    value: current.name,
+                    value: (current) ? (current.name) : "none",
                     onChange: this.handleSelect
                 }, options)
                 );
