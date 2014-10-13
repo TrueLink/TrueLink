@@ -7,6 +7,7 @@
     import Contact = require("models/Contact");
     import MessageHistory = require("models/MessageHistory");
     import Model = require("tools/model");
+    import notifications = require("tools/notifications-api");
 
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
@@ -102,6 +103,12 @@
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
+                    if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                        notifications.notify("Truelink profile: " + this.profile.name, this.unreadCount + " unread messages from " + this.name);
+                    } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                        //TODO: not the best way to display the sender.
+                        notifications.notify("Truelink profile: " + this.profile.name, "New message: " + (<any>message).text + " | From: " + this.name);
+                    }
             }
             this._onChanged();
         }
