@@ -7,7 +7,7 @@ export var notify = function (title: string, message: string) {
             tag: "custom"
         };
         window.Notification.requestPermission(() => {
-            var notification = new window.Notification(this.title, options);
+            var notification = new window.Notification(title, options);
         });
     }
 }
