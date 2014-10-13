@@ -24,6 +24,11 @@
         public serverUrl : string;
         public unreadCount : number;
         public transport : CouchTransport.CouchTransport;
+        public notificationType : number;
+
+        public static NOTIFICATION_NONE = 1;
+        public static NOTIFICATION_COUNT = 2;
+        public static NOTIFICATION_MESSAGE = 3;
 
         private _gcByInviteId : any;
 
