@@ -275,6 +275,9 @@ declare module "modules/urandom/urandom" {
 declare module "react" {
     export = $;
 }
+declare module "react-bootstrap" {
+    export = $;
+}
 declare module "uuid" {
     export = $;
 }
