@@ -8,6 +8,7 @@
     import fixedId = require("mixins/fixedId");
     import Model = require("tools/model");
     import urandom = require("modules/urandom/urandom");
+    import notifications = require("tools/notifications-api");
 
     var maxBgIndex = 3;
 
@@ -151,23 +152,10 @@
             profile.onChanged.on(function () {
                 var total = this.getTotalUnreadObjectsCount();
                 if (this.lastUnreadObjectsCount < total) {
-                    this.notifyAboutUnreadItems(total);
                     this.lastUnreadObjectsCount = total;
                     (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
                 }
             }, this);
-        }
-
-        notifyAboutUnreadItems (count: number) {
-            if ('Notification' in window) {
-                var options = {
-                    body: "There is a total of " + count + " unread items.",
-                    tag: "custom"
-                };
-                window.Notification.requestPermission(() => {
-                    var notification = new window.Notification(this.title, options);
-                });
-            }
         }
 
         addProfile  () {
