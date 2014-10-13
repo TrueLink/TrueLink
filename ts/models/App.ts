@@ -20,10 +20,12 @@
         public router : any;
         public defaultPollingUrl : string;
         public fixedId : string;
+        public title : string;
 
         constructor () {
             super();
 
+            this.title = "Truelink ALPHA";
 
         this.fixedId = Application.id;
         this.transport = null;
@@ -53,6 +55,9 @@
             this.random = context.deserialize(packet.getLink("random"), factory.createRandom, factory);
             this.profiles = context.deserialize(packet.getLink("profiles"), factory.createProfile, factory);
             this.currentProfile = context.deserialize(packet.getLink("currentProfile"), factory.createProfile, factory);
+            this.profiles.forEach(function(p){
+                this.watchProfileUnreadObjects(p);
+            }, this);
 
             try {
                 this.setMenu(context.deserialize(packet.getLink("menu"), factory.createMenu, factory));
@@ -132,10 +137,36 @@
             return nextBgIndex;
         }
 
+        getTotalUnreadObjectsCount () : number {
+            var total = 0;
+            this.profiles.forEach(function (p) {
+                total += p.unreadCount;
+            });
+            return total;
+        }
+
+        watchProfileUnreadObjects (profile) {
+            profile.onChanged.on(function () {
+                var total = this.getTotalUnreadObjectsCount();
+                (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
+            }, this);
+        }
+
         addProfile  () {
             var profile = this.getFactory().createProfile();
+            this.watchProfileUnreadObjects(profile);
+            var name = urandom.name();
+            if (this.profiles.length == 0 && window.location.hash.match(/#nickname=([^&]*)/)) {
+                try {
+                    var cand = decodeURIComponent(window.location.hash.match(/#nickname=([^&]*)/)[1]);
+                    if (cand.length >= 3) {
+                        name = cand;
+                        window.location.hash = "";
+                    }
+                } catch (e) { }
+            }
             profile.init({
-                name: urandom.name(),
+                name: name,
                 bg: this._getNextBgIndex(),
                 serverUrl: this.defaultPollingUrl
             });
