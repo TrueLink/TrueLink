@@ -252,7 +252,7 @@
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
-            this.notificationType = (data.notificationType) ? (data.notificationType) : (this.NOTIFICATION_NONE);
+            this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_NONE);
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
