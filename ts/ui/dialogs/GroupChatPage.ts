@@ -1,5 +1,6 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
@@ -142,26 +143,27 @@
                         label: "Chat: ",
                         value: groupChat.name
                     })," | ",
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleLeaveChat
-                    }, "Leave "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleMembers
-                    }, "M "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleRekey
-                    }, "RK")),
+                    ReactBootstrap.DropdownButton({title: "∴"},
+                        React.DOM.button({
+                            className: "header-button",
+                            href: "",
+                            onClick: this._onAddPeople
+                        }, "Add "),
+                        React.DOM.button({
+                            className: "header-button",
+                            href: "",
+                            onClick: this._handleLeaveChat
+                        }, "Leave "),
+                        React.DOM.button({
+                            className: "header-button",
+                            href: "",
+                            onClick: this._handleMembers
+                        }, "M "),
+                        React.DOM.button({
+                            className: "header-button",
+                            href: "",
+                            onClick: this._handleRekey
+                        }, "RK"))),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
