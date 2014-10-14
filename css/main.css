@@ -454,4 +454,21 @@ a.button:hover {
 
 .header-dropdown-menu-button {
     float: right;
+    height: 100%;
+    width: 50px;
+}
+
+.header-dropdown-menu-button > * {
+    height: 100%;
+    width: 100%;
+}
+
+.header-dropdown-menu-button .dropdown-toggle {
+    height: 100%;
+    width: 100%;
+}
+
+.header-dropdown-menu-button .dropdown-menu > li > a {
+    padding: 14px;
+    font-size: 16px;
 }
