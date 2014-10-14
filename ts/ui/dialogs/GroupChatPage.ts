@@ -131,6 +131,24 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({title: "∴", pullRight: true},
+                            React.DOM.button({
+                                href: "",
+                                onClick: this._onAddPeople
+                            }, "Add "),
+                            React.DOM.button({
+                                href: "",
+                                onClick: this._handleLeaveChat
+                            }, "Leave "),
+                            React.DOM.button({
+                                href: "",
+                                onClick: this._handleMembers
+                            }, "M "),
+                            React.DOM.button({
+                                href: "",
+                                onClick: this._handleRekey
+                            }, "RK"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
@@ -142,28 +160,7 @@
                         onChanged: groupChat.set.bind(groupChat, "name"),
                         label: "Chat: ",
                         value: groupChat.name
-                    })," | ",
-                    ReactBootstrap.DropdownButton({title: "∴"},
-                        React.DOM.button({
-                            className: "header-button",
-                            href: "",
-                            onClick: this._onAddPeople
-                        }, "Add "),
-                        React.DOM.button({
-                            className: "header-button",
-                            href: "",
-                            onClick: this._handleLeaveChat
-                        }, "Leave "),
-                        React.DOM.button({
-                            className: "header-button",
-                            href: "",
-                            onClick: this._handleMembers
-                        }, "M "),
-                        React.DOM.button({
-                            className: "header-button",
-                            href: "",
-                            onClick: this._handleRekey
-                        }, "RK"))),
+                    })),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
