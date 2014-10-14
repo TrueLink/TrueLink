@@ -11,6 +11,7 @@ require.config({
             "extend": "tools/extend",
             "modules": "../vendor/flux-modules/src",
             "react": "../vendor/react/build/react",
+            "react-bootstrap": "../vendor/react-bootstrap/react-bootstrap",
             "localforage": "../vendor/localforage/localforage"
         },
         shim: {

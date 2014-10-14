@@ -1,5 +1,6 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
@@ -109,11 +110,10 @@
             var input = React.DOM.div({ className: "message-input" },
                     React.DOM.form({ onSubmit: this._onSubmit },
                         React.DOM.input({
-                            type: "text",
                             value: this.state.messageText,
                             onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
-                        }),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words)))));
+                        })),
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
             var content;
             if (this.state.pageModel.addContact) {
                 content = ContactList({
@@ -130,6 +130,24 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this._onAddPeople
+                            }, "Add members"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleLeaveChat
+                            }, "Leave"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleMembers
+                            }, "Manage members"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleRekey
+                            }, "Rekey"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
@@ -139,29 +157,8 @@
                         id: "gcName",
                         inline: true,
                         onChanged: groupChat.set.bind(groupChat, "name"),
-                        label: "Chat: ",
                         value: groupChat.name
-                    })," | ",
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleLeaveChat
-                    }, "Leave "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleMembers
-                    }, "M "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleRekey
-                    }, "RK")),
+                    })),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
