@@ -1,5 +1,6 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import ContactList = require("ui/contacts/ContactList");
@@ -73,6 +74,11 @@
             }
         },
 
+        _onExportHistory: function(e: MouseEvent) {
+            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            return false;
+        },
+
         render: function () {
             var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
@@ -113,20 +119,24 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this._onAddPeople
+                            }, "Add People"),
+                            ReactBootstrap.MenuItem({
+                                href: "data:text/plain;charset=utf-8,%21history%20sample%20here%0D%0Ajohn%3A%20hi%0D%0Abob%3A%20hello%0D%0Ajohn%3A%20ssdf%20sdf%20sdf%0D%0Abob%3A%20sdfdf%20sfsd%20fsdf%20fsfsd%20fsdfs%0D%0A%21end%20of%20history%20sample",
+                                onClick: this._onExportHistory
+                            }, "Export History"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
-                    }, "〈 Dialog: " + dialog.name),
-                    React.DOM.a({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add People"),
-                    React.DOM.a({
-                        href: "data:text/plain;charset=utf-8,%21history%20sample%20here%0D%0Ajohn%3A%20hi%0D%0Abob%3A%20hello%0D%0Ajohn%3A%20ssdf%20sdf%20sdf%0D%0Abob%3A%20sdfdf%20sfsd%20fsdf%20fsfsd%20fsdfs%0D%0A%21end%20of%20history%20sample",
-                        target: "_blank"
-                    }, "Export history")),
+                    }, "〈 Dialog: " + dialog.name)),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
