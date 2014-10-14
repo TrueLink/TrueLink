@@ -238,10 +238,22 @@ a.title {
 }
 
 /* --- CONTACT (temp)--- */
+.contact-page label {
+    /* un-bootstrap */
+    font-weight: normal;
+    display: block;
+}
 .contact-page .tlStatus {
     margin: 10px 0;
     font-size: 1.5rem;
     color: #ffffff;
+}
+.contact-page .tlStatus input, 
+.contact-page .tlStatus button, 
+.contact-page .tlStatus select, 
+.contact-page .tlStatus textarea {
+    /* un-bootstrap */
+    color: black;
 }
 .contact-page .tlStatus input {
     font-size: 1.5rem;
