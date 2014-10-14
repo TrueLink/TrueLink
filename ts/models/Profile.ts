@@ -24,6 +24,11 @@
         public serverUrl : string;
         public unreadCount : number;
         public transport : CouchTransport.CouchTransport;
+        public notificationType : string;
+
+        public static NOTIFICATION_NONE = "1";
+        public static NOTIFICATION_COUNT = "2";
+        public static NOTIFICATION_MESSAGE = "3";
 
         private _gcByInviteId : any;
 
@@ -227,7 +232,8 @@
                 name: this.name,
                 bg: this.bg,
                 serverUrl: this.serverUrl,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                notificationType: this.notificationType
             });
 
             packet.setLink("documents", context.getPacket(this.documents));
@@ -246,6 +252,7 @@
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
+            this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_NONE);
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);

@@ -15,6 +15,10 @@
             var model = this.props.model;
             var router = this.props.router;
             var currentProfile = model.app.currentProfile;
+            var dialogsMisc = null;
+            if (currentProfile) {
+                dialogsMisc = currentProfile.unreadCount ? " (" + currentProfile.unreadCount + ")" : null
+            }
             return {
                 "Documents": {
                     handler: router.createNavigateHandler("documents", currentProfile),
@@ -23,7 +27,7 @@
                 "Dialogs": {
                     handler: router.createNavigateHandler("dialogs", currentProfile),
                     className: "menu-item",
-                    misc: currentProfile.unreadCount ? " (" + currentProfile.unreadCount + ")" : null
+                    misc: dialogsMisc
                 },
                 "Contacts": {
                     handler: router.createNavigateHandler("contacts", currentProfile),
@@ -138,7 +142,8 @@
                     addProfile: this.handleAddProfile
                 })), menuItems, 
                     React.DOM.div(null, 
-                        React.DOM.small(null, React.DOM.br(null), "Version 14.MM.DD-RERERERE, URL: ", React.DOM.br(null), this.state.currentProfile.serverUrl),
+                        React.DOM.small(null, React.DOM.br(null), "Version 14.MM.DD-RERERERE, URL: ", 
+                            React.DOM.br(null), (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
                         React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
                     )
