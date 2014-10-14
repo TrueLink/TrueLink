@@ -157,7 +157,6 @@
                         id: "gcName",
                         inline: true,
                         onChanged: groupChat.set.bind(groupChat, "name"),
-                        label: "Chat: ",
                         value: groupChat.name
                     })),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
