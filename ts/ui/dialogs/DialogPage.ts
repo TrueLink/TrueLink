@@ -122,7 +122,11 @@
                         className: "header-button",
                         href: "",
                         onClick: this._onAddPeople
-                    }, "Add People")),
+                    }, "Add People"),
+                    React.DOM.a({
+                        href: "data:text/plain;charset=utf-8,%21history%20sample%20here%0D%0Ajohn%3A%20hi%0D%0Abob%3A%20hello%0D%0Ajohn%3A%20ssdf%20sdf%20sdf%0D%0Abob%3A%20sdfdf%20sfsd%20fsdf%20fsfsd%20fsdfs%0D%0A%21end%20of%20history%20sample",
+                        target: "_blank"
+                    }, "Export history")),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
