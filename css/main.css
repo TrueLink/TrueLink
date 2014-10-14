@@ -307,8 +307,10 @@ a.title {
 .dialog-page .app-page-footer .message-input {
     height: 100%;
     width: 100%;
-    text-align: center;
+    text-align: left;
     position: relative;
+    padding-left: 10px;
+    padding-right: 100px;
 }
 .dialog-page .app-page-footer .message-input .send-button {
     position: absolute;
@@ -316,11 +318,14 @@ a.title {
     top:0;
     bottom: 0;
 }
-.dialog-page .app-page-footer .message-input button {
+.dialog-page .app-page-footer .message-input button, .dialog-page .app-page-footer .message-input input {
     padding: 5px;
+    line-height: normal;
 }
+.dialog-page .app-page-footer .message-input button {
+} 
 .dialog-page .app-page-footer .message-input input {
-    width: 50%;
+    width: 100%;
 }
 
 
