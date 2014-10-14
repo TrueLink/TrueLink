@@ -132,23 +132,23 @@
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
                     React.DOM.span({className: "header-dropdown-menu-button"},
-                        ReactBootstrap.DropdownButton({title: "∴", pullRight: true},
-                            React.DOM.button({
-                                href: "",
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
                                 onClick: this._onAddPeople
-                            }, "Add "),
-                            React.DOM.button({
-                                href: "",
+                            }, "Add members"),
+                            ReactBootstrap.MenuItem({
                                 onClick: this._handleLeaveChat
-                            }, "Leave "),
-                            React.DOM.button({
-                                href: "",
+                            }, "Leave"),
+                            ReactBootstrap.MenuItem({
                                 onClick: this._handleMembers
-                            }, "M "),
-                            React.DOM.button({
-                                href: "",
+                            }, "Manage members"),
+                            ReactBootstrap.MenuItem({
                                 onClick: this._handleRekey
-                            }, "RK"))),
+                            }, "Rekey"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
