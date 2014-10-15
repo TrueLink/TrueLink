@@ -3,6 +3,7 @@
     import extend = require("tools/extend");
     import Model = require("tools/model");
     import GrConnection = require("models/grConnection/GrConnection");
+    import notifications = require("tools/notifications-api");
     import eventEmitter = require("modules/events/eventEmitter");
     import serializable = require("modules/serialization/serializable");
     import model = require("mixins/model");
@@ -121,11 +122,24 @@
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
+                if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", this.unreadCount + " unread messages.");
+                } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", (message).text);
+                }
+                notifications.playMessageArrivedSound(this.profile);
             }
             this._onChanged();
         }
 
         markAsRead  () {
+            var hiddenProperty = 'hidden' in document ? 'hidden' :
+                              'webkitHidden' in document ? 'webkitHidden' :
+                              'mozHidden' in document ? 'mozHidden' :
+                              null;
+            if (document[hiddenProperty] === 'hidden') {
+                return;
+            }
             if (this.unreadCount) {
                 this.history.getHistory().forEach(function (msg) {
                     if (msg.unread) {

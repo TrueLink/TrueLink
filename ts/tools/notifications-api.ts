@@ -5,7 +5,8 @@ export var notify = function (title: string, message: string) {
     if ('Notification' in window) {
         var options = {
             body: message,
-            tag: "custom"
+            tag: "custom",
+            icon: 'favicon.ico'
         };
         window.Notification.requestPermission(() => {
             var notification = new window.Notification(title, options);

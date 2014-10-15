@@ -104,10 +104,9 @@
             if (message.unread) {
                 this.unreadCount += 1;
                 if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
-                    notifications.notify("Truelink profile: " + this.profile.name, this.unreadCount + " unread messages from " + this.name);
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", this.unreadCount + " unread messages.");
                 } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
-                    //TODO: not the best way to display the sender.
-                    notifications.notify("Truelink profile: " + this.profile.name, "New message: " + (<any>message).text + " | From: " + this.name);
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", (<any>message).text);
                 }
                 notifications.playMessageArrivedSound(this.profile);
             }
@@ -120,6 +119,7 @@
                               'mozHidden' in document ? 'mozHidden' :
                               null;
             if (document[hiddenProperty] === 'hidden') {
+                console.log("mark as read while hidden");
                 return;
             }
             if (this.unreadCount) {
