@@ -119,6 +119,7 @@
                               'mozHidden' in document ? 'mozHidden' :
                               null;
             if (document[hiddenProperty] === 'hidden') {
+                console.log("mark as read while hidden");
                 return;
             }
             if (this.unreadCount) {

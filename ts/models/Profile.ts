@@ -46,6 +46,7 @@
         this.grConnections = [];
         this.serverUrl = "";
         this.unreadCount = 0;
+        this.notificationType = Profile.NOTIFICATION_MESSAGE;
 
         this.transport = null;
     }
