@@ -254,7 +254,7 @@
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
-            this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_NONE);
+            this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_MESSAGE);
             this.notificationSound = (data.notificationSound) ? (data.notificationSound) : ("audiotag1");
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
