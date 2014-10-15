@@ -4,6 +4,7 @@
     import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
+    import MessagesExportMenuItem = require("./MessagesExportMenuItem");
     import ContactList = require("ui/contacts/ContactList");
     import GroupChat = require("models/GroupChat");
     import Profile = require("models/Profile");
@@ -147,7 +148,10 @@
                             }, "Manage members"),
                             ReactBootstrap.MenuItem({
                                 onClick: this._handleRekey
-                            }, "Rekey"))),
+                            }, "Rekey"),
+                            MessagesExportMenuItem({
+                                messages: groupChat.history.getHistory()
+                            }, "Export History"))),
                     React.DOM.a({
                         className: "title",
                         href: "",

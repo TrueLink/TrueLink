@@ -3,8 +3,8 @@
     import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
-    import ContactList = require("ui/contacts/ContactList");
-    import Dialog = require("models/Dialog");
+    import MessagesExportMenuItem = require("./MessagesExportMenuItem");
+    import ContactList = require("ui/contacts/ContactList");    
 
     var exp = React.createClass({
         displayName: "DialogPage",
@@ -76,13 +76,8 @@
             }
         },
 
-        _onExportHistory: function(e: MouseEvent) {
-            window.open((<HTMLAnchorElement>e.target).href, "_blank");
-            return false;
-        },
-
         render: function () {
-            var dialog: Dialog.Dialog = this.state.model;
+            var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
@@ -119,23 +114,6 @@
                 content = MessagesView({ profile: dialog.profile, messages: dialog.history.getHistory(), onGoToChat: this._handleGoToChat });
             }
 
-            var historyToExport = dialog.history.getHistory()
-                .map(message => {
-                    if (message.type === "tlgr-invite") {
-                        //todo complete
-                        var tlgrInvitationMessage = <ITlgrInvitationMessage>message;
-                        return "tlgr-invite";
-                    }
-                    else {
-                        var textMessage = <ITextMessage>message;
-                        if(textMessage.isMine) {
-                            return textMessage.sender + " (me): " + textMessage.text;
-                        } else {
-                            return (textMessage.sender || "unknown") + ": " + textMessage.text;
-                        }
-                    }
-                }).join("\n");
-            
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
                     React.DOM.span({className: "header-dropdown-menu-button"},
@@ -147,10 +125,8 @@
                             ReactBootstrap.MenuItem({
                                 onClick: this._onAddPeople
                             }, "Add People"),
-                            ReactBootstrap.MenuItem({
-                                href: "data:text/plain;charset=utf-8,"
-                                    + encodeURIComponent(historyToExport),
-                                onClick: this._onExportHistory
+                            MessagesExportMenuItem({
+                                messages: dialog.history.getHistory()
                             }, "Export History"))),
                     React.DOM.a({
                         className: "title",
