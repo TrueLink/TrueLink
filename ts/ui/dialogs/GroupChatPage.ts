@@ -4,7 +4,7 @@
     import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
-    import MessagesExportMenuItem = require("./MessagesExportMenuItem");
+    import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
     import ContactList = require("ui/contacts/ContactList");
     import GroupChat = require("models/GroupChat");
     import Profile = require("models/Profile");
@@ -86,6 +86,11 @@
             this.state.model.grConnection.initiateRekey(members);
         },
 
+        _onExportHistory: function (e: MouseEvent) {
+            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            return false;
+        },
+
         renderMembers: function () {
             var contacts = this.state.model.grConnection._activeTlgr.getUsers();
             return ContactList({
@@ -143,9 +148,9 @@
                             ReactBootstrap.MenuItem({
                                 onClick: this._handleRekey
                             }, "Rekey"),
-                            MessagesExportMenuItem({
-                                messages: groupChat.history.getHistory(),
-                                title: groupChat.name
+                            ReactBootstrap.MenuItem({
+                                href: RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history),
+                                onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
                         className: "title",

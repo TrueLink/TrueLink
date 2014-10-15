@@ -3,7 +3,7 @@
     import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
-    import MessagesExportMenuItem = require("./MessagesExportMenuItem");
+    import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
     import ContactList = require("ui/contacts/ContactList");    
 
     var exp = React.createClass({
@@ -76,6 +76,11 @@
             }
         },
 
+        _onExportHistory: function (e: MouseEvent) {
+            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            return false;
+        },
+
         render: function () {
             var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
@@ -120,9 +125,9 @@
                             ReactBootstrap.MenuItem({
                                 onClick: this._onAddPeople
                             }, "Add People"),
-                            MessagesExportMenuItem({
-                                messages: dialog.history.getHistory(),
-                                title: "Dialog: " + dialog.name
+                            ReactBootstrap.MenuItem({
+                                href: RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history),
+                                onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
                         className: "title",
