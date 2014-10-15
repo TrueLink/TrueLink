@@ -4,6 +4,8 @@
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import ContactList = require("ui/contacts/ContactList");
+    import Dialog = require("models/Dialog");
+
     var exp = React.createClass({
         displayName: "DialogPage",
         mixins: [reactObserver],
@@ -80,7 +82,7 @@
         },
 
         render: function () {
-            var dialog = this.state.model;
+            var dialog: Dialog.Dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
@@ -117,6 +119,23 @@
                 content = MessagesView({ profile: dialog.profile, messages: dialog.history.getHistory(), onGoToChat: this._handleGoToChat });
             }
 
+            var historyToExport = dialog.history.getHistory()
+                .map(message => {
+                    if (message.type === "tlgr-invite") {
+                        //todo complete
+                        var tlgrInvitationMessage = <ITlgrInvitationMessage>message;
+                        return "tlgr-invite";
+                    }
+                    else {
+                        var textMessage = <ITextMessage>message;
+                        if(textMessage.isMine) {
+                            return textMessage.sender + " (me): " + textMessage.text;
+                        } else {
+                            return (textMessage.sender || "unknown") + ": " + textMessage.text;
+                        }
+                    }
+                }).join("\n");
+            
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
                     React.DOM.span({className: "header-dropdown-menu-button"},
@@ -129,7 +148,8 @@
                                 onClick: this._onAddPeople
                             }, "Add People"),
                             ReactBootstrap.MenuItem({
-                                href: "data:text/plain;charset=utf-8,%21history%20sample%20here%0D%0Ajohn%3A%20hi%0D%0Abob%3A%20hello%0D%0Ajohn%3A%20ssdf%20sdf%20sdf%0D%0Abob%3A%20sdfdf%20sfsd%20fsdf%20fsfsd%20fsdfs%0D%0A%21end%20of%20history%20sample",
+                                href: "data:text/plain;charset=utf-8,"
+                                    + encodeURIComponent(historyToExport),
                                 onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
