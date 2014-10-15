@@ -77,7 +77,8 @@
         },
 
         _onExportHistory: function (e: MouseEvent) {
-            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            var dialog = this.state.model;
+            window.open(RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history), "_blank");
             return false;
         },
 
@@ -128,7 +129,6 @@
                                 onClick: this._onAddPeople
                             }, "Add People"),
                             ReactBootstrap.MenuItem({
-                                href: RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history),
                                 onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({

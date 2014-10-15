@@ -87,7 +87,8 @@
         },
 
         _onExportHistory: function (e: MouseEvent) {
-            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            var groupChat : GroupChat.GroupChat = this.state.model;
+            window.open(RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history), "_blank");
             return false;
         },
 
@@ -151,7 +152,6 @@
                                 onClick: this._handleRekey
                             }, "Rekey"),
                             ReactBootstrap.MenuItem({
-                                href: RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history),
                                 onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
