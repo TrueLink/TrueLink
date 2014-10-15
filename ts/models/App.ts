@@ -1,30 +1,31 @@
-    "use strict";
-    import invariant = require("modules/invariant");
-    import extend = require("tools/extend");
-    import Event = require("tools/event");
-    import serializable = require("modules/serialization/serializable");
-    import CouchTransport = require("models/tlConnection/CouchTransport");
-    import Profile = require("models/Profile");
-    import fixedId = require("mixins/fixedId");
-    import Model = require("tools/model");
-    import urandom = require("modules/urandom/urandom");
-    import notifications = require("tools/notifications-api");
+"use strict";
+import invariant = require("modules/invariant");
+import extend = require("tools/extend");
+import Event = require("tools/event");
+import serializable = require("modules/serialization/serializable");
+import CouchTransport = require("models/tlConnection/CouchTransport");
+import Profile = require("models/Profile");
+import fixedId = require("mixins/fixedId");
+import Model = require("tools/model");
+import urandom = require("modules/urandom/urandom");
+import notifications = require("tools/notifications-api");
 
-    var maxBgIndex = 3;
 
-    export class Application extends Model.Model implements ISerializable {
-        public transport : CouchTransport.CouchTransport;
-        public random : any;
-        public menu : any;
-        public profiles : Array<Profile.Profile>;
-        public currentProfile : Profile.Profile;
-        public router : any;
-        public defaultPollingUrl : string;
-        public fixedId : string;
-        public title : string;
-        private lastUnreadObjectsCount : number;
+var maxBgIndex = 3;
 
-        constructor () {
+export class Application extends Model.Model implements ISerializable {
+    public transport : CouchTransport.CouchTransport;
+    public random : any;
+    public menu : any;
+    public profiles : Array<Profile.Profile>;
+    public currentProfile : Profile.Profile;
+    public router : any;
+    public defaultPollingUrl : string;
+    public fixedId : string;
+    public title : string;
+    private lastUnreadObjectsCount : number;
+
+    constructor () {
             super();
 
             this.title = "Truelink ALPHA";
@@ -37,7 +38,7 @@
         this.currentProfile = null;
         this.router = null;
         this.lastUnreadObjectsCount = 0;
-        this.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
+        this.defaultPollingUrl = (<any>window).fluxConfig.defaultPollingUrl;
     }
     
     public static id:string = "0BF08932-8384-47B3-8554-6FEC3C2B158D";

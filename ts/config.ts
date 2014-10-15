@@ -1,5 +1,8 @@
 
 /// <reference path="../vendor/typings/require/require.d.ts"/>
+(<any>window).fluxConfig = {};
+(<any>window).fluxConfig.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
+
 require.config({
         baseUrl: "./lib",
         paths: {
