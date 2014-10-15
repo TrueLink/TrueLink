@@ -28,6 +28,11 @@
             var pageCustomClass = !currentProfile ? "" :
                 " stretch-background user-background-" + currentProfile.bg;
             return React.DOM.div({id: "app"},
+                React.DOM.audio({ 
+                    id:"audiotag1",
+                    src:"media/chrap.wav",
+                    preload:"auto"
+                }),
                 SidebarHiderComponent({token: this.state.currentPage},
                     MenuComponent({model: this.state.menu, className: "app-menu", router: router}),
                     React.DOM.div({className: "app-view" + pageCustomClass},

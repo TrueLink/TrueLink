@@ -11,3 +11,7 @@ export var notify = function (title: string, message: string) {
         });
     }
 }
+
+export var playMessageArrivedSound = function () {
+    (<any>document.getElementById('audiotag1')).play();
+}

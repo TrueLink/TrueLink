@@ -103,12 +103,13 @@
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
-                    if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
-                        notifications.notify("Truelink profile: " + this.profile.name, this.unreadCount + " unread messages from " + this.name);
-                    } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
-                        //TODO: not the best way to display the sender.
-                        notifications.notify("Truelink profile: " + this.profile.name, "New message: " + (<any>message).text + " | From: " + this.name);
-                    }
+                if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                    notifications.notify("Truelink profile: " + this.profile.name, this.unreadCount + " unread messages from " + this.name);
+                } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                    //TODO: not the best way to display the sender.
+                    notifications.notify("Truelink profile: " + this.profile.name, "New message: " + (<any>message).text + " | From: " + this.name);
+                }
+                notifications.playMessageArrivedSound();
             }
             this._onChanged();
         }
