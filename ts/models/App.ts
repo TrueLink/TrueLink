@@ -28,7 +28,7 @@ export class Application extends Model.Model implements ISerializable {
     constructor () {
             super();
 
-            this.title = "Truelink ALPHA";
+            this.title = "TrueLink άλφα";
 
         this.fixedId = Application.id;
         this.transport = null;
@@ -41,7 +41,7 @@ export class Application extends Model.Model implements ISerializable {
         this.defaultPollingUrl = (<any>window).fluxConfig.defaultPollingUrl;
     }
     
-    public static id:string = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
+    public static id: string = "0BF08932-8384-47B3-8554-6FEC3C2B158D";
 
         serialize  (packet, context) {
             packet.setData({});
@@ -154,7 +154,7 @@ export class Application extends Model.Model implements ISerializable {
                 var total = this.getTotalUnreadObjectsCount();
                 if (this.lastUnreadObjectsCount != total) {
                     this.lastUnreadObjectsCount = total;
-                    (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
+                    (total != 0) ? (document.title = "(" + total + ") " + this.title) : (document.title = this.title);
                 }
             }, this);
         }

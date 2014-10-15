@@ -1,7 +1,11 @@
 
 /// <reference path="../vendor/typings/require/require.d.ts"/>
-(<any>window).fluxConfig = {};
-(<any>window).fluxConfig.defaultPollingUrl = "http://192.168.77.15:5984/tl_channels";
+(<any>window).fluxConfig = {
+    defaultPollingUrl: "http://192.168.77.15:5984/tl_channels",
+    buildDay: "__DAY__",
+    buildMonth: "__MONTH__",
+    buildRevision: "__HG_REV__",
+};
 
 require.config({
         baseUrl: "./lib",

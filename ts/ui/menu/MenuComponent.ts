@@ -132,6 +132,7 @@
                     onClick: item.handler
                 }, title, items[title].misc);
             }
+            var fc = (<any>window).fluxConfig;
 
             return React.DOM.div({className: this.props.className},
                 (!this.state.profiles ? null : MenuSelectProfile({
@@ -142,7 +143,7 @@
                     addProfile: this.handleAddProfile
                 })), menuItems, 
                     React.DOM.div(null, 
-                        React.DOM.small(null, React.DOM.br(null), "Version 14.MM.DD-RERERERE, URL: ", 
+                        React.DOM.small(null, React.DOM.br(null), "Version 14." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision + ", URL: ", 
                             React.DOM.br(null), (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
                         React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
