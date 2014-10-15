@@ -81,14 +81,9 @@
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
-            var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
-            function randomItem (list) {
-                return list[Math.floor(Math.random() * list.length)];
-            }
-
             var input = React.DOM.div({ className: "message-input" },
                 React.DOM.form({ onSubmit: this._onSubmit }, React.DOM.input({ ref: "inputMessage" })),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;

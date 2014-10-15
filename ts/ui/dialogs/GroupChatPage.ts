@@ -100,13 +100,7 @@
 
         render: function () {
             var groupChat : GroupChat.GroupChat = this.state.model;
-            //            var pageModel = this.state.pageModel;
             var router = this.props.router;
-
-            var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
-            function randomItem(list) {
-                return list[Math.floor(Math.random() * list.length)];
-            }
 
             var input = React.DOM.div({ className: "message-input" },
                     React.DOM.form({ onSubmit: this._onSubmit },
@@ -114,7 +108,7 @@
                             value: this.state.messageText,
                             onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
                         })),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
             var content;
             if (this.state.pageModel.addContact) {
                 content = ContactList({
