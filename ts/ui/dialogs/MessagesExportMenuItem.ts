@@ -32,7 +32,9 @@
         },
 
         render: function () {
-            var historyToExport = this.props.messages.map(this._renderMessageToExport).join("\n");
+            var historyToExport =
+                "==== " + this.props.title + " ====\n"
+                + this.props.messages.map(this._renderMessageToExport).join("\n");
             return ReactBootstrap.MenuItem({
                 href: "data:text/plain;charset=utf-8," + encodeURIComponent(historyToExport),
                 onClick: this._onClick

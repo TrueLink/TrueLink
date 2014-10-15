@@ -126,7 +126,8 @@
                                 onClick: this._onAddPeople
                             }, "Add People"),
                             MessagesExportMenuItem({
-                                messages: dialog.history.getHistory()
+                                messages: dialog.history.getHistory(),
+                                title: "Dialog: " + dialog.name
                             }, "Export History"))),
                     React.DOM.a({
                         className: "title",

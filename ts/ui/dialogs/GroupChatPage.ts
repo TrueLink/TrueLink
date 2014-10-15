@@ -150,7 +150,8 @@
                                 onClick: this._handleRekey
                             }, "Rekey"),
                             MessagesExportMenuItem({
-                                messages: groupChat.history.getHistory()
+                                messages: groupChat.history.getHistory(),
+                                title: groupChat.name
                             }, "Export History"))),
                     React.DOM.a({
                         className: "title",
