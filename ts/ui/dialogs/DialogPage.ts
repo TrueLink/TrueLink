@@ -98,7 +98,11 @@
                 content = [
                     ContactList({
                         buttonText: "Invite",
-                        contacts: dialog.profile.contacts.filter((c) => c.name != dialog.contact.name), // TODO better filter?
+                        contacts:
+                            dialog.profile.contacts.filter((c) =>
+                                c.name != dialog.contact.name
+                                && c.tlConnection
+                                && c.tlConnection.canSendMessages()), // TODO better filter?
                         checkBoxes: true,
                         onCancel: this._handleCancelAddContact,
                         onCommand: this._handleAddContact
