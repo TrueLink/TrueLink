@@ -183,6 +183,9 @@ declare module "modules/crypto-js/enc-utf8" {
 declare module "modules/cryptography/random" {
     export = $;
 }
+declare module "modules/cryptography/sha1-crypto-js" {
+    export = $;
+}
 declare module "modules/dictionary/dictionary" {
     export = $;
 }
