@@ -7,6 +7,7 @@
     import Contact = require("models/Contact");
     import MessageHistory = require("models/MessageHistory");
     import Model = require("tools/model");
+    import notifications = require("tools/notifications-api");
 
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
@@ -102,11 +103,25 @@
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
+                if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", this.unreadCount + " unread messages.");
+                } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                    notifications.notify(this.name + " ( " + this.profile.name + " )", (<any>message).text);
+                }
+                notifications.playMessageArrivedSound(this.profile);
             }
             this._onChanged();
         }
 
         markAsRead  () {
+            var hiddenProperty = 'hidden' in document ? 'hidden' :
+                              'webkitHidden' in document ? 'webkitHidden' :
+                              'mozHidden' in document ? 'mozHidden' :
+                              null;
+            if (document[hiddenProperty] === true) {
+                console.log("mark as read while hidden");
+                return;
+            }
             if (this.unreadCount) {
                 this.history.getHistory().forEach(function (msg) {
                     if (msg.unread) {

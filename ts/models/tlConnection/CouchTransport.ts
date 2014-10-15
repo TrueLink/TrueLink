@@ -27,8 +27,8 @@
         private _channels : any;
 
         constructor () {
-        this.onChanged = new Event.Event<any>();
-        this.onPackets = new Event.Event<ICouchMultivaluePackets>();
+        this.onChanged = new Event.Event<any>("CouchTransport.onChanged");
+        this.onPackets = new Event.Event<ICouchMultivaluePackets>("CouchTransport.onPackets");
 
         this._pollingUrl = null;
         this._polling = null;
@@ -123,7 +123,7 @@
 
             this._onChanged();
 
-            if (this._unsentPackets.length === 1) {
+            if (this._unsentPackets.length > 0) {
                 this._sendNextPacket();
             }
         }

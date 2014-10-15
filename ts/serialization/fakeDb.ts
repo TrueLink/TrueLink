@@ -4,18 +4,37 @@ import SerializationPacket = require("modules/serialization/SerializationPacket"
 var nullPacket = SerializationPacket.nullPacket;
 import $ = require("zepto");
 var isArray = $.isArray;
+import lf = require("localforage");
 
-var ls = localStorage;
-var linksData = ls.getItem("links");
-var lnks = linksData ? JSON.parse(linksData) : [];
-
-var objData = ls.getItem("objs");
-var objs = objData ? JSON.parse(objData) : {};
+var lnks = [];
+var objs = {};
 
 var priv = {
+    loadLocalForage: function(){
+        console.log("fetching from localForage...");
+        return lf.getItem<string>("links").then(function(linkJson){
+            try{
+                lnks = JSON.parse(linkJson) || [];
+            }catch(e){
+                console.log(e);
+                lnks=[];
+            }
+            return lf.getItem<string>("objs");
+        }).then(function(objJson){
+            try{
+                objs = JSON.parse(objJson) || {};
+            }catch(e){
+                console.log(e);
+                lnks=[];
+            }
+        }).then(function(){console.log("lf fetch finished")});
+    },
+
     dump: function () {
-        ls.setItem("objs", JSON.stringify(objs));
-        ls.setItem("links", JSON.stringify(lnks));
+        console.log("writing localForage...");
+        return lf.setItem("objs", JSON.stringify(objs)).then(function(){
+            return lf.setItem("links", JSON.stringify(lnks)); // "object cannot be cloned"
+        }).then(function(){console.log("lf commit finished")});
     },
 
     getLinks: function (fromId, type) {
@@ -64,7 +83,9 @@ var priv = {
     clear: function () {
         lnks = [];
         objs = {};
-        priv.dump();
+        return lf.setItem("objs", {}).then(function(){
+            return lf.setItem("links", []);
+        }).then(function(){console.log("lf erase finished")});
     }
 }
 var fake = {
@@ -74,7 +95,8 @@ var fake = {
     removeLinks: priv.removeLinks,
     getLinks: priv.getLinks,
     clear: priv.clear,
-    commit: priv.dump
+    commit: priv.dump,
+    init: priv.loadLocalForage
 };
 
 window.fakeDb = fake;

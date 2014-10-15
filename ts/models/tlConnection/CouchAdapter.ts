@@ -26,8 +26,8 @@ export class CouchAdapter {
     private processedPackets : { [key:string]: any };
 
     constructor(transport, options) {
-        this.onPacket = new Event.Event<ICouchPacket>();
-        this.onChanged = new Event.Event<any>();
+        this.onPacket = new Event.Event<ICouchPacket>("CouchAdapter.onPacket");
+        this.onChanged = new Event.Event<any>("CouchAdapter.onChanged");
         invariant(transport, "Can i haz transport?");
         invariant(options, "Can i haz options?");
         invariant(options.addr instanceof Multivalue, "options.addr must be multivalue");

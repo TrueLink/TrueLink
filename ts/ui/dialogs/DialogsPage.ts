@@ -44,13 +44,8 @@
                         href: "",
                         onClick: router.createNavigateHandler("home", profile.app)
                     }, "〈 Dialogs")),
-                React.DOM.div({className: "app-page-content has-header"},
-                    React.DOM.div({className: "generic-block"},
-                        React.DOM.a({
-                            className: "button",
-                            href: "",
-                            onClick: this.handleStartDialog
-                        }, "Start new dialog")),
+                React.DOM.div({className: "app-page-content has-header"},                    
+                    //React.DOM.div({className: "generic-block"},React.DOM.a({className: "button",href: "",onClick: this.handleStartDialog}, "Start new dialog")),
                     dialogs
                     ));
         }

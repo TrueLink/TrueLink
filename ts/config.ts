@@ -1,7 +1,14 @@
 
 /// <reference path="../vendor/typings/require/require.d.ts"/>
+(<any>window).fluxConfig = {
+    defaultPollingUrl: "http://192.168.77.15:5984/tl_channels",
+    buildDay: "__DAY__",
+    buildMonth: "__MONTH__",
+    buildRevision: "__HG_REV__",
+};
+
 require.config({
-        baseUrl: "/lib",
+        baseUrl: "./lib",
         paths: {
             "zepto": "../vendor/zepto/src/zepto",
             "zepto_ajax": "../vendor/zepto/src/ajax",
@@ -10,7 +17,9 @@ require.config({
             "uuid": "../vendor/uuid/uuid",
             "extend": "tools/extend",
             "modules": "../vendor/flux-modules/src",
-            "react": "../vendor/react/build/react"
+            "react": "../vendor/react/build/react",
+            "react-bootstrap": "../vendor/react-bootstrap/react-bootstrap",
+            "localforage": "../vendor/localforage/localforage"
         },
         shim: {
             "zepto": { exports: "Zepto" },

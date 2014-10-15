@@ -9,3 +9,4 @@ server2.js
 *.sublime-workspace
 node_modules
 *.orig
+rev.txt

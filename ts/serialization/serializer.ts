@@ -28,6 +28,10 @@
             return packet;
         },
 
+        init: function(){
+            return db.init();
+        },
+
         createPacket: function (scheme, type, id, context, counterObj) {
             context = context || {};
             if (context[id]) { return context[id]; }
@@ -145,8 +149,9 @@
 
         storeRunningContext: function () {
             if (!this.runningContext) { return; }
-            this.storeContext(this.runningContext);
+            var ctx = this.runningContext;
             this.runningContext = null;
+            return this.storeContext(ctx);
         },
         onObjectChanged: function (obj, sender) {
             if (!this.runningContext) {

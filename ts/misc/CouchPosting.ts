@@ -3,7 +3,9 @@
     import invariant = require("modules/invariant");
     import eventEmitter = require("modules/events/eventEmitter");
     import $ = require("zepto");
-
+    import SHA1 = require("modules/cryptography/sha1-crypto-js");
+import Hex = require("modules/multivalue/hex");
+import Utf8String = require("modules/multivalue/utf8string");
     // works with strings, not multivalues
 
     function CouchPosting(url) {
@@ -16,7 +18,10 @@
         send: function (channelName, data, context) {
             invariant(typeof channelName === "string", "CouchPosting works with string data");
             invariant(typeof data === "string", "CouchPosting works with string data");
+            var hash = SHA1(new Utf8String(channelName + data)).as(Hex).serialize();
+            console.log('hash:', hash);
             var packet = {
+                _id: hash,
                 ChannelId: channelName,
                 DataString: data
             };

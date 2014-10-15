@@ -36,11 +36,11 @@
             var basicTag = (!!this.props.inline)?React.DOM.span:React.DOM.div;
             var displayMode = [
                 React.DOM.span({className: "editable-display", key: 0}, props.value),
-                React.DOM.span({
+                React.DOM.button({
                     key: 1,
                     className: "editable-edit-button",
                     onClick: this.editMode
-                }, "✍")
+                }, " ✎")
             ];
             var editMode = basicTag({className: "editable-input"},
                 React.DOM.form({onSubmit: this.onSubmit}, React.DOM.input({
@@ -52,7 +52,7 @@
                     onKeyUp: this.onKeyUp,
                     onBlur: this.onSubmit
                 })));
-            return basicTag({className: "editable-field"},
+            return basicTag({className: "editable-field", "data-id":props.id},
                 basicTag({className: "editable-label"}, React.DOM.label({htmlFor: props.id}, props.label)),
                 this.state.isEditing ? editMode : displayMode);
         }

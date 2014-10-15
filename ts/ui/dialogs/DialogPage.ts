@@ -1,8 +1,11 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
-    import ContactList = require("ui/contacts/ContactList");
+    import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
+    import ContactList = require("ui/contacts/ContactList");    
+
     var exp = React.createClass({
         displayName: "DialogPage",
         mixins: [reactObserver],
@@ -73,19 +76,19 @@
             }
         },
 
+        _onExportHistory: function (e: MouseEvent) {
+            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            return false;
+        },
+
         render: function () {
             var dialog = this.state.model;
             //            var pageModel = this.state.pageModel;
             var router = this.props.router;
 
-            var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
-            function randomItem (list) {
-                return list[Math.floor(Math.random() * list.length)];
-            }
-
             var input = React.DOM.div({ className: "message-input" },
                 React.DOM.form({ onSubmit: this._onSubmit }, React.DOM.input({ ref: "inputMessage" })),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words))));
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;
@@ -93,11 +96,12 @@
                 content = [
                     ContactList({
                         buttonText: "Invite",
-                        contacts: dialog.profile.contacts,
+                        contacts: dialog.profile.contacts.filter((c) => c.name != dialog.contact.name), // TODO better filter?
                         checkBoxes: true,
                         onCancel: this._handleCancelAddContact,
                         onCommand: this._handleAddContact
                     }),
+                    "My Name: ",
                     React.DOM.input({
                         type: "text",
                         onChange: function (e) {
@@ -112,16 +116,24 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this._onAddPeople
+                            }, "Add People"),
+                            ReactBootstrap.MenuItem({
+                                href: RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history),
+                                onClick: this._onExportHistory
+                            }, "Export History"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
-                    }, "〈 Dialog: " + dialog.name),
-                    React.DOM.a({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add People")),
+                    }, "〈 Dialog: " + dialog.name)),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),

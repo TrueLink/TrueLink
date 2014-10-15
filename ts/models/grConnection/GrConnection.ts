@@ -24,9 +24,9 @@
 
         constructor () {
             super();
-            this.onUserJoined = new Event.Event<ITlgrShortUserInfo>();
-            this.onUserLeft = new Event.Event<ITlgrShortUserInfo>();
-            this.onMessage = new Event.Event<any>();
+            this.onUserJoined = new Event.Event<ITlgrShortUserInfo>("GrConnection.onUserJoined");
+            this.onUserLeft = new Event.Event<ITlgrShortUserInfo>("GrConnection.onUserLeft");
+            this.onMessage = new Event.Event<any>("GrConnection.onMessage");
 
         this._activeTlgr = null;
         this._transport = null;

@@ -21,6 +21,12 @@
             this.props.router.navigate("dialog", dialog);
             return false;
         },
+        rename: function(name){
+            var contact = this.state.model;
+            contact.set("name", name);
+            var dialog = contact.profile.startDirectDialog(contact);
+            dialog.set("name", name);
+        },
 //        handleModelChange: function (fieldName, newValue) {
 //            this.props.pageModel.model.set(fieldName, newValue);
 //        },
@@ -39,7 +45,7 @@
                 React.DOM.div({className: "app-page-content has-header"},
                     EditableField({
                         id: "contactName",
-                        onChanged: contact.set.bind(contact, "name"),
+                        onChanged: this.rename,
                         label: "Name: ",
                         value: contact.name
                     }),

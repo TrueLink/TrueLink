@@ -24,13 +24,19 @@
         public serverUrl : string;
         public unreadCount : number;
         public transport : CouchTransport.CouchTransport;
+        public notificationType : string;
+        public notificationSound : string;
+
+        public static NOTIFICATION_NONE = "1";
+        public static NOTIFICATION_COUNT = "2";
+        public static NOTIFICATION_MESSAGE = "3";
 
         private _gcByInviteId : any;
 
         constructor () {
             super();
 
-            this.onUrlChanged = new Event.Event<any>();
+            this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
         this.app = null;
         this.bg = null;
         this.documents = [];
@@ -40,6 +46,7 @@
         this.grConnections = [];
         this.serverUrl = "";
         this.unreadCount = 0;
+        this.notificationType = Profile.NOTIFICATION_MESSAGE;
 
         this.transport = null;
     }
@@ -161,7 +168,7 @@
                 }
                 contact = invite.contact;
             } 
-            var chatCaption = (contact)?(contact.name + " and others..."):("...")
+            var chatCaption = (contact)?("Group: " + contact.name + " and others..."):("Group Chat " + Math.random())
             var chat = this.getFactory().createGroupChat();
             var grConnection = this.getFactory().createGrConnection();
             grConnection.init({
@@ -227,7 +234,9 @@
                 name: this.name,
                 bg: this.bg,
                 serverUrl: this.serverUrl,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                notificationType: this.notificationType,
+                notificationSound: this.notificationSound
             });
 
             packet.setLink("documents", context.getPacket(this.documents));
@@ -246,6 +255,8 @@
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
+            this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_MESSAGE);
+            this.notificationSound = (data.notificationSound) ? (data.notificationSound) : ("audiotag1");
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);

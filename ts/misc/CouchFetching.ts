@@ -27,7 +27,7 @@ export class CouchFetching {
 
     constructor (url, context) {
     invariant(url, "Can i haz url?");
-    this.onPackets = new Event.Event<ICouchPackets>();
+    this.onPackets = new Event.Event<ICouchPackets>("CouchFetching.onPackets");
 
     this.url = url;
     this.context = context;

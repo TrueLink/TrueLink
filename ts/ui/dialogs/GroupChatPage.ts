@@ -1,8 +1,10 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import EditableField = require("ui/common/EditableField");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
+    import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
     import ContactList = require("ui/contacts/ContactList");
     import GroupChat = require("models/GroupChat");
     import Profile = require("models/Profile");
@@ -84,6 +86,11 @@
             this.state.model.grConnection.initiateRekey(members);
         },
 
+        _onExportHistory: function (e: MouseEvent) {
+            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            return false;
+        },
+
         renderMembers: function () {
             var contacts = this.state.model.grConnection._activeTlgr.getUsers();
             return ContactList({
@@ -98,28 +105,21 @@
 
         render: function () {
             var groupChat : GroupChat.GroupChat = this.state.model;
-            //            var pageModel = this.state.pageModel;
             var router = this.props.router;
-
-            var words = ["POP!", "POOF!", "BANG!", "ZAP!", "WHOOSH!", "POW!", "BONG!", "KA-POW!", "SNAP!", "CRACK!", "SIZZLE!", "BAM!"]
-            function randomItem(list) {
-                return list[Math.floor(Math.random() * list.length)];
-            }
 
             var input = React.DOM.div({ className: "message-input" },
                     React.DOM.form({ onSubmit: this._onSubmit },
                         React.DOM.input({
-                            type: "text",
                             value: this.state.messageText,
                             onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
-                        }),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, randomItem(words)))));
+                        })),
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
             var content;
             if (this.state.pageModel.addContact) {
                 content = ContactList({
                     buttonText: "Invite",
                     checkBoxes: true,
-                    contacts: groupChat.profile.contacts,
+                    contacts: groupChat.profile.contacts, // TODO somehow filter for already added....
                     onCommand: this._handleAddContact
                 });
             } else if (this.state.showMembers) {
@@ -130,6 +130,28 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this._onAddPeople
+                            }, "Add members"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleLeaveChat
+                            }, "Leave"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleMembers
+                            }, "Manage members"),
+                            ReactBootstrap.MenuItem({
+                                onClick: this._handleRekey
+                            }, "Rekey"),
+                            ReactBootstrap.MenuItem({
+                                href: RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history),
+                                onClick: this._onExportHistory
+                            }, "Export History"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
@@ -139,29 +161,8 @@
                         id: "gcName",
                         inline: true,
                         onChanged: groupChat.set.bind(groupChat, "name"),
-                        label: "Chat: ",
                         value: groupChat.name
-                    })," | ",
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleLeaveChat
-                    }, "Leave "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleMembers
-                    }, "M "),
-                    React.DOM.button({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._handleRekey
-                    }, "RK")),
+                    })),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),

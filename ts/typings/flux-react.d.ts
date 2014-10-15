@@ -2,6 +2,7 @@
 interface Window {
     app: any;
     fakeDb: any;
+    Notification: any;
     profile: any;
 }
 
@@ -182,6 +183,9 @@ declare module "modules/crypto-js/enc-utf8" {
 declare module "modules/cryptography/random" {
     export = $;
 }
+declare module "modules/cryptography/sha1-crypto-js" {
+    export = $;
+}
 declare module "modules/dictionary/dictionary" {
     export = $;
 }
@@ -273,6 +277,9 @@ declare module "modules/urandom/urandom" {
     export = $;
 }
 declare module "react" {
+    export = $;
+}
+declare module "react-bootstrap" {
     export = $;
 }
 declare module "uuid" {

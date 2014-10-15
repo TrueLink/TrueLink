@@ -4,6 +4,9 @@
 
     var exp = React.createClass({
         displayName: "MenuSelectProfile",
+        propTypes:{
+            addProfile: React.PropTypes.func.isRequired,
+        },
 
         handleSelect: function (evt) {
             var value = evt.target.value;
@@ -28,7 +31,11 @@
 
             var current = this.props.currentProfile;
             var options = this.props.profiles.map(function (profile) {
-                return React.DOM.option({key: profile.name, value: profile.name, className: "title"}, profile.name);
+                return React.DOM.option({
+                    key: profile.name,
+                    value: profile.name,
+                    className: "title"
+                }, profile.name + ((profile.unreadCount != 0) ? (" (" + profile.unreadCount + ")" ) : ("")));
             });
             options.push(React.DOM.optgroup({key: "__add", label: "───"},
                 React.DOM.option({value: "__add", className: "title"}, "Add profile..."))
@@ -37,7 +44,7 @@
                 React.DOM.select({
                     ref: "select",
                     className: "title",
-                    value: current.name,
+                    value: (current) ? (current.name) : "none",
                     onChange: this.handleSelect
                 }, options)
                 );
