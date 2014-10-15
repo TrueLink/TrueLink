@@ -109,7 +109,7 @@
                     //TODO: not the best way to display the sender.
                     notifications.notify("Truelink profile: " + this.profile.name, "New message: " + (<any>message).text + " | From: " + this.name);
                 }
-                notifications.playMessageArrivedSound();
+                notifications.playMessageArrivedSound(this.profile);
             }
             this._onChanged();
         }

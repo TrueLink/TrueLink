@@ -33,7 +33,6 @@
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_NONE }, "None"),
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_COUNT }, "Only message count."),
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_MESSAGE }, "Show message text.")
-                        )
                     ),
                     React.DOM.div({}, "Sound notifications: "),
                     React.DOM.select({
@@ -44,8 +43,7 @@
                     }, 
                         React.DOM.option({ value: "audiotag1" }, "Sound 1"),
                         React.DOM.option({ value: "disabled" }, "Disabled")
-                        )
-                    )
+                    ))
                 );
         }
     });
