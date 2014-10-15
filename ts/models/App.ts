@@ -151,7 +151,7 @@
         watchProfileUnreadObjects (profile) {
             profile.onChanged.on(function () {
                 var total = this.getTotalUnreadObjectsCount();
-                if (this.lastUnreadObjectsCount < total) {
+                if (this.lastUnreadObjectsCount != total) {
                     this.lastUnreadObjectsCount = total;
                     (total != 0) ? (document.title = this.title + " (" + total + ")") : (document.title = this.title);
                 }
