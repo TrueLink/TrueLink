@@ -37,7 +37,7 @@ export class Application extends Model.Model implements ISerializable {
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
-        this.lastUnreadObjectsCount = 0;
+        this.lastUnreadObjectsCount = -1;
         this.defaultPollingUrl = (<any>window).fluxConfig.defaultPollingUrl;
     }
     
