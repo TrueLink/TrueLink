@@ -5,7 +5,7 @@
         displayName: "OthersTextMessage",
         render: function() {
             return React.DOM.div({
-                className: "bubble bubble-right"
+                className: "bubble bubble-left"
             }, (this.props.sender || "unknown") + ": " + this.props.text);
         }
     });

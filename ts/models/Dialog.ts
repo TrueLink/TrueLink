@@ -118,7 +118,7 @@
                               'webkitHidden' in document ? 'webkitHidden' :
                               'mozHidden' in document ? 'mozHidden' :
                               null;
-            if (document[hiddenProperty] === 'hidden') {
+            if (document[hiddenProperty] === true) {
                 console.log("mark as read while hidden");
                 return;
             }
