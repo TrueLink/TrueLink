@@ -115,6 +115,13 @@
         }
 
         markAsRead  () {
+            var hiddenProperty = 'hidden' in document ? 'hidden' :
+                              'webkitHidden' in document ? 'webkitHidden' :
+                              'mozHidden' in document ? 'mozHidden' :
+                              null;
+            if (document[hiddenProperty] === 'hidden') {
+                return;
+            }
             if (this.unreadCount) {
                 this.history.getHistory().forEach(function (msg) {
                     if (msg.unread) {
