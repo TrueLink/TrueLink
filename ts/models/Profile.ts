@@ -25,6 +25,7 @@
         public unreadCount : number;
         public transport : CouchTransport.CouchTransport;
         public notificationType : string;
+        public notificationSound : string;
 
         public static NOTIFICATION_NONE = "1";
         public static NOTIFICATION_COUNT = "2";
@@ -233,7 +234,8 @@
                 bg: this.bg,
                 serverUrl: this.serverUrl,
                 unread: this.unreadCount,
-                notificationType: this.notificationType
+                notificationType: this.notificationType,
+                notificationSound: this.notificationSound
             });
 
             packet.setLink("documents", context.getPacket(this.documents));
@@ -253,6 +255,7 @@
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;
             this.notificationType = (data.notificationType) ? (data.notificationType) : (Profile.NOTIFICATION_NONE);
+            this.notificationSound = (data.notificationSound) ? (data.notificationSound) : ("audiotag1");
             this.transport = context.deserialize(packet.getLink("transport"), factory.createTransport, factory);
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);

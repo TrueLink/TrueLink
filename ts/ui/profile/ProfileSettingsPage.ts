@@ -23,7 +23,7 @@
                         label: "Server URL: ",
                         value: profile.serverUrl
                     }),
-                    React.DOM.div({}, "Notifications: "),
+                    React.DOM.div({}, "Popup notifications: "),
                     React.DOM.select({
                         onChange: function (event) {
                             profile.set("notificationType", event.target.value);
@@ -33,8 +33,17 @@
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_NONE }, "None"),
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_COUNT }, "Only message count."),
                         React.DOM.option({ value: Profile.Profile.NOTIFICATION_MESSAGE }, "Show message text.")
-                        )
-                    )
+                    ),
+                    React.DOM.div({}, "Sound notifications: "),
+                    React.DOM.select({
+                        onChange: function (event) {
+                            profile.set("notificationSound", event.target.value);
+                        }, 
+                        value: profile.notificationSound
+                    }, 
+                        React.DOM.option({ value: "audiotag1" }, "Sound 1"),
+                        React.DOM.option({ value: "disabled" }, "Disabled")
+                    ))
                 );
         }
     });
