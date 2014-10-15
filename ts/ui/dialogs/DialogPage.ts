@@ -92,6 +92,7 @@
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;
+            var messagesView;
             if (this.state.pageModel.mode === "addPeople") {
                 content = [
                     ContactList({
@@ -112,6 +113,7 @@
                 ];
             }else {
                 content = MessagesView({ profile: dialog.profile, messages: dialog.history.getHistory(), onGoToChat: this._handleGoToChat });
+                messagesView = true;
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },
@@ -137,6 +139,7 @@
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
+                !messagesView ? null : 
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
                         React.DOM.div({ className: "tab-title" }, "Secure channel")),
