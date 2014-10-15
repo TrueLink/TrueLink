@@ -87,7 +87,8 @@
         },
 
         _onExportHistory: function (e: MouseEvent) {
-            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            var groupChat : GroupChat.GroupChat = this.state.model;
+            window.open(RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history), "_blank");
             return false;
         },
 
@@ -115,6 +116,7 @@
                         })),
                 React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
             var content;
+            var messagesView;
             if (this.state.pageModel.addContact) {
                 content = ContactList({
                     buttonText: "Invite",
@@ -126,6 +128,7 @@
                 content = this.renderMembers();
             } else {
                 content = MessagesView({ messages: groupChat.history.getHistory() });
+                messagesView = true;
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },
@@ -149,7 +152,6 @@
                                 onClick: this._handleRekey
                             }, "Rekey"),
                             ReactBootstrap.MenuItem({
-                                href: RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history),
                                 onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
@@ -166,6 +168,7 @@
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
+                !messagesView ? null : 
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
                         React.DOM.div({ className: "tab-title" }, "Secure channel")),

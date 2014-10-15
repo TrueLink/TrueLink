@@ -77,7 +77,8 @@
         },
 
         _onExportHistory: function (e: MouseEvent) {
-            window.open((<HTMLAnchorElement>e.target).href, "_blank");
+            var dialog = this.state.model;
+            window.open(RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history), "_blank");
             return false;
         },
 
@@ -92,11 +93,16 @@
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;
+            var messagesView;
             if (this.state.pageModel.mode === "addPeople") {
                 content = [
                     ContactList({
                         buttonText: "Invite",
-                        contacts: dialog.profile.contacts.filter((c) => c.name != dialog.contact.name), // TODO better filter?
+                        contacts:
+                            dialog.profile.contacts.filter((c) =>
+                                c.name != dialog.contact.name
+                                && c.tlConnection
+                                && c.tlConnection.canSendMessages()), // TODO better filter?
                         checkBoxes: true,
                         onCancel: this._handleCancelAddContact,
                         onCommand: this._handleAddContact
@@ -112,6 +118,7 @@
                 ];
             }else {
                 content = MessagesView({ profile: dialog.profile, messages: dialog.history.getHistory(), onGoToChat: this._handleGoToChat });
+                messagesView = true;
             }
 
             return React.DOM.div({ className: "dialog-page app-page" },
@@ -126,7 +133,6 @@
                                 onClick: this._onAddPeople
                             }, "Add People"),
                             ReactBootstrap.MenuItem({
-                                href: RenderHistoryExportUrl("Dialog: " + dialog.name, dialog.history),
                                 onClick: this._onExportHistory
                             }, "Export History"))),
                     React.DOM.a({
@@ -137,6 +143,7 @@
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
+                !messagesView ? null : 
                 React.DOM.div({ className: "app-page-footer" },
                     React.DOM.div({ className: "tabs-header" },
                         React.DOM.div({ className: "tab-title" }, "Secure channel")),
