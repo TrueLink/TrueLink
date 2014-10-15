@@ -1,8 +1,11 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("mixins/reactObserver");
     import MessagesView = require("./MessagesView");
-    import ContactList = require("ui/contacts/ContactList");
+    import MessagesExportMenuItem = require("./MessagesExportMenuItem");
+    import ContactList = require("ui/contacts/ContactList");    
+
     var exp = React.createClass({
         displayName: "DialogPage",
         mixins: [reactObserver],
@@ -113,16 +116,24 @@
 
             return React.DOM.div({ className: "dialog-page app-page" },
                 React.DOM.div({ className: "app-page-header" },
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this._onAddPeople
+                            }, "Add People"),
+                            MessagesExportMenuItem({
+                                messages: dialog.history.getHistory(),
+                                title: "Dialog: " + dialog.name
+                            }, "Export History"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
                         onClick: router.createNavigateHandler("dialogs", dialog.profile)
-                    }, "〈 Dialog: " + dialog.name),
-                    React.DOM.a({
-                        className: "header-button",
-                        href: "",
-                        onClick: this._onAddPeople
-                    }, "Add People")),
+                    }, "〈 Dialog: " + dialog.name)),
                 React.DOM.div({ className: "app-page-content has-header has-footer" },
                     content),
                    // ContactList({ contacts: dialog.profile.contacts, onClick: this._handleAddContact })),
