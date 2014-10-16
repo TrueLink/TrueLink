@@ -33,8 +33,13 @@ import Utf8String = require("modules/multivalue/utf8string");
                 data: JSON.stringify(packet),
                 success: function (data, status, xhr) { this.fire("success", {data: data, context: context}); },
                 error: function (xhr, errorType, error) {
-                    console.warn("Packet sending failed: ", error || errorType);
-                    this.fire("error", errorType);
+                    if (xhr.status == 409) {
+                        console.warn('Conflict, probably we sent packet multiple times');
+                        this.fire("success", {data: data, context: context});
+                    } else {
+                        console.warn("Packet sending failed: ", error || errorType);
+                        this.fire("error", errorType);
+                    }
                 }
             });
         }
