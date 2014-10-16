@@ -99,6 +99,7 @@
                     currentUser: this.state.model.grConnection.getMyName(),
                     checkBoxes: true,
                     contacts: contacts,
+                    onCancel: this._handleMembers,
                     onCommand: this._handleRemoveMembers
             });
 
@@ -122,6 +123,7 @@
                     buttonText: "Invite",
                     checkBoxes: true,
                     contacts: groupChat.profile.contacts, // TODO somehow filter for already added....
+                    onCancel: this._onAddPeople,
                     onCommand: this._handleAddContact
                 });
             } else if (this.state.showMembers) {
