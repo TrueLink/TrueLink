@@ -421,6 +421,9 @@ a.button:hover {
 .editable-edit-button{
     padding:3px;
 }
+.editable-input input{
+    width: 100%;
+}
 
 
 

@@ -44,7 +44,6 @@
             ];
             var editMode = basicTag({className: "editable-input"},
                 React.DOM.form({onSubmit: this.onSubmit}, React.DOM.input({
-                    style: { "width" : "100%" },
                     ref: "editBox",
                     id: props.id,
                     value: this.state.value,
