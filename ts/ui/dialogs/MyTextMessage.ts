@@ -5,7 +5,7 @@
         displayName: "MyTextMessage",
         render: function() {
             return React.DOM.div({
-                    className: "bubble bubble-left"
+                    className: "bubble bubble-right"
                 },
                 this.props.sender + " (me): " + this.props.text
             );

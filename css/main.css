@@ -264,17 +264,28 @@ a.title {
 }
 
 /* --- DIALOGS --- */
-.dialogs-page .dialog-image {
+.dialogs-page .dialog {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.dialogs-page .dialog .dialog-image {
+    flex: 0 0 auto;
+
     height: 60px;
     width: 60px;
     border-right: 1px solid #282828;
-    float: left;
 }
 
-.dialogs-page .dialog-title {
+.dialogs-page .dialog .dialog-title {
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
     font-size: 22px;
     margin-left: 10px;
-    float: left;
 }
 
 /* --- DIALOG --- */

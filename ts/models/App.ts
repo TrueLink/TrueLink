@@ -37,7 +37,7 @@ export class Application extends Model.Model implements ISerializable {
         this.profiles = [];
         this.currentProfile = null;
         this.router = null;
-        this.lastUnreadObjectsCount = 0;
+        this.lastUnreadObjectsCount = -1;
         this.defaultPollingUrl = (<any>window).fluxConfig.defaultPollingUrl;
     }
     
@@ -77,7 +77,7 @@ export class Application extends Model.Model implements ISerializable {
                 this.setRouter(this.getFactory().createRouter());
                 this.router.navigate("home", this);
             }
-
+            this._updateAppTitle();
         }
 
 
@@ -149,13 +149,20 @@ export class Application extends Model.Model implements ISerializable {
             return total;
         }
 
+        _updateAppTitle(){
+            var total = this.getTotalUnreadObjectsCount();
+            if (this.lastUnreadObjectsCount != total) {
+                this.lastUnreadObjectsCount = total;
+                //if(total > 9) total = 9;
+                //var totalString = String.fromCharCode(10121 + total) + " "; // ➊ - too small
+                var totalString = "(" + total + ") ";
+                (total != 0) ? (document.title = totalString + this.title) : (document.title = this.title);
+            }
+        }
+
         watchProfileUnreadObjects (profile) {
             profile.onChanged.on(function () {
-                var total = this.getTotalUnreadObjectsCount();
-                if (this.lastUnreadObjectsCount != total) {
-                    this.lastUnreadObjectsCount = total;
-                    (total != 0) ? (document.title = "(" + total + ") " + this.title) : (document.title = this.title);
-                }
+                this._updateAppTitle();
             }, this);
         }
 
