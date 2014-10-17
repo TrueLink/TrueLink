@@ -295,6 +295,10 @@ a.title {
     max-width: 55%;
     white-space: nowrap;
 }
+.dialog-page .app-page-header .editable-input {
+    display: inline-block;
+    width: 55%;
+}
 
 .dialog-page .app-page-footer {
     height: 75px;
@@ -420,6 +424,9 @@ a.button:hover {
 
 .editable-edit-button{
     padding:3px;
+}
+.editable-input input{
+    width: 100%;
 }
 
 
