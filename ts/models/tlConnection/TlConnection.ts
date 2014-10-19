@@ -1,8 +1,8 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import extend = require("tools/extend");
-    import Event = require("tools/event");
-    import Model = require("tools/model");
+    import extend = require("../tools/extend");
+    import Event = require("../tools/event");
+    import Model = require("../tools/model");
     import serializable = require("../../modules/serialization/serializable");
     import Hex = require("../../modules/multivalue/hex");
     import TlecBuilder = require("../../modules/channels/TlecBuilder");

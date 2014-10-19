@@ -1,12 +1,12 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import extend = require("tools/extend");
+    import extend = require("../tools/extend");
     import eventEmitter = require("../../modules/events/eventEmitter");
     import serializable = require("../../modules/serialization/serializable");
     import model = require("mixins/model");
     import Hex = require("../../modules/multivalue/hex");
-    import Event = require("tools/event");
-    import Model = require("tools/model");
+    import Event = require("../tools/event");
+    import Model = require("../tools/model");
     import TlecBuilder = require("../../modules/channels/TlecBuilder");
     import CouchAdapter = require("models/tlConnection/CouchAdapter");
     import CouchTransport = require("models/tlConnection/CouchTransport");

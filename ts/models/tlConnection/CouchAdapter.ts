@@ -1,8 +1,8 @@
 "use strict";
 import invariant = require("../../modules/invariant");
-import extend = require("tools/extend");
+import extend = require("../tools/extend");
 import CouchFetching = require("misc/CouchFetching");
-import Event = require("tools/event");
+import Event = require("../tools/event");
 import eventEmitter = require("../../modules/events/eventEmitter");
 import Hex = require("../../modules/multivalue/hex");
 import Multivalue = require("../../modules/multivalue/multivalue");

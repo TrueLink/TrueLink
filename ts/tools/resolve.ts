@@ -1,5 +1,10 @@
-define(["zepto", "q"], function ($, Q) {
-    "use strict";
+declare var $;
+define([
+    //"zepto",
+     "q"], function (
+        // $,
+         Q) {
+"use strict";
     function resolve(obj) {
         if ($.isArray(obj)) {
             return Q.all(obj.map(function (item) {

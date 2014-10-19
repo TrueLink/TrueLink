@@ -1,13 +1,13 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import extend = require("tools/extend");
-    import Event = require("tools/event");
+    import extend = require("../tools/extend");
+    import Event = require("../tools/event");
     import serializable = require("../../modules/serialization/serializable");
-    import Model = require("tools/model");
-    import Application = require("models/App");
-    import Profile = require("models/Profile");
-    import fixedId = require("mixins/fixedId");
-    import bind = require("mixins/bind");
+    import Model = require("../tools/model");
+    import Application = require("../models/App");
+    import Profile = require("../models/Profile");
+    import fixedId = require("../mixins/fixedId");
+    import bind = require("../mixins/bind");
 
     export class Menu extends Model.Model implements ISerializable {
         public fixedId : string;

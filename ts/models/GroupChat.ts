@@ -1,15 +1,15 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import extend = require("tools/extend");
-    import Model = require("tools/model");
-    import GrConnection = require("models/grConnection/GrConnection");
-    import notifications = require("tools/notifications-api");
+    import extend = require("../tools/extend");
+    import Model = require("../tools/model");
+    import GrConnection = require("../models/grConnection/GrConnection");
+    import notifications = require("../tools/notifications-api");
     import eventEmitter = require("../../modules/events/eventEmitter");
     import serializable = require("../../modules/serialization/serializable");
-    import model = require("mixins/model");
-    import CouchAdapter = require("models/tlConnection/CouchAdapter");
-    import Profile = require("models/Profile");
-    import MessageHistory = require("models/MessageHistory");
+    import model = require("../mixins/model");
+    import CouchAdapter = require("../models/tlConnection/CouchAdapter");
+    import Profile = require("../models/Profile");
+    import MessageHistory = require("../models/MessageHistory");
 
     export class GroupChat extends Model.Model implements ISerializable {
         public profile : Profile.Profile;

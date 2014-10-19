@@ -1,13 +1,13 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import extend = require("tools/extend");
-    import Event = require("tools/event");
+    import extend = require("../tools/extend");
+    import Event = require("../tools/event");
     import serializable = require("../../modules/serialization/serializable");
-    import Profile = require("models/Profile");
-    import Contact = require("models/Contact");
-    import MessageHistory = require("models/MessageHistory");
-    import Model = require("tools/model");
-    import notifications = require("tools/notifications-api");
+    import Profile = require("../models/Profile");
+    import Contact = require("../models/Contact");
+    import MessageHistory = require("../models/MessageHistory");
+    import Model = require("../tools/model");
+    import notifications = require("../tools/notifications-api");
 
     export class Dialog extends Model.Model implements ISerializable {
         public profile : Profile.Profile;
