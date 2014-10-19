@@ -6,7 +6,7 @@ pretty: true
 hosting: 
     "./(**/*.*)": "$1"
 hosting_map: "./hosting-map.json"
-index: "./app.html"
+index: "./index.html"
 excludes:
 - "./bugsnag*"
 loaders:
@@ -19,7 +19,8 @@ assets:
 paths:
     crypto: "empty"
 cached:
-    - "./favicon.png"
+    #- "./favicon.png"
+    - "./index.html"
 grab: true
 #coding_func:
 #    name: aes-gcm

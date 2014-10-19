@@ -10,3 +10,4 @@ server2.js
 node_modules
 *.orig
 rev.txt
+build/*

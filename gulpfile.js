@@ -1,9 +1,9 @@
 ﻿var gulp = require('gulp');
 var ts = require('gulp-type');
-var uglify = require('gulp-uglify');
+//var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
 var spa = require('spa').Builder;
-var minifyCSS = require('gulp-minify-css');
+//var minifyCSS = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var fs = require('fs');
 var replace = require('gulp-replace');
@@ -13,7 +13,7 @@ var argv = require('yargs').argv;
 var  gutil = require('gulp-util');
     var clean = require('gulp-clean');
 
-var pusher = require("./couch-push.js");
+//var pusher = require("./couch-push.js");
 
 gulp.task('default', ['spa'], function () {
   // place code for your default task here
@@ -28,6 +28,7 @@ var filesToMove = [
     './css/*',
     './img/*',
     './media/*',
+    './favicon.png'
 ];
 
 gulp.task('assets',['clean'], function(){
@@ -53,7 +54,7 @@ gulp.task('compile', ['clean'], function () {
         noExternalResolve: false, //?
         module: 'amd',
         target: 'ES5',
-        noImplicitAny: true, 
+        noImplicitAny: false, 
         noLib: true, 
         outDir: 'build/',
         sortOutput: false
