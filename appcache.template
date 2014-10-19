@@ -1,8 +1,6 @@
 CACHE MANIFEST
 
 CACHE:
-../config/favicon.png
-fontawesome-webfont.woff?v=3.2.1
 <% for(var name in cached) { %>
 <%- name %>
 #<%- cached[name] %>

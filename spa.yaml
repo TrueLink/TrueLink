@@ -19,26 +19,7 @@ assets:
 paths:
     crypto: "empty"
 cached:
-    - "./loading.gif"
-    - "./lib.js"
-    - "./lib.css"
-    - "./wiki-objects/wiki.css"
-    - "./taskmanager/taskmanager.css"
-    - "./fontawesome-webfont.svg"
-    - "./fontawesome-webfont.woff"
-    - "./fontawesome-webfont.ttf"
-    - "./fontawesome-webfont.eot"
-    - "./mpost.SilverlightMultiFileUpload.xap"
-    - "./glyphicons-halflings.png"
-    - "./glyphicons-halflings-white.png"
-    - "./glyphicons-halflings-regular.woff"
-    - "./ui-anim_basic_16x16.gif"
-    - "./ui-bg_flat_75_ffffff_40x100.png"
-    - "./animated-overlay.gif"
-    - "./jsoneditor-icons.png"
-    - "./tm-sprite.png"
-    - "./update-available-64.png"
-    - "./bugsnag.js"
+    - "./favicon.png"
 grab: true
 #coding_func:
 #    name: aes-gcm

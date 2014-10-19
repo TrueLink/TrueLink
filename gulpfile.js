@@ -25,29 +25,33 @@ gulp.task('clean', function(){
 });
 
 var filesToMove = [
-    './assets/*'
+    './css/*',
+    './img/*',
+    './media/*',
 ];
 
 gulp.task('assets',['clean'], function(){
     // the base option sets the relative root for the set of files,
     // preserving the folder structure
-    gulp.src(filesToMove, { base: './assets/' })
+    gulp.src(filesToMove, { base: './' })
         .pipe(gulp.dest('build'));
 });
 
 
-gulp.task('spa', ["assets", "compile",'lib','lib-css','wiki-css',
-    'tm-css','debugger','bootstrapper','revision'], function () {
+gulp.task('spa', ["assets", "compile"//,'lib','lib-css','wiki-css',
+    //'tm-css','debugger'
+    ,'bootstrapper','revision'
+    ], function () {
 //    console.log("spa!");
     spa.from_config("spa.yaml").build();
 });
 
 gulp.task('compile', ['clean'], function () {
-    var tsResult = gulp.src('files/**/*.ts')
+    var tsResult = gulp.src('ts/**/*.ts')
                        .pipe(ts({
         declarationFiles: true,
         noExternalResolve: false, //?
-        module: 'commonjs',
+        module: 'amd',
         target: 'ES5',
         noImplicitAny: true, 
         noLib: true, 
@@ -58,7 +62,7 @@ gulp.task('compile', ['clean'], function () {
     tsResult.dts.pipe(gulp.dest('build/definitions'));
     return tsResult.js.pipe(gulp.dest('build/'));
 });
-
+/*
 gulp.task('lib-css',['clean'], function () {
     return gulp.src([
 	'lib/bootstrap-3.2.0-dist/css/bootstrap.css',
@@ -199,7 +203,7 @@ gulp.task("push", ['spa'], function () {
     }
     return pl(argv.location);
 });
-
+*/
 gulp.task('revision', ['clean'], function (cb) {
     exec('hg id -i > build/rev.txt', function (err, stdout, stderr) {
         console.log(stdout);
@@ -211,9 +215,9 @@ gulp.task('revision', ['clean'], function (cb) {
 gulp.task("bootstrapper", ['compile',"revision"], function () {
     console.log('bootstrapper');
     var hr = fs.readFileSync("build/rev.txt").toString().trim();
-    return gulp.src(['build/loader.js'])
+    return gulp.src(['build/config.js'])
     .pipe(replace("__HG_REV__", hr))
-    .pipe(rename("bootstrapper.js"))
+    .pipe(rename("config_p.js"))
     .pipe(gulp.dest('build/'));
 });
 
