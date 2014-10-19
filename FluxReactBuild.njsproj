@@ -12,7 +12,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>e10b5f8b-9288-4aa8-a651-3321950e30e9</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>gulpfile.js</StartupFile>
+    <StartupFile>build.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -43,6 +43,7 @@
     <Folder Include="Scripts\typings\node\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="build.js" />
     <Compile Include="gulpfile.js" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
