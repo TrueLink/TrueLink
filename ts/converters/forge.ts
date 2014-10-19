@@ -9,7 +9,7 @@
     import ByteBuffer = require("../../modules/multivalue/byteBuffer");
     import Utf8String = require("../../modules/multivalue/utf8string");
 
-    import forge = require("../../modules/forge");
+    import forge = require("../../modules/forge/forge");
     var converter = converter_mod.getInstance();
 
     converter.register("bigIntForge", "hex", function (value) {

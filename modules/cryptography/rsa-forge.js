@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     "use strict";
-    var forge = require("../forge");
+    var forge = require("../forge/forge");
     var BigIntForge = require("../multivalue/bigIntForge");
     var ByteBuffer = require("../multivalue/byteBuffer");
     var Hex = require("../multivalue/hex");

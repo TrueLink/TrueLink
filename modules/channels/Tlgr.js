@@ -19,7 +19,7 @@ define(function (require, exports, module) {
         "GJP" : "gjp"
     }
 
-    var forge = require("../forge");
+    var forge = require("../forge/forge");
     var rsa = require("../cryptography/rsa-forge");
     var AES = require("../cryptography/aes-forge");
     var SHA1 = require("../cryptography/sha1-crypto-js");

@@ -2,7 +2,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var Multivalue = require("./multivalue");
-    var forge = require("../forge");
+    var forge = require("../forge/forge");
     var tools = require("../tools");
 
     function ByteBuffer(value) {
