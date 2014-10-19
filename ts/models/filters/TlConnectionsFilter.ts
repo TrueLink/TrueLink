@@ -1,10 +1,10 @@
     "use strict";
-    import Filter = require("../../modules/filter/Filter");
-    import serializable = require("../../modules/serialization/serializable");
-    import tools = require("../../modules/tools");
+    import Filter = require("../../../modules/filter/Filter");
+    import serializable = require("../../../modules/serialization/serializable");
+    import tools = require("../../../modules/tools");
     import extend = tools.extend;
-    import invariant = require("../../modules/invariant");
-    import model = require("mixins/model");
+    import invariant = require("../../../modules/invariant");
+    import model = require("../../mixins/model");
 
     // NOT SO INTUITIVE
     // passes if one of (or itself, if not array) value.metadata.tlConnection is found in this._tlConnections

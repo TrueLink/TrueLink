@@ -1,18 +1,18 @@
     "use strict";
-    import invariant = require("../../modules/invariant");
-    import Dictionary = require("../../modules/dictionary/dictionary");
-    import extend = require("../tools/extend");
+    import invariant = require("../../../modules/invariant");
+    import Dictionary = require("../../../modules/dictionary/dictionary");
+    import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
-    import HomePageModel = require("models/pageModels/HomePageModel");
-    import ContactsPageModel = require("models/pageModels/ContactsPageModel");
-    import ContactPageModel = require("models/pageModels/ContactPageModel");
-    import DialogsPageModel = require("models/pageModels/DialogsPageModel");
-    import DialogPageModel = require("models/pageModels/DialogPageModel");
-    import GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
-    import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
-    import DocumentPageModel = require("models/pageModels/DocumentPageModel");
-    import ProfileSettingsPageModel = require("models/pageModels/ProfileSettingsPageModel");
+    import HomePageModel = require("../../models/pageModels/HomePageModel");
+    import ContactsPageModel = require("../../models/pageModels/ContactsPageModel");
+    import ContactPageModel = require("../../models/pageModels/ContactPageModel");
+    import DialogsPageModel = require("../../models/pageModels/DialogsPageModel");
+    import DialogPageModel = require("../../models/pageModels/DialogPageModel");
+    import GroupChatPageModel = require("../../models/pageModels/GroupChatPageModel");
+    import DocumentsPageModel = require("../../models/pageModels/DocumentsPageModel");
+    import DocumentPageModel = require("../../models/pageModels/DocumentPageModel");
+    import ProfileSettingsPageModel = require("../../models/pageModels/ProfileSettingsPageModel");
 
     function RouterFactory(serializer, router) {
         invariant(serializer, "Can i haz serializer?");

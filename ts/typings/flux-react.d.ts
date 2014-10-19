@@ -141,20 +141,3 @@ interface ITlgr extends IEventEmitter, ISerializable {
     sendMessage :  (text : any) => any;
     init :  (args : any) => any;
 }
-
-declare var $ : any;
-
-
-declare module "react" {
-    export = $;
-}
-declare module "react-bootstrap" {
-    export = $;
-}
-declare module "uuid" {
-    export = $;
-}
-declare module "zepto" {
-    export = $;
-}
-

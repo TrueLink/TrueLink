@@ -12,7 +12,7 @@ excludes:
 - "./config.js"
 loaders:
     "./modules*": "amd"
-default_loader: "amd"
+default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:
     index_template: "./index.template.html"
@@ -27,8 +27,8 @@ paths:
     bind: "./tools/bind"
     uuid: "node-uuid"
     extend: "./tools/extend"
-    react: "../vendor/react/build/react"
-    "react-bootstrap": "../vendor/react-bootstrap/react-bootstrap"
+    #react: "../vendor/react/build/react"
+    #"react-bootstrap": "../vendor/react-bootstrap/react-bootstrap"
     localforage: "../vendor/localforage/localforage"
 cached:
     #- "./favicon.png"
