@@ -1,8 +1,8 @@
     "use strict";
     import React = require("react");
-    import reactObserver = require("mixins/reactObserver");
-    import Dialog = require("models/Dialog");
-    import GroupChat = require("models/GroupChat");
+    import reactObserver = require("../../mixins/reactObserver");
+    import Dialog = require("../../models/Dialog");
+    import GroupChat = require("../../models/GroupChat");
 
     var exp = React.createClass({
         displayName: "DialogsPage",

@@ -11,3 +11,4 @@ node_modules
 *.orig
 rev.txt
 build/*
+*.suo

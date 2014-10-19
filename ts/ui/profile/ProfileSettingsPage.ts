@@ -1,8 +1,8 @@
     "use strict";
-    import EditableField = require("ui/common/EditableField");
+    import EditableField = require("../../ui/common/EditableField");
     import React = require("react");
-    import Profile = require("models/Profile");
-    import reactObserver = require("mixins/reactObserver");
+    import Profile = require("../../models/Profile");
+    import reactObserver = require("../../mixins/reactObserver");
     var e = React.createClass({
         displayName: "ProfileSettingsPage",
         mixins: [reactObserver],

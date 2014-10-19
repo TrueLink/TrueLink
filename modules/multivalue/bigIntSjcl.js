@@ -2,7 +2,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var Multivalue = require("./multivalue");
-    var Bn = require("../modules/sjcl/bn");
+    var Bn = require("../sjcl/bn");
 
     function BigIntSjcl(value) {
         if(value instanceof String || typeof value === "string") {

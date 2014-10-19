@@ -1,6 +1,6 @@
     "use strict";
     import React = require("react");
-    import reactObserver = require("mixins/reactObserver");
+    import reactObserver = require("../../mixins/reactObserver");
     var exp = React.createClass({
         displayName: "HomePage",
         mixins: [reactObserver],

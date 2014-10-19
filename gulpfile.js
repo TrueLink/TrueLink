@@ -51,7 +51,7 @@ gulp.task('spa', ["assets", "compile"//,'lib','lib-css','wiki-css',
 gulp.task('compile', ['clean'], function () {
     var tsResult = gulp.src('ts/**/*.ts')
                        .pipe(ts({
-        declarationFiles: true,
+        declarationFiles: false,
         noExternalResolve: false, //?
         module: 'amd',
         target: 'ES5',
@@ -61,7 +61,7 @@ gulp.task('compile', ['clean'], function () {
         sortOutput: false
     }));
     
-    tsResult.dts.pipe(gulp.dest('build/definitions'));
+    //tsResult.dts.pipe(gulp.dest('build/definitions'));
     return tsResult.js.pipe(gulp.dest('build/'));
 });
 /*

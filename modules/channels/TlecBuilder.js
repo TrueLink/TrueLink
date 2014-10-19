@@ -1,10 +1,10 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("../modules/invariant");
-    var eventEmitter = require("../modules/events/eventEmitter");
-    var serializable = require("../modules/serialization/serializable");
+    var invariant = require("../invariant");
+    var eventEmitter = require("../events/eventEmitter");
+    var serializable = require("../serialization/serializable");
     var tools = require("../tools");
-    var Tlke = require("../modules/channels/Tlke");
+    var Tlke = require("../channels/Tlke");
     var extend = tools.extend;
     var isFunction = tools.isFunction;
 
