@@ -1,9 +1,9 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
     import prototype = require("./prototype");
 
-    import Tlgr = require("modules/channels/Tlgr");
+    import Tlgr = require("../modules/channels/Tlgr");
 
     function GrConnectionFactory(serializer, grConnection, profile) {
         invariant(serializer, "Can i haz serializer?");

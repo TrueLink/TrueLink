@@ -1,8 +1,8 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
-    import serializable = require("modules/serialization/serializable");
+    import eventEmitter = require("../modules/events/eventEmitter");
+    import serializable = require("../modules/serialization/serializable");
     import model = require("mixins/model");
 
     import HomePage = require("ui/home/HomePage");

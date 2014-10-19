@@ -1,8 +1,8 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
     import Event = require("tools/event");
-    import serializable = require("modules/serialization/serializable");
+    import serializable = require("../modules/serialization/serializable");
     import Model = require("tools/model");
     import Application = require("models/App");
     import Profile = require("models/Profile");

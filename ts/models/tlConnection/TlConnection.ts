@@ -1,13 +1,13 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
     import Event = require("tools/event");
     import Model = require("tools/model");
-    import serializable = require("modules/serialization/serializable");
-    import Hex = require("modules/multivalue/hex");
-    import TlecBuilder = require("modules/channels/TlecBuilder");
+    import serializable = require("../modules/serialization/serializable");
+    import Hex = require("../modules/multivalue/hex");
+    import TlecBuilder = require("../modules/channels/TlecBuilder");
     import CouchTransport = require("models/tlConnection/CouchTransport");
-    import Utf8String = require("modules/multivalue/utf8string");
+    import Utf8String = require("../modules/multivalue/utf8string");
 
     export class TlConnection extends Model.Model implements ISerializable {
 

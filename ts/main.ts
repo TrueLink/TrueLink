@@ -3,9 +3,9 @@
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
 import Application = require("./models/App");
-import AppComponent = require("ui/AppComponent");
-import Serializer = require("serialization/serializer");
-import query = require("serialization/appQuery");
+import AppComponent = require("./ui/AppComponent");
+import Serializer = require("./serialization/serializer");
+import query = require("./serialization/appQuery");
 import $ = require("zepto");
 import React = require("react");
 import uuid = require("uuid");

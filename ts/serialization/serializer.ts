@@ -1,8 +1,8 @@
 // serializer / sync
     "use strict";
     import db = require("serialization/fakeDb");
-    import SerializationContext = require("modules/serialization/SerializationContext");
-    import SerializationPacket = require("modules/serialization/SerializationPacket");
+    import SerializationContext = require("../modules/serialization/SerializationContext");
+    import SerializationPacket = require("../modules/serialization/SerializationPacket");
     import $ = require("zepto");
     var isArray = $.isArray;
     import newUuid = require("uuid");

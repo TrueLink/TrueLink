@@ -1,8 +1,8 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
     import prototype = require("./prototype");
-    import Tlgr = require("modules/channels/Tlgr");
+    import Tlgr = require("../modules/channels/Tlgr");
     import Document = require("models/Document");
     import Contact = require("models/Contact");
     import Dialog = require("models/Dialog");

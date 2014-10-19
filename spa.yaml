@@ -9,6 +9,7 @@ hosting_map: "./hosting-map.json"
 index: "./index.html"
 excludes:
 - "./bugsnag*"
+- "./config.js"
 loaders:
     "./lib*": "raw"
 default_loader: "amd"
@@ -18,6 +19,18 @@ assets:
     appcache_template: "./appcache.template"
 paths:
     crypto: "empty"
+    require: "empty"
+    exports: "empty"
+    zepto: "../vendor/zepto/src/zepto"
+    zepto_ajax: "../vendor/zepto/src/ajax"
+    zepto_event: "../vendor/zepto/src/event"
+    bind: "./tools/bind"
+    uuid: "../vendor/uuid/uuid"
+    extend: "./tools/extend"
+    modules: "../vendor/flux-modules/src"
+    react: "../vendor/react/build/react"
+    "react-bootstrap": "../vendor/react-bootstrap/react-bootstrap"
+    localforage: "../vendor/localforage/localforage"
 cached:
     #- "./favicon.png"
     - "./index.html"

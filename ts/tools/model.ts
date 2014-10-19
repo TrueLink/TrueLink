@@ -1,6 +1,6 @@
     "use strict";
 
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import Event = require("./event");
 
     export class Model {

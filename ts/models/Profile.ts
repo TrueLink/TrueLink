@@ -1,11 +1,11 @@
     "use strict";
-    import invariant = require("modules/invariant");
+    import invariant = require("../modules/invariant");
     import extend = require("tools/extend");
     import Event = require("tools/event");
-    import eventEmitter = require("modules/events/eventEmitter");
-    import serializable = require("modules/serialization/serializable");
+    import eventEmitter = require("../modules/events/eventEmitter");
+    import serializable = require("../modules/serialization/serializable");
     import Model = require("tools/model");
-    import urandom = require("modules/urandom/urandom");
+    import urandom = require("../modules/urandom/urandom");
     import Dialog = require("models/Dialog");
     import GrConnection = require("models/grConnection/GrConnection");
     import CouchTransport = require("models/tlConnection/CouchTransport");

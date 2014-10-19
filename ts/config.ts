@@ -6,7 +6,7 @@
     buildMonth: "__MONTH__",
     buildRevision: "__HG_REV__",
 };
-
+/*
 require.config({
         baseUrl: "./lib",
         paths: {
@@ -31,3 +31,4 @@ require(["main",
         "zepto_ajax",
         "converters/all",
     ]);
+*/
