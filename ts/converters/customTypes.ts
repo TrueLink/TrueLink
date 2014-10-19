@@ -1,11 +1,11 @@
-    import converter_mod = require("../modules/multivalue/converter");
-    import DecBlocks = require("../modules/multivalue/decBlocks");
-    import Hex = require("../modules/multivalue/hex");
-    import leemon = require("../modules/leemon/BigInt");
-    import Bytes = require("../modules/multivalue/bytes");
-    import Base64 = require("../modules/multivalue/base64");
-    import Base64Url = require("../modules/multivalue/base64url");
-    import Utf8String = require("../modules/multivalue/utf8string");
+    import converter_mod = require("../../modules/multivalue/converter");
+    import DecBlocks = require("../../modules/multivalue/decBlocks");
+    import Hex = require("../../modules/multivalue/hex");
+    import leemon = require("../../modules/leemon/BigInt");
+    import Bytes = require("../../modules/multivalue/bytes");
+    import Base64 = require("../../modules/multivalue/base64");
+    import Base64Url = require("../../modules/multivalue/base64url");
+    import Utf8String = require("../../modules/multivalue/utf8string");
     "use strict";
     var converter = converter_mod.getInstance();
 

@@ -28,7 +28,7 @@ var filesToMove = [
     './css/*',
     './img/*',
     './media/*',
-    './ts/modules/*', // treat flux-modules as assets temporarily
+    //'./modules/**/*', // treat flux-modules as assets temporarily
     './favicon.png'
 ];
 

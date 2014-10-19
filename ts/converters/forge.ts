@@ -1,15 +1,15 @@
     "use strict";
-    import converter_mod = require("../modules/multivalue/converter");
-    import BigIntForge = require("../modules/multivalue/bigIntForge");
-    import Hex = require("../modules/multivalue/hex");
-    import Base64 = require("../modules/multivalue/base64");
-    import Bytes = require("../modules/multivalue/bytes");
-    import DecBlocks = require("../modules/multivalue/decBlocks");
-    import BigIntSjcl = require("../modules/multivalue/bigIntSjcl");
-    import ByteBuffer = require("../modules/multivalue/byteBuffer");
-    import Utf8String = require("../modules/multivalue/utf8string");
+    import converter_mod = require("../../modules/multivalue/converter");
+    import BigIntForge = require("../../modules/multivalue/bigIntForge");
+    import Hex = require("../../modules/multivalue/hex");
+    import Base64 = require("../../modules/multivalue/base64");
+    import Bytes = require("../../modules/multivalue/bytes");
+    import DecBlocks = require("../../modules/multivalue/decBlocks");
+    import BigIntSjcl = require("../../modules/multivalue/bigIntSjcl");
+    import ByteBuffer = require("../../modules/multivalue/byteBuffer");
+    import Utf8String = require("../../modules/multivalue/utf8string");
 
-    import forge = require("../modules/forge");
+    import forge = require("../../modules/forge");
     var converter = converter_mod.getInstance();
 
     converter.register("bigIntForge", "hex", function (value) {

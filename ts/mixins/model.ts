@@ -1,6 +1,6 @@
     "use strict";
 
-    import invariant = require("../modules/invariant");
+    import invariant = require("../../modules/invariant");
 
     var exp = {
         isModel: true,

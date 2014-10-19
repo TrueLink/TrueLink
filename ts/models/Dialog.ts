@@ -1,8 +1,8 @@
     "use strict";
-    import invariant = require("../modules/invariant");
+    import invariant = require("../../modules/invariant");
     import extend = require("tools/extend");
     import Event = require("tools/event");
-    import serializable = require("../modules/serialization/serializable");
+    import serializable = require("../../modules/serialization/serializable");
     import Profile = require("models/Profile");
     import Contact = require("models/Contact");
     import MessageHistory = require("models/MessageHistory");

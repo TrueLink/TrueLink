@@ -6,9 +6,10 @@ import Application = require("./models/App");
 import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");
 import query = require("./serialization/appQuery");
-import $ = require("zepto");
+//import $ = require("zepto");
 import React = require("react");
 import uuid = require("uuid");
+declare var $;
     "use strict";
 
         //window.app = serializer.createApp();
