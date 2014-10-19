@@ -1,0 +1,25 @@
+{
+  "name": "flux-react",
+  "version": "0.1.0",
+  "description": "TrueLink",
+  "main": "server.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "connect": "^2.8.4",
+    "spa": "^0.2.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "truelink",
+    "messenger",
+    "im"
+  ],
+  "author": "wizzard0",
+  "license": "MIT"
+}
