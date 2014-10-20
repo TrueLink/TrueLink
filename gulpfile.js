@@ -28,7 +28,6 @@ var filesToMove = [
     './css/**/*',
     './img/**/*',
     './media/*',
-    //'./modules/**/*', // treat flux-modules as assets temporarily
     './favicon.png',
     './zepto.js',
     './uuid.js',
@@ -42,29 +41,23 @@ var filesToMoveAfterBuild = [
 ];
 
 gulp.task('assets',['clean'], function(){
-    // the base option sets the relative root for the set of files,
-    // preserving the folder structure
     gulp.src(filesToMove, { base: './' })
         .pipe(gulp.dest('build'));
 });
 
 gulp.task('assets2',['spa'], function(){
-    // the base option sets the relative root for the set of files,
-    // preserving the folder structure
     gulp.src(filesToMoveAfterBuild, { base: './' })
         .pipe(gulp.dest('build'));
 });
 
 
-gulp.task('spa', ["assets", "compile"//,'lib','lib-css','wiki-css',
-    //'tm-css','debugger'
-    ,'bootstrapper','revision'
+gulp.task('spa', ["assets", "compile"//,'lib','lib-css'
+    ,'burn_rev','burn_rev2'
     ], function () {
-//    console.log("spa!");
     spa.from_config("spa.yaml").build();
 });
 
-gulp.task('compile', ['clean'], function () {
+gulp.task('compile', ['clean','burn_rev2'], function () {
     var tsResult = gulp.src('ts/**/*.ts')
                        .pipe(ts({
         declarationFiles: false,
@@ -84,15 +77,6 @@ gulp.task('compile', ['clean'], function () {
 gulp.task('lib-css',['clean'], function () {
     return gulp.src([
 	'lib/bootstrap-3.2.0-dist/css/bootstrap.css',
-	'lib/bootstrap-3.2.0-dist/css/bootstrap-theme.css',
-	//'wiki-objects/cards.css',
-	'lib/font-awesome.css',
-	'lib/jsoneditor.css',
-	'lib/jquery.handsontable.full.css',
-	'lib/jquery-ui-1.10.3.css',
-        'lib/daterangepicker-bs3.css',
-	'lib/tagit-dark-grey.css',
-	'plugins/concord.css' // TODO remove
 ])
     .pipe(concat('lib.css'))
     .pipe(minifyCSS({ keepBreaks: true }))
@@ -114,30 +98,7 @@ gulp.task('tm-css', ['clean'], function () {
 gulp.task('lib',['clean'], function () {
     return gulp.src([
 	'lib/' + 'promise-0.1.1.js', 
-	'lib/' + 'sjcl.js', // 31
-	'lib/' + 'Silverlight.debug.js', // 29 wtf
-	'lib/' + 'jquery-1.10.2.js',// 91 'jquery-1.10.2.js', 267
-	'lib/' + 'bootstrap-3.2.0-dist/js/bootstrap.js', 
-	'lib/' + 'jsoneditor.js', 
-	'lib/' + 'jsondiffpatch-bundle-full.js', // 113
-	//'lib/'+'behave.js', not used
-	//'lib/' + 'react-0.10.0-min.js', //110 react 538
-	'lib/' + 'react.js', //110 react 538
-	'lib/' + 'jquery.handsontable.full.js', // 409
-	'lib/' + 'jquery.ba-hashchange.js', 
-	'lib/' + 'jquery-ui-1.10.4.min.js', //224 'jquery-ui-1.10.3.js', 426
-	'lib/' + 'tagit.js', 
-	//'lib/'+'openpgp.min.js', 217
-	'lib/' + 'forge.bundle.js', // 841
-	'lib/' + 'filereader.js',
-	'plugins/' + 'go-1.3.6.js', // 1425
-	//'lib/'+'localforage.js', - included in spa loader
-	'lib/ace/' + 'ace.js', 
-	'lib/ace/' + 'ext-searchbox.js', 
-	'lib/ace/' + 'mode-markdown.js', 
-	'lib/ace/' + 'theme-chrome.js',
-        'lib/' + 'moment.min.js',
-        'lib/' + 'daterangepicker.js',
+	
 	'node_modules/bloomfilter/bloomfilter.js',
 	'node_modules/query-string/query-string.js',
     'lib/' + 'lib_finished.js',
@@ -172,24 +133,7 @@ var all_files = [
 		'fontawesome-webfont.woff',
 		'FontAwesome.otf',
 		'glyphicons-halflings-white.png',
-		'glyphicons-halflings-regular.woff',
-		'glyphicons-halflings.png',
-		'ui-bg_flat_75_ffffff_40x100.png',
-        'ui-bg_glass_75_dadada_1x400.png',
-		'mpost.SilverlightMultiFileUpload.xap',
-		'animated-overlay.gif',
-		'update-available-64.png',
-		'gshell.appcache',
-		'wiki-objects/wiki.css',
-		'taskmanager/taskmanager.css',
-		'lib.css',
-		'lib.js',
-		'loading.gif',
-		'manifest.json',
-		'ui-anim_basic_16x16.gif',
-		'tm-sprite.png',
-		'bugsnag.js',
-		'jsoneditor-icons.png',
+	
 	];
 
 function pl(dest) {
@@ -230,19 +174,34 @@ gulp.task('revision', ['clean'], function (cb) {
     });
 })
 
-gulp.task("bootstrapper", ['compile',"revision"], function () {
-    console.log('bootstrapper');
+gulp.task("burn_rev2", ["revision"], function () {
+    console.log('burn_rev2');
     var hr = fs.readFileSync("build/rev.txt").toString().trim();
     var date = new Date();
     var mm = (date.getMonth() + 1).toString();
     var dd = date.getDate().toString();
     if (mm.length < 2) mm = "0" + mm;
     if (dd.length < 2) dd = "0" + dd;
-    return gulp.src(['build/config.js'])
+    return gulp.src(['ts/config.tt'])
     .pipe(replace("__HG_REV__", hr))
     .pipe(replace("__DAY__", dd))
     .pipe(replace("__MONTH__", mm))
-    .pipe(rename("config_p.js"))
+    .pipe(rename("config.ts"))
+    .pipe(gulp.dest('ts/'));
+});
+
+gulp.task("burn_rev", ["revision"], function () {
+    console.log('burn_rev');
+    var hr = fs.readFileSync("build/rev.txt").toString().trim();
+    var date = new Date();
+    var mm = (date.getMonth() + 1).toString();
+    var dd = date.getDate().toString();
+    if (mm.length < 2) mm = "0" + mm;
+    if (dd.length < 2) dd = "0" + dd;
+    return gulp.src(['index.template.html'])
+    .pipe(replace("__HG_REV__", hr))
+    .pipe(replace("__DAY__", dd))
+    .pipe(replace("__MONTH__", mm))
     .pipe(gulp.dest('build/'));
 });
 

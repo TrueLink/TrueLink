@@ -14,10 +14,10 @@ excludes:
 - "./zepto.js"
 - "./forge.js"
 - "./uuid.js"
-- "./config*"
+#- "./config*"
 loaders:
     #"./modules*": "amd"
-    "./config_p*": "raw"
+    "./config*": "raw"
     #"./../node_modules/node-uuid/uuid.js": "cjs"
     "./../node_modules/q/q.js": "cjs"
     #"./../node_modules/zepto/index.js": "junk"
@@ -28,27 +28,17 @@ loaders:
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:
-    index_template: "./index.template.html"
+    index_template: "./build/index.template.html"
     appcache_template: "./appcache.template"
 paths:
     crypto: "empty"
     require: "empty"
     exports: "empty"
-    #react: "react-dist"
-    #"react-dist-bootstrap": "react-bootstrap"
-    #zepto: "./../node_modules/zepto/zepto.min"
-    #zepto: "./vendor/zepto/src/zepto"
-    #zepto_ajax: "../vendor/zepto/src/ajax"
-    #zepto_event: "../vendor/zepto/src/event"
-    bind: "./tools/bind"
-    #uuid: "node-uuid"
-    #react: "../vendor/react/build/react"
-    #"react-bootstrap": "../vendor/react-bootstrap/react-bootstrap"
     localforage: "../vendor/localforage/localforage"
 cached:
     - "./favicon.png"
     - "./index.html"
-    - "./config_p.js" # cant SPA it because we might need to patch it!
+    #- "./config_p.js" # patch before spa
     - "./react-dist.js"
     - "./zepto.js"
     - "./forge.js"

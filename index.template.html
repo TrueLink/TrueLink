@@ -37,6 +37,14 @@
     <script src="react-dist.js" type="text/javascript"></script>
     <script src="forge.js" type="text/javascript"></script>
 	<script type="text/javascript">
+        window.fluxConfig = {
+            defaultPollingUrl: "http://192.168.77.15:5984/tl_channels",
+            buildDay: "__DAY__",
+            buildMonth: "__MONTH__",
+            buildRevision: "__HG_REV__",
+        };
+        window.realwindow = window;
+
     (function() {
         var hash_func = <%- inline("./hash/" + hash_name + ".js") %>
         var decoder_func = <%- inline("./decode/" + decoder_name + ".js") %>
