@@ -42,39 +42,35 @@ export class CouchAdapter {
         this._context = options.context;
         this._addr = options.addr;
         this._since = options.since ? options.since : 0;
-        this._needFetch = true;
+        this._needFetch = false;
     }
 
     init(opts : IAdapterRunOptions) {
         this.transport.beginPolling(this._addr, this._context);
         var url = this.transport._postingUrl;
-        this._needFetch = !opts.dontFetch;
-        console.log("NOP url", url, "addr", this._addr);
-        $.ajax({
-            type: "POST",
-            url: url,
-            contentType: "application/json",
-            context: this,
-            data: JSON.stringify({_id: ("nop_" + Math.random()), ChannelId: this._addr.value, DataString: "AAAA" }),
-            success: function(data, status, xhr) { 
-                console.log("NOP success");
-            },
-            error: function(xhr, errorType, error) {
-                console.log("NOP error");
+        if(!opts.dontFetch) {
+            console.log("NOP url", url, "addr", this._addr);        
+            $.ajax({
+                type: "POST",
+                url: url,
+                contentType: "application/json",
+                context: this,
+                data: JSON.stringify({_id: ("nop_" + Math.random()), ChannelId: this._addr.value, DataString: "AAAA" }),
+                success: function(data, status, xhr) { 
+                    console.log("NOP success");
+                },
+                error: function(xhr, errorType, error) {
+                    console.log("NOP error");
+                }
+            });
+            if(opts.fetchIfZeroSince && this._since == 0) {
+                this._needFetch = true;        
+            } else {
+                if(!opts.fetchIfZeroSince) {
+                    this._needFetch = true;        
+                }
             }
-        });
-        //TODO: this is hacky
-                    //setTimeout( this._requestFetch(), 250);
-                    //return;
-        //if(!opts.dontFetch) {
-        //    if(opts.fetchIfZeroSince && this._since == 0) {
-        //        setTimeout( this._requestFetch(), 250);
-        //    } else {
-        //        if(!opts.fetchIfZeroSince) {
-        //            setTimeout( this._requestFetch(), 250);
-        //        }
-        //    }
-        //}
+        }
     }
 
     on(eName: string, handler: any, context: any) {
