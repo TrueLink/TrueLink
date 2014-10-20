@@ -219,8 +219,15 @@ gulp.task('revision', ['clean'], function (cb) {
 gulp.task("bootstrapper", ['compile',"revision"], function () {
     console.log('bootstrapper');
     var hr = fs.readFileSync("build/rev.txt").toString().trim();
+    var date = new Date();
+    var mm = (date.getMonth() + 1).toString();
+    var dd = date.getDate().toString();
+    if (mm.length < 2) mm = "0" + mm;
+    if (dd.length < 2) dd = "0" + dd;
     return gulp.src(['build/config.js'])
     .pipe(replace("__HG_REV__", hr))
+    .pipe(replace("__DD__", dd))
+    .pipe(replace("__MM__", mm))
     .pipe(rename("config_p.js"))
     .pipe(gulp.dest('build/'));
 });
