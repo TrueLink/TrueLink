@@ -31,6 +31,7 @@ var filesToMove = [
     //'./modules/**/*', // treat flux-modules as assets temporarily
     './favicon.png',
     './zepto.js',
+    './uuid.js',
     './react-dist.js'
 ];
 
