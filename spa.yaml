@@ -10,6 +10,7 @@ index: "./index.html"
 excludes:
 - "./bugsnag*"
 - "./react-dist.js"
+- "./zepto.js"
 - "./config.js"
 loaders:
     #"./modules*": "amd"
