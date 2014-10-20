@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("../events/eventEmitter");
 
     var extend = require("../tools").extend;
+    var window = realwindow; // HACK
 
     function Random() {
         this._defineEvent("changed");

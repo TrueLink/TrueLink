@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
 
     "use strict";
     var Dictionary = require("../dictionary/dictionary");
@@ -149,4 +148,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = SerializationContext;
-});

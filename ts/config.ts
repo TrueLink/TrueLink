@@ -6,6 +6,7 @@
     buildMonth: "__MONTH__",
     buildRevision: "__HG_REV__",
 };
+(<any>window).realwindow = window;
 /*
 require.config({
         baseUrl: "./lib",

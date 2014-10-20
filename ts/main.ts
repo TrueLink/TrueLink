@@ -6,9 +6,11 @@ import Application = require("./models/App");
 import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");
 import query = require("./serialization/appQuery");
+declare var realwindow;
 import z = require("zepto");var $ = z.$;
 import React = require("react");
 import uuid = require("uuid");
+
     "use strict";
 
         //window.app = serializer.createApp();
@@ -21,7 +23,7 @@ import uuid = require("uuid");
 
             var tabUuid = uuid(); 
             console.log("Setting tab killer with tabUuid ", tabUuid);
-            window.addEventListener("storage", function (e: StorageEvent) {
+            realwindow.addEventListener("storage", function (e: StorageEvent) {
                 if (e.key === "tab-uuid" && e.newValue !== tabUuid) {
                     console.log("Tab uuid has changed. Going to kill this tab.");
                     window.location.href = "data:text/html;charset=utf-8,"

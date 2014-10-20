@@ -3,7 +3,6 @@
   0x-FF00 == [0, FF, 1, 0]
   0x-1FE00 == [0, FE, 2, 0]
 */
-define(function (require, exports, module) {
     "use strict";
     var sjcl = require("./sjcl");
     require("./bitArray");
@@ -561,4 +560,3 @@ define(function (require, exports, module) {
     sjcl.bn = bn;
 
     module.exports = bn;
-});

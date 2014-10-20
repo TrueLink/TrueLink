@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var invariant = require("../invariant");
@@ -76,4 +75,4 @@ define(function (require, exports, module) {
     SerializationPacket.nullPacket.isSerialized = true;
 
     module.exports = SerializationPacket;
-});
+//# sourceURL=SerializationPacket.js

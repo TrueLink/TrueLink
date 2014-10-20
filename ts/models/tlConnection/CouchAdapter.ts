@@ -8,6 +8,7 @@ import Hex = require("../../../modules/multivalue/hex");
 import Multivalue = require("../../../modules/multivalue/multivalue");
 import urandom = require("../../../modules/urandom/urandom");
 import tools = require("../../../modules/tools");
+import z=require("zepto");var $=z.$;
 
 export interface IAdapterRunOptions {
     dontFetch?: boolean;

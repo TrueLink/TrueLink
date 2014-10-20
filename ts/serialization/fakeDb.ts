@@ -5,8 +5,9 @@ var nullPacket = SerializationPacket.nullPacket;
 import z = require("zepto");var $ = z.$;
 var isArray = $.isArray;
 //import lf = require("localforage");
-declare var localForage;
-var lf = localForage;
+declare var localforage;
+declare var realwindow;
+var lf = localforage;
 
 var lnks = [];
 var objs = {};
@@ -101,6 +102,6 @@ var fake = {
     init: priv.loadLocalForage
 };
 
-window.fakeDb = fake;
+realwindow.fakeDb = fake;
 
 export = fake;

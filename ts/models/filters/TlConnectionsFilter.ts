@@ -2,7 +2,7 @@
     import Filter = require("../../../modules/filter/Filter");
     import serializable = require("../../../modules/serialization/serializable");
     import tools = require("../../../modules/tools");
-    import extend = tools.extend;
+    var extend = tools.extend;
     import invariant = require("../../../modules/invariant");
     import model = require("../../mixins/model");
 

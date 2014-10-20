@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var eventEmitter = require("../events/eventEmitter");
 
@@ -25,4 +24,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = Filter;
-});
