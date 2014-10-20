@@ -178,7 +178,7 @@
 //       sentences that seem to imply it's faster to do a non-modular square followed by a single
 //       Montgomery reduction, but that's obviously wrong.
 ////////////////////////////////////////////////////////////////////////////////////////
-define(function (require, exports, module) {
+
     "use strict";
 
     var trueRandom = function () { throw new Error("Not implemented"); };
@@ -1521,4 +1521,3 @@ define(function (require, exports, module) {
         addInt_: addInt_,
         multInt_: multInt_
     }
-});

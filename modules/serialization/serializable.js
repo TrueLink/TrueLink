@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     module.exports = {
         looksLikeSerializable: function (obj) {
@@ -32,4 +31,3 @@ define(function (require, exports, module) {
             this.meta = packet.getMetaData();
         }
     };
-});

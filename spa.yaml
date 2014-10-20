@@ -11,7 +11,9 @@ excludes:
 - "./bugsnag*"
 - "./config.js"
 loaders:
-    "./modules*": "amd"
+    #"./modules*": "amd"
+    "./config_p*": "raw"
+    "./../node_modules/node-uuid/uuid.js": "cjs"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:

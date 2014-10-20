@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     module.exports = function (condition, format, a, b, c, d, e, f) {
         if (format === undefined) {
@@ -15,4 +14,3 @@ define(function (require, exports, module) {
             throw error;
         }
     };
-});
