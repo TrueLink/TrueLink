@@ -14,7 +14,6 @@
  * @author Mike Hamburg
  * @author Dan Boneh
  */
-define(function (require, exports, module) {
     "use strict";
     var sjcl = require("./sjcl");
   /**
@@ -210,4 +209,3 @@ define(function (require, exports, module) {
 
   sjcl.cipher.aes = aes;
   module.exports = aes;
-});

@@ -17,7 +17,7 @@ loaders:
     "./../node_modules/q/q.js": "cjs"
     "./../node_modules/zepto/index.js": "junk"
     "./../modules/lodash.js": "junk"
-    "./../modules/forge/*.js": "cjs"
+    "./../node_modules/forge/index.js": "junk"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:
@@ -33,7 +33,6 @@ paths:
     #zepto_event: "../vendor/zepto/src/event"
     bind: "./tools/bind"
     uuid: "node-uuid"
-    extend: "./tools/extend"
     #react: "../vendor/react/build/react"
     #"react-bootstrap": "../vendor/react-bootstrap/react-bootstrap"
     localforage: "../vendor/localforage/localforage"

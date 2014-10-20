@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var invariant = require("../invariant");
 
@@ -46,4 +45,3 @@ define(function (require, exports, module) {
         }
     };
     module.exports = Event;
-});

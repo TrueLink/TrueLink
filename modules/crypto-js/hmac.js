@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     /**
      * HMAC algorithm.
      */
@@ -118,4 +117,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = HMAC;
-});
