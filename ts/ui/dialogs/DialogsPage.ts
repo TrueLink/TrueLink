@@ -1,8 +1,7 @@
     "use strict";
     import React = require("react");
     import reactObserver = require("../../mixins/reactObserver");
-    import Dialog = require("../../models/Dialog");
-    import GroupChat = require("../../models/GroupChat");
+    import Profile = require("../../models/Profile");
 
     var exp = React.createClass({
         displayName: "DialogsPage",
@@ -10,7 +9,7 @@
         handleDialogClick: function (dialog) {
             //TODO: make something better here
             var view = "dialog";
-            if(dialog instanceof GroupChat.GroupChat) {
+            if(dialog instanceof Profile.GroupChat) {
                 view = "groupChat";
             }
             this.props.router.navigate(view, dialog);
