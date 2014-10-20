@@ -310,7 +310,7 @@ extend(Profile.prototype, serializable);
 
 
     export class Dialog extends Model.Model implements ISerializable {
-        public profile : Profile.Profile;
+        public profile : Profile;
         public name : string;
         public history : MessageHistory.MessageHistory;
         public contact : Contact.Contact;
@@ -327,7 +327,7 @@ extend(Profile.prototype, serializable);
 
     }
 
-        setProfile  (profile: Profile.Profile) {
+        setProfile  (profile: Profile) {
             this.profile = profile;
         }
 
@@ -403,9 +403,9 @@ extend(Profile.prototype, serializable);
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
-                if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                if (this.profile.notificationType === Profile.NOTIFICATION_COUNT) {
                     notifications.notify(this.name + " ( " + this.profile.name + " )", this.unreadCount + " unread messages.");
-                } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                } else if (this.profile.notificationType === Profile.NOTIFICATION_MESSAGE) {
                     notifications.notify(this.name + " ( " + this.profile.name + " )", (<any>message).text);
                 }
                 notifications.playMessageArrivedSound(this.profile);
@@ -476,7 +476,7 @@ extend(Dialog.prototype, serializable);
 
 
     export class GroupChat extends Model.Model implements ISerializable {
-        public profile : Profile.Profile;
+        public profile : Profile;
         public grConnection : GrConnection.GrConnection;
         public name : string;
         
@@ -586,9 +586,9 @@ extend(Dialog.prototype, serializable);
             this.history.recordMessage(message);
             if (message.unread) {
                 this.unreadCount += 1;
-                if (this.profile.notificationType === Profile.Profile.NOTIFICATION_COUNT) {
+                if (this.profile.notificationType === Profile.NOTIFICATION_COUNT) {
                     notifications.notify(this.name + " ( " + this.profile.name + " )", this.unreadCount + " unread messages.");
-                } else if (this.profile.notificationType === Profile.Profile.NOTIFICATION_MESSAGE) {
+                } else if (this.profile.notificationType === Profile.NOTIFICATION_MESSAGE) {
                     notifications.notify(this.name + " ( " + this.profile.name + " )", (message).text);
                 }
                 notifications.playMessageArrivedSound(this.profile);
