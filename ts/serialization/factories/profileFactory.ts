@@ -5,8 +5,9 @@
     import Tlgr = require("../../../modules/channels/Tlgr");
     import Document = require("../../models/Document");
     import Contact = require("../../models/Contact");
-    import Dialog = require("../../models/Dialog");
-    import GroupChat = require("../../models/GroupChat");
+    import Profile = require("../../models/Profile");
+    //import Dialog = require("../../models/Dialog");
+    //import GroupChat = require("../../models/GroupChat");
     import MessageHistory = require("../../models/MessageHistory");
 
     import TlConnection = require("../../models/tlConnection/TlConnection");
@@ -32,7 +33,7 @@
         },
 
         createDialog: function () {
-            var dialog = new Dialog.Dialog();
+            var dialog = new Profile.Dialog();
             dialog.setProfile(this.profile);
             dialog.setFactory(this);
             return this._observed(dialog);
@@ -55,7 +56,7 @@
         },
 
         createGroupChat: function () {
-            var chat = new GroupChat.GroupChat();
+            var chat = new Profile.GroupChat();
             chat.setProfile(this.profile);
             chat.setFactory(this);
             return this._observed(chat);

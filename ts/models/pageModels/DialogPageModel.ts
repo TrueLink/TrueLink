@@ -6,10 +6,10 @@
     import model = require("../../mixins/model");
 
     import PageModel = require("./PageModel");
-    import Dialog = require("../../models/Dialog");
+    import Profile = require("../../models/Profile");
 
     function DialogPageModel() {
-        this.accepts = Dialog.Dialog;
+        this.accepts = Profile.Dialog;
         this._defineEvent("changed");
     }
 

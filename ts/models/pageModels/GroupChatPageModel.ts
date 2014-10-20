@@ -6,10 +6,10 @@
     import model = require("../../mixins/model");
 
     import PageModel = require("./PageModel");
-    import GroupChat = require("../../models/GroupChat");
+    import Profiles = require("../../models/Profile");
 
     function GroupChatPageModel() {
-        this.accepts = GroupChat.GroupChat;
+        this.accepts = Profile.GroupChat;
         this._defineEvent("changed");
     }
 
