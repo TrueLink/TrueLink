@@ -1,6 +1,6 @@
 "use strict";
 import invariant = require("../../modules/invariant");
-import extend = require("../tools/extend");
+import zepto = require("zepto");
 import Event = require("../tools/event");
 import serializable = require("../../modules/serialization/serializable");
 import CouchTransport = require("../models/tlConnection/CouchTransport");
@@ -10,6 +10,7 @@ import Model = require("../tools/model");
 import urandom = require("../../modules/urandom/urandom");
 import notifications = require("../tools/notifications-api");
 
+var extend = zepto.extend;
 
 var maxBgIndex = 3;
 

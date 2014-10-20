@@ -1,6 +1,6 @@
 "use strict";
 import invariant = require("../../../modules/invariant");
-import extend = require("../../tools/extend");
+import zepto = require("zepto");var extend = zepto.extend;
 import CouchFetching = require("../../misc/CouchFetching");
 import Event = require("../../tools/event");
 import eventEmitter = require("../../../modules/events/eventEmitter");

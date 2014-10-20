@@ -1,8 +1,8 @@
     "use strict";
-    import extend = require("../tools/extend");
     import invariant = require("../../modules/invariant");
     import eventEmitter = require("../../modules/events/eventEmitter");
     import $ = require("zepto");
+    var extend = $.extend;
     import SHA1 = require("../../modules/cryptography/sha1-crypto-js");
 import Hex = require("../../modules/multivalue/hex");
 import Utf8String = require("../../modules/multivalue/utf8string");

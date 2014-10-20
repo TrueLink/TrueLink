@@ -5,9 +5,10 @@
     import SerializationPacket = require("../../modules/serialization/SerializationPacket");
     import $ = require("zepto");
     var isArray = $.isArray;
+    var extend = $.extend;
     import newUuid = require("uuid");
     import RootFactory = require("./factories/rootFactory");
-    import extend = require("../tools/extend");
+    
 
     function Serializer() {
         this.objCache = {};
