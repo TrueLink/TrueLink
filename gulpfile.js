@@ -53,7 +53,7 @@ gulp.task('compile', ['clean'], function () {
                        .pipe(ts({
         declarationFiles: false,
         noExternalResolve: false, //?
-        module: 'amd',
+        module: 'cjs',
         target: 'ES5',
         noImplicitAny: false, 
         noLib: true, 

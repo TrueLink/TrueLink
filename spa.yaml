@@ -14,6 +14,8 @@ loaders:
     #"./modules*": "amd"
     "./config_p*": "raw"
     "./../node_modules/node-uuid/uuid.js": "cjs"
+    "./../node_modules/q/q.js": "cjs"
+    "./../modules/lodash.js": "junk"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:

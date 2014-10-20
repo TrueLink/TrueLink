@@ -8,7 +8,7 @@
  * @author Dan Boneh
  */
 
-define(function () {
+define([], function () {
     "use strict";
     return {
         /** @namespace The Stanford Javascript Crypto Library, top-level namespace. */

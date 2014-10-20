@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+
     "use strict";
     function randomInt(min, max) {
         min = (!min && min !== 0) ? -0x7FFFFFFF : min;
@@ -47,4 +47,3 @@ define(function (require, exports, module) {
             return color + " " + animal;
         }
     };
-});

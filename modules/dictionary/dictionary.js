@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     function Dictionary() {
         this._items = [];
@@ -63,4 +62,3 @@ define(function (require, exports, module) {
     };
 
     module.exports = Dictionary;
-});
