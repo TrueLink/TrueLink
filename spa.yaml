@@ -12,6 +12,7 @@ excludes:
 - "./bugsnag*"
 - "./react-dist.js"
 - "./zepto.js"
+- "./forge.js"
 - "./uuid.js"
 - "./config*"
 loaders:
@@ -23,7 +24,7 @@ loaders:
     #"./../node_modules/react-dist/index.js": "junk"
     "./../modules/lodash.js": "junk"
     #"./serialization/fakeDb.js": "junk"
-    "./../node_modules/forge/index.js": "junk"
+    #"./../node_modules/forge/index.js": "junk"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:
@@ -50,6 +51,7 @@ cached:
     - "./config_p.js" # cant SPA it because we might need to patch it!
     - "./react-dist.js"
     - "./zepto.js"
+    - "./forge.js"
     - "./uuid.js"
     - "./css/bootstrap.css"
     - "./css/main.css"
