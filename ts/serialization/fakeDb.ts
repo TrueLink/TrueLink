@@ -2,8 +2,7 @@
 
 import SerializationPacket = require("../../modules/serialization/SerializationPacket");
 var nullPacket = SerializationPacket.nullPacket;
-//import $ = require("zepto");
-declare var $;
+import $ = require("zepto");
 var isArray = $.isArray;
 //import lf = require("localforage");
 declare var localForage;

@@ -3,8 +3,7 @@
     import extend = require("../tools/extend");
     import Event = require("../tools/event");
     import eventEmitter = require("../../modules/events/eventEmitter");
-    //import $ = require("zepto");
-    declare var $;
+    import $ = require("zepto");
     import tools = require("../../modules/tools");
 
     var ajaxTimeout = 20000;

@@ -1,8 +1,8 @@
 declare var $;
 define([
-    //"zepto",
+    "zepto",
      "q"], function (
-        // $,
+         $,
          Q) {
 "use strict";
     function resolve(obj) {
