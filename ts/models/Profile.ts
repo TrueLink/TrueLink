@@ -227,7 +227,7 @@
         private _findDirectDialog  (contact) {
             var i;
             for (i = 0; i < this.dialogs.length; i += 1) {
-                if (this.dialogs[i] instanceof Dialog.Dialog) {
+                if (this.dialogs[i] instanceof Dialog) {
                     if (this.dialogs[i].contact === contact) {
                         return this.dialogs[i];
                     }
