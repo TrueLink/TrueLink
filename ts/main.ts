@@ -7,7 +7,7 @@ import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");
 import query = require("./serialization/appQuery");
 declare var realwindow;
-import z = require("zepto");var $ = z.$;
+import $=require("zepto");
 import React = require("react");
 import uuid = require("uuid");
 

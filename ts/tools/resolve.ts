@@ -1,4 +1,4 @@
-import z = require("zepto");var $ = z.$;
+import $=require("zepto");
 import Q = require("q");
 "use strict";
     function resolve(obj) {

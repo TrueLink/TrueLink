@@ -1,7 +1,7 @@
     "use strict";
     import React = require("react");
     import reactObserver = require("../../mixins/reactObserver");
-    import z = require("zepto");var $ = z.$;
+    import $=require("zepto");
     
     var exp = React.createClass({
         displayName: "ContactsPage",
