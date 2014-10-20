@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Base = require("./base");
     var X64Word = Base.extend({
@@ -184,4 +183,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = X64Word;
-});

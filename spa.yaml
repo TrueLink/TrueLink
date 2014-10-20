@@ -17,6 +17,7 @@ loaders:
     "./../node_modules/q/q.js": "cjs"
     "./../node_modules/zepto/index.js": "junk"
     "./../modules/lodash.js": "junk"
+    #"./tools/resolve.js": "junk"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:

@@ -1,9 +1,5 @@
-declare var $;
-define([
-    "zepto",
-     "q"], function (
-         $,
-         Q) {
+import $ = require("zepto");
+import Q = require("q");
 "use strict";
     function resolve(obj) {
         if ($.isArray(obj)) {
@@ -43,5 +39,5 @@ define([
     }
     Q.whenAll = resolve;
     Q.chain = chain;
-    window.q = Q;
-});
+   // window.q = Q;
+exports.q = Q;

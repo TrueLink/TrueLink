@@ -29,7 +29,7 @@
  * </p>
  */
 
-define(function (require, exports, module) {
+
     "use strict";
     var sjcl = require("./sjcl");
   var bitArray = {
@@ -193,4 +193,3 @@ define(function (require, exports, module) {
 
 
     module.exports = bitArray;
-});

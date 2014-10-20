@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+
     "use strict";
     var Converter = require("./converter");
 
@@ -47,4 +47,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = Multivalue;
-});

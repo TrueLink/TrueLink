@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Base = require("./base");
     var X64WordArray = Base.extend({
@@ -83,4 +82,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = X64WordArray;
-});
