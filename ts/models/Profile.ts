@@ -167,7 +167,7 @@
             if (invite) {
                 //maybe we already have this group chat
                 for (var key in this.dialogs) {
-                    if (this.dialogs[key] instanceof GroupChat.GroupChat) {
+                    if (this.dialogs[key] instanceof Profile.GroupChat) {
                         //if (this.dialogs[key].tlgr.getUID() === invite.invite.groupUid) {
                          //   return this.dialogs[key];
                        // }
