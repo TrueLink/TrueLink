@@ -6,7 +6,7 @@
     import model = require("../../mixins/model");
 
     import PageModel = require("./PageModel");
-    import Profiles = require("../../models/Profile");
+    import Profile = require("../../models/Profile");
 
     function GroupChatPageModel() {
         this.accepts = Profile.GroupChat;
