@@ -4,7 +4,6 @@ code.google.com/p/crypto-js
 (c) 2009-2013 by Jeff Mott. All rights reserved.
 code.google.com/p/crypto-js/wiki/License
 */
-define(function (require, exports, module) {
     "use strict";
     var WordArray = require("./x32wordArray");
     /**
@@ -104,4 +103,3 @@ define(function (require, exports, module) {
     };
 
     module.exports = Base64;
-});

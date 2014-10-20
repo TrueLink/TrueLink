@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+
     "use strict";
     var Base = require("./base");
     var WordArray = require("./x32wordArray");
@@ -111,4 +111,3 @@ define(function (require, exports, module) {
         _minBufferSize: 0
     });
     module.exports = BufferedBlockAlgorithm;
-});

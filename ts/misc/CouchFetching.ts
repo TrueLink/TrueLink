@@ -3,7 +3,7 @@ import invariant = require("../../modules/invariant");
 import extend = require("../tools/extend");
 import Event = require("../tools/event");
 import eventEmitter = require("../../modules/events/eventEmitter");
-import $ = require("zepto");
+import z = require("zepto");var $ = z.$;
 
 export interface ICouchAllChannelMessages {
     offset: number;

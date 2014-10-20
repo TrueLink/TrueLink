@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var Base = require("./base");
@@ -134,4 +133,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = Hasher;
-});

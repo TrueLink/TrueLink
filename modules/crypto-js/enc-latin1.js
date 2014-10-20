@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var WordArray = require("./x32wordArray");
     var Latin1 = {
@@ -56,4 +55,3 @@ define(function (require, exports, module) {
         }
     };
     module.exports = Latin1;
-});

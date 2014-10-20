@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var Multivalue = require("./multivalue");
@@ -36,4 +35,3 @@ define(function (require, exports, module) {
 
 
     module.exports = Multivalue.createType(Utf8String, "utf8string", proto);
-});

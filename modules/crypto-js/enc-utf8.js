@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Latin1 = require("./enc-latin1");
     var Utf8 = {
@@ -41,4 +40,3 @@ define(function (require, exports, module) {
         }
     };
     module.exports = Utf8;
-});

@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var Multivalue = require("./multivalue");
@@ -53,6 +52,5 @@ define(function (require, exports, module) {
         }
         return new Fn(numStr.substring(0, numStr.length - 1));
     };
-    return Fn;
     module.exports = Fn;
-});
+    return Fn;

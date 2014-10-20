@@ -3,7 +3,7 @@
     import db = require("../serialization/fakeDb");
     import SerializationContext = require("../../modules/serialization/SerializationContext");
     import SerializationPacket = require("../../modules/serialization/SerializationPacket");
-    import $ = require("zepto");
+import z = require("zepto");var $ = z.$;
     var isArray = $.isArray;
     import newUuid = require("uuid");
     import RootFactory = require("./factories/rootFactory");

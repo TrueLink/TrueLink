@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
     var Multivalue = require("./multivalue");
     // 0x does not matter
@@ -40,4 +39,3 @@ define(function (require, exports, module) {
         return new Hex(str);
     };
     module.exports = Multivalue.createType(Hex, "hex", proto);
-});

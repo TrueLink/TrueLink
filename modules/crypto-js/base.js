@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+
     "use strict";
     var Base = (function () {
         function F() {}
@@ -122,4 +122,3 @@ define(function (require, exports, module) {
     }());
 
     module.exports = Base;
-});

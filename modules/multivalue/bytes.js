@@ -1,4 +1,3 @@
-define(function (require, exports, module) {
     "use strict";
 
     var Multivalue = require("./multivalue");
@@ -38,4 +37,3 @@ define(function (require, exports, module) {
 
 
     module.exports = Multivalue.createType(Bytes, "bytes", proto);
-});
