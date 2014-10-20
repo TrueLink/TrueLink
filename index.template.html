@@ -5,6 +5,25 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="favicon.ico" /> 
+    <style type="text/css">
+        <%- inline("./bootstrap.css") %>
+        #loader .items{
+            font-size:10px;
+        }
+        #loader .items .name, 
+        #loader .items .state{
+            width: 20px;
+            overflow: hidden;
+            text-overflow: clip;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        #loader div.evaluate-item,
+        #loader div.download-item
+        {
+            display: inline;
+        }
+    </style>
     <link rel="stylesheet" href="./css/bootstrap.css" />
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/icons.css" />
@@ -25,6 +44,12 @@
         var dbnamearr = document.location.pathname.split('/');
         var pstart = dbnamearr[0];
         var LOADER_PREFIX = "tl:" + pstart;
+
+        window.spaReset = function () {
+            localStorage.removeItem(LOADER_PREFIX + "::manifest");
+            location.reload();
+            return false;
+        }
 
         var loader = new Loader({
             "version": "<%- version %>",
@@ -106,7 +131,7 @@
         <div id="evaluate-item-template" class="evaluate-item">
             <span class="name"></span>
             <span class="state pending">...</span>
-            <span class="state success hide">SUCCESS</span>
+            <span class="state success hide">OK!</span>
             <span class="state error hide">ERROR</span>
         </div>
         <div id="download-item-template" class="download-item">
@@ -116,7 +141,7 @@
                 <span class="bytes-loaded"></span>
                 <span class="bytes-total"></span>
             </span>
-            <span class="state success hide">SUCCESS</span>
+            <span class="state success hide">OK!</span>
             <span class="state error hide">ERROR</span>
         </div>
     </div>
@@ -164,7 +189,6 @@
         </div>
     </div>
     <!-- end spa code -->
-    <button onclick="localStorage.clear();location.reload();return false;">reset all</button> 
-    <!--<button onclick="return window.CortexDebug.spaReset();">reset loader</button>-->
+    <button onclick="window.spaReset();location.reload();return false;">Force update</button> 
 </body>
 </html>

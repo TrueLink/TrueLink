@@ -226,8 +226,8 @@ gulp.task("bootstrapper", ['compile',"revision"], function () {
     if (dd.length < 2) dd = "0" + dd;
     return gulp.src(['build/config.js'])
     .pipe(replace("__HG_REV__", hr))
-    .pipe(replace("__DD__", dd))
-    .pipe(replace("__MM__", mm))
+    .pipe(replace("__DAY__", dd))
+    .pipe(replace("__MONTH__", mm))
     .pipe(rename("config_p.js"))
     .pipe(gulp.dest('build/'));
 });
