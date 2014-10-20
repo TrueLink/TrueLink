@@ -11,7 +11,7 @@ excludes:
 - "./bugsnag*"
 - "./react-dist.js"
 - "./zepto.js"
-- "./config.js"
+- "./config*"
 loaders:
     #"./modules*": "amd"
     "./config_p*": "raw"
@@ -45,6 +45,7 @@ paths:
 cached:
     - "./favicon.png"
     - "./index.html"
+    - "./config_p.js" # cant SPA it because we might need to patch it!
     - "./react-dist.js"
     - "./zepto.js"
     - "./css/bootstrap.css"
