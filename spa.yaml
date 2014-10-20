@@ -9,6 +9,7 @@ hosting_map: "./hosting-map.json"
 index: "./index.html"
 excludes:
 - "./bugsnag*"
+- "./react-dist.js"
 - "./config.js"
 loaders:
     #"./modules*": "amd"
@@ -16,6 +17,7 @@ loaders:
     "./../node_modules/node-uuid/uuid.js": "cjs"
     "./../node_modules/q/q.js": "cjs"
     "./../node_modules/zepto/index.js": "junk"
+    "./../node_modules/react-dist/index.js": "junk"
     "./../modules/lodash.js": "junk"
     #"./serialization/fakeDb.js": "junk"
     "./../node_modules/forge/index.js": "junk"
@@ -28,6 +30,8 @@ paths:
     crypto: "empty"
     require: "empty"
     exports: "empty"
+    #react: "react-dist"
+    #"react-dist-bootstrap": "react-bootstrap"
     #zepto: "./../node_modules/zepto/zepto.min"
     #zepto: "./vendor/zepto/src/zepto"
     #zepto_ajax: "../vendor/zepto/src/ajax"
@@ -40,6 +44,7 @@ paths:
 cached:
     #- "./favicon.png"
     - "./index.html"
+    - "./react-dist.js"
 grab: true
 #coding_func:
 #    name: aes-gcm

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html manifest="gshell.appcache">
+<html manifest="tl.appcache">
 <head>
     <title>Loading - Truelink</title>
     <meta charset="utf-8"/>
@@ -11,7 +11,8 @@
     <!-- TODO remove font -->
     <link rel="stylesheet" href="./css/opensans-full.css" />
 
-    <script src="bugsnag.js" data-apikey="a07e6f4cdfb2395eabb4753bdf9f119b" type="text/javascript"></script>    
+    <!--<script src="bugsnag.js" data-apikey="a07e6f4cdfb2395eabb4753bdf9f119b" type="text/javascript"></script>    -->
+    <script src="react-dist.js" type="text/javascript"></script>
 	<script type="text/javascript">
     (function() {
         var hash_func = <%- inline("./hash/" + hash_name + ".js") %>

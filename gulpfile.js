@@ -25,11 +25,12 @@ gulp.task('clean', function(){
 });
 
 var filesToMove = [
-    './css/*',
-    './img/*',
+    './css/**/*',
+    './img/**/*',
     './media/*',
     //'./modules/**/*', // treat flux-modules as assets temporarily
-    './favicon.png'
+    './favicon.png',
+    './react-dist.js'
 ];
 
 gulp.task('assets',['clean'], function(){
