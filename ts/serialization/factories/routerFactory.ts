@@ -1,7 +1,7 @@
     "use strict";
     import invariant = require("../../../modules/invariant");
     import Dictionary = require("../../../modules/dictionary/dictionary");
-    import zepto = require("zepto");var extend = zepto.extend;
+    import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
     import HomePageModel = require("../../models/pageModels/HomePageModel");

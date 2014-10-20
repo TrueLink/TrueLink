@@ -1,6 +1,6 @@
     "use strict";
     import invariant = require("../../../modules/invariant");
-    import zepto = require("zepto");var extend = zepto.extend;
+    import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
     import Router = require("../../models/Router");

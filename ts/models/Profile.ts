@@ -1,6 +1,6 @@
     "use strict";
     import invariant = require("../../modules/invariant");
-    import zepto = require("zepto");var extend = zepto.extend;
+    import extend = require("../tools/extend");
     import Event = require("../tools/event");
     import eventEmitter = require("../../modules/events/eventEmitter");
     import serializable = require("../../modules/serialization/serializable");
