@@ -12,3 +12,4 @@ node_modules
 rev.txt
 build/*
 *.suo
+ts/config.ts

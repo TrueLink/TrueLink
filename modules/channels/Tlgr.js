@@ -304,6 +304,7 @@
             var data = packet.getData();
             this._algo._keyPair = { };
             this._algo._keyPair.publicKey = (data.publicKey)?(rsa.PublicKey.deserialize(data.publicKey)):null;
+            this._algo._keyPair.privateKey = (data.publicKey)?(rsa.PrivateKey.deserialize(data.privateKey)):null;
             this._algo._groupUid = (data.groupUid)?(Hex.deserialize(data.groupUid)):null;
             this._algo._channelId = (data.channelId)?(Hex.deserialize(data.channelId)):null;
             this._algo._sharedKey = (data.sharedKey)?(Hex.deserialize(data.sharedKey)):null;
