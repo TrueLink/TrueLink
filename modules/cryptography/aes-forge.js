@@ -1,6 +1,5 @@
-define(function(require, exports, module) {
     "use strict";
-    var forge = require("../forge/forge");
+    var forge = require("forge");
     var ByteBuffer = require("../multivalue/byteBuffer");
 
     exports.encryptCbc = function (data, key, iv) {
@@ -24,4 +23,3 @@ define(function(require, exports, module) {
         aes.finish();
         return new ByteBuffer(aes.output);
     }
-});

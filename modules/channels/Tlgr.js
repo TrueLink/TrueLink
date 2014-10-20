@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+
     "use strict";
 
     Tlgr.tlgrVersion = "1";
@@ -19,7 +19,7 @@ define(function (require, exports, module) {
         "GJP" : "gjp"
     }
 
-    var forge = require("../forge/forge");
+    var forge = require("forge");
     var rsa = require("../cryptography/rsa-forge");
     var AES = require("../cryptography/aes-forge");
     var SHA1 = require("../cryptography/sha1-crypto-js");
@@ -497,4 +497,3 @@ define(function (require, exports, module) {
     });
 
     module.exports = Tlgr;
-});

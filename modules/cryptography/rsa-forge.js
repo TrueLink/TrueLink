@@ -1,6 +1,6 @@
-define(function(require, exports, module) {
+
     "use strict";
-    var forge = require("../forge/forge");
+    var forge = require("forge");
     var BigIntForge = require("../multivalue/bigIntForge");
     var ByteBuffer = require("../multivalue/byteBuffer");
     var Hex = require("../multivalue/hex");
@@ -234,4 +234,3 @@ define(function(require, exports, module) {
     exports.PrivateKey = PrivateKey;
     exports.generateKeyPair = generateKeyPair;
     exports.getPublicKeyFingerprint = getPublicKeyFingerprint;
-});
