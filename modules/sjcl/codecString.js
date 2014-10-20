@@ -5,7 +5,6 @@
  * @author Dan Boneh
  */
 
-define(function (require, exports, module) {
     "use strict";
     var sjcl = require("./sjcl");
     var bitArray = require("./bitArray");
@@ -45,4 +44,3 @@ define(function (require, exports, module) {
     sjcl.codec.utf8String = utf8String;
 
     module.exports = utf8String;
-});

@@ -59,7 +59,6 @@ DO NOT FORGET TO ADD ENTROPY
  * look for improvements in future versions.
  * </p>
  */
- define(function (require, exports, module) {
      var sjcl = require("./sjcl");
      require("./sha256");
      require("./aes");
@@ -418,4 +417,3 @@ DO NOT FORGET TO ADD ENTROPY
   sjcl.prng = prng;
   sjcl.random = new sjcl.prng(6);
   module.exports = prng;
-});

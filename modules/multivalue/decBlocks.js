@@ -53,4 +53,3 @@
         return new Fn(numStr.substring(0, numStr.length - 1));
     };
     module.exports = Fn;
-    return Fn;

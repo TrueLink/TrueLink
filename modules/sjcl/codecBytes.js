@@ -4,8 +4,6 @@
  * @author Mike Hamburg
  * @author Dan Boneh
  */
-define(function (require, exports, module) {
-    "use strict";
     "use strict";
     var sjcl = require("./sjcl");
     var bitArray = require("./bitArray");
@@ -43,4 +41,3 @@ define(function (require, exports, module) {
     sjcl.codec.bytes = codecBytes;
 
     module.exports = codecBytes;
-});

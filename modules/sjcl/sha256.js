@@ -18,7 +18,6 @@
  * @constructor
  * @class Secure Hash Algorithm, 256 bits.
  */
-define(function (require, exports, module) {
     "use strict";
     var sjcl = require("./sjcl");
     require("./codecString");
@@ -219,4 +218,3 @@ define(function (require, exports, module) {
   };
   sjcl.hash.sha256 = sha256;
     module.exports = sha256;
-});

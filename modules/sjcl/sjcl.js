@@ -8,9 +8,9 @@
  * @author Dan Boneh
  */
 
-define([], function () {
+
     "use strict";
-    return {
+module.exports= {
         /** @namespace The Stanford Javascript Crypto Library, top-level namespace. */
         /** @namespace Symmetric ciphers. */
         cipher: {},
@@ -65,4 +65,3 @@ define([], function () {
             }
         }
     };
-});
