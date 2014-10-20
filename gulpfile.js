@@ -15,7 +15,7 @@ var  gutil = require('gulp-util');
 
 //var pusher = require("./couch-push.js");
 
-gulp.task('default', ['spa'], function () {
+gulp.task('default', ['spa','assets2'], function () {
   // place code for your default task here
 });
 
@@ -34,10 +34,22 @@ var filesToMove = [
     './react-dist.js'
 ];
 
+var filesToMoveAfterBuild = [
+    './modules/**/*',
+    './node_modules/**/*',
+];
+
 gulp.task('assets',['clean'], function(){
     // the base option sets the relative root for the set of files,
     // preserving the folder structure
     gulp.src(filesToMove, { base: './' })
+        .pipe(gulp.dest('build'));
+});
+
+gulp.task('assets2',['spa'], function(){
+    // the base option sets the relative root for the set of files,
+    // preserving the folder structure
+    gulp.src(filesToMoveAfterBuild, { base: './' })
         .pipe(gulp.dest('build'));
 });
 

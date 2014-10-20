@@ -4,6 +4,7 @@ root: 'build'
 manifest: './manifest.json'
 pretty: true
 hosting: 
+    "./../(**/*.*)": "$1"
     "./(**/*.*)": "$1"
 hosting_map: "./hosting-map.json"
 index: "./index.html"
