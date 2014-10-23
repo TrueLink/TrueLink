@@ -1,10 +1,10 @@
     "use strict";
     import React = require("react");
     import ReactBootstrap = require("react-bootstrap");
-    import reactObserver = require("mixins/reactObserver");
+    import reactObserver = require("../../mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
-    import ContactList = require("ui/contacts/ContactList");    
+    import ContactList = require("../../ui/contacts/ContactList");    
 
     var exp = React.createClass({
         displayName: "DialogPage",

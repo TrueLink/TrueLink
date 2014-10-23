@@ -1,7 +1,7 @@
     "use strict";
     import React = require("react");
-    import MenuComponent = require("ui/menu/MenuComponent");
-    import SidebarHiderComponent = require("ui/common/SidebarHider");
+    import MenuComponent = require("../ui/menu/MenuComponent");
+    import SidebarHiderComponent = require("../ui/common/SidebarHider");
     var exp = React.createClass({
         displayName: "AppComponent",
         propTypes:{

@@ -1,8 +1,8 @@
     "use strict";
     import React = require("react");
-    import reactObserver = require("mixins/reactObserver");
+    import reactObserver = require("../../mixins/reactObserver");
     import TlConnectionStatus = require("./TlConnectionStatus");
-    import EditableField = require("ui/common/EditableField");
+    import EditableField = require("../../ui/common/EditableField");
     var exp = React.createClass({
         displayName: "ContactPage",
         mixins: [reactObserver],

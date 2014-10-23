@@ -1,10 +1,13 @@
 "use strict";
 
-import SerializationPacket = require("modules/serialization/SerializationPacket");
+import SerializationPacket = require("../../modules/serialization/SerializationPacket");
 var nullPacket = SerializationPacket.nullPacket;
-import $ = require("zepto");
+import $=require("zepto");
 var isArray = $.isArray;
-import lf = require("localforage");
+//import lf = require("localforage");
+declare var localforage;
+declare var realwindow;
+var lf = localforage;
 
 var lnks = [];
 var objs = {};
@@ -99,6 +102,6 @@ var fake = {
     init: priv.loadLocalForage
 };
 
-window.fakeDb = fake;
+realwindow.fakeDb = fake;
 
 export = fake;

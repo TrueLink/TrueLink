@@ -1,0 +1,5 @@
+@IF EXIST "%~dp0\node.exe" (
+  "%~dp0\node.exe"  "%~dp0\..\esprima-fb\bin\esparse.js" %*
+) ELSE (
+  node  "%~dp0\..\esprima-fb\bin\esparse.js" %*
+)

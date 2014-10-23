@@ -1,15 +1,21 @@
     "use strict";
-    import EditableField = require("ui/common/EditableField");
+    import EditableField = require("../../ui/common/EditableField");
     import React = require("react");
-    import Profile = require("models/Profile");
-    import reactObserver = require("mixins/reactObserver");
+    import Profile = require("../../models/Profile");
+    import reactObserver = require("../../mixins/reactObserver");
     var e = React.createClass({
         displayName: "ProfileSettingsPage",
         mixins: [reactObserver],
         render: function () {
             var profile = this.state.model;
+            var router = this.props.router;
             return React.DOM.div(null, 
-                React.DOM.div({className: 'pageTitle'}, "Settings for " + profile.name),
+                React.DOM.div({className: "app-page-header"},
+                    React.DOM.a({
+                        className: "title",
+                        href: "",
+                        onClick: router.createNavigateHandler("home", profile.app)
+                    }, "Settings for " + profile.name)),
                 React.DOM.div({className: "app-page-content has-header"},
                     EditableField({
                         id: "profileName",

@@ -1,0 +1,3 @@
+(<any>window).fluxConfig.buildDay2 = "__DAY__";
+(<any>window).fluxConfig.buildMonth2 = "__MONTH__";
+(<any>window).fluxConfig.buildRevision2 = "__HG_REV__";

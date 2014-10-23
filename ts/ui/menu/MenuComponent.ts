@@ -143,8 +143,10 @@
                     addProfile: this.handleAddProfile
                 })), menuItems, 
                     React.DOM.div(null, 
-                        React.DOM.small(null, React.DOM.br(null), "Version 14." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision + ", URL: ", 
-                            React.DOM.br(null), (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
+                        React.DOM.small(null, React.DOM.br(null), 
+                            "HTML: 14." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision, React.DOM.br(null),                            
+                            "JS: 14." + fc.buildMonth2 + "." + fc.buildDay2 + "-" + fc.buildRevision2, React.DOM.br(null), 
+                            (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
                         React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
                     )

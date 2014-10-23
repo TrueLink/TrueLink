@@ -1,5 +1,5 @@
 "use strict";
-import MessageHistory = require("models/MessageHistory");
+import MessageHistory = require("../../models/MessageHistory");
 
 var exp = function (title: string, history: MessageHistory.MessageHistory) {
 

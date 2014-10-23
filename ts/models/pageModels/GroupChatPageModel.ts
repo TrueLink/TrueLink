@@ -1,15 +1,15 @@
     "use strict";
-    import invariant = require("modules/invariant");
-    import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
-    import serializable = require("modules/serialization/serializable");
-    import model = require("mixins/model");
+    import invariant = require("../../../modules/invariant");
+    import extend = require("../../tools/extend");
+    import eventEmitter = require("../../../modules/events/eventEmitter");
+    import serializable = require("../../../modules/serialization/serializable");
+    import model = require("../../mixins/model");
 
     import PageModel = require("./PageModel");
-    import GroupChat = require("models/GroupChat");
+    import Profile = require("../../models/Profile");
 
     function GroupChatPageModel() {
-        this.accepts = GroupChat.GroupChat;
+        this.accepts = Profile.GroupChat;
         this._defineEvent("changed");
     }
 

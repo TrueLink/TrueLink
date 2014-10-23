@@ -1,26 +1,26 @@
     "use strict";
-    import invariant = require("modules/invariant");
-    import extend = require("tools/extend");
-    import eventEmitter = require("modules/events/eventEmitter");
-    import serializable = require("modules/serialization/serializable");
-    import model = require("mixins/model");
+    import invariant = require("../../modules/invariant");
+    import extend = require("../tools/extend");
+    import eventEmitter = require("../../modules/events/eventEmitter");
+    import serializable = require("../../modules/serialization/serializable");
+    import model = require("../mixins/model");
 
-    import HomePage = require("ui/home/HomePage");
-    import HomePageModel = require("models/pageModels/HomePageModel");
-    import ContactsPage = require("ui/contacts/ContactsPage");
-    import ContactPage = require("ui/contacts/ContactPage");
-    import ContactsPageModel = require("models/pageModels/ContactsPageModel");
-    import ContactPageModel = require("models/pageModels/ContactPageModel");
-    import DialogsPage = require("ui/dialogs/DialogsPage");
-    import GroupChatPage = require("ui/dialogs/GroupChatPage");
-    import DialogsPageModel = require("models/pageModels/DialogsPageModel");
-    import GroupChatPageModel = require("models/pageModels/GroupChatPageModel");
-    import DialogPage = require("ui/dialogs/DialogPage");
-    import DialogPageModel = require("models/pageModels/DialogPageModel");
-    import DocumentsPage = require("ui/documents/DocumentsPage");
-    import DocumentsPageModel = require("models/pageModels/DocumentsPageModel");
-    import ProfileSettingsPage = require("ui/profile/ProfileSettingsPage");
-    import ProfileSettingsPageModel = require("models/pageModels/ProfileSettingsPageModel");
+    import HomePage = require("../ui/home/HomePage");
+    import HomePageModel = require("../models/pageModels/HomePageModel");
+    import ContactsPage = require("../ui/contacts/ContactsPage");
+    import ContactPage = require("../ui/contacts/ContactPage");
+    import ContactsPageModel = require("../models/pageModels/ContactsPageModel");
+    import ContactPageModel = require("../models/pageModels/ContactPageModel");
+    import DialogsPage = require("../ui/dialogs/DialogsPage");
+    import GroupChatPage = require("../ui/dialogs/GroupChatPage");
+    import DialogsPageModel = require("../models/pageModels/DialogsPageModel");
+    import GroupChatPageModel = require("../models/pageModels/GroupChatPageModel");
+    import DialogPage = require("../ui/dialogs/DialogPage");
+    import DialogPageModel = require("../models/pageModels/DialogPageModel");
+    import DocumentsPage = require("../ui/documents/DocumentsPage");
+    import DocumentsPageModel = require("../models/pageModels/DocumentsPageModel");
+    import ProfileSettingsPage = require("../ui/profile/ProfileSettingsPage");
+    import ProfileSettingsPageModel = require("../models/pageModels/ProfileSettingsPageModel");
 
     var pages = {
         "home": {

@@ -1,13 +1,13 @@
     "use strict";
     import React = require("react");
     import ReactBootstrap = require("react-bootstrap");
-    import EditableField = require("ui/common/EditableField");
-    import reactObserver = require("mixins/reactObserver");
+    import EditableField = require("../../ui/common/EditableField");
+    import reactObserver = require("../../mixins/reactObserver");
     import MessagesView = require("./MessagesView");
     import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
-    import ContactList = require("ui/contacts/ContactList");
-    import GroupChat = require("models/GroupChat");
-    import Profile = require("models/Profile");
+    import ContactList = require("../../ui/contacts/ContactList");
+    import GroupChat = require("../../models/GroupChat");
+    import Profile = require("../../models/Profile");
 
     var exp = React.createClass({
         displayName: "GroupChatPage",

@@ -1,10 +1,10 @@
     "use strict";
-    import invariant = require("modules/invariant");
-    import extend = require("tools/extend");
+    import invariant = require("../../../modules/invariant");
+    import extend = require("../../tools/extend");
     import prototype = require("./prototype");
     import AppFactory = require("./appFactory");
 
-    import App = require("models/App");
+    import App = require("../../models/App");
 
     function Factory(serializer) {
         invariant(serializer, "Can i haz serializer?");

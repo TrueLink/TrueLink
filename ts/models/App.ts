@@ -1,14 +1,14 @@
 "use strict";
-import invariant = require("modules/invariant");
-import extend = require("tools/extend");
-import Event = require("tools/event");
-import serializable = require("modules/serialization/serializable");
-import CouchTransport = require("models/tlConnection/CouchTransport");
-import Profile = require("models/Profile");
-import fixedId = require("mixins/fixedId");
-import Model = require("tools/model");
-import urandom = require("modules/urandom/urandom");
-import notifications = require("tools/notifications-api");
+import invariant = require("../../modules/invariant");
+import extend = require("../tools/extend");
+import Event = require("../tools/event");
+import serializable = require("../../modules/serialization/serializable");
+import CouchTransport = require("../models/tlConnection/CouchTransport");
+import Profile = require("../models/Profile");
+import fixedId = require("../mixins/fixedId");
+import Model = require("../tools/model");
+import urandom = require("../../modules/urandom/urandom");
+import notifications = require("../tools/notifications-api");
 
 
 var maxBgIndex = 3;

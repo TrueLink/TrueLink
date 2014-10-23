@@ -1,0 +1,10 @@
+CACHE MANIFEST
+
+CACHE:
+<% for(var name in cached) { %>
+<%- name %>
+#<%- cached[name] %>
+<% } %>
+
+NETWORK:
+*

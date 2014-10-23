@@ -1,19 +1,19 @@
     "use strict";
-    import converter_mod = require("modules/multivalue/converter");
-    import codecBase64 = require("modules/sjcl/codecBase64");
-    import codecBytes = require("modules/sjcl/codecBytes");
-    import codecHex = require("modules/sjcl/codecHex");
-    import codecString = require("modules/sjcl/codecString");
-    import Bn = require("modules/sjcl/bn");
-    import Ba = require("modules/sjcl/bitArray");
-    import Base64 = require("modules/multivalue/base64");
-    import Base64Url = require("modules/multivalue/base64url");
-    import BitArray = require("modules/multivalue/bitArray");
-    import Hex = require("modules/multivalue/hex");
-    import Utf8String = require("modules/multivalue/utf8string");
-    import X32WordArray = require("modules/multivalue/x32wordArray");
-    import Bytes = require("modules/multivalue/bytes");
-    import BigIntSjcl = require("modules/multivalue/bigIntSjcl");
+    import converter_mod = require("../../modules/multivalue/converter");
+    import codecBase64 = require("../../modules/sjcl/codecBase64");
+    import codecBytes = require("../../modules/sjcl/codecBytes");
+    import codecHex = require("../../modules/sjcl/codecHex");
+    import codecString = require("../../modules/sjcl/codecString");
+    import Bn = require("../../modules/sjcl/bn");
+    import Ba = require("../../modules/sjcl/bitArray");
+    import Base64 = require("../../modules/multivalue/base64");
+    import Base64Url = require("../../modules/multivalue/base64url");
+    import BitArray = require("../../modules/multivalue/bitArray");
+    import Hex = require("../../modules/multivalue/hex");
+    import Utf8String = require("../../modules/multivalue/utf8string");
+    import X32WordArray = require("../../modules/multivalue/x32wordArray");
+    import Bytes = require("../../modules/multivalue/bytes");
+    import BigIntSjcl = require("../../modules/multivalue/bigIntSjcl");
     var converter = converter_mod.getInstance();
 
     converter.register("x32wordArray", "bitArray", function(value) {

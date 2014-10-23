@@ -1,13 +1,13 @@
 // serializer / sync
     "use strict";
-    import db = require("serialization/fakeDb");
-    import SerializationContext = require("modules/serialization/SerializationContext");
-    import SerializationPacket = require("modules/serialization/SerializationPacket");
-    import $ = require("zepto");
+    import db = require("../serialization/fakeDb");
+    import SerializationContext = require("../../modules/serialization/SerializationContext");
+    import SerializationPacket = require("../../modules/serialization/SerializationPacket");
+import $=require("zepto");
     var isArray = $.isArray;
     import newUuid = require("uuid");
     import RootFactory = require("./factories/rootFactory");
-    import extend = require("tools/extend");
+    import extend = require("../tools/extend");
 
     function Serializer() {
         this.objCache = {};

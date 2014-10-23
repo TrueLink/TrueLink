@@ -1,5 +1,6 @@
-define(["zepto", "q"], function ($, Q) {
-    "use strict";
+import $=require("zepto");
+import Q = require("q");
+"use strict";
     function resolve(obj) {
         if ($.isArray(obj)) {
             return Q.all(obj.map(function (item) {
@@ -38,5 +39,5 @@ define(["zepto", "q"], function ($, Q) {
     }
     Q.whenAll = resolve;
     Q.chain = chain;
-    window.q = Q;
-});
+   // window.q = Q;
+exports.q = Q;
