@@ -141,3 +141,13 @@ interface ITlgr extends IEventEmitter, ISerializable {
     sendMessage :  (text : any) => any;
     init :  (args : any) => any;
 }
+
+interface IModules {
+    invariant: any;
+}
+
+declare var magic__ : IModules;
+declare module "modules" {
+    export = magic__;
+}
+
