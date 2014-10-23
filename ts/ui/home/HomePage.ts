@@ -25,11 +25,17 @@
                                 onSelect: function () {} // menu does not close on item click without this
                             },
                             ReactBootstrap.MenuItem({
-                                onClick: function () {/* stub */}
-                            }, "(stub) Start dialog"),
+                                onClick: router.createNavigateHandler("dialogs", app.currentProfile)
+                            }, "Start dialog"),
                             ReactBootstrap.MenuItem({
-                                onClick: function () {/* stub */}
-                            }, "(stub) Add contact"),
+                                onClick: function () {                                    
+                                    router.createNavigateHandler("contacts", app.currentProfile).call();
+                                    setTimeout(function () {
+                                        // HACK
+                                        $(".generic-block .button").click();
+                                    }, 20);
+                                }
+                            }, "Add contact"),
                             ReactBootstrap.MenuItem({
                                 divider: true
                             }),
@@ -49,8 +55,8 @@
                                 onClick: function () {/* stub */}
                             }, "(stub) Advanced"),
                             ReactBootstrap.MenuItem({
-                                onClick: function () {/* stub */}
-                            }, "(stub) Settings"),
+                                onClick: router.createNavigateHandler("profileSettings", app.currentProfile)
+                            }, "Settings"),
                             ReactBootstrap.MenuItem({
                                 onClick: function () {/* stub */}
                             }, "(stub) Help"))),
