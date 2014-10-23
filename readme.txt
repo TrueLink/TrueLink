@@ -1,9 +1,5 @@
-=== Build prerequisites ===
-npm install gulp
-npm install gulp-concat
-npm install gulp-rename
-npm install gulp-replace
-npm install react-typescript-definitions
-
-TODO: and more...
+=== How to build ===
+npm install
+gulp
+TODO: maybe there are more steps
 ---
