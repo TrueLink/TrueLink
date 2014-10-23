@@ -2,6 +2,7 @@
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
+/// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
 import Application = require("./models/App");
 import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");
