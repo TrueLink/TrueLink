@@ -520,7 +520,55 @@ a.button:hover {
 
 
 
-.profile-creation {
-    background-color: white;
-    height: 100%;
+.profile-creation-page {
+    background-color: #f9f9f9;
+}
+.profile-creation-page .app-page-content, .profile-creation-page .app-page-footer {
+    padding: 16px 27px;
+}
+.profile-creation-page h1 {
+    background: url("../img/logo32_2.jpg") no-repeat;
+    padding: 0;
+    margin: 0;
+    padding-left: 38px;
+    font-size: 32px;
+}
+.profile-creation-page h2 {
+    padding: 30px 0 10px 0;
+    margin: 0;
+    font-size: 22px;
+    font-weight: normal;
+}
+.profile-creation-page .app-page-content.has-footer {
+    bottom: 113px;
+}
+.profile-creation-page .description {
+    padding: 12px 0;
+}
+.profile-creation-page .button {
+    padding: 10px;
+    font-size: larger;
+}
+.profile-creation-page .app-page-content .button {
+    color: white;
+}
+.profile-creation-page .app-page-content .button:hover {
+    background-color: #6BA1CF;
+}
+.profile-creation-anonymous.button {
+    background-color: #1c416f;
+}
+.profile-creation-pseudonymous.button {
+    background-color: #275b9d;
+}
+.profile-creation-public.button {
+    background-color: #4281d0;
+}
+.profile-creation-page .app-page-footer {
+    background-color: #4f8abd;
+    color: white;
+    height: auto;
+}
+.profile-creation-page .app-page-footer .button:hover {
+    background-color: #ddd;
 }
