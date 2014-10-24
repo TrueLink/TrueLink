@@ -53,6 +53,10 @@
                         location.reload();
                     },
                     className: "menu-item secondary"
+                }, 
+                "ProfileCreationMainPage (temp)": {
+                    handler: router.createNavigateHandler("profileCreation", currentProfile),
+                    className: "menu-item secondary"
                 }
             };
         },
