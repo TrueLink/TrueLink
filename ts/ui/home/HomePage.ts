@@ -29,7 +29,7 @@
                             }, "Start dialog"),
                             ReactBootstrap.MenuItem({
                                 onClick: function () {                                    
-                                    router.createNavigateHandler("contacts", app.currentProfile).call();
+                                    router.navigate("contacts", app.currentProfile);
                                     setTimeout(function () {
                                         // HACK
                                         $(".generic-block .button").click();

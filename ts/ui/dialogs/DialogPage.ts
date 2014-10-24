@@ -131,10 +131,16 @@
                             },
                             ReactBootstrap.MenuItem({
                                 onClick: this._onAddPeople
-                            }, "Add People"),
+                            }, "Add People..."),
                             ReactBootstrap.MenuItem({
                                 onClick: this._onExportHistory
-                            }, "Export History"))),
+                            }, "Export History"),
+                            ReactBootstrap.MenuItem({
+                                onClick: router.createNavigateHandler("contact", dialog.contact)
+                            }, "Contact info"),
+                            ReactBootstrap.MenuItem({
+                                onClick: function () {/* stub */}
+                            }, "(stub) Search..."))),
                     React.DOM.a({
                         className: "title",
                         href: "",
