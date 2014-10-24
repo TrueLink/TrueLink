@@ -160,6 +160,7 @@ interface IModules {
 
 declare var magic__ : IModules;
 declare var __any : any;
+declare var $ : any;
 declare module "modules" {
     export = magic__;
 }
@@ -168,5 +169,13 @@ declare module "zepto" {
     export = __any;
 }
 declare module "uuid" {
+    export = __any;
+}
+
+declare module "react-bootstrap" {
+    export = __any;
+}
+
+declare module "forge" {
     export = __any;
 }

@@ -6,7 +6,6 @@
     import MessagesView = require("./MessagesView");
     import RenderHistoryExportUrl = require("./RenderHistoryExportUrl");
     import ContactList = require("../../ui/contacts/ContactList");
-    import GroupChat = require("../../models/GroupChat");
     import Profile = require("../../models/Profile");
 
     var exp = React.createClass({
@@ -50,7 +49,7 @@
             return false;
         },
         _handleAddContact: function(contacts) {
-            var groupChat: GroupChat.GroupChat = this.state.model;
+            var groupChat: Profile.GroupChat = this.state.model;
             var profile: Profile.Profile = groupChat.profile;
             for (var key in contacts) {
                 var contact = contacts[key];
@@ -87,7 +86,7 @@
         },
 
         _onExportHistory: function (e: MouseEvent) {
-            var groupChat : GroupChat.GroupChat = this.state.model;
+            var groupChat : Profile.GroupChat = this.state.model;
             window.open(RenderHistoryExportUrl("Chat: " + groupChat.name, groupChat.history), "_blank");
             return false;
         },
@@ -106,7 +105,7 @@
         },
 
         render: function () {
-            var groupChat : GroupChat.GroupChat = this.state.model;
+            var groupChat : Profile.GroupChat = this.state.model;
             var router = this.props.router;
 
             var input = React.DOM.div({ className: "message-input" },

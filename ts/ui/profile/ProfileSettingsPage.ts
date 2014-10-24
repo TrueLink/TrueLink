@@ -32,7 +32,7 @@
                     React.DOM.div({}, "Popup notifications: "),
                     React.DOM.select({
                         onChange: function (event) {
-                            profile.set("notificationType", event.target.value);
+                            profile.set("notificationType", (<any>event.target).value);
                         }, 
                         value: profile.notificationType
                     }, 
@@ -43,7 +43,7 @@
                     React.DOM.div({}, "Sound notifications: "),
                     React.DOM.select({
                         onChange: function (event) {
-                            profile.set("notificationSound", event.target.value);
+                            profile.set("notificationSound", (<any>event.target).value);
                         }, 
                         value: profile.notificationSound
                     }, 

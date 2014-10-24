@@ -13,7 +13,7 @@
             app.profiles.forEach(function (p) {
                 profileComponents[p.name] = React.DOM.li({
                     onClick: model.setCurrentProfile.bind(model, p),
-                    style: { cursor: "pointer", "margin-left": 20 }
+                    style: { "cursor": "pointer", "margin-left": "20" }
                 }, p.name);
             });
             return React.DOM.div(null,

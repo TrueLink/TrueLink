@@ -23,16 +23,16 @@
 
         _renderMessage: function(message) {
             if (message.type === "tlgr-invite") {
-                return new GroupChatInviteMessage({ 
+                return GroupChatInviteMessage({ 
                     message: message,
                     onGoToChat : this._handleGoToChat,
                     profileName: this.props.profile.name 
                 });
             }
             if(message.isMine) {
-                return new MyTextMessage(message);
+                return MyTextMessage(message);
             } else {
-                return new OthersTextMessage(message);
+                return OthersTextMessage(message);
             }
         },
 

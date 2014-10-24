@@ -9,7 +9,6 @@
     var urandom = modules.urandom.urandom;
     import GrConnection = require("../models/grConnection/GrConnection");
     import CouchTransport = require("../models/tlConnection/CouchTransport");
-    import GroupChat = require("../models/GroupChat");
 
     import Contact = require("../models/Contact");
     import MessageHistory = require("../models/MessageHistory");

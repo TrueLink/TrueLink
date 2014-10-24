@@ -35,9 +35,9 @@
             var props = this.props;
             var basicTag = (!!this.props.inline)?React.DOM.span:React.DOM.div;
             var displayMode = [
-                React.DOM.span({className: "editable-display", key: 0}, props.value),
+                React.DOM.span({className: "editable-display", key: "0"}, props.value),
                 React.DOM.button({
-                    key: 1,
+                    key: "1",
                     className: "editable-edit-button",
                     onClick: this.editMode
                 }, " ✎")

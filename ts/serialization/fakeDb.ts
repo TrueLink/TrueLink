@@ -16,14 +16,14 @@ var objs = {};
 var priv = {
     loadLocalForage: function(){
         console.log("fetching from localForage...");
-        return lf.getItem<string>("links").then(function(linkJson){
+        return lf.getItem("links").then(function(linkJson){
             try{
                 lnks = JSON.parse(linkJson) || [];
             }catch(e){
                 console.log(e);
                 lnks=[];
             }
-            return lf.getItem<string>("objs");
+            return lf.getItem("objs");
         }).then(function(objJson){
             try{
                 objs = JSON.parse(objJson) || {};

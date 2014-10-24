@@ -1,6 +1,6 @@
     "use strict";
     import modules = require("modules");
-    import invariant = require("../../../modules/invariant");
+    var invariant = modules.invariant;
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
