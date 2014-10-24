@@ -1,8 +1,10 @@
 "use strict";
-import invariant = require("../../modules/invariant");
+
+import modules = require("modules");
+var invariant = modules.invariant;
 import extend = require("../tools/extend");
 import Event = require("../tools/event");
-import eventEmitter = require("../../modules/events/eventEmitter");
+var eventEmitter = modules.events.eventEmitter;
 import $=require("zepto");
 
 export interface ICouchAllChannelMessages {

@@ -1,13 +1,14 @@
 "use strict";
-import invariant = require("../../modules/invariant");
+import modules = require("modules");
+var invariant = modules.invariant;
 import extend = require("../tools/extend");
 import Event = require("../tools/event");
-import serializable = require("../../modules/serialization/serializable");
+var serializable = modules.serialization.serializable;
 import CouchTransport = require("../models/tlConnection/CouchTransport");
 import Profile = require("../models/Profile");
 import fixedId = require("../mixins/fixedId");
 import Model = require("../tools/model");
-import urandom = require("../../modules/urandom/urandom");
+var urandom = modules.urandom.urandom;
 import notifications = require("../tools/notifications-api");
 
 

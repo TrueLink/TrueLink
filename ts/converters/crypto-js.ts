@@ -1,12 +1,13 @@
     "use strict";
-    import converter_mod = require("../../modules/multivalue/converter");
-    import encUTF8 = require("../../modules/crypto-js/enc-utf8");
-    import encBase64 = require("../../modules/crypto-js/enc-base64");
-    import encHex = require("../../modules/crypto-js/enc-hex");
-    import X32WordArray = require("../../modules/multivalue/x32wordArray");
-    import Utf8String = require("../../modules/multivalue/utf8string");
-    import Base64 = require("../../modules/multivalue/base64");
-    import Hex = require("../../modules/multivalue/hex");
+    import modules = require("modules");
+    var converter_mod = modules.multivalue.converter;
+    var encUTF8 = modules.crypto_js.enc_utf8;
+    var encBase64 = modules.crypto_js.enc_base64;
+    var encHex = modules.crypto_js.enc_hex;
+    var X32WordArray = modules.multivalue.x32wordArray;
+    var Utf8String = modules.multivalue.utf8string;
+    var Base64 = modules.multivalue.base64;
+    var Hex = modules.multivalue.hex;
 
     var converter = converter_mod.getInstance();
 

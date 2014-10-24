@@ -1,9 +1,10 @@
     "use strict";
-    import Filter = require("../../../modules/filter/Filter");
-    import serializable = require("../../../modules/serialization/serializable");
-    import tools = require("../../../modules/tools");
+    import modules = require("modules");
+    var Filter = modules.filter.Filter;
+    var serializable = modules.serialization.serializable;
+    var tools = modules.tools;
     var extend = tools.extend;
-    import invariant = require("../../../modules/invariant");
+    var invariant = modules.invariant;
     import model = require("../../mixins/model");
 
     // NOT SO INTUITIVE

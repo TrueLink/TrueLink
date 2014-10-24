@@ -1,11 +1,12 @@
     "use strict";
+    import modules = require("modules");
     import extend = require("../tools/extend");
-    import invariant = require("../../modules/invariant");
-    import eventEmitter = require("../../modules/events/eventEmitter");
+    var invariant = modules.invariant;
+    var eventEmitter = modules.events.eventEmitter;
 import $=require("zepto");
-    import SHA1 = require("../../modules/cryptography/sha1-crypto-js");
-import Hex = require("../../modules/multivalue/hex");
-import Utf8String = require("../../modules/multivalue/utf8string");
+    var SHA1 = modules.cryptography.sha1_crypto_js;
+var Hex = modules.multivalue.hex;
+var Utf8String = modules.multivalue.utf8string;
     // works with strings, not multivalues
 
     function CouchPosting(url) {

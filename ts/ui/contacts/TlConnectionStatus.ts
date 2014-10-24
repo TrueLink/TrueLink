@@ -1,8 +1,9 @@
     "use strict";
+    import modules = require("modules");
     import React = require("react");
-    import Hex = require("../../../modules/multivalue/hex");
-    import DecBlocks = require("../../../modules/multivalue/decBlocks");
-    import TlecBuilder = require("../../../modules/channels/TlecBuilder");
+    var Hex = modules.multivalue.hex;
+    var DecBlocks = modules.multivalue.decBlocks;
+    var TlecBuilder = modules.channels.TlecBuilder;
 
     var exp = React.createClass({
         displayName: "TlConnectionStatus",

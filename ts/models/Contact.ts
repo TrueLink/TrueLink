@@ -1,11 +1,12 @@
     "use strict";
-    import invariant = require("../../modules/invariant");
+    import modules = require("modules");
+    var invariant = modules.invariant;
     import extend = require("../tools/extend");
     import Event = require("../tools/event");
     import Model = require("../tools/model");
     import Profile = require("../models/Profile");
     import MessageHistory = require("../models/MessageHistory");
-    import serializable = require("../../modules/serialization/serializable");
+    var serializable = modules.serialization.serializable;
     import uuid = require("uuid");
 
     export interface IInviteAccepted {

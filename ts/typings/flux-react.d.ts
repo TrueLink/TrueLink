@@ -143,11 +143,30 @@ interface ITlgr extends IEventEmitter, ISerializable {
 }
 
 interface IModules {
-    invariant: any;
+    channels : any;
+    crypto_js : any;
+    cryptography : any;
+    dictionary : any;
+    events : any;
+    filter : any;
+    invariant : any;
+    leemon : any;
+    multivalue : any;
+    serialization : any;
+    sjcl : any;
+    tools : any;
+    urandom : any;
 }
 
 declare var magic__ : IModules;
+declare var __any : any;
 declare module "modules" {
     export = magic__;
 }
 
+declare module "zepto" {
+    export = __any;
+}
+declare module "uuid" {
+    export = __any;
+}

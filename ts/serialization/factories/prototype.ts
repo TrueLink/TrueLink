@@ -1,8 +1,9 @@
     "use strict";
-    import invariant = require("../../../modules/invariant");
+    import modules = require("modules");
+    var invariant = modules.invariant;
     import extend = require("../../tools/extend");
     import model = require("../../mixins/model");
-    import tools = require("../../../modules/tools");
+    var tools = modules.tools;
 
     var exp = {
         singletons: {},

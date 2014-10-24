@@ -1,13 +1,14 @@
     "use strict";
-    import converter_mod = require("../../modules/multivalue/converter");
-    import BigIntForge = require("../../modules/multivalue/bigIntForge");
-    import Hex = require("../../modules/multivalue/hex");
-    import Base64 = require("../../modules/multivalue/base64");
-    import Bytes = require("../../modules/multivalue/bytes");
-    import DecBlocks = require("../../modules/multivalue/decBlocks");
-    import BigIntSjcl = require("../../modules/multivalue/bigIntSjcl");
-    import ByteBuffer = require("../../modules/multivalue/byteBuffer");
-    import Utf8String = require("../../modules/multivalue/utf8string");
+    import modules = require("modules");
+    var converter_mod = modules.multivalue.converter;
+    var BigIntForge = modules.multivalue.bigIntForge;
+    var Hex = modules.multivalue.hex;
+    var Base64 = modules.multivalue.base64;
+    var Bytes = modules.multivalue.bytes;
+    var DecBlocks = modules.multivalue.decBlocks;
+    var BigIntSjcl = modules.multivalue.bigIntSjcl;
+    var ByteBuffer = modules.multivalue.byteBuffer;
+    var Utf8String = modules.multivalue.utf8string;
 
     import forge = require("forge");
     var converter = converter_mod.getInstance();

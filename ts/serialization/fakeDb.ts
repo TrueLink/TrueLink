@@ -1,6 +1,7 @@
 "use strict";
 
-import SerializationPacket = require("../../modules/serialization/SerializationPacket");
+import modules = require("modules");
+var SerializationPacket = modules.serialization.SerializationPacket;
 var nullPacket = SerializationPacket.nullPacket;
 import $=require("zepto");
 var isArray = $.isArray;

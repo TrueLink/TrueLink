@@ -1,16 +1,17 @@
     "use strict";
+    import modules = require("modules");
     import invariant = require("../../../modules/invariant");
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
-    import TlkeBuilder = require("../../../modules/channels/TlkeBuilder");
-    import TlhtBuilder = require("../../../modules/channels/TlhtBuilder");
-    import TlecBuilder = require("../../../modules/channels/TlecBuilder");
-    import OverTlecBuilder = require("../../../modules/channels/OverTlecBuilder");
-    import Tlke = require("../../../modules/channels/Tlke");
-    import Tlht = require("../../../modules/channels/Tlht");
-    import Tlec = require("../../../modules/channels/Tlec");
-    import Route = require("../../../modules/channels/Route");
+    var TlkeBuilder = modules.channels.TlkeBuilder;
+    var TlhtBuilder = modules.channels.TlhtBuilder;
+    var TlecBuilder = modules.channels.TlecBuilder;
+    var OverTlecBuilder = modules.channels.OverTlecBuilder;
+    var Tlke = modules.channels.Tlke;
+    var Tlht = modules.channels.Tlht;
+    var Tlec = modules.channels.Tlec;
+    var Route = modules.channels.Route;
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
 
 
