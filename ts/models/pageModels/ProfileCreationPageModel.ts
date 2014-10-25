@@ -19,13 +19,11 @@
         constructor: ProfileCreationPageModel,
         serialize: function (packet, context) {
             packet.setData({
-                //mode: this.mode
             });
             this._serializeModel(packet, context);
         },
         deserialize: function (packet, context) {
             var data = packet.getData();
-            //this.mode = data.mode;
             this._deserializeModel(packet, context);
         }
 

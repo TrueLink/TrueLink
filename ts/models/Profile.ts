@@ -27,6 +27,7 @@
         public documents : any;
         public contacts : any;
         public temporaryId : string;
+        public publicityType : string;
         public name : string;
         public tlConnections : any;
         public serverUrl : string;
@@ -246,6 +247,7 @@
         serialize  (packet, context) {
             packet.setData({
                 temporaryId: this.temporaryId,
+                publicityType: this.publicityType,
                 name: this.name,
                 bg: this.bg,
                 serverUrl: this.serverUrl,
@@ -267,6 +269,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
             this.temporaryId = data.temporaryId;
+            this.publicityType = data.publicityType;
             this.name = data.name;
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
