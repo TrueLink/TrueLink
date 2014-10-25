@@ -22,20 +22,24 @@
             return {
                 "Documents": {
                     handler: router.createNavigateHandler("documents", currentProfile),
-                    className: "menu-item"
+                    className: "menu-item",
+                    needsProfile: true
                 },
                 "Dialogs": {
                     handler: router.createNavigateHandler("dialogs", currentProfile),
                     className: "menu-item",
-                    misc: dialogsMisc
+                    misc: dialogsMisc,
+                    needsProfile: true
                 },
                 "Contacts": {
                     handler: router.createNavigateHandler("contacts", currentProfile),
-                    className: "menu-item"
+                    className: "menu-item",
+                    needsProfile: true
                 },
                 "Profile settings": {
                     handler: router.createNavigateHandler("profileSettings", currentProfile),
-                    className: "menu-item last"
+                    className: "menu-item last",
+                    needsProfile: true
                 },
                 "Clear storage (temp)": {
                     handler: function () {
@@ -53,10 +57,6 @@
                         location.reload();
                     },
                     className: "menu-item secondary"
-                }, 
-                "ProfileCreationMainPage (temp)": {
-                    handler: router.createNavigateHandler("profileCreation", currentProfile),
-                    className: "menu-item secondary"
                 }
             };
         },
@@ -70,18 +70,18 @@
         handleSelectProfile: function (profile) {
             var model = this.props.model;
             model.setCurrentProfile(profile);
-            this.props.router.navigate("home", model.app);
+            if (profile.name) {
+                this.props.router.navigate("home", model.app);
+            }
+            else {
+                this.props.router.navigate("profileCreation", profile);
+            }
         },
 
         handleAddProfile: function () {
             var model = this.props.model;
             var np = model.addProfile();
-            this.props.router.createNavigateHandler("profileSettings", np)();
-            setTimeout(function(){
-                // HACK
-                $("div[data-id='profileName'] .editable-edit-button").click();
-            }, 20);
-            //this.props.router.navigate("home", model.app);
+            this.props.router.navigate("profileCreation", np);
             return false;
         },
 
@@ -134,9 +134,12 @@
             }
         },
         render: function () {
+            var profileIsInitiated = !!(this.state.currentProfile && this.state.currentProfile.name);
+            
             var menuItems = {}, items = this.getMenuItems(), title, item;
-            for (title in items) {
+            for (title in items) {                
                 item = items[title];
+                if (item.needsProfile && !profileIsInitiated) { continue; }
                 menuItems[title] = React.DOM.a({
                     href: "",
                     className: item.className,

@@ -26,6 +26,7 @@
         public bg : any;
         public documents : any;
         public contacts : any;
+        public temporaryId : string;
         public name : string;
         public tlConnections : any;
         public serverUrl : string;
@@ -65,11 +66,17 @@
             this._gcByInviteId = {};
         }
 
+        preinit() {
+            this.temporaryId = urandom.string(30);
+        }
+
         init  (args) {
             invariant(args, "args required");
             invariant(args.name && (typeof args.name === "string"), "args.name must be non-empty string");
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
             invariant(typeof args.bg === "number", "args.bg must be number");
+
+            this.temporaryId = undefined;
 
             this.name = args.name;
             this.bg = args.bg;
@@ -238,6 +245,7 @@
 
         serialize  (packet, context) {
             packet.setData({
+                temporaryId: this.temporaryId,
                 name: this.name,
                 bg: this.bg,
                 serverUrl: this.serverUrl,
@@ -258,6 +266,7 @@
             this.checkFactory();
             var factory = this.getFactory();
             var data = packet.getData();
+            this.temporaryId = data.temporaryId;
             this.name = data.name;
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
