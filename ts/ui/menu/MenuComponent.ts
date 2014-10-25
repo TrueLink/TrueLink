@@ -92,11 +92,13 @@
                 // EVEN LARGER HACK
                 try{
                     this.setState({tmp: Math.random()});
-                    this.state.currentProfile.transport._sendNextPacket()
-                    }catch(e){
-                        console.log(e);
+                    if (this.state.currentProfile.transport) {
+                        this.state.currentProfile.transport._sendNextPacket()
                     }
-                }.bind(this), 4000);
+                }catch(e){
+                    console.log(e);
+                }
+            }.bind(this), 4000);
         },
         componentWillUnmount: function () {
             this.props.model.off("changed", this._onModelChanged, this);
@@ -161,8 +163,10 @@
                             "HTML: 14." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision, React.DOM.br(null),                            
                             "JS: 14." + fc.buildMonth2 + "." + fc.buildDay2 + "-" + fc.buildRevision2, React.DOM.br(null), 
                             (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
-                        React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
-                        React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
+                        !profileIsInitiated ? null :
+                            React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
+                        !profileIsInitiated ? null :
+                            React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
                     )
                 );
         }
