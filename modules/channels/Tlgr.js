@@ -398,6 +398,7 @@
                     message = JSON.parse(decryptedData.message.as(Utf8String).toString());
                 }catch (e)
                 {
+                    console.log(e);
                     return;
                 }
 
