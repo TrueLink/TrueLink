@@ -27,6 +27,7 @@
         public documents : any;
         public contacts : any;
         public temporaryId : string;
+        public temporaryName : string;
         public publicityType : string;
         public name : string;
         public tlConnections : any;
@@ -78,6 +79,7 @@
             invariant(typeof args.bg === "number", "args.bg must be number");
 
             this.temporaryId = undefined;
+            this.temporaryName = undefined;
 
             this.name = args.name;
             this.bg = args.bg;
@@ -247,6 +249,7 @@
         serialize  (packet, context) {
             packet.setData({
                 temporaryId: this.temporaryId,
+                temporaryName: this.temporaryName,
                 publicityType: this.publicityType,
                 name: this.name,
                 bg: this.bg,
@@ -269,6 +272,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
             this.temporaryId = data.temporaryId;
+            this.temporaryName = data.temporaryName;
             this.publicityType = data.publicityType;
             this.name = data.name;
             this.bg = data.bg;

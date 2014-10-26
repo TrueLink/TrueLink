@@ -9,6 +9,7 @@ var exp = React.createClass({
         var profile = this.state.model;
         profile.publicityType = profileType;
         this.setState({});
+        return false;
     },
 
     _renderProfileTypeChooser: function () {
@@ -35,7 +36,7 @@ var exp = React.createClass({
                 React.DOM.a({
                         className: "button profile-creation-public",
                         href: "#",
-                        onClick: function () { this._handleProfileTypeChoice("public"); }.bind(this)
+                        onClick: function () { return this._handleProfileTypeChoice("public"); }.bind(this)
                     }, "Public Account"),
                 React.DOM.p({
                         className: "hint"
@@ -46,6 +47,45 @@ var exp = React.createClass({
                     className: "button",
                     href: "#"
                 }, "Sign into existing profile")));
+    },
+
+    _handleAnonymousProfileCreation: function() {
+        var profile = this.state.model;
+        profile.init({
+            name: this.refs.nickname.getDOMNode().value,
+            bg: profile.app._getNextBgIndex(),
+            serverUrl: profile.app.defaultPollingUrl
+        });
+        //todo navigate to help here
+        this.props.router.navigate("home", profile.app);
+        return false;
+    },
+
+    _renderAnonymousProfileForm: function() {
+        var router = this.props.router;
+        var profile = this.state.model;
+        return React.DOM.div({className: "profile-creation-page app-page"},
+            React.DOM.div({className: "app-page-content"},
+                React.DOM.h1(null, "TrueLink"),
+                React.DOM.form({
+                        onSubmit: this._handleAnonymousProfileCreation
+                    },
+                    React.DOM.label(null, "Nickname:"),
+                    React.DOM.p({
+                            className: "hint"
+                        }, "It will be displayed in profile chooser. No one but you will see it."),
+                    React.DOM.input({
+                            type: "text",
+                            ref: "nickname",
+                            value: profile.temporaryName,
+                            onChange: function (e) {
+                                profile.temporaryName = e.target.value;
+                            }
+                        }),
+                    React.DOM.input({
+                            type: "submit",
+                            value: "All done"
+                        }))));
     },
     
     _render: function () {
@@ -79,9 +119,20 @@ var exp = React.createClass({
         var router = this.props.router;
         var profile = this.state.model;
 
-        return profile.publicityType
-            ? this._render()
-            : this._renderProfileTypeChooser();
+        switch (profile.publicityType) {
+            case "anonymous": {
+                return this._renderAnonymousProfileForm();
+            }
+            case "pseudonymous": {
+                return this._render();
+            }
+            case "public": {
+                return this._render();
+            }
+            default: {
+                return this._renderProfileTypeChooser();
+            }
+        }
     }
 });
 

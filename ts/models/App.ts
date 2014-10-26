@@ -170,12 +170,20 @@ export class Application extends Model.Model implements ISerializable {
             var profile = this.getFactory().createProfile();
             this.watchProfileUnreadObjects(profile);
             profile.preinit();
+            if (this.profiles.length == 0 && window.location.hash.match(/#nickname=([^&]*)/)) {
+                try {
+                    var cand = decodeURIComponent(window.location.hash.match(/#nickname=([^&]*)/)[1]);
+                    if (cand.length >= 3) {
+                        profile.temporaryName = cand;
+                        window.location.hash = "";
+                    }
+                } catch (e) { }
+            }
             this.currentProfile = profile;
             this.profiles.push(profile);
             this._onChanged();
             return profile;
         }
-
     };
 
 extend(Application.prototype, serializable, fixedId);
