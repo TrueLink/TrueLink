@@ -7,7 +7,7 @@ var exp = React.createClass({
 
     _handleProfileTypeChoice: function (profileType: string) {
         var profile = this.state.model;
-        profile.publicityType = profileType;
+        profile.set("publicityType", profileType);
         this.setState({});
         return false;
     },
@@ -79,7 +79,7 @@ var exp = React.createClass({
                             ref: "nickname",
                             value: profile.temporaryName,
                             onChange: function (e) {
-                                profile.temporaryName = e.target.value;
+                                profile.set("temporaryName", e.target.value);
                             }
                         }),
                     React.DOM.input({
