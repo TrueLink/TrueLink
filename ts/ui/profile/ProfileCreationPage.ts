@@ -6,7 +6,7 @@ var exp = React.createClass({
     mixins: [reactObserver],
 
     _handleProfileTypeChoice: function (profileType: string) {
-        var profile = this.state.model;
+        var profile = this.props.pageModel.model;
         profile.set("publicityType", profileType);
         this.setState({});
         return false;
@@ -50,7 +50,7 @@ var exp = React.createClass({
     },
 
     _handleAnonymousProfileCreation: function() {
-        var profile = this.state.model;
+        var profile = this.props.pageModel.model;
         profile.init({
             name: this.refs.nickname.getDOMNode().value,
             bg: profile.app._getNextBgIndex(),
@@ -63,7 +63,7 @@ var exp = React.createClass({
 
     _renderAnonymousProfileForm: function() {
         var router = this.props.router;
-        var profile = this.state.model;
+        var profile = this.props.pageModel.model;
         return React.DOM.div({className: "profile-creation-page app-page"},
             React.DOM.div({className: "app-page-content"},
                 React.DOM.h1(null, "TrueLink"),
@@ -73,7 +73,7 @@ var exp = React.createClass({
                     React.DOM.label(null, "Nickname:"),
                     React.DOM.p({
                             className: "hint"
-                        }, "It will be displayed in profile chooser. No one but you will see it."),
+                        }, "It will be displayed in profile selector. No one will see it but you."),
                     React.DOM.input({
                             type: "text",
                             ref: "nickname",
@@ -117,8 +117,8 @@ var exp = React.createClass({
 
     render: function () {
         var router = this.props.router;
-        var profile = this.state.model;
-
+        var profile = this.props.pageModel.model;
+        
         switch (profile.publicityType) {
             case "anonymous": {
                 return this._renderAnonymousProfileForm();
