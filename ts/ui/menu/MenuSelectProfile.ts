@@ -31,11 +31,23 @@
 
             var current = this.props.currentProfile;
             var options = this.props.profiles.map(function (profile) {
+                var name = profile.name;
+                if (name) {
+                    if (profile.unreadCount != 0) {
+                        name += " (" + profile.unreadCount + ")";
+                    }
+                } else {
+                    name = "(continue creation)";
+                    if (profile.temporaryName) {
+                        name = profile.temporaryName + " " + name;
+                    }
+                }
+
                 return React.DOM.option({
                     key: profile.name || profile.temporaryId,
                     value: profile.name || profile.temporaryId,
                     className: "title"
-                }, (profile.name || "<profile creation...>") + ((profile.unreadCount != 0) ? (" (" + profile.unreadCount + ")" ) : ("")));
+                }, name);
             });
             options.push(React.DOM.optgroup({key: "__add", label: "───"},
                 React.DOM.option({value: "__add", className: "title"}, "Add profile..."))

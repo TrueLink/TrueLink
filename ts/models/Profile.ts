@@ -30,6 +30,8 @@
         public temporaryName : string;
         public publicityType : string;
         public name : string;
+        public email : string;
+        public phoneNumber : string;
         public tlConnections : any;
         public serverUrl : string;
         public unreadCount : number;
@@ -78,8 +80,15 @@
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
             invariant(typeof args.bg === "number", "args.bg must be number");
 
+            
             this.temporaryId = undefined;
             this.temporaryName = undefined;
+
+            if (this.publicityType != "public") {
+                this.email = undefined;
+                this.phoneNumber = undefined;
+            }
+
 
             this.name = args.name;
             this.bg = args.bg;
@@ -252,6 +261,8 @@
                 temporaryName: this.temporaryName,
                 publicityType: this.publicityType,
                 name: this.name,
+                email: this.email,
+                phoneNumber: this.phoneNumber,
                 bg: this.bg,
                 serverUrl: this.serverUrl,
                 unread: this.unreadCount,
@@ -275,6 +286,8 @@
             this.temporaryName = data.temporaryName;
             this.publicityType = data.publicityType;
             this.name = data.name;
+            this.email = data.email;
+            this.phoneNumber = data.phoneNumber;
             this.bg = data.bg;
             this.serverUrl = data.serverUrl;
             this.unreadCount = data.unread;

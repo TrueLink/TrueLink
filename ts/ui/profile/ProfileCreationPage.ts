@@ -129,8 +129,8 @@ var exp = React.createClass({
     _renderPublicProfileForm: function () {
         return this._renderForm(this._handleProfileCreation, [
                 this._renderFormElement("Your name:", null, "temporaryName"),
-                this._renderFormElement("Email:", null, "temporaryEmail"),
-                this._renderFormElement("Phone number:", null, "temporaryPhoneNumber"),
+                this._renderFormElement("Email:", null, "email"),
+                this._renderFormElement("Phone number:", null, "phoneNumber"),
                 React.DOM.p({
                         className: "hint"
                 }, "Your contacts will be able to see this information."),                
