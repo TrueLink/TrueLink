@@ -20,7 +20,7 @@ var exp = React.createClass({
                 React.DOM.a({
                         className: "button profile-creation-anonymous",
                         href: "#",
-                        onClick: function () { this._handleProfileTypeChoice("anonymous"); }.bind(this)
+                        onClick: this._handleProfileTypeChoice.bind(this, "anonymous")
                     }, "Anonymous"),
                 React.DOM.p({
                         className: "hint"
@@ -28,7 +28,7 @@ var exp = React.createClass({
                 React.DOM.a({
                         className: "button profile-creation-pseudonymous",
                         href: "#",
-                        onClick: function () { this._handleProfileTypeChoice("pseudonymous"); }.bind(this)
+                        onClick: this._handleProfileTypeChoice.bind(this, "pseudonymous")
                     }, "Pseudonymous"),
                 React.DOM.p({
                         className: "hint"
@@ -36,7 +36,7 @@ var exp = React.createClass({
                 React.DOM.a({
                         className: "button profile-creation-public",
                         href: "#",
-                        onClick: function () { return this._handleProfileTypeChoice("public"); }.bind(this)
+                        onClick: this._handleProfileTypeChoice.bind(this, "public")
                     }, "Public Account"),
                 React.DOM.p({
                         className: "hint"
@@ -45,14 +45,50 @@ var exp = React.createClass({
                 React.DOM.p(null, "Or do you have a profile on another device already?"),
                 React.DOM.a({
                     className: "button",
-                    href: "#"
+                    href: "#",
+                    onClick: function () {
+                        alert("Not implemented!");
+                        return false;
+                    }
                 }, "Sign into existing profile")));
     },
 
-    _handleAnonymousProfileCreation: function() {
+    _renderForm: function (submitHandler, children) {
+        return React.DOM.div({className: "profile-creation-page app-page"},
+            React.DOM.div({className: "app-page-content"},
+                React.DOM.h1(null, "TrueLink"),
+                React.DOM.form({
+                        onSubmit: submitHandler
+                    },
+                    children,
+                    React.DOM.input({
+                            type: "submit",
+                            value: "All done"
+                        }))));
+    },
+
+    _renderFormElement: function (labelText: string, hintText: string, profileField: string, disabled?: boolean, value?: string) {
+        var profile = this.props.pageModel.model;
+        return [
+                React.DOM.label(null, labelText),
+                !hintText ? null : React.DOM.p({
+                        className: "hint"
+                    }, hintText),
+                React.DOM.input({
+                        type: "text",
+                        value: value || profile[profileField],
+                        onChange: disabled ? null : function (e) {
+                            profile.set(profileField, e.target.value);
+                        },
+                        disabled: disabled
+                    })
+            ];
+    },
+
+    _handleProfileCreation: function () {
         var profile = this.props.pageModel.model;
         profile.init({
-            name: this.refs.nickname.getDOMNode().value,
+            name: profile.temporaryName,
             bg: profile.app._getNextBgIndex(),
             serverUrl: profile.app.defaultPollingUrl
         });
@@ -61,73 +97,60 @@ var exp = React.createClass({
         return false;
     },
 
-    _renderAnonymousProfileForm: function() {
-        var router = this.props.router;
-        var profile = this.props.pageModel.model;
-        return React.DOM.div({className: "profile-creation-page app-page"},
-            React.DOM.div({className: "app-page-content"},
-                React.DOM.h1(null, "TrueLink"),
-                React.DOM.form({
-                        onSubmit: this._handleAnonymousProfileCreation
-                    },
-                    React.DOM.label(null, "Nickname:"),
-                    React.DOM.p({
-                            className: "hint"
-                        }, "It will be displayed in profile selector. No one will see it but you."),
-                    React.DOM.input({
-                            type: "text",
-                            ref: "nickname",
-                            value: profile.temporaryName,
-                            onChange: function (e) {
-                                profile.set("temporaryName", e.target.value);
-                            }
-                        }),
-                    React.DOM.input({
-                            type: "submit",
-                            value: "All done"
-                        }))));
+
+
+    _renderAnonymousProfileForm: function () {
+        return this._renderForm(this._handleProfileCreation,
+            this._renderFormElement(
+                "Nickname:",
+                "It will be displayed in profile selector. No one will see it but you.",
+                "temporaryName"));
     },
-    
-    _render: function () {
-        return React.DOM.div({className: "profile-creation-page app-page"},
-            React.DOM.div({className: "app-page-content"},
-                React.DOM.h1(null, "TrueLink"),
-                React.DOM.form(null,
-                    React.DOM.label(null, "Nickname:"),
-                    React.DOM.p({
-                            className: "hint"
-                        }, "This is the name your [собеседник] will see."),
-                    React.DOM.input({
-                            type: "text"
-                        }),
-                    React.DOM.label(null, "Public key:"),
-                    React.DOM.p({
-                            className: "hint"
-                        }, "Other people can initiate contacts with you using this key. You can manage your keys in settings later."),
-                    React.DOM.input({
-                            type: "text",
-                            value: "XXXX-876B-GH6V-DFG8-K45Z-JHG3-XXXX",
-                            disabled: true
-                        }),
-                    React.DOM.input({
-                            type: "submit",
-                            value: "All done"
-                        }))));
+
+    _renderPublicKeyFormElement: function () {
+        return this._renderFormElement(
+            "Public key:",
+            "Other people can initiate contacts with you using this key. You can manage your keys in settings later.",
+            null,
+            true,
+            "XXXX-876B-GH6V-DFG8-K45Z-JHG3-XXXX");
+    },
+
+    _renderPseudonymousProfileForm: function () {
+        return this._renderForm(this._handleProfileCreation, [
+                this._renderFormElement(
+                    "Nickname:",
+                    "Your contacts will be able to see this name.",
+                    "temporaryName"),
+                this._renderPublicKeyFormElement()
+            ]);
+    },
+
+    _renderPublicProfileForm: function () {
+        return this._renderForm(this._handleProfileCreation, [
+                this._renderFormElement("Your name:", null, "temporaryName"),
+                this._renderFormElement("Email:", null, "temporaryEmail"),
+                this._renderFormElement("Phone number:", null, "temporaryPhoneNumber"),
+                React.DOM.p({
+                        className: "hint"
+                }, "Your contacts will be able to see this information."),                
+                this._renderPublicKeyFormElement()
+            ]);
     },
 
     render: function () {
         var router = this.props.router;
         var profile = this.props.pageModel.model;
-        
+
         switch (profile.publicityType) {
             case "anonymous": {
                 return this._renderAnonymousProfileForm();
             }
             case "pseudonymous": {
-                return this._render();
+                return this._renderPseudonymousProfileForm();
             }
             case "public": {
-                return this._render();
+                return this._renderPublicProfileForm();
             }
             default: {
                 return this._renderProfileTypeChooser();
