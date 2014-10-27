@@ -2,7 +2,7 @@
 import React = require("react");
 import reactObserver = require("../../mixins/reactObserver");
 var exp = React.createClass({
-    displayName: "ProfileCreationMainPage",
+    displayName: "ProfileCreationPage",
     mixins: [reactObserver],
 
     _handleProfileTypeChoice: function (profileType: string) {
