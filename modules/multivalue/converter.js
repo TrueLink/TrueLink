@@ -25,7 +25,7 @@ var converter = {
     _getMediator: function (from, to, useAny) {
         var f;
         for (f in map) {
-            if (map.hasOwnProperty(f)) {
+            if (map.hasOwnProperty(f) && f !== "utf8string") {
                 if (map[f].hasOwnProperty(to) && this.canConvertDirectly(from, f)) {
                     if ((!map[f][to].r && !map[from][f].r) || useAny) {
                         return f;
