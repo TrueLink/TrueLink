@@ -65,7 +65,8 @@
                         href: "#"
                     }, "Home page: " + app.currentProfile.name))
                 ,
-                React.DOM.ul(null, profileComponents));
+                React.DOM.div({ className: "app-page-content has-header" },
+                    React.DOM.ul(null, profileComponents)));
         }
     });
 export = exp;
