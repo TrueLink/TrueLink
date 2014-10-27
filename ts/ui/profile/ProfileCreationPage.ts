@@ -61,6 +61,7 @@ var exp = React.createClass({
                         onSubmit: submitHandler
                     },
                     children,
+                    React.DOM.div({className: "separator"}),
                     React.DOM.input({
                             type: "submit",
                             value: "All done"
@@ -108,12 +109,15 @@ var exp = React.createClass({
     },
 
     _renderPublicKeyFormElement: function () {
-        return this._renderFormElement(
-            "Public key:",
-            "Other people can initiate contacts with you using this key. You can manage your keys in settings later.",
-            null,
-            true,
-            "XXXX-876B-GH6V-DFG8-K45Z-JHG3-XXXX");
+        return [
+            React.DOM.div({className: "separator"}),
+            this._renderFormElement(
+                "Public key:",
+                "Other people can initiate contacts with you using this key. You can manage your keys in settings later.",
+                null,
+                true,
+                "XXXX-876B-GH6V-DFG8-K45Z-JHG3-XXXX")
+        ];
     },
 
     _renderPseudonymousProfileForm: function () {

@@ -588,6 +588,10 @@ a.button:hover {
     margin-top: 70px;
 }
 
+.profile-creation-page .separator {
+    height: 32px;
+}
+
 .profile-creation-page label {
     font-weight: normal;
     font-size: 24px;
@@ -599,7 +603,7 @@ a.button:hover {
 }
 
 .profile-creation-page input[type="text"] {
-    margin-bottom: 32px;
+    margin: 6px 0;
     font-weight: lighter;
     font-size: larger;
     padding: 3px;
