@@ -48,13 +48,15 @@
                                 location.reload(true);    
                             });                                                    
                         }
+                        return false;
                     },
                     className: "menu-item secondary"
                 },
                 "Force update (temp)": {
                     handler: function () {
                         localStorage.removeItem("tl:::manifest");
-                        location.reload();
+                        location.reload(true);
+                        return false;
                     },
                     className: "menu-item secondary"
                 }
