@@ -69,7 +69,7 @@
             this.adapter = _couchAdapter;
             _couchAdapter.onPacket.on(this._activeTlgr.onNetworkPacket, this._activeTlgr);
             _couchAdapter.onChanged.on(this._onChanged, this);
-            _couchAdapter.init({ fetchIfZeroSince : true });
+            _couchAdapter.init(args.fetch ? {} : { fetchIfZeroSince: true });
         }
 
         private _handleCloseAddrIn  (args) {

@@ -371,7 +371,8 @@
             this._channelContext = urandom.int(0, 0xFFFFFFFF);
             this.fire("openAddrIn", {
                 addr: this._algo._channelId,
-                context: this._channelContext
+                context: this._channelContext,
+                fetch: false
             });
         },
 
@@ -391,6 +392,7 @@
                 && networkPacket.data instanceof Multivalue, "networkPacket must be {addr: multivalue, data: multivalue}");
             if (this._algo._channelId && this._algo._channelId.as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
                 //packet is for our channel lets try to decrypt
+                console.log("Tlgr: trying to decrypt packet");
                 var message = null;
                 var decryptedData = null;
                 try {
@@ -480,7 +482,8 @@
             //lets listen for packets from that channel
             this.fire("openAddrIn", {
                 addr: this._algo._channelId,
-                context: this._channelContext
+                context: this._channelContext,
+                fetch: true
             });
             //send group join package
             var gjp = this._algo.generateGroupJoinPackage({name:args.userName});
