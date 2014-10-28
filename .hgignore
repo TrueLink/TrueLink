@@ -13,3 +13,4 @@ rev.txt
 build/*
 *.suo
 ts/config.ts
+npm-debug.log

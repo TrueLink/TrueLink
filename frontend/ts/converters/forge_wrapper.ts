@@ -1,3 +1,4 @@
+/// <reference path="../../node_modules/forge-typescript-definitions/forge/forge.d.ts"/>
     "use strict";
     import modules = require("modules");
     var converter_mod = modules.multivalue.converter;
