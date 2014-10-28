@@ -88,6 +88,7 @@ var exp = React.createClass({
 
     _handleProfileCreation: function () {
         var profile = this.props.pageModel.model;
+        if (!profile.temporaryName) { return false; }
         profile.init({
             name: profile.temporaryName,
             bg: profile.app._getNextBgIndex(),
