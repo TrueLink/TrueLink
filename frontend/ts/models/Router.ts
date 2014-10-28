@@ -22,6 +22,8 @@
     import DocumentsPageModel = require("../models/pageModels/DocumentsPageModel");
     import ProfileSettingsPage = require("../ui/profile/ProfileSettingsPage");
     import ProfileSettingsPageModel = require("../models/pageModels/ProfileSettingsPageModel");
+    import ProfileCreationPage = require("../ui/profile/ProfileCreationPage");
+    import ProfileCreationPageModel = require("../models/pageModels/ProfileCreationPageModel");
 
     var pages = {
         "home": {
@@ -59,6 +61,11 @@
         "documents": {
             view: DocumentsPage,
             model: DocumentsPageModel
+        },
+
+        "profileCreation": {
+            view: ProfileCreationPage,
+            model: ProfileCreationPageModel
         }
 
 //        "document": {

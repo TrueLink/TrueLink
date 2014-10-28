@@ -515,3 +515,105 @@ a.button:hover {
     padding: 14px;
     font-size: 16px;
 }
+
+
+
+
+
+.profile-creation-page {
+    background-color: #f9f9f9;
+}
+.profile-creation-page .app-page-content, .profile-creation-page .app-page-footer {
+    padding: 16px 27px;
+}
+.profile-creation-page h1 {
+    background: url("../img/logo32_2.jpg") no-repeat;
+    padding: 0;
+    margin: 0;
+    padding-left: 38px;
+    font-size: 30px;
+}
+.profile-creation-page h2 {
+    padding: 30px 0 10px 0;
+    margin: 0;
+    font-size: 18px;
+    font-weight: normal;
+}
+.profile-creation-page .app-page-content.has-footer {
+    bottom: 113px;
+}
+.profile-creation-page .hint {
+    padding: 12px 0;
+    font-size: 15px;
+    line-height: 18px;
+}
+.profile-creation-page .button,
+.profile-creation-page input[type="submit"] {
+    padding: 10px;
+    font-size: larger;
+}
+.profile-creation-page .app-page-content .button,
+.profile-creation-page input[type="submit"] {
+    color: white;
+}
+.profile-creation-page .app-page-content .button:hover,
+.profile-creation-page input[type="submit"] {
+    background-color: #6BA1CF;
+}
+.profile-creation-anonymous.button {
+    background-color: #1c416f;
+}
+.profile-creation-pseudonymous.button {
+    background-color: #275b9d;
+}
+.profile-creation-public.button {
+    background-color: #4281d0;
+}
+.profile-creation-page .app-page-footer {
+    background-color: #4f8abd;
+    color: white;
+    height: auto;
+}
+.profile-creation-page .app-page-footer .button:hover {
+    background-color: #ddd;
+}
+
+.profile-creation-page form .hint {
+    padding: 0;
+    margin: 0;
+    color: gray;
+}
+
+.profile-creation-page form {
+    margin-top: 70px;
+}
+
+.profile-creation-page .separator {
+    height: 32px;
+}
+
+.profile-creation-page label {
+    font-weight: normal;
+    font-size: 24px;
+}
+
+.profile-creation-page input[type="submit"] {
+    background-color: #275B9D;
+    border: none;
+}
+
+.profile-creation-page input[type="text"] {
+    margin: 6px 0;
+    font-weight: lighter;
+    font-size: larger;
+    padding: 3px;
+    border: solid 1px gray;
+}
+
+.profile-creation-page input[type="text"],
+.profile-creation-page input[type="submit"],
+.profile-creation-page label {
+    display: block;
+    width: 100%;
+}
+

@@ -14,6 +14,7 @@
     import DocumentsPageModel = require("../../models/pageModels/DocumentsPageModel");
     import DocumentPageModel = require("../../models/pageModels/DocumentPageModel");
     import ProfileSettingsPageModel = require("../../models/pageModels/ProfileSettingsPageModel");
+    import ProfileCreationPageModel = require("../../models/pageModels/ProfileCreationPageModel");
 
     function RouterFactory(serializer, router) {
         invariant(serializer, "Can i haz serializer?");
@@ -29,6 +30,7 @@
         this.resolver.item(6, DocumentPageModel);
         this.resolver.item(7, GroupChatPageModel);
         this.resolver.item(8, ProfileSettingsPageModel);
+        this.resolver.item(9, ProfileCreationPageModel);
         this.router = router;
     }
 

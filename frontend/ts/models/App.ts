@@ -117,7 +117,7 @@ export class Application extends Model.Model implements ISerializable {
             this.setMenu(factory.createMenu());
             this.setRouter(factory.createRouter());
             this.addProfile();
-            this.router.navigate("home", this);
+            this.router.navigate("profileCreation", this.currentProfile);
 
         }
 
@@ -170,27 +170,21 @@ export class Application extends Model.Model implements ISerializable {
         addProfile  () {
             var profile = this.getFactory().createProfile();
             this.watchProfileUnreadObjects(profile);
-            var name = urandom.name();
+            profile.preinit();
             if (this.profiles.length == 0 && window.location.hash.match(/#nickname=([^&]*)/)) {
                 try {
                     var cand = decodeURIComponent(window.location.hash.match(/#nickname=([^&]*)/)[1]);
                     if (cand.length >= 3) {
-                        name = cand;
+                        profile.temporaryName = cand;
                         window.location.hash = "";
                     }
                 } catch (e) { }
             }
-            profile.init({
-                name: name,
-                bg: this._getNextBgIndex(),
-                serverUrl: this.defaultPollingUrl
-            });
             this.currentProfile = profile;
             this.profiles.push(profile);
             this._onChanged();
             return profile;
         }
-
     };
 
 extend(Application.prototype, serializable, fixedId);

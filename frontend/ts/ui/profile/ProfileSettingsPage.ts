@@ -7,8 +7,9 @@
         displayName: "ProfileSettingsPage",
         mixins: [reactObserver],
         render: function () {
-            var profile = this.state.model;
+            var profile = this.props.pageModel.model;
             var router = this.props.router;
+            var isPublic = profile.publicityType == "public";
             return React.DOM.div(null, 
                 React.DOM.div({className: "app-page-header"},
                     React.DOM.a({
@@ -17,11 +18,24 @@
                         onClick: router.createNavigateHandler("home", profile.app)
                     }, "Settings for " + profile.name)),
                 React.DOM.div({className: "app-page-content has-header"},
+                    React.DOM.div({}, "Profile is " + profile.publicityType),
                     EditableField({
                         id: "profileName",
                         onChanged: profile.set.bind(profile, "name"),
                         label: "Profile Name (My Name): ",
                         value: profile.name
+                    }),
+                    !isPublic ? null : EditableField({
+                        id: "email",
+                        onChanged: profile.set.bind(profile, "email"),
+                        label: "Email: ",
+                        value: profile.email
+                    }),
+                    !isPublic ? null : EditableField({
+                        id: "phoneNumber",
+                        onChanged: profile.set.bind(profile, "phoneNumber"),
+                        label: "Phone number: ",
+                        value: profile.phoneNumber
                     }),
                     EditableField({
                         id: "serverUrl",

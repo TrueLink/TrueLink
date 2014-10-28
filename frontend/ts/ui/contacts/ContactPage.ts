@@ -1,5 +1,6 @@
     "use strict";
     import React = require("react");
+    import ReactBootstrap = require("react-bootstrap");
     import reactObserver = require("../../mixins/reactObserver");
     import TlConnectionStatus = require("./TlConnectionStatus");
     import EditableField = require("../../ui/common/EditableField");
@@ -37,6 +38,24 @@
 
             return React.DOM.div({className: "contact-page app-page"},
                 React.DOM.div({className: "app-page-header"},
+                    React.DOM.span({className: "header-dropdown-menu-button"},
+                        ReactBootstrap.DropdownButton({
+                                title: "∴",
+                                pullRight: true,
+                                onSelect: function () {} // menu does not close on item click without this
+                            },
+                            ReactBootstrap.MenuItem({
+                                onClick: this.handleGoToDialog
+                            }, "Go to dialog"),
+                            ReactBootstrap.MenuItem({
+                                onClick: function () {/* stub */}
+                            }, "(stub) Add channel"),
+                            ReactBootstrap.MenuItem({
+                                onClick: function () {/* stub */}
+                            }, "(stub) Comment"),
+                            ReactBootstrap.MenuItem({
+                                onClick: function () {/* stub */}
+                            }, "(stub) Delete"))),
                     React.DOM.a({
                         className: "title",
                         href: "",
