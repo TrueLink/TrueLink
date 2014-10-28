@@ -79,7 +79,7 @@ var exp = React.createClass({
                         type: "text",
                         value: value || profile[profileField],
                         onChange: disabled ? null : function (e) {
-                            profile.set(profileField, e.target.value);
+                            profile.set(profileField, (<any>e.target).value);
                         },
                         disabled: disabled
                     })
