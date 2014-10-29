@@ -142,20 +142,21 @@ interface ITlgr extends IEventEmitter, ISerializable {
     init :  (args : any) => any;
 }
 
+interface ISerializableModule {
+    serializable: any;
+}
 interface IModules {
-    channels : any;
     crypto_js : any;
     cryptography : any;
     dictionary : any;
     events : any;
-    filter : any;
     invariant : any;
     leemon : any;
     multivalue : any;
-    serialization : any;
     sjcl : any;
     tools : any;
-    urandom : any;
+    urandom : any; 
+    serialization: ISerializableModule;
 }
 
 declare var magic__ : IModules;

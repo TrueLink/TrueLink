@@ -8,7 +8,7 @@
     var Hex = modules.multivalue.hex;
     import Event = require("../../tools/event");
     import Model = require("../../tools/model");
-    var TlecBuilder = modules.channels.TlecBuilder;
+    import TlecBuilder = require("TlecBuilder");
     import CouchAdapter = require("../../models/tlConnection/CouchAdapter");
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
 

@@ -4,14 +4,14 @@
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
-    var TlkeBuilder = modules.channels.TlkeBuilder;
-    var TlhtBuilder = modules.channels.TlhtBuilder;
-    var TlecBuilder = modules.channels.TlecBuilder;
-    var OverTlecBuilder = modules.channels.OverTlecBuilder;
+    import TlkeBuilder = require("TlkeBuilder");
+    import TlhtBuilder = require("TlhtBuilder");
+    import TlecBuilder = require("TlecBuilder");
+    import OverTlecBuilder = require("OverTlecBuilder");
     var Tlke = modules.channels.Tlke;
-    var Tlht = modules.channels.Tlht;
+    import Tlht = require("Tlht");
     var Tlec = modules.channels.Tlec;
-    var Route = modules.channels.Route;
+    import Route = require("Route");
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
 
 

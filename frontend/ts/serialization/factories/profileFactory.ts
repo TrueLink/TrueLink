@@ -3,7 +3,7 @@
     var invariant = modules.invariant;
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
-    var Tlgr = modules.channels.Tlgr;
+    import Tlgr = require("Tlgr");
     import Document = require("../../models/Document");
     import Contact = require("../../models/Contact");
     import Profile = require("../../models/Profile");

@@ -4,7 +4,7 @@
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
-    var Tlgr = modules.channels.Tlgr;
+    import Tlgr = require("Tlgr");
 
     function GrConnectionFactory(serializer, grConnection, profile) {
         invariant(serializer, "Can i haz serializer?");

@@ -3,7 +3,7 @@
     import React = require("react");
     var Hex = modules.multivalue.hex;
     var DecBlocks = modules.multivalue.decBlocks;
-    var TlecBuilder = modules.channels.TlecBuilder;
+    import TlecBuilder = require("TlecBuilder");
 
     var exp = React.createClass({
         displayName: "TlConnectionStatus",

@@ -2,7 +2,7 @@
     "use strict";
     import modules = require("modules");
     import db = require("../serialization/fakeDb");
-    var SerializationContext = modules.serialization.SerializationContext;
+    import SerializationContext = require("SerializationContext");
     var SerializationPacket = modules.serialization.SerializationPacket;
 import $=require("zepto");
     var isArray = $.isArray;
