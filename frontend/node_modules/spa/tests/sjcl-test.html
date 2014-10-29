@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/zepto/1.1.3/zepto.min.js"></script>
+
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/sjcl.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/codecBase64.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/codecString.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/codecHex.js"></script>
+
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/sha1.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/sha256.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/sha512.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/bitArray.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/cbc.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/gcm.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/ocb2.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/hmac.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/pbkdf2.js"></script>
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/aes.js"></script>
+
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/random.js"></script>
+
+<script type="text/javascript" src="http://rawgithub.com/bitwiseshiftleft/sjcl/master/core/convenience.js"></script>
+
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha512.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+
+<script type="text/javascript">
+$(function() {
+
+    function q(power) 
+    {
+        var r = "-"
+        for(var i = 0; i < power; i++) 
+        {
+            r = r + r;
+        }
+        return r;
+    }
+
+    var results = {};
+    var queue = [];
+
+    function enqueue_test(test, lib, data, func) 
+    {
+        queue.push([test, lib, data, func]);
+    }
+
+    function run_test(data, func) 
+    {
+        var start = (new Date()).getTime();
+        func(data);
+        return Math.round(data.length * 1000 / ((new Date()).getTime() - start));
+    }
+
+    function execute_tests() 
+    {
+        if (queue.length) {
+            var data = queue.shift();
+            result = run_test.call(null, data[2], data[3]);
+            var key = data[0] + '-' + data[1]
+            var group = results[key] = results[key] || [];
+            group.push(result);
+            var avr = Math.round(group.reduce(function(i, j) { return i + j; }, 0) / group.length);
+            var d = Math.round(Math.abs(avr - result) / avr * 1000) / 100;
+            console.log(key, result, avr, d, d > 5 ? "!!!" : "");
+            $("." + data[0] + " ." + data[1]).text(avr);
+            setTimeout(execute_tests, 0);
+        }
+    }
+
+    base = 18
+    
+    sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."]();
+
+    var value = q(base);
+    $("#length").text(value.length);
+
+    $("#start").click(function() {
+        for(var n = 0; n < 10; n++) 
+        {
+            enqueue_test("md5", "cjs", value, function(data) { 
+                return CryptoJS.MD5(data);
+            });
+
+            enqueue_test("sha1", "sjcl", value, function(data) { 
+                return sjcl.codec.hex.fromBits(sjcl.hash.sha1.hash(data)); 
+            });
+
+            enqueue_test("sha1", "cjs", value, function(data) { 
+                return CryptoJS.SHA1(data);
+            });
+
+            enqueue_test("sha256", "sjcl", value, function(data) { 
+                return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(data)); 
+            });
+
+            enqueue_test("sha256", "cjs", value, function(data) { 
+                return CryptoJS.SHA256(data);
+            });
+
+            enqueue_test("sha512", "sjcl", value, function(data) { 
+                return sjcl.codec.hex.fromBits(sjcl.hash.sha512.hash(data)); 
+            });
+
+            enqueue_test("sha512", "cjs", value, function(data) { 
+                return CryptoJS.SHA512(data);
+            });
+
+            enqueue_test("cbc", "sjcl", value, function(data) { 
+                return sjcl.encrypt("password", data, {"mode": "cbc"}); 
+            });
+
+            enqueue_test("cbc", "cjs", value, function(data) {
+                return CryptoJS.AES.encrypt(data, "Secret Passphrase");
+            });
+
+            enqueue_test("gcm", "sjcl", value, function(data) { 
+                return sjcl.encrypt("password", data, {"mode": "gcm"}); 
+            });
+
+            // enqueue_test("ocb2", "sjcl", value, function(data) { 
+            //     return sjcl.encrypt("password", data, {"mode": "ocb2"}); 
+            // });            
+        }
+
+        execute_tests();
+    });
+
+});
+</script>
+
+</head>
+<body>
+
+    <p><span id="length"></span> bytes</p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th></th>
+                <th>SJCL</th>
+                <th>Crypto-JS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="md5">
+                <td>MD5</td>
+                <td class="sjcl">N/A</td>
+                <td class="cjs"></td>
+            </tr>
+            <tr class="sha1">
+                <td>SHA1</td>
+                <td class="sjcl"></td>
+                <td class="cjs"></td>
+            </tr>
+            <tr class="sha256">
+                <td>SHA256</td>
+                <td class="sjcl"></td>
+                <td class="cjs"></td>
+            </tr>
+            <tr class="sha512">
+                <td>SHA512</td>
+                <td class="sjcl"></td>
+                <td class="cjs"></td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <th></th>
+                <th>SJCL</th>
+                <th>Crypto-JS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="cbc">
+                <td>CBC</td>
+                <td class="sjcl"></td>
+                <td class="cjs"></td>
+            </tr>
+            <tr class="gcm">
+                <td>GCM</td>
+                <td class="sjcl"></td>
+                <td class="cjs">N/A</td>
+            </tr>
+            <tr class="ocb2">
+                <td>OCB2</td>
+                <td class="sjcl">FCK IT</td>
+                <td class="cjs">N/A</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button id="start">Start</button>
+
+</body>
+</html>

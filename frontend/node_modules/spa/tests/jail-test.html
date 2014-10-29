@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="user-code" type="text">
+debugger;
+</script>
+
+<script type="text/javascript">
+(function() {
+    console.log("new Function");
+    var Env = function(filename, source) {
+        this.filename = filename;
+        this.source = source;
+        this.this = {};
+        this.module = {};
+        this.exports = {};
+        this.module.exports = this.exports;
+        this.window = {};
+        this.require = function() {};
+    }
+    Env.prototype = {
+        template: "return (function(module, exports, require, window) {%%code%%;}).call(this.this, this.module, this.exports, this.require, this.window);",
+        check: function(result) {},
+        make: function() {},
+        load:function() {
+            var code = this.template.replace("%%code%%", this.source);
+            console.log(code);
+            var func = new Function(code);
+            try {
+                var result = func.call(this);
+            } catch(error) {
+                console.log(error);
+            }
+        }
+    };
+    var env = new Env("filename123", document.getElementById("user-code").text);
+    env.load();
+})();
+</script>
+
+<script type="text/javascript">
+(function() {
+    console.log("EVAL");
+    var Env = function(filename, source) {
+        this.filename = filename;
+        this.source = source;
+        this.this = {};
+        this.module = {};
+        this.exports = {};
+        this.module.exports = this.exports;
+        this.window = {};
+        this.require = function() {};
+    }
+    Env.prototype = {
+        template: "(function() {(function(module, exports, require, window) {%%code%%;}).call(this.this, this.module, this.exports, this.require, this.window); })",
+        check: function(result) {},
+        make: function() {},
+        load:function() {
+            var code = this.template.replace("%%code%%", this.source);
+            console.log(code);
+            var func = eval.call(window, code);
+            try {
+                var result = func.call(this);
+            } catch(error) {
+                console.log(error);
+            }
+        }
+    };
+    var env = new Env("filename123", document.getElementById("user-code").text);
+    env.load();
+})();
+</script>
+
+</head>
+<body>
+</body>
+</html>
