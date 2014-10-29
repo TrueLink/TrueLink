@@ -12,7 +12,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("../modules/events/eventEmitter");
     var invariant = require("../modules/invariant");
     var Multivalue = require("../modules/multivalue/multivalue");
-    var Tlec = require("./Tlec");
+    var Tlec = require("./../modules/channels/Tlec");
 
     var serializable = require("../modules/serialization/serializable");
 
