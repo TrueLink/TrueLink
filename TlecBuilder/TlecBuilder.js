@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var eventEmitter = require("../modules/events/eventEmitter");
     var serializable = require("../modules/serialization/serializable");
     var tools = require("../modules/tools");
-    var Tlke = require("Tlke");
+    var Tlke = require("../modules/channels/Tlke");
     var extend = tools.extend;
     var isFunction = tools.isFunction;
 
