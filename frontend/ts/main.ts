@@ -2,6 +2,14 @@
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
+/// <reference path="../../TlkeBuilder/TlkeBuilder.d.ts"/>
+/// <reference path="../../TlhtBuilder/TlhtBuilder.d.ts"/>
+/// <reference path="../../TlecBuilder/TlecBuilder.d.ts"/>
+/// <reference path="../../Tlgr/Tlgr.d.ts"/>
+/// <reference path="../../Tlht/Tlht.d.ts"/>
+/// <reference path="../../SerializationContext/SerializationContext.d.ts"/>
+/// <reference path="../../Route/Route.d.ts"/>
+/// <reference path="../../OverTlecBuilder/OverTlecBuilder.d.ts"/>
 /// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
 /// <reference path="../node_modules/forge-typescript-definitions/forge/forge.d.ts"/>
 import Application = require("./models/App");
