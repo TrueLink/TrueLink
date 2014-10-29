@@ -9,6 +9,7 @@
 /// <reference path="../../Tlht/Tlht.d.ts"/>
 /// <reference path="../../SerializationContext/SerializationContext.d.ts"/>
 /// <reference path="../../Route/Route.d.ts"/>
+/// <reference path="../../Filter/Filter.d.ts"/>
 /// <reference path="../../OverTlecBuilder/OverTlecBuilder.d.ts"/>
 /// <reference path="../../modules/modules.d.ts"/>
 /// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
