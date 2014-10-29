@@ -1,6 +1,6 @@
     "use strict";
     import modules = require("modules");
-    var Filter = modules.filter.Filter;
+    import Filter = require("Filter");
     var serializable = modules.serialization.serializable;
     var tools = modules.tools;
     var extend = tools.extend;
