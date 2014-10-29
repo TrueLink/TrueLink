@@ -1,7 +1,7 @@
     "use strict";
-    var eventEmitter = require("../events/eventEmitter");
+    var eventEmitter = require("../modules/events/eventEmitter");
 
-    var tools = require("../tools");
+    var tools = require("../modules/tools");
     var extend = tools.extend;
 
     function Filter() {

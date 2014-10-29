@@ -1,17 +1,17 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("../invariant");
-    var tools = require("../tools");
+    var invariant = require("../modules/invariant");
+    var tools = require("../modules/tools");
 
-    var eventEmitter = require("../events/eventEmitter");
-    var serializable = require("../serialization/serializable");
-    var Hex = require("../multivalue/hex");
-    var urandom = require("../urandom/urandom");
+    var eventEmitter = require("../modules/events/eventEmitter");
+    var serializable = require("../modules/serialization/serializable");
+    var Hex = require("../modules/multivalue/hex");
+    var urandom = require("../modules/urandom/urandom");
 
 
     var extend = tools.extend;
 
-    var Multivalue = require("../multivalue/multivalue");
+    var Multivalue = require("../modules/multivalue/multivalue");
 
     function Route(factory) {
         invariant(factory, "Can be constructed only with factory");

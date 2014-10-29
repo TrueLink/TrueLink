@@ -1,12 +1,12 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var tools = require("../tools");
-    var Dictionary = require("../dictionary/dictionary");
-    var Multivalue = require("../multivalue/multivalue");
-    var Hex = require("../multivalue/hex");
-    var invariant = require("../invariant");
-    var eventEmitter = require("../events/eventEmitter");
+    var tools = require("../modules/tools");
+    var Dictionary = require("../modules/dictionary/dictionary");
+    var Multivalue = require("../modules/multivalue/multivalue");
+    var Hex = require("../modules/multivalue/hex");
+    var invariant = require("../modules/invariant");
+    var eventEmitter = require("../modules/events/eventEmitter");
 
     var extend = tools.extend;
 

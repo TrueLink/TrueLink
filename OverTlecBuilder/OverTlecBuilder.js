@@ -1,10 +1,10 @@
 define(function (require, exports, module) {
     "use strict";
-    var invariant = require("../invariant");
-    var eventEmitter = require("../events/eventEmitter");
-    var serializable = require("../serialization/serializable");
-    var Hex = require("../multivalue/hex");
-    var tools = require("../tools");
+    var invariant = require("../modules/invariant");
+    var eventEmitter = require("../modules/events/eventEmitter");
+    var serializable = require("../modules/serialization/serializable");
+    var Hex = require("../modules/multivalue/hex");
+    var tools = require("../modules/tools");
     var extend = tools.extend;
     var isFunction = tools.isFunction;
 //    var wrapperFactory = require("./wrapperFactory");

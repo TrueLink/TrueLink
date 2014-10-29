@@ -20,23 +20,23 @@
     }
 
     var forge = require("forge");
-    var rsa = require("../cryptography/rsa-forge");
-    var AES = require("../cryptography/aes-forge");
-    var SHA1 = require("../cryptography/sha1-crypto-js");
+    var rsa = require("../modules/cryptography/rsa-forge");
+    var AES = require("../modules/cryptography/aes-forge");
+    var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 
-    var eventEmitter = require("../events/eventEmitter");
-    var invariant = require("../invariant");
+    var eventEmitter = require("../modules/events/eventEmitter");
+    var invariant = require("../modules/invariant");
     
-    var Multivalue = require("../multivalue/multivalue");
-    var Hex = require("../multivalue/hex");
-    var Utf8String = require("../multivalue/utf8string");
-    var ByteBuffer = require("../multivalue/byteBuffer");
-    var BitArray = require("../multivalue/bitArray");
+    var Multivalue = require("../modules/multivalue/multivalue");
+    var Hex = require("../modules/multivalue/hex");
+    var Utf8String = require("../modules/multivalue/utf8string");
+    var ByteBuffer = require("../modules/multivalue/byteBuffer");
+    var BitArray = require("../modules/multivalue/bitArray");
 
-    var serializable = require("../serialization/serializable");
-    var urandom = require("../urandom/urandom");
+    var serializable = require("../modules/serialization/serializable");
+    var urandom = require("../modules/urandom/urandom");
 
-    var tools = require("../tools");
+    var tools = require("../modules/tools");
     var extend = tools.extend;
     var isFunction = tools.isFunction;
 

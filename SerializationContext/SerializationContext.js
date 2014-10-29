@@ -1,10 +1,10 @@
 
     "use strict";
-    var Dictionary = require("../dictionary/dictionary");
-    var invariant = require("../invariant");
-    var SerializationPacket = require("./SerializationPacket");
-    var serializable = require("./serializable");
-    var tools = require("../tools");
+    var Dictionary = require("../modules/dictionary/dictionary");
+    var invariant = require("../modules/invariant");
+    var SerializationPacket = require("./../modules/serialization/SerializationPacket");
+    var serializable = require("./../modules/serialization/serializable");
+    var tools = require("../modules/tools");
     var extend = tools.extend;
     var isArray = tools.isArray;
     var isFunction = tools.isFunction;
