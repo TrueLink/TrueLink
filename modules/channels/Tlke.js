@@ -75,6 +75,7 @@ define(function (require, exports, module) {
         this._dhAesKey = dhAes;
         var outId = dhAes.bitSlice(0, 16);
         var inId = dhAes.bitSlice(16, 32);
+        return {inId: inId, outId: outId};
     }
 
     // Bob 2.1 (instantiation) offer is from getOffer (via IM)
@@ -290,9 +291,9 @@ define(function (require, exports, module) {
 
         // Alice 1.1 (instantiation)
         _generateOffer: function () {
-            this._algo._generateOffer();
+            var ids = this._algo._generateOffer();
             // emit this event before any "packet" event call to configure the appropriate transport behavior
-            this.fire("addr", {inId: inId, outId: outId});
+            this.fire("addr", ids);
             this.fire("offer", this._dhAesKey);
             this._algo.state = Algo.STATE_AWAITING_OFFER_RESPONSE;
             this.fire("packet", this._algo._getOfferData());
