@@ -253,7 +253,7 @@ define(function (require, exports, module) {
         enterOffer: function (offer) {
             this.checkEventHandlers();
             invariant(offer instanceof Multivalue, "offer must be multivalue");
-            invariant(this.state === Tlke.STATE_NOT_STARTED,
+            invariant(this.getState() === Tlke.STATE_NOT_STARTED,
                 "Can't accept offer being in a state %s", this.state);
             invariant(offer, "Received an empty offer");
             this._acceptOffer(offer);
@@ -294,7 +294,7 @@ define(function (require, exports, module) {
             var ids = this._algo._generateOffer();
             // emit this event before any "packet" event call to configure the appropriate transport behavior
             this.fire("addr", ids);
-            this.fire("offer", this._dhAesKey);
+            this.fire("offer", this._algo._dhAesKey);
             this._algo.state = Algo.STATE_AWAITING_OFFER_RESPONSE;
             this.fire("packet", this._algo._getOfferData());
             this._onChanged();
