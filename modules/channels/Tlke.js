@@ -353,24 +353,24 @@ define(function (require, exports, module) {
 
         deserialize: function (packet, context) {
             var dto = packet.getData();
-            this.state = dto.state;
-            this._dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
-            this.dhk = dto.dhk ? Hex.deserialize(dto.dhk) : null;
-            this.dh = dto.dh ? DiffieHellman.deserialize(dto.dh) : null;
-            this.auth = dto.auth ? Hex.deserialize(dto.auth) : null;
-            this.check = dto.check ? Hex.deserialize(dto.check) : null;
-            this.authData = dto.authData ? Hex.deserialize(dto.authData) : null;
+            this._algo.state = dto.state;
+            this._algo._dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
+            this._algo.dhk = dto.dhk ? Hex.deserialize(dto.dhk) : null;
+            this._algo.dh = dto.dh ? DiffieHellman.deserialize(dto.dh) : null;
+            this._algo.auth = dto.auth ? Hex.deserialize(dto.auth) : null;
+            this._algo.check = dto.check ? Hex.deserialize(dto.check) : null;
+            this._algo.authData = dto.authData ? Hex.deserialize(dto.authData) : null;
         },
 
         serialize: function (packet, context) {
             packet.setData({
-                state: this.state,
-                dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-                dhk: this.dhk ? this.dhk.as(Hex).serialize() : null,
-                dh: this.dh ? this.dh.serialize() : null,
-                auth: this.auth ? this.auth.as(Hex).serialize() : null,
-                check: this.check ? this.check.as(Hex).serialize() : null,
-                authData: this.authData ? this.authData.as(Hex).serialize() : null
+                state: this._algo.state,
+                dhAesKey: this._algo._dhAesKey ? this._algo._dhAesKey.as(Hex).serialize() : null,
+                dhk: this._algo.dhk ? this._algo.dhk.as(Hex).serialize() : null,
+                dh: this._algo.dh ? this._algo.dh.serialize() : null,
+                auth: this._algo.auth ? this._algo.auth.as(Hex).serialize() : null,
+                check: this._algo.check ? this._algo.check.as(Hex).serialize() : null,
+                authData: this._algo.authData ? this._algo.authData.as(Hex).serialize() : null
             });
             return packet;
         }
