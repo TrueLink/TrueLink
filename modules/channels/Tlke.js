@@ -4,9 +4,6 @@ define(function (require, exports, module) {
     Algo.authBitLength = 16;
     Algo.offerBitLength = 128;
     Algo.dhPrivBitLength = 160;
-    Tlke.authBitLength = Algo.authBitLength;
-    Tlke.offerBitLength = Algo.offerBitLength;
-    Tlke.dhPrivBitLength = Algo.dhPrivBitLength;
 
     var tools = require("../tools");
     var SHA1 = require("../cryptography/sha1-crypto-js");
