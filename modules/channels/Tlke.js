@@ -31,7 +31,6 @@ define(function (require, exports, module) {
     function Algo(random) {
         this.random = random;
 
-        this.state = null;
         this._dhAesKey = null;
         this.dhk = null;
         this.dh = null;
@@ -39,11 +38,6 @@ define(function (require, exports, module) {
         this.check = null;
         this.authData = null;
     }
-
-    Algo.prototype.init = function () {
-        this.state = Algo.STATE_NOT_STARTED;
-    }
-
 
     Algo.prototype._getRandomBytes = function (bitLength) {
         invariant(isFunction(this.random.bitArray), "random must implement IRandom");
@@ -82,7 +76,6 @@ define(function (require, exports, module) {
         this._dhAesKey = dhAes;
         var inId = dhAes.bitSlice(0, 16);
         var outId = dhAes.bitSlice(16, 32);
-        this.state = Algo.STATE_AWAITING_OFFERDATA;
         return {inId: inId, outId: outId};
     }
 
@@ -104,7 +97,6 @@ define(function (require, exports, module) {
         var dhDataHex = dhData.as(Hex).value;
         var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
         this.dhk = new Hex(dhkHex);
-        this.state = Tlke.STATE_AWAITING_AUTH;
     }
 
     Algo.prototype._getOfferResponse = function () {
@@ -126,7 +118,6 @@ define(function (require, exports, module) {
 
         this.auth = this._getRandomBytes(Tlke.authBitLength);
         this.check = this._getRandomBytes(128);
-        this.state = Tlke.STATE_AWAITING_AUTH_RESPONSE;
     }
 
     Algo.prototype._getAuthData = function () {
@@ -142,21 +133,19 @@ define(function (require, exports, module) {
     // Bob 4.2
     Algo.prototype._acceptAuthData = function (bytes) {
         this.authData = bytes;
-        if (this.auth) {
-            this._acceptAuthAndData();
-        } else {
-            this.state = Tlke.STATE_AWAITING_AUTH;
-        }
     }
 
     // Bob 4.1
     Algo.prototype._acceptAuth = function (auth) {
         this.auth = auth;
-        if (this.authData) {
-            this._acceptAuthAndData();
-        } else {
-            this.state = Tlke.STATE_AWAITING_AUTHDATA;
-        }
+    }
+
+    Algo.prototype.hasAuth = function () {        
+        return !!this.auth;
+    }
+
+    Algo.prototype.hasAuthData = function () {        
+        return !!this.authData;
     }
 
     // Bob 4.3 (4.1 + 4.2)
@@ -170,7 +159,6 @@ define(function (require, exports, module) {
             console.warn("Received bad bytes.  " + ex.message);
             return;
         }
-        this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
         return {
             inId: hCheck.bitSlice(0, 16),
             outId: hCheck.bitSlice(16, 32),
@@ -193,26 +181,14 @@ define(function (require, exports, module) {
             return;
         }
         if (hash(this.check).as(Hex).value !== hCheck.as(Hex).value) {
-            this.state = Tlke.STATE_CONNECTION_FAILED;
             return;
         }
-        this.state = Algo.STATE_CONNECTION_ESTABLISHED;
         return {
             inId: hCheck.bitSlice(16, 32),
             outId: hCheck.bitSlice(0, 16),
             key: hash(this.check.as(Bytes).concat(verified))
         };
     }
-
-    Algo.STATE_NOT_STARTED = 1;
-    Algo.STATE_AWAITING_OFFERDATA = 2;
-    Algo.STATE_AWAITING_OFFER_RESPONSE = 3;
-    Algo.STATE_AWAITING_AUTH = 4;
-    Algo.STATE_AWAITING_AUTHDATA = 5;
-    Algo.STATE_AWAITING_AUTH_RESPONSE = 6;
-    Algo.STATE_CONNECTION_ESTABLISHED = 7;
-    Algo.STATE_CONNECTION_SYNCED = 8;
-    Algo.STATE_CONNECTION_FAILED = -1;
 
 // __________________________________________________________________________ //
 
@@ -232,25 +208,24 @@ define(function (require, exports, module) {
         this.random = factory.createRandom();
 
         this._algo = new Algo(this.random);
+
+        this.state = null;        
     }
 
     extend(Tlke.prototype, eventEmitter, serializable, {
-        getState: function () {
-            return this._algo.state;
-        },
         init: function () {
-            this._algo.init();
+            this.state = Tlke.STATE_NOT_STARTED;
         },
         generate: function () {
             this.checkEventHandlers();
-            invariant(this.getState() === Algo.STATE_NOT_STARTED,
+            invariant(this.state === Tlke.STATE_NOT_STARTED,
                 "Can't generate offer being in a state %s", this.state);
             this._generateOffer();
         },
         enterOffer: function (offer) {
             this.checkEventHandlers();
             invariant(offer instanceof Multivalue, "offer must be multivalue");
-            invariant(this.getState() === Tlke.STATE_NOT_STARTED,
+            invariant(this.state === Tlke.STATE_NOT_STARTED,
                 "Can't accept offer being in a state %s", this.state);
             invariant(offer, "Received an empty offer");
             this._acceptOffer(offer);
@@ -263,7 +238,7 @@ define(function (require, exports, module) {
 
         processPacket: function (bytes) {
             invariant(bytes instanceof Multivalue, "bytes must be multivalue");
-            switch (this.getState()) {
+            switch (this.state) {
             case Algo.STATE_AWAITING_OFFER_RESPONSE:
                 this._acceptOfferResponse(bytes);
                 break;
@@ -292,7 +267,7 @@ define(function (require, exports, module) {
             // emit this event before any "packet" event call to configure the appropriate transport behavior
             this.fire("addr", ids);
             this.fire("offer", this._algo._dhAesKey);
-            this._algo.state = Algo.STATE_AWAITING_OFFER_RESPONSE;
+            this.state = Tlke.STATE_AWAITING_OFFER_RESPONSE;
             this.fire("packet", this._algo._getOfferData());
             this._onChanged();
         },
@@ -300,6 +275,7 @@ define(function (require, exports, module) {
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
         _acceptOffer: function (offer) {
             var ids = this._algo._acceptOffer(offer);
+            this.state = Tlke.STATE_AWAITING_OFFERDATA;        
             this.fire("addr", ids);
             this._onChanged();
         },
@@ -308,40 +284,60 @@ define(function (require, exports, module) {
         // Bob 2.2.
         _acceptOfferData: function (bytes) {
             this._algo._acceptOfferData(bytes);
+            this.state = Tlke.STATE_AWAITING_AUTH;    
             this.fire("packet", this._algo._getOfferResponse());
             this.fire("auth", null);
         },
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            this._algo._acceptOfferResponse(data);
+            this._algo._acceptOfferResponse(data);            
+            this.state = Tlke.STATE_AWAITING_AUTH_RESPONSE;
             this.fire("packet", this._algo._getAuthData());
             this.fire("auth", this.auth);
         },
 
         // Bob 4.2
         _acceptAuthData: function (bytes) {
-            this._algo._acceptAuthData();
+            this._algo._acceptAuthData(bytes);
+            if (this._algo.hasAuth()) {
+                this._acceptAuthAndData();
+            } else {
+                this.state = Tlke.STATE_AWAITING_AUTH;
+            }
         },
 
         // Bob 4.1
         _acceptAuth: function (auth) {
-            this._algo._acceptAuth();
+            this._algo._acceptAuth(auth)
+            if (this._algo.hasAuthData()) {
+                this._acceptAuthAndData();
+            } else {
+                this.state = Tlke.STATE_AWAITING_AUTHDATA;
+            }
             this._onChanged();
         },
 
         // Bob 4.3 (4.1 + 4.2)
         _acceptAuthAndData: function () {
-            var keyReady = this._algo._acceptAuthAndData();
+            var keyAndCids = this._algo._acceptAuthAndData();
+            this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
             this.fire("packet", this._getAuthResponse());
-            this.fire("keyReady", idsKey);
+            this.fire("keyReady", keyAndCids);
             this._onChanged();
         },
 
         // Alice 5
         _acceptAuthResponse: function (bytes) {
-            var keyReady = this._algo._acceptAuthResponse();
-            this.fire("keyReady", keyReady);
+            var keyAndCids = this._algo._acceptAuthResponse();
+
+            if (!keyAndCids) {
+                this.state = Tlke.STATE_CONNECTION_FAILED;
+                return;
+            }
+            this.state = Algo.STATE_CONNECTION_ESTABLISHED;
+
+            this.fire("keyReady", keyAndCids);
         },
 
         _onChanged: function () {
@@ -351,7 +347,7 @@ define(function (require, exports, module) {
 
         deserialize: function (packet, context) {
             var dto = packet.getData();
-            this._algo.state = dto.state;
+            this.state = dto.state;
             this._algo._dhAesKey = dto.dhAesKey ? Hex.deserialize(dto.dhAesKey) : null;
             this._algo.dhk = dto.dhk ? Hex.deserialize(dto.dhk) : null;
             this._algo.dh = dto.dh ? DiffieHellman.deserialize(dto.dh) : null;
@@ -362,7 +358,7 @@ define(function (require, exports, module) {
 
         serialize: function (packet, context) {
             packet.setData({
-                state: this._algo.state,
+                state: this.state,
                 dhAesKey: this._algo._dhAesKey ? this._algo._dhAesKey.as(Hex).serialize() : null,
                 dhk: this._algo.dhk ? this._algo.dhk.as(Hex).serialize() : null,
                 dh: this._algo.dh ? this._algo.dh.serialize() : null,

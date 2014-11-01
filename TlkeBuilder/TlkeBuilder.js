@@ -48,7 +48,7 @@ define(function (require, exports, module) {
             this._tlke.enterAuth(auth);
         },
         getTlkeState: function () {
-            return this._tlke ? this._tlke.getState() : null;
+            return this._tlke ? this._tlke.state : null;
         },
         processNetworkPacket: function (packet) {
             if (!this._route) { return; }
