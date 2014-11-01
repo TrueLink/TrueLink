@@ -28,6 +28,12 @@ define(function (require, exports, module) {
 
 // __________________________________________________________________________ //
 
+    function DecryptionFailedError(innerError) {
+        this.innerError = innerError;
+    }
+
+// __________________________________________________________________________ //
+
     function Algo(random) {
         this._random = random;
 
@@ -56,7 +62,12 @@ define(function (require, exports, module) {
         var iv = dataBitArray.bitSlice(0, 128);
         var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
         var aes = new Aes(customKey || this._dhAesKey);
-        return aes.decryptCbc(encryptedData, iv);
+        try {
+            return aes.decryptCbc(encryptedData, iv);
+        }
+        catch (ex) {
+            throw new DecryptionFailedError(ex);
+        }
     }
 
     // Alice 1.1 (instantiation)
@@ -87,14 +98,7 @@ define(function (require, exports, module) {
 
     // Bob 2.2.
     Algo.prototype._acceptOfferData = function (bytes) {
-        var dhData;
-        try {
-            dhData = this._decrypt(bytes);
-        } catch (ex) {
-            console.warn("Received bad bytes.  " + ex.message);
-            //todo
-            return;
-        }
+        var dhData = this._decrypt(bytes);
         var dhDataHex = dhData.as(Hex).value;
         var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
         this._dhk = new Hex(dhkHex);
@@ -107,14 +111,7 @@ define(function (require, exports, module) {
 
     // Alice 3.1
     Algo.prototype._acceptOfferResponse = function (data) {
-        var dhDataHex;
-        try {
-            dhDataHex = this._decrypt(data).as(Hex).value;
-        } catch (ex) {
-            console.warn("Received bad bytes.  " + ex.message);
-            //todo
-            return;
-        }
+        var dhDataHex = this._decrypt(data).as(Hex).value;
         var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
         this._dhk = new Hex(dhkHex);
 
@@ -156,13 +153,7 @@ define(function (require, exports, module) {
         var bytes = this._authData;
         // todo check's checksum and ACHTUNG if not match
         var verified = this._getVerifiedDhk();
-        try {
-            this._check = this._decrypt(bytes, verified);
-        } catch (ex) {
-            console.warn("Received bad bytes.  " + ex.message);
-            //todo
-            return;
-        }
+        this._check = this._decrypt(bytes, verified);
         return {
             inId: hCheck.bitSlice(0, 16),
             outId: hCheck.bitSlice(16, 32),
@@ -177,14 +168,8 @@ define(function (require, exports, module) {
 
     // Alice 5
     Algo.prototype._acceptAuthResponse = function (bytes) {
-        var verified = this._getVerifiedDhk(), hCheck;
-        try {
+        var verified = this._getVerifiedDhk(),
             hCheck = this._decrypt(bytes, verified);
-        } catch (ex) {
-            console.warn("Received bad bytes.  " + ex.message);
-            //todo
-            return;
-        }
         if (hash(this._check).as(Hex).value !== hCheck.as(Hex).value) {
             return;
         }
@@ -206,7 +191,6 @@ define(function (require, exports, module) {
 
     Algo.prototype.serialize = function (packet, context) {
         return {
-            state: this.state,
             dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
             dhk: this._dhk ? this._dhk.as(Hex).serialize() : null,
             dh: this._dh ? this._dh.serialize() : null,
@@ -309,7 +293,16 @@ define(function (require, exports, module) {
 
         // Bob 2.2.
         _acceptOfferData: function (bytes) {
-            this._algo._acceptOfferData(bytes);
+            try {
+                this._algo._acceptOfferData(bytes);
+            } catch (ex) {
+                if (ex instanceof DecryptionFailedError) {
+                    console.warn("Received bad bytes.  " + ex.innerError.message);
+                    return;
+                } else {
+                    throw ex;
+                }
+            }
             this.state = Tlke.STATE_AWAITING_AUTH;    
             this.fire("packet", this._algo._getOfferResponse());
             this.fire("auth", null);
@@ -317,7 +310,17 @@ define(function (require, exports, module) {
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            var auth = this._algo._acceptOfferResponse(data);            
+            var auth;  
+            try {
+                auth = this._algo._acceptOfferResponse(data);
+            } catch (ex) {
+                if (ex instanceof DecryptionFailedError) {
+                    console.warn("Received bad bytes.  " + ex.innerError.message);
+                    return;
+                } else {
+                    throw ex;
+                }
+            }                     
             this.state = Tlke.STATE_AWAITING_AUTH_RESPONSE;
             this.fire("packet", this._algo._getAuthData());
             this.fire("auth", auth);
@@ -346,7 +349,17 @@ define(function (require, exports, module) {
 
         // Bob 4.3 (4.1 + 4.2)
         _acceptAuthAndData: function () {
-            var keyAndCids = this._algo._acceptAuthAndData();
+            var keyAndCids;
+            try {
+                keyAndCids = this._algo._acceptAuthAndData();
+            } catch (ex) {
+                if (ex instanceof DecryptionFailedError) {
+                    console.warn("Received bad bytes.  " + ex.innerError.message);
+                    return;
+                } else {
+                    throw ex;
+                }
+            }                     
             this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
             this.fire("packet", this._getAuthResponse());
             this.fire("keyReady", keyAndCids);
@@ -355,7 +368,17 @@ define(function (require, exports, module) {
 
         // Alice 5
         _acceptAuthResponse: function (bytes) {
-            var keyAndCids = this._algo._acceptAuthResponse();
+            var keyAndCids;
+            try {
+                keyAndCids = this._algo._acceptAuthResponse();
+            } catch (ex) {
+                if (ex instanceof DecryptionFailedError) {
+                    console.warn("Received bad bytes.  " + ex.innerError.message);
+                    return;
+                } else {
+                    throw ex;
+                }
+            }   
 
             if (!keyAndCids) {
                 this.state = Tlke.STATE_CONNECTION_FAILED;
