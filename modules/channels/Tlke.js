@@ -115,7 +115,7 @@ define(function (require, exports, module) {
         var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
         this._dhk = new Hex(dhkHex);
 
-        this._auth = this._getRandomBytes(Tlke.authBitLength);
+        this._auth = this._getRandomBytes(Algo.authBitLength);
         this._check = this._getRandomBytes(128);
         return this._auth;
     }
@@ -154,6 +154,7 @@ define(function (require, exports, module) {
         // todo check's checksum and ACHTUNG if not match
         var verified = this._getVerifiedDhk();
         this._check = this._decrypt(bytes, verified);
+        var hCheck = hash(this._check);
         return {
             inId: hCheck.bitSlice(0, 16),
             outId: hCheck.bitSlice(16, 32),
@@ -310,7 +311,6 @@ define(function (require, exports, module) {
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            debugger;
             var auth;  
             try {
                 auth = this._algo.acceptOfferResponse(data);
@@ -362,7 +362,7 @@ define(function (require, exports, module) {
                 }
             }                     
             this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
-            this.fire("packet", this.getAuthResponse());
+            this.fire("packet", this._algo.getAuthResponse());
             this.fire("keyReady", keyAndCids);
             this._onChanged();
         },
@@ -371,7 +371,7 @@ define(function (require, exports, module) {
         _acceptAuthResponse: function (bytes) {
             var keyAndCids;
             try {
-                keyAndCids = this._algo.acceptAuthResponse();
+                keyAndCids = this._algo.acceptAuthResponse(bytes);
             } catch (ex) {
                 if (ex instanceof DecryptionFailedError) {
                     console.warn("Received bad bytes.  " + ex.innerError.message);
