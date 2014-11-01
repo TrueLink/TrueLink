@@ -29,19 +29,19 @@ define(function (require, exports, module) {
 // __________________________________________________________________________ //
 
     function Algo(random) {
-        this.random = random;
+        this._random = random;
 
         this._dhAesKey = null;
-        this.dhk = null;
-        this.dh = null;
-        this.auth = null;
-        this.check = null;
-        this.authData = null;
+        this._dhk = null;
+        this._dh = null;
+        this._auth = null;
+        this._check = null;
+        this._authData = null;
     }
 
     Algo.prototype._getRandomBytes = function (bitLength) {
-        invariant(isFunction(this.random.bitArray), "random must implement IRandom");
-        return this.random.bitArray(bitLength);
+        invariant(isFunction(this._random.bitArray), "random must implement IRandom");
+        return this._random.bitArray(bitLength);
     }
 
     Algo.prototype._encrypt = function (bytes, customKey) {
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
 
     // Alice 1.1 (instantiation)
     Algo.prototype._generateOffer = function () {
-        this.dh = DiffieHellman.generate(Algo.dhPrivBitLength, this.random);
+        this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
         var dhAes = this._getRandomBytes(Algo.offerBitLength);
         this._dhAesKey = dhAes;
         var outId = dhAes.bitSlice(0, 16);
@@ -71,7 +71,7 @@ define(function (require, exports, module) {
 
     // Bob 2.1 (instantiation) offer is from getOffer (via IM)
     Algo.prototype._acceptOffer = function (offer) {
-        this.dh = DiffieHellman.generate(Algo.dhPrivBitLength, this.random);
+        this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
         var dhAes = offer.as(Hex).as(BitArray);
         this._dhAesKey = dhAes;
         var inId = dhAes.bitSlice(0, 16);
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
 
 
     Algo.prototype._getOfferData = function () {
-        var dhData = new Hex(this.dh.createKeyExchange());
+        var dhData = new Hex(this._dh.createKeyExchange());
         return this._encrypt(dhData);
     }
 
@@ -92,15 +92,16 @@ define(function (require, exports, module) {
             dhData = this._decrypt(bytes);
         } catch (ex) {
             console.warn("Received bad bytes.  " + ex.message);
+            //todo
             return;
         }
         var dhDataHex = dhData.as(Hex).value;
-        var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
-        this.dhk = new Hex(dhkHex);
+        var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
+        this._dhk = new Hex(dhkHex);
     }
 
     Algo.prototype._getOfferResponse = function () {
-        var dhData = new Hex(this.dh.createKeyExchange());
+        var dhData = new Hex(this._dh.createKeyExchange());
         return this._encrypt(dhData);
     }
 
@@ -111,63 +112,66 @@ define(function (require, exports, module) {
             dhDataHex = this._decrypt(data).as(Hex).value;
         } catch (ex) {
             console.warn("Received bad bytes.  " + ex.message);
+            //todo
             return;
         }
-        var dhkHex = this.dh.decryptKeyExchange(dhDataHex);
-        this.dhk = new Hex(dhkHex);
+        var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
+        this._dhk = new Hex(dhkHex);
 
-        this.auth = this._getRandomBytes(Tlke.authBitLength);
-        this.check = this._getRandomBytes(128);
+        this._auth = this._getRandomBytes(Tlke.authBitLength);
+        this._check = this._getRandomBytes(128);
+        return this._auth;
     }
 
     Algo.prototype._getAuthData = function () {
-        return this._encrypt(this.check, this._getVerifiedDhk());
+        return this._encrypt(this._check, this._getVerifiedDhk());
     }
 
     Algo.prototype._getVerifiedDhk = function () {
-        var dhk = this.dhk.as(Bytes);
-        var auth = this.auth.as(Bytes);
+        var dhk = this._dhk.as(Bytes);
+        var auth = this._auth.as(Bytes);
         return hash(dhk.concat(auth));
     }
 
     // Bob 4.2
     Algo.prototype._acceptAuthData = function (bytes) {
-        this.authData = bytes;
+        this._authData = bytes;
     }
 
     // Bob 4.1
     Algo.prototype._acceptAuth = function (auth) {
-        this.auth = auth;
+        this._auth = auth;
     }
 
     Algo.prototype.hasAuth = function () {        
-        return !!this.auth;
+        return !!this._auth;
     }
 
     Algo.prototype.hasAuthData = function () {        
-        return !!this.authData;
+        return !!this._authData;
     }
 
     // Bob 4.3 (4.1 + 4.2)
     Algo.prototype._acceptAuthAndData = function () {
-        var bytes = this.authData;
+        var bytes = this._authData;
         // todo check's checksum and ACHTUNG if not match
         var verified = this._getVerifiedDhk();
         try {
-            this.check = this._decrypt(bytes, verified);
+            this._check = this._decrypt(bytes, verified);
         } catch (ex) {
             console.warn("Received bad bytes.  " + ex.message);
+            //todo
             return;
         }
         return {
             inId: hCheck.bitSlice(0, 16),
             outId: hCheck.bitSlice(16, 32),
-            key: hash(this.check.as(Bytes).concat(verified))
+            key: hash(this._check.as(Bytes).concat(verified))
         };
     }
 
     Algo.prototype._getAuthResponse = function () {
-        var hCheck = hash(this.check);
+        var hCheck = hash(this._check);
         return this._encrypt(hCheck, this._getVerifiedDhk());
     }
 
@@ -178,36 +182,37 @@ define(function (require, exports, module) {
             hCheck = this._decrypt(bytes, verified);
         } catch (ex) {
             console.warn("Received bad bytes.  " + ex.message);
+            //todo
             return;
         }
-        if (hash(this.check).as(Hex).value !== hCheck.as(Hex).value) {
+        if (hash(this._check).as(Hex).value !== hCheck.as(Hex).value) {
             return;
         }
         return {
             inId: hCheck.bitSlice(16, 32),
             outId: hCheck.bitSlice(0, 16),
-            key: hash(this.check.as(Bytes).concat(verified))
+            key: hash(this._check.as(Bytes).concat(verified))
         };
     }
 
     Algo.prototype.deserialize = function (data) {
         this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-        this.dhk = data.dhk ? Hex.deserialize(data.dhk) : null;
-        this.dh = data.dh ? DiffieHellman.deserialize(data.dh) : null;
-        this.auth = data.auth ? Hex.deserialize(data.auth) : null;
-        this.check = data.check ? Hex.deserialize(data.check) : null;
-        this.authData = data.authData ? Hex.deserialize(data.authData) : null;
+        this._dhk = data.dhk ? Hex.deserialize(data.dhk) : null;
+        this._dh = data.dh ? DiffieHellman.deserialize(data.dh) : null;
+        this._auth = data.auth ? Hex.deserialize(data.auth) : null;
+        this._check = data.check ? Hex.deserialize(data.check) : null;
+        this._authData = data.authData ? Hex.deserialize(data.authData) : null;
     },
 
     Algo.prototype.serialize = function (packet, context) {
         return {
             state: this.state,
             dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-            dhk: this.dhk ? this.dhk.as(Hex).serialize() : null,
-            dh: this.dh ? this.dh.serialize() : null,
-            auth: this.auth ? this.auth.as(Hex).serialize() : null,
-            check: this.check ? this.check.as(Hex).serialize() : null,
-            authData: this.authData ? this.authData.as(Hex).serialize() : null
+            dhk: this._dhk ? this._dhk.as(Hex).serialize() : null,
+            dh: this._dh ? this._dh.serialize() : null,
+            auth: this._auth ? this._auth.as(Hex).serialize() : null,
+            check: this._check ? this._check.as(Hex).serialize() : null,
+            authData: this._authData ? this._authData.as(Hex).serialize() : null
         };
     }
 
@@ -312,10 +317,10 @@ define(function (require, exports, module) {
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
-            this._algo._acceptOfferResponse(data);            
+            var auth = this._algo._acceptOfferResponse(data);            
             this.state = Tlke.STATE_AWAITING_AUTH_RESPONSE;
             this.fire("packet", this._algo._getAuthData());
-            this.fire("auth", this.auth);
+            this.fire("auth", auth);
         },
 
         // Bob 4.2
