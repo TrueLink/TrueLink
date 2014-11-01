@@ -37,7 +37,7 @@ define(function (require, exports, module) {
     function Algo(random) {
         this._random = random;
 
-        this._dhAesKey = null;
+        this.dhAesKey = null;
         this._dhk = null;
         this._dh = null;
         this._auth = null;
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
 
     Algo.prototype._encrypt = function (bytes, customKey) {
         var iv = this._getRandomBytes(128);
-        var aes = new Aes(customKey || this._dhAesKey);
+        var aes = new Aes(customKey || this.dhAesKey);
         var encryptedData = aes.encryptCbc(bytes, iv);
         return iv.as(Bytes).concat(encryptedData);
     }
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
         var dataBitArray = bytes.as(BitArray);
         var iv = dataBitArray.bitSlice(0, 128);
         var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
-        var aes = new Aes(customKey || this._dhAesKey);
+        var aes = new Aes(customKey || this.dhAesKey);
         try {
             return aes.decryptCbc(encryptedData, iv);
         }
@@ -71,46 +71,46 @@ define(function (require, exports, module) {
     }
 
     // Alice 1.1 (instantiation)
-    Algo.prototype._generateOffer = function () {
+    Algo.prototype.generateOffer = function () {
         this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
         var dhAes = this._getRandomBytes(Algo.offerBitLength);
-        this._dhAesKey = dhAes;
+        this.dhAesKey = dhAes;
         var outId = dhAes.bitSlice(0, 16);
         var inId = dhAes.bitSlice(16, 32);
         return {inId: inId, outId: outId};
     }
 
     // Bob 2.1 (instantiation) offer is from getOffer (via IM)
-    Algo.prototype._acceptOffer = function (offer) {
+    Algo.prototype.acceptOffer = function (offer) {
         this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
         var dhAes = offer.as(Hex).as(BitArray);
-        this._dhAesKey = dhAes;
+        this.dhAesKey = dhAes;
         var inId = dhAes.bitSlice(0, 16);
         var outId = dhAes.bitSlice(16, 32);
         return {inId: inId, outId: outId};
     }
 
 
-    Algo.prototype._getOfferData = function () {
+    Algo.prototype.getOfferData = function () {
         var dhData = new Hex(this._dh.createKeyExchange());
         return this._encrypt(dhData);
     }
 
     // Bob 2.2.
-    Algo.prototype._acceptOfferData = function (bytes) {
+    Algo.prototype.acceptOfferData = function (bytes) {
         var dhData = this._decrypt(bytes);
         var dhDataHex = dhData.as(Hex).value;
         var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
         this._dhk = new Hex(dhkHex);
     }
 
-    Algo.prototype._getOfferResponse = function () {
+    Algo.prototype.getOfferResponse = function () {
         var dhData = new Hex(this._dh.createKeyExchange());
         return this._encrypt(dhData);
     }
 
     // Alice 3.1
-    Algo.prototype._acceptOfferResponse = function (data) {
+    Algo.prototype.acceptOfferResponse = function (data) {
         var dhDataHex = this._decrypt(data).as(Hex).value;
         var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
         this._dhk = new Hex(dhkHex);
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
         return this._auth;
     }
 
-    Algo.prototype._getAuthData = function () {
+    Algo.prototype.getAuthData = function () {
         return this._encrypt(this._check, this._getVerifiedDhk());
     }
 
@@ -131,12 +131,12 @@ define(function (require, exports, module) {
     }
 
     // Bob 4.2
-    Algo.prototype._acceptAuthData = function (bytes) {
+    Algo.prototype.acceptAuthData = function (bytes) {
         this._authData = bytes;
     }
 
     // Bob 4.1
-    Algo.prototype._acceptAuth = function (auth) {
+    Algo.prototype.acceptAuth = function (auth) {
         this._auth = auth;
     }
 
@@ -149,7 +149,7 @@ define(function (require, exports, module) {
     }
 
     // Bob 4.3 (4.1 + 4.2)
-    Algo.prototype._acceptAuthAndData = function () {
+    Algo.prototype.acceptAuthAndData = function () {
         var bytes = this._authData;
         // todo check's checksum and ACHTUNG if not match
         var verified = this._getVerifiedDhk();
@@ -161,13 +161,13 @@ define(function (require, exports, module) {
         };
     }
 
-    Algo.prototype._getAuthResponse = function () {
+    Algo.prototype.getAuthResponse = function () {
         var hCheck = hash(this._check);
         return this._encrypt(hCheck, this._getVerifiedDhk());
     }
 
     // Alice 5
-    Algo.prototype._acceptAuthResponse = function (bytes) {
+    Algo.prototype.acceptAuthResponse = function (bytes) {
         var verified = this._getVerifiedDhk(),
             hCheck = this._decrypt(bytes, verified);
         if (hash(this._check).as(Hex).value !== hCheck.as(Hex).value) {
@@ -181,7 +181,7 @@ define(function (require, exports, module) {
     }
 
     Algo.prototype.deserialize = function (data) {
-        this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
+        this.dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
         this._dhk = data.dhk ? Hex.deserialize(data.dhk) : null;
         this._dh = data.dh ? DiffieHellman.deserialize(data.dh) : null;
         this._auth = data.auth ? Hex.deserialize(data.auth) : null;
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
 
     Algo.prototype.serialize = function (packet, context) {
         return {
-            dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
+            dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
             dhk: this._dhk ? this._dhk.as(Hex).serialize() : null,
             dh: this._dh ? this._dh.serialize() : null,
             auth: this._auth ? this._auth.as(Hex).serialize() : null,
@@ -273,18 +273,18 @@ define(function (require, exports, module) {
 
         // Alice 1.1 (instantiation)
         _generateOffer: function () {
-            var ids = this._algo._generateOffer();
+            var ids = this._algo.generateOffer();
             // emit this event before any "packet" event call to configure the appropriate transport behavior
             this.fire("addr", ids);
-            this.fire("offer", this._algo._dhAesKey);
+            this.fire("offer", this._algo.dhAesKey);
             this.state = Tlke.STATE_AWAITING_OFFER_RESPONSE;
-            this.fire("packet", this._algo._getOfferData());
+            this.fire("packet", this._algo.getOfferData());
             this._onChanged();
         },
 
         // Bob 2.1 (instantiation) offer is from getOffer (via IM)
         _acceptOffer: function (offer) {
-            var ids = this._algo._acceptOffer(offer);
+            var ids = this._algo.acceptOffer(offer);
             this.state = Tlke.STATE_AWAITING_OFFERDATA;        
             this.fire("addr", ids);
             this._onChanged();
@@ -294,7 +294,7 @@ define(function (require, exports, module) {
         // Bob 2.2.
         _acceptOfferData: function (bytes) {
             try {
-                this._algo._acceptOfferData(bytes);
+                this._algo.acceptOfferData(bytes);
             } catch (ex) {
                 if (ex instanceof DecryptionFailedError) {
                     console.warn("Received bad bytes.  " + ex.innerError.message);
@@ -304,15 +304,16 @@ define(function (require, exports, module) {
                 }
             }
             this.state = Tlke.STATE_AWAITING_AUTH;    
-            this.fire("packet", this._algo._getOfferResponse());
+            this.fire("packet", this._algo.getOfferResponse());
             this.fire("auth", null);
         },
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
+            debugger;
             var auth;  
             try {
-                auth = this._algo._acceptOfferResponse(data);
+                auth = this._algo.acceptOfferResponse(data);
             } catch (ex) {
                 if (ex instanceof DecryptionFailedError) {
                     console.warn("Received bad bytes.  " + ex.innerError.message);
@@ -322,13 +323,13 @@ define(function (require, exports, module) {
                 }
             }                     
             this.state = Tlke.STATE_AWAITING_AUTH_RESPONSE;
-            this.fire("packet", this._algo._getAuthData());
+            this.fire("packet", this._algo.getAuthData());
             this.fire("auth", auth);
         },
 
         // Bob 4.2
         _acceptAuthData: function (bytes) {
-            this._algo._acceptAuthData(bytes);
+            this._algo.acceptAuthData(bytes);
             if (this._algo.hasAuth()) {
                 this._acceptAuthAndData();
             } else {
@@ -338,7 +339,7 @@ define(function (require, exports, module) {
 
         // Bob 4.1
         _acceptAuth: function (auth) {
-            this._algo._acceptAuth(auth)
+            this._algo.acceptAuth(auth)
             if (this._algo.hasAuthData()) {
                 this._acceptAuthAndData();
             } else {
@@ -351,7 +352,7 @@ define(function (require, exports, module) {
         _acceptAuthAndData: function () {
             var keyAndCids;
             try {
-                keyAndCids = this._algo._acceptAuthAndData();
+                keyAndCids = this._algo.acceptAuthAndData();
             } catch (ex) {
                 if (ex instanceof DecryptionFailedError) {
                     console.warn("Received bad bytes.  " + ex.innerError.message);
@@ -361,7 +362,7 @@ define(function (require, exports, module) {
                 }
             }                     
             this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
-            this.fire("packet", this._getAuthResponse());
+            this.fire("packet", this.getAuthResponse());
             this.fire("keyReady", keyAndCids);
             this._onChanged();
         },
@@ -370,7 +371,7 @@ define(function (require, exports, module) {
         _acceptAuthResponse: function (bytes) {
             var keyAndCids;
             try {
-                keyAndCids = this._algo._acceptAuthResponse();
+                keyAndCids = this._algo.acceptAuthResponse();
             } catch (ex) {
                 if (ex instanceof DecryptionFailedError) {
                     console.warn("Received bad bytes.  " + ex.innerError.message);
