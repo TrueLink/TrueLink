@@ -199,7 +199,7 @@ define(function (require, exports, module) {
             this.state = Tlke.STATE_CONNECTION_FAILED;
             return;
         }
-        this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
+        this.state = Algo.STATE_CONNECTION_ESTABLISHED;
         return {
             inId: hCheck.bitSlice(16, 32),
             outId: hCheck.bitSlice(0, 16),
@@ -311,14 +311,14 @@ define(function (require, exports, module) {
         // Bob 2.2.
         _acceptOfferData: function (bytes) {
             this._algo._acceptOfferData(bytes);
-            this.fire("packet", this._getOfferResponse());
+            this.fire("packet", this._algo._getOfferResponse());
             this.fire("auth", null);
         },
 
         // Alice 3.1
         _acceptOfferResponse: function (data) {
             this._algo._acceptOfferResponse(data);
-            this.fire("packet", this._getAuthData());
+            this.fire("packet", this._algo._getAuthData());
             this.fire("auth", this.auth);
         },
 
