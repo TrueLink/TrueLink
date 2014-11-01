@@ -249,17 +249,17 @@ define(function (require, exports, module) {
         processPacket: function (bytes) {
             invariant(bytes instanceof Multivalue, "bytes must be multivalue");
             switch (this.state) {
-            case Algo.STATE_AWAITING_OFFER_RESPONSE:
+            case Tlke.STATE_AWAITING_OFFER_RESPONSE:
                 this._acceptOfferResponse(bytes);
                 break;
-            case Algo.STATE_AWAITING_AUTH_RESPONSE:
+            case Tlke.STATE_AWAITING_AUTH_RESPONSE:
                 this._acceptAuthResponse(bytes);
                 break;
-            case Algo.STATE_AWAITING_OFFERDATA:
+            case Tlke.STATE_AWAITING_OFFERDATA:
                 this._acceptOfferData(bytes);
                 break;
-            case Algo.STATE_AWAITING_AUTH:
-            case Algo.STATE_AWAITING_AUTHDATA:
+            case Tlke.STATE_AWAITING_AUTH:
+            case Tlke.STATE_AWAITING_AUTHDATA:
                 this._acceptAuthData(bytes);
                 break;
             default:
@@ -384,7 +384,7 @@ define(function (require, exports, module) {
                 this.state = Tlke.STATE_CONNECTION_FAILED;
                 return;
             }
-            this.state = Algo.STATE_CONNECTION_ESTABLISHED;
+            this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
 
             this.fire("keyReady", keyAndCids);
         },
@@ -425,15 +425,15 @@ define(function (require, exports, module) {
     //    STATE_AWAITING_AUTH       |
     //    acceptAuth(auth)          |
 
-    Tlke.STATE_NOT_STARTED = Algo.STATE_NOT_STARTED;
-    Tlke.STATE_AWAITING_OFFERDATA = Algo.STATE_AWAITING_OFFERDATA;
-    Tlke.STATE_AWAITING_OFFER_RESPONSE = Algo.STATE_AWAITING_OFFER_RESPONSE;
-    Tlke.STATE_AWAITING_AUTH = Algo.STATE_AWAITING_AUTH;
-    Tlke.STATE_AWAITING_AUTHDATA = Algo.STATE_AWAITING_AUTHDATA;
-    Tlke.STATE_AWAITING_AUTH_RESPONSE = Algo.STATE_AWAITING_AUTH_RESPONSE;
-    Tlke.STATE_CONNECTION_ESTABLISHED = Algo.STATE_CONNECTION_ESTABLISHED;
-    Tlke.STATE_CONNECTION_SYNCED = Algo.STATE_CONNECTION_SYNCED;
-    Tlke.STATE_CONNECTION_FAILED = Algo.STATE_CONNECTION_FAILED;
+    Tlke.STATE_NOT_STARTED = 1;
+    Tlke.STATE_AWAITING_OFFERDATA = 2;
+    Tlke.STATE_AWAITING_OFFER_RESPONSE = 3;
+    Tlke.STATE_AWAITING_AUTH = 4;
+    Tlke.STATE_AWAITING_AUTHDATA = 5;
+    Tlke.STATE_AWAITING_AUTH_RESPONSE = 6;
+    Tlke.STATE_CONNECTION_ESTABLISHED = 7;
+    Tlke.STATE_CONNECTION_SYNCED = 8;
+    Tlke.STATE_CONNECTION_FAILED = -1;
 
     module.exports = Tlke;
 });
