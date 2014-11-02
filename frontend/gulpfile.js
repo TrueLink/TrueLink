@@ -1,5 +1,5 @@
 ﻿var gulp = require('gulp');
-var ts = require('gulp-type');
+var ts = require('gulp-typescript');
 //var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
 var spa = require('spa').Builder;
@@ -65,7 +65,7 @@ gulp.task('compile', ['clean','burn_rev2'], function () {
         module: 'cjs',
         target: 'ES5',
         noImplicitAny: false, 
-        noLib: true, 
+        noLib: false, 
         outDir: 'build/',
         sortOutput: false
     }));
