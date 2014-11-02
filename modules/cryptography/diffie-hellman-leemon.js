@@ -86,4 +86,5 @@ DiffieHellman.deserialize = function (dto) {
     return dh;
 };
 
-return DiffieHellman;
+module.exports = DiffieHellman;
+

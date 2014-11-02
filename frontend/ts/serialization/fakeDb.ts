@@ -103,6 +103,4 @@ var fake = {
     init: priv.loadLocalForage
 };
 
-realwindow.fakeDb = fake;
-
 export = fake;
