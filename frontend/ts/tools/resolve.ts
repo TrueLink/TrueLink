@@ -37,7 +37,7 @@ import Q = require("q");
             return soFar.then($.isArray(f) ? getParallel(f) : f);
         }, Q(initialValue));
     }
-    Q.whenAll = resolve;
-    Q.chain = chain;
+    (<any>Q).whenAll = resolve;
+    (<any>Q).chain = chain;
    // window.q = Q;
-exports.q = Q;
+export var q = Q;
