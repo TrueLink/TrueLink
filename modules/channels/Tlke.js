@@ -188,7 +188,7 @@ define(function (require, exports, module) {
         this._auth = data.auth ? Hex.deserialize(data.auth) : null;
         this._check = data.check ? Hex.deserialize(data.check) : null;
         this._authData = data.authData ? Hex.deserialize(data.authData) : null;
-    },
+    }
 
     Algo.prototype.serialize = function (packet, context) {
         return {
