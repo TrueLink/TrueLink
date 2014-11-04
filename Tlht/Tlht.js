@@ -85,7 +85,7 @@ Algo.prototype.deserialize = function (data) {
     this._hashEnd = data.hashEnd ? Hex.deserialize(data.hashEnd) : null;
 }
 
-Algo.prototype.serialize = function (packet, context) {
+Algo.prototype.serialize = function () {
     return {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
         hashStart: this._hashStart ? this._hashStart.as(Hex).serialize() : null,

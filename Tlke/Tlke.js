@@ -189,7 +189,7 @@ Algo.prototype.deserialize = function (data) {
     this._authData = data.authData ? Hex.deserialize(data.authData) : null;
 }
 
-Algo.prototype.serialize = function (packet, context) {
+Algo.prototype.serialize = function () {
     return {
         dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
         dhk: this._dhk ? this._dhk.as(Hex).serialize() : null,
