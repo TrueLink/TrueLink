@@ -66,10 +66,10 @@
 
     converter.register("byteBuffer", "utf8string", function (value) {
         return new Utf8String(forge.util.decodeUtf8(value.bytes()));
-    });
+    }, true);
 
     converter.register("utf8string", "byteBuffer", function (value) {
         return new ByteBuffer(forge.util.encodeUtf8(value));
-    });
+    }, true);
     var _blank = { };
     export = _blank;

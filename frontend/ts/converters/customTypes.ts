@@ -174,6 +174,6 @@
 
     converter.register("utf8string", "bytes", function(value) {
         return new Bytes(encodeUtf8(value));
-    });
+    }, true);
     var _blank = { };
     export = _blank;
