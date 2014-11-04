@@ -4,6 +4,8 @@ import BitArray = require("../multivalue/bitArray");
 import Base64 = require("../multivalue/base64");
 import Base64Url = require("../multivalue/base64url");
 import BigIntSjcl = require("../multivalue/bigIntSjcl");
+import BigIntForge = require("../multivalue/bigIntForge");
+import ByteBuffer = require("../multivalue/byteBuffer");
 import Bytes = require("../multivalue/bytes");
 import DecBlocks = require("../multivalue/decBlocks");
 import Hex = require("../multivalue/hex");
@@ -22,6 +24,8 @@ interface DataSet {
     Base64: Base64;
     Base64Url: Base64Url;
     BigIntSjcl: BigIntSjcl;
+    BigIntForge: BigIntForge;
+    ByteBuffer: ByteBuffer;
     Bytes: Bytes;
     DecBlocks: DecBlocks;
     Hex: Hex;
@@ -36,28 +40,36 @@ describe('Multivalue', () => {
         Base64: new Base64("U3RyaW5nIG1lc3NhZ2UhMQ=="),
         Base64Url: new Base64Url("U3RyaW5nIG1lc3NhZ2UhMQ"),
         BigIntSjcl: new BigIntSjcl(new sjcl.bn("0x537472696E67206D6573736167652131")),
+        BigIntForge: new BigIntForge("537472696E67206D6573736167652131"),
+        ByteBuffer: new ByteBuffer("String message!1"),
         Bytes: new Bytes([83, 116, 114, 105, 110, 103, 32, 109, 101, 115, 115, 97, 103, 101, 33, 49]),
         DecBlocks: new DecBlocks("110930550633557961317610434596264288561"),
         Hex: new Hex("537472696E67206D6573736167652131"),
         Utf8String: new Utf8String("String message!1"),
         X32WordArray: new X32WordArray([1400140393, 1852252269, 1702064993, 1734680881], 16),
-    }
+    };
+
     var values2: DataSet = {
         BitArray: new BitArray([1400140393, 1852252269, 1702064993, 1734680881, -779103857, 17591406886912]),
         Base64: new Base64("U3RyaW5nIG1lc3NhZ2UhMdGP0Y/Rjw=="),
         Base64Url: new Base64Url("U3RyaW5nIG1lc3NhZ2UhMdGP0Y_Rjw"),
         BigIntSjcl: new BigIntSjcl("0x537472696E67206D6573736167652131D18FD18FD18F"),
+        BigIntForge: new BigIntForge("537472696E67206D6573736167652131D18FD18FD18F"),
+        ByteBuffer: new ByteBuffer("String message!1\xd1\x8f\xd1\x8f\xd1\x8f"),
         Bytes: new Bytes([83, 116, 114, 105, 110, 103, 32, 109, 101, 115, 115, 97, 103, 101, 33, 49, 209, 143, 209, 143, 209, 143]),
         DecBlocks: new DecBlocks("31224174156080973347525092013460821321037759413997967"),
         Hex: new Hex("537472696E67206D6573736167652131D18FD18FD18F"),
         Utf8String: new Utf8String("String message!1яяя"),
         X32WordArray: new X32WordArray([1400140393, 1852252269, 1702064993, 1734680881, -779103857, 17591406886912], 22),
-    }
+    };
+
     var types: { [index:string]: multivalue.SubclassOfMultivalue<multivalue.Multivalue> } = {
         BitArray: BitArray,
         Base64: Base64,
         Base64Url: Base64Url,
         BigIntSjcl: BigIntSjcl,
+        BigIntForge: BigIntForge,
+        ByteBuffer: ByteBuffer, 
         Bytes: Bytes,
         DecBlocks: DecBlocks,
         Hex: Hex,

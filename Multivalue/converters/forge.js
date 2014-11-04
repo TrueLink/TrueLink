@@ -29,15 +29,15 @@ function BytesToBigIntForge(source) {
 }
 exports.BytesToBigIntForge = BytesToBigIntForge;
 ;
-function BigIntForgeToDecBlocks(source) {
+function DecBlocksToBigIntForge(source) {
     return new BigIntForge(new forge.jsbn.BigInteger(source.value, 10));
 }
-exports.BigIntForgeToDecBlocks = BigIntForgeToDecBlocks;
+exports.DecBlocksToBigIntForge = DecBlocksToBigIntForge;
 ;
-function DecBlocksToBigIntForge(source) {
+function BigIntForgeToDecBlocks(source) {
     return new DecBlocks(source.value.toString(10));
 }
-exports.DecBlocksToBigIntForge = DecBlocksToBigIntForge;
+exports.BigIntForgeToDecBlocks = BigIntForgeToDecBlocks;
 ;
 function BigIntForgeToBigIntSjcl(source) {
     return new BigIntSjcl(source.value.toString(16));

@@ -27,11 +27,11 @@ export function BytesToBigIntForge(source: Bytes): BigIntForge {
     return new BigIntForge(new forge.jsbn.BigInteger(source.value, 256));
 };
 
-export function BigIntForgeToDecBlocks(source: DecBlocks): BigIntForge {
+export function DecBlocksToBigIntForge(source: DecBlocks): BigIntForge {
     return new BigIntForge(new forge.jsbn.BigInteger(source.value, 10));
 };
 
-export function DecBlocksToBigIntForge(source: BigIntForge): DecBlocks {
+export function BigIntForgeToDecBlocks(source: BigIntForge): DecBlocks {
     return new DecBlocks(source.value.toString(10));
 };
 
