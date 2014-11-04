@@ -17,9 +17,11 @@
         _onSubmit: function() {
             try {
                 var node = this.refs.inputMessage.getDOMNode();
-                var messageObj = node.value;
-                node.value = "";
-                this.props.pageModel.model.sendMessage(messageObj);
+                var messageObj = node.value.trim();
+                if (messageObj) {                    
+                    node.value = "";
+                    this.props.pageModel.model.sendMessage(messageObj);
+                }   
             } catch (ex) {
                 console.error(ex);
             }
