@@ -169,6 +169,6 @@ function register() {
     multivalue.Multivalue.register(Bytes, Base64Url, BytesToBase64Url);
     multivalue.Multivalue.register(Base64Url, Bytes, Base64UrlToBytes);
     multivalue.Multivalue.register(Bytes, Utf8String, BytesToUtf8String, true);
-    multivalue.Multivalue.register(Utf8String, Bytes, Utf8StringToBytes);
+    multivalue.Multivalue.register(Utf8String, Bytes, Utf8StringToBytes, true);
 }
 exports.register = register;
