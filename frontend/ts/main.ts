@@ -7,6 +7,8 @@
 /// <reference path="../../TlecBuilder/TlecBuilder.d.ts"/>
 /// <reference path="../../Tlgr/Tlgr.d.ts"/>
 /// <reference path="../../Tlht/Tlht.d.ts"/>
+/// <reference path="../../Tlec/Tlec.d.ts"/>
+/// <reference path="../../Tlke/Tlke.d.ts"/>
 /// <reference path="../../SerializationContext/SerializationContext.d.ts"/>
 /// <reference path="../../Route/Route.d.ts"/>
 /// <reference path="../../Filter/Filter.d.ts"/>

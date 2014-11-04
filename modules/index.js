@@ -15,12 +15,12 @@ exports.urandom = {};
 
 //exports.channels.OverTlecBuilder = require("./../OverTlecBuilder/OverTlecBuilder");
 //exports.channels.Route = require("./../Route/Route");
-exports.channels.Tlec = require("./channels/Tlec");
+//exports.channels.Tlec = require("./channels/Tlec");
 //exports.channels.TlecBuilder = require("./../TlecBuilder/TlecBuilder");
 //exports.channels.Tlgr = require("./../Tlgr/Tlgr");
 //exports.channels.Tlht = require("./../Tlht/Tlht");
 //exports.channels.TlhtBuilder = require("./../Tlht/TlhtBuilder");
-exports.channels.Tlke = require("./channels/Tlke");
+//exports.channels.Tlke = require("./channels/Tlke");
 //exports.channels.TlkeBuilder = require("./../TlkeBuilder/TlkeBuilder");
 exports.crypto_js.enc_base64 = require("./crypto-js/enc-base64");
 exports.crypto_js.enc_hex = require("./crypto-js/enc-hex");

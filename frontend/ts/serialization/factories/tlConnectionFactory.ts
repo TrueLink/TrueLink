@@ -8,9 +8,9 @@
     import TlhtBuilder = require("TlhtBuilder");
     import TlecBuilder = require("TlecBuilder");
     import OverTlecBuilder = require("OverTlecBuilder");
-    var Tlke = modules.channels.Tlke;
+    import Tlke = require("Tlke");
     import Tlht = require("Tlht");
-    var Tlec = modules.channels.Tlec;
+    import Tlec = require("Tlec");
     import Route = require("Route");
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
 

@@ -1,0 +1,15 @@
+{
+  "name": "Tlke",
+  "version": "0.1.0",
+  "description": "Tlke",
+  "main": "Tlke.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+  ],
+  "author": "toliman",
+  "license": "MIT",
+  "optionalDependencies": {
+  }
+}

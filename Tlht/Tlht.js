@@ -11,7 +11,7 @@ var Aes = require("../modules/cryptography/aes-sjcl");
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
-var Tlec = require("./../modules/channels/Tlec");
+var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");
 

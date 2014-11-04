@@ -1,0 +1,15 @@
+{
+  "name": "Tlec",
+  "version": "0.1.0",
+  "description": "Tlec",
+  "main": "Tlec.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+  ],
+  "author": "toliman",
+  "license": "MIT",
+  "optionalDependencies": {
+  }
+}

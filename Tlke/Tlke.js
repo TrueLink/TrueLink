@@ -4,19 +4,19 @@ Algo.authBitLength = 16;
 Algo.offerBitLength = 128;
 Algo.dhPrivBitLength = 160;
 
-var tools = require("../tools");
-var SHA1 = require("../cryptography/sha1-crypto-js");
-var DiffieHellman = require("../cryptography/diffie-hellman-leemon");
-var Hex = require("../multivalue/hex");
-var BitArray = require("../multivalue/bitArray");
-var Bytes = require("../multivalue/bytes");
-var Aes = require("../cryptography/aes-sjcl");
+var tools = require("../modules/tools");
+var SHA1 = require("../modules/cryptography/sha1-crypto-js");
+var DiffieHellman = require("../modules/cryptography/diffie-hellman-leemon");
+var Hex = require("../modules/multivalue/hex");
+var BitArray = require("../modules/multivalue/bitArray");
+var Bytes = require("../modules/multivalue/bytes");
+var Aes = require("../modules/cryptography/aes-sjcl");
 
-var eventEmitter = require("../events/eventEmitter");
-var invariant = require("../invariant");
-var Multivalue = require("../multivalue/multivalue");
+var eventEmitter = require("../modules/events/eventEmitter");
+var invariant = require("../modules/invariant");
+var Multivalue = require("../modules/multivalue/multivalue");
 
-var serializable = require("../serialization/serializable");
+var serializable = require("../modules/serialization/serializable");
 
 var extend = tools.extend;
 var isFunction = tools.isFunction;
