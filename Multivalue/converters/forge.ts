@@ -71,18 +71,18 @@ export function Utf8StringToByteBuffer(source: Utf8String): ByteBuffer {
 
 export function register() {
     multivalue.Multivalue.register(BigIntForge, Hex, BigIntForgeToHex);
-    multivalue.Multivalue.register(Hex, BigIntForge, HexToBigIntForge);
+    multivalue.Multivalue.register(Hex, BigIntForge, HexToBigIntForge, true);
     multivalue.Multivalue.register(BigIntForge, Bytes, BigIntForgeToBytes);
-    multivalue.Multivalue.register(Bytes, BigIntForge, BytesToBigIntForge);
-    multivalue.Multivalue.register(BigIntForge, DecBlocks, BigIntForgeToDecBlocks);
-    multivalue.Multivalue.register(DecBlocks, BigIntForge, DecBlocksToBigIntForge);
+    multivalue.Multivalue.register(Bytes, BigIntForge, BytesToBigIntForge, true);
+    multivalue.Multivalue.register(BigIntForge, DecBlocks, BigIntForgeToDecBlocks, true);
+    multivalue.Multivalue.register(DecBlocks, BigIntForge, DecBlocksToBigIntForge, true);
     multivalue.Multivalue.register(BigIntForge, BigIntSjcl, BigIntForgeToBigIntSjcl);
-    multivalue.Multivalue.register(BigIntSjcl, BigIntForge, BigIntSjclToBigIntForge);
+    multivalue.Multivalue.register(BigIntSjcl, BigIntForge, BigIntSjclToBigIntForge, true);
 
     multivalue.Multivalue.register(ByteBuffer, Hex, ByteBufferToHex);
     multivalue.Multivalue.register(Hex, ByteBuffer, HexToByteBuffer);
     multivalue.Multivalue.register(ByteBuffer, Base64, ByteBufferToBase64);
     multivalue.Multivalue.register(Base64, ByteBuffer, Base64ToByteBuffer);
-    multivalue.Multivalue.register(ByteBuffer, Utf8String, ByteBufferToUtf8String);
+    multivalue.Multivalue.register(ByteBuffer, Utf8String, ByteBufferToUtf8String, true);
     multivalue.Multivalue.register(Utf8String, ByteBuffer, Utf8StringToByteBuffer);
 }
