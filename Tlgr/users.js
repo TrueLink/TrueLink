@@ -2,9 +2,6 @@
 
 var rsa = require("../modules/cryptography/rsa-forge");
 
-var eventEmitter = require("../modules/events/eventEmitter");
-var invariant = require("../modules/invariant");
-
 var Multivalue = require("../modules/multivalue/multivalue");
 var Hex = require("../modules/multivalue/hex");
 

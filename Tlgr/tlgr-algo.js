@@ -19,7 +19,6 @@ var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 var invariant = require("../modules/invariant");
 
 var Hex = require("../modules/multivalue/hex");
-var Utf8String = require("../modules/multivalue/utf8string");
 var ByteBuffer = require("../modules/multivalue/byteBuffer");
 var BitArray = require("../modules/multivalue/bitArray");
 
