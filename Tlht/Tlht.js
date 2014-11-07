@@ -14,7 +14,7 @@ var serializable = require("../modules/serialization/serializable");
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
-var TlhtAlgo = require("tlht-algo");
+var TlhtAlgo = require("./tlht-algo");
 
 function Tlht(factory) {
     invariant(factory, "Can be constructed only with factory");

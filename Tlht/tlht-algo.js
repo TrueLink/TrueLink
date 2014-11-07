@@ -6,6 +6,7 @@ var BitArray = require("../modules/multivalue/bitArray");
 var Bytes = require("../modules/multivalue/bytes");
 var Aes = require("../modules/cryptography/aes-sjcl");
 
+var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
 var Tlec = require("./../Tlec/Tlec");
 
