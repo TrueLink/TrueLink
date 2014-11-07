@@ -42,6 +42,10 @@
 
 // __________________________________________________________________________ //
 
+    function SerializationHelper() {
+
+    }
+
     SerializationHelper.serializeValueAsHex = function (value) {
         return value ? value.as(Hex).serialize() : null;
     }
@@ -59,6 +63,15 @@
     function Users() {
         this._byAid = {};
     }
+
+    Users.prototype.getUsers = function () {
+        return Object.keys(this._byAid).map(function (item) {
+            return {
+                aid: item,
+                name: this._byAid[item].meta.name
+            }
+        }, this);
+    };
 
     Users.prototype.getUserData = function (aid) {
         return this._byAid[aid.as(Hex).serialize()];
@@ -87,10 +100,10 @@
         var result = {};
         for (var key in byAid) {
             result[key] = {
-                aid = byAid[key].aid.as(Hex).serialize(),
-                ht = byAid[key].ht.as(Hex).serialize(),
-                publicKey = byAid[key].publicKey.serialize(),
-                meta = byAid[key].meta
+                aid: byAid[key].aid.as(Hex).serialize(),
+                ht: byAid[key].ht.as(Hex).serialize(),
+                publicKey: byAid[key].publicKey.serialize(),
+                meta: byAid[key].meta
             }
         }
         return result;
@@ -99,13 +112,14 @@
     Users.prototype.deserialize = function (byAid) {
         for (var key in byAid) {
             this._byAid[key] = { 
-                aid = Hex.deserialize(byAid[key].aid),
-                ht = Hex.deserialize(byAid[key].ht),
-                meta = byAid[key].meta,
-                publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey)
+                aid: Hex.deserialize(byAid[key].aid),
+                ht: Hex.deserialize(byAid[key].ht),
+                meta: byAid[key].meta,
+                publicKey: rsa.PublicKey.deserialize(byAid[key].publicKey)
             }
         }
     }
+
 // __________________________________________________________________________ //
 
     function Algo(random) {
@@ -121,7 +135,16 @@
 
         this._keyPair = rsa.generateKeyPair({bits: Tlgr.keyPairLength});
         this._aid = rsa.getPublicKeyFingerprint(this._keyPair.publicKey);
-    }
+    };
+
+    Algo.prototype.getUID = function () {
+        return this._groupUid.as(Hex).serialize();
+    };
+
+    Algo.prototype.getUsers = function () {
+        return this._users.getUsers();
+    };
+
 
     Algo.prototype._hash = function (value) {
         return SHA1(value).as(BitArray).bitSlice(0, Tlgr.hashLength);
@@ -276,17 +299,6 @@
         }
     };
 
-    Algo.prototype._deserializeUsers = function (byAid) {
-        var dest = this._users._byAid;
-        for (var key in byAid) {
-            dest[key] = { };
-            dest[key].aid = Hex.deserialize(byAid[key].aid);
-            dest[key].ht = Hex.deserialize(byAid[key].ht);
-            dest[key].meta = byAid[key].meta;
-            dest[key].publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey);
-        }
-    }
-
     Algo.prototype.serialize = function () {
         return {
             groupUid: SerializationHelper.serializeValueAsHex(this._groupUid),
@@ -316,7 +328,7 @@
             this._users.deserialize(data.users);
         }
         this._aid = SerializationHelper.deserializeValueAsHex(data.aid);
-    },
+    }
         
 
 
@@ -354,16 +366,11 @@
         },
 
         getUID: function () {
-            return this._algo._groupUid.as(Hex).serialize();
+            return this._algo.getUID();
         },
 
         getUsers: function () {
-            return Object.keys(this._algo._users._byAid).map(function (item) {
-                return {
-                    aid: item,
-                    name: this._algo._users._byAid[item].meta.name
-                }
-            }, this);
+            return this._algo.getUsers();
         },
 
         makePrivateMessage: function (aid, message/*string*/) {
