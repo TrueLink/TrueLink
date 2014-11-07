@@ -648,6 +648,7 @@ extend(Dialog.prototype, serializable);
             packet.setData({
                 _type_: "GroupChat",
                 name: this.name,
+                unread: this.unreadCount
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
             packet.setLink("history", context.getPacket(this.history));
@@ -656,7 +657,9 @@ extend(Dialog.prototype, serializable);
         deserialize  (packet, context) {
             this.checkFactory();
             var factory = this.getFactory();
-            this.name = packet.getData().name;
+            var data = packet.getData();
+            this.name = data.name;
+            this.unreadCount = data.unread;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
             this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
             this._setTlgrEventHandlers();
