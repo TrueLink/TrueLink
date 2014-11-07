@@ -42,12 +42,44 @@
 
 // __________________________________________________________________________ //
 
+    function SerializationHelper() {
+
+    }
+
+    SerializationHelper.serializeValueAsHex = function (value) {
+        return value ? value.as(Hex).serialize() : null;
+    }
+
+    SerializationHelper.serializeValue = function (value) {
+        return value ? value.serialize() : null;
+    }
+
+    SerializationHelper.deserializeValueAsHex = function (value) {
+        return value ? Hex.deserialize(value) : null;
+    }
+
+// __________________________________________________________________________ //
+
     function Users() {
         this._byAid = {};
     }
 
+    Users.prototype.getUsers = function () {
+        return Object.keys(this._byAid).map(function (item) {
+            return {
+                aid: item,
+                name: this._byAid[item].meta.name
+            }
+        }, this);
+    };
+
     Users.prototype.getUserData = function (aid) {
-        return this._byAid[aid.as(Hex).serialize()];
+        if (aid instanceof Multivalue) {
+            return this.getUserData(aid.as(Hex).serialize());
+        }
+        if (typeof aid === 'string' || aid instanceof String) {
+            return this._byAid[aid];
+        }
     }
 
     Users.prototype.putUserData = function (data) {
@@ -68,6 +100,31 @@
         }
     }
 
+    Users.prototype.serialize = function () {
+        var byAid = this._byAid;
+        var result = {};
+        for (var key in byAid) {
+            result[key] = {
+                aid: byAid[key].aid.as(Hex).serialize(),
+                ht: byAid[key].ht.as(Hex).serialize(),
+                publicKey: byAid[key].publicKey.serialize(),
+                meta: byAid[key].meta
+            }
+        }
+        return result;
+    }
+
+    Users.prototype.deserialize = function (byAid) {
+        for (var key in byAid) {
+            this._byAid[key] = { 
+                aid: Hex.deserialize(byAid[key].aid),
+                ht: Hex.deserialize(byAid[key].ht),
+                meta: byAid[key].meta,
+                publicKey: rsa.PublicKey.deserialize(byAid[key].publicKey)
+            }
+        }
+    }
+
 // __________________________________________________________________________ //
 
     function Algo(random) {
@@ -83,7 +140,32 @@
 
         this._keyPair = rsa.generateKeyPair({bits: Tlgr.keyPairLength});
         this._aid = rsa.getPublicKeyFingerprint(this._keyPair.publicKey);
+    };
+
+    Algo.prototype.getUID = function () {
+        return this._groupUid.as(Hex).serialize();
+    };
+
+    Algo.prototype.getUsers = function () {
+        return this._users;
+    };
+
+    Algo.prototype.getChannelId = function () {
+        return this._channelId;
     }
+
+    Algo.prototype.getAid = function () {
+        return this._aid;
+    }
+
+    Algo.prototype.getMyAid = function () {
+        return this._aid.as(Hex).toString();
+    }
+
+    Algo.prototype.getMyName = function () {
+        return this._users.getUserData(this.getMyAid()).meta.name;
+    }
+
 
     Algo.prototype._hash = function (value) {
         return SHA1(value).as(BitArray).bitSlice(0, Tlgr.hashLength);
@@ -238,6 +320,39 @@
         }
     };
 
+    Algo.prototype.serialize = function () {
+        return {
+            groupUid: SerializationHelper.serializeValueAsHex(this._groupUid),
+            channelId: SerializationHelper.serializeValueAsHex(this._channelId),
+            sharedKey: SerializationHelper.serializeValueAsHex(this._sharedKey),
+            inviteId: SerializationHelper.serializeValueAsHex(this._inviteId),
+            hashStart: SerializationHelper.serializeValueAsHex(this._hashStart),
+            hashTail: SerializationHelper.serializeValueAsHex(this._hashTail),
+            publicKey: SerializationHelper.serializeValue(this._keyPair.publicKey),
+            privateKey: SerializationHelper.serializeValue(this._keyPair.privateKey),
+            users: this._users.serialize(),
+            aid: SerializationHelper.serializeValueAsHex(this._aid)
+        };
+    }
+    
+    Algo.prototype.deserialize = function (data) {
+        this._keyPair = { };
+        this._keyPair.publicKey = (data.publicKey)?(rsa.PublicKey.deserialize(data.publicKey)):null;
+        this._keyPair.privateKey = (data.privateKey)?(rsa.PrivateKey.deserialize(data.privateKey)):null;
+        this._groupUid = SerializationHelper.deserializeValueAsHex(data.groupUid);
+        this._channelId = SerializationHelper.deserializeValueAsHex(data.channelId);
+        this._sharedKey = SerializationHelper.deserializeValueAsHex(data.sharedKey);
+        this._inviteId = SerializationHelper.deserializeValueAsHex(data.inviteId);
+        this._hashStart = SerializationHelper.deserializeValueAsHex(data.hashStart);
+        this._hashTail = SerializationHelper.deserializeValueAsHex(data.hashTail);
+        if(data.users) {
+            this._users.deserialize(data.users);
+        }
+        this._aid = SerializationHelper.deserializeValueAsHex(data.aid);
+    }
+        
+
+
     Tlgr.Algo = Algo;
 // __________________________________________________________________________ //
 
@@ -261,77 +376,26 @@
     }
 
     extend(Tlgr.prototype, eventEmitter, serializable, {
-        serializeUsers: function () {
-            var byAid = this._algo._users._byAid;
-            var result = {};
-            for (var key in byAid) {
-                result[key] = { };
-                result[key].aid = byAid[key].aid.as(Hex).serialize();
-                result[key].ht = byAid[key].ht.as(Hex).serialize();
-                result[key].publicKey = byAid[key].publicKey.serialize();
-                result[key].meta = byAid[key].meta;
-            }
-            return result;
-        },
-        deserializeUsers: function (byAid) {
-            var dest = this._algo._users._byAid;
-            for (var key in byAid) {
-                dest[key] = { };
-                dest[key].aid = Hex.deserialize(byAid[key].aid);
-                dest[key].ht = Hex.deserialize(byAid[key].ht);
-                dest[key].meta = byAid[key].meta;
-                dest[key].publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey);
-            }
-        },
         serialize: function (packet, context) {
-            var usersByAid = this.serializeUsers();
-            packet.setData({
-                groupUid: (this._algo._groupUid)?(this._algo._groupUid.as(Hex).serialize()):(null),
-                channelId: (this._algo._channelId)?(this._algo._channelId.as(Hex).serialize()):null,
-                sharedKey: (this._algo._sharedKey)?(this._algo._sharedKey.as(Hex).serialize()):null,
-                inviteId: (this._algo._inviteId)?(this._algo._inviteId.as(Hex).serialize()):null,
-                hashStart: (this._algo._hashStart)?(this._algo._hashStart.as(Hex).serialize()):null,
-                hashTail: (this._algo._hashTail)?(this._algo._hashTail.as(Hex).serialize()):null,
-                publicKey: (this._algo._keyPair.publicKey)?(this._algo._keyPair.publicKey.serialize()):null,
-                privateKey: (this._algo._keyPair.privateKey)?(this._algo._keyPair.privateKey.serialize()):null,
-                users: usersByAid,
-                aid: (this._algo._aid)?(this._algo._aid.as(Hex).serialize()):null
-            });
+            var data = this._algo.serialize();
+            packet.setData(data);
         },
 
         deserialize: function (packet, context) {
-            var factory = this._factory;
             var data = packet.getData();
-            this._algo._keyPair = { };
-            this._algo._keyPair.publicKey = (data.publicKey)?(rsa.PublicKey.deserialize(data.publicKey)):null;
-            this._algo._keyPair.privateKey = (data.publicKey)?(rsa.PrivateKey.deserialize(data.privateKey)):null;
-            this._algo._groupUid = (data.groupUid)?(Hex.deserialize(data.groupUid)):null;
-            this._algo._channelId = (data.channelId)?(Hex.deserialize(data.channelId)):null;
-            this._algo._sharedKey = (data.sharedKey)?(Hex.deserialize(data.sharedKey)):null;
-            this._algo._inviteId = (data.inviteId)?(Hex.deserialize(data.inviteId)):null;
-            this._algo._hashStart = (data.hashStart)?(Hex.deserialize(data.hashStart)):null;
-            this._algo._hashTail = (data.hashTail)?(Hex.deserialize(data.hashTail)):null;
-            if(data.users) {
-                this.deserializeUsers(data.users);
-            }
-            this._algo._aid = (data.aid)?(Hex.deserialize(data.aid)):null;
+            this._algo.deserialize(data);
         },
 
         getUID: function () {
-            return this._algo._groupUid.as(Hex).serialize();
+            return this._algo.getUID();
         },
 
         getUsers: function () {
-            return Object.keys(this._algo._users._byAid).map(function (item) {
-                return {
-                    aid: item,
-                    name: this._algo._users._byAid[item].meta.name
-                }
-            }, this);
+            return this._algo.getUsers().getUsers();
         },
 
         makePrivateMessage: function (aid, message/*string*/) {
-            var usrData = this._algo._users._byAid[aid];
+            var usrData = this._algo.getUsers().getUserData(aid);
             var encrypted = this._algo.privatize(Hex.deserialize(aid), new Utf8String(message));
             var msg = {
                 type: Tlgr.messageTypes.REKEY_INFO,
@@ -343,11 +407,11 @@
         //rekeyInfo -  invitation object
         sendRekeyInfo: function (aidList, rekeyInfo) {
             aidList.forEach(function (aid) {
-                if (this._algo._users._byAid[aid]) {
-                    var usrData = this._algo._users._byAid[aid];
+                var usrData = this._algo.getUsers().getUserData(aid);
+                if (usrData) {
                     var msg = this.makePrivateMessage(aid, JSON.stringify(rekeyInfo));
                     this.fire("packet", {
-                        addr: this._algo._channelId,
+                        addr: this._algo.getChannelId(),
                         data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
                     });
                 }
@@ -361,7 +425,7 @@
                 data: (reasonRekey)?("reason=rekey"):("reason=user exit")
             }
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
             });
             this.fire("changed", this);
@@ -370,7 +434,7 @@
         afterDeserialize: function () {
             this._channelContext = urandom.int(0, 0xFFFFFFFF);
             this.fire("openAddrIn", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 context: this._channelContext,
                 fetch: false
             });
@@ -378,11 +442,11 @@
 
 
         getMyAid: function () {
-            return this._algo._aid.as(Hex).toString();
+            return this._algo.getMyAid();
         },
 
         getMyName: function () {
-            return this._algo._users._byAid[this.getMyAid()].meta.name;
+            return this._algo.getMyName();
         },
         
         //process only packets from our  channel
@@ -390,7 +454,7 @@
             invariant(networkPacket
                 && networkPacket.addr instanceof Multivalue
                 && networkPacket.data instanceof Multivalue, "networkPacket must be {addr: multivalue, data: multivalue}");
-            if (this._algo._channelId && this._algo._channelId.as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
+            if (this._algo.getChannelId() && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
                 //packet is for our channel lets try to decrypt
                 console.log("Tlgr: trying to decrypt packet");
                 var message = null;
@@ -407,7 +471,7 @@
                 if(decryptedData.sender) {
                     console.log("Tlgr got something: ", decryptedData.sender, message);
                     //if not our own text msg 
-                    if(decryptedData.sender.aid.as(Hex).toString() !== this._algo._aid.as(Hex).toString() &&
+                    if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
                             message.type === Tlgr.messageTypes.TEXT) {
                         this.fire("message", {
                             sender: { 
@@ -419,7 +483,7 @@
                         // == CHANNEL_ABANDONED
                     } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
                         if (message.data === "reason=user exit") {
-                            this._algo._users.removeUserData(decryptedData.sender);
+                            this._algo.getUsers().removeUserData(decryptedData.sender);
                             this.fire("user_left", { 
                                 aid: decryptedData.sender.aid.as(Hex).toString(),
                                 name: decryptedData.sender.meta.name
@@ -463,7 +527,7 @@
                 data: text
             }
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
             });
             this.fire("changed", this);
@@ -481,7 +545,7 @@
             this._channelContext = urandom.int(0, 0xFFFFFFFF);
             //lets listen for packets from that channel
             this.fire("openAddrIn", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 context: this._channelContext,
                 fetch: true
             });
@@ -494,7 +558,7 @@
             var gjpJson = JSON.stringify(gjp);
             
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(gjpJson))
             });
         },
