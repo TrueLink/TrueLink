@@ -1,9 +1,5 @@
 "use strict";
 
-Algo.authBitLength = 16;
-Algo.offerBitLength = 128;
-Algo.dhPrivBitLength = 160;
-
 var tools = require("../modules/tools");
 var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 var DiffieHellman = require("../modules/cryptography/diffie-hellman-leemon");
@@ -18,189 +14,13 @@ var Multivalue = require("../modules/multivalue/multivalue");
 
 var serializable = require("../modules/serialization/serializable");
 
+
+var DecryptionFailedError = require('./decryption-failed-error');
+var TlkeAlgo = require('./tlke-algo');
+
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
-function hash(value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
-}
-
-// __________________________________________________________________________ //
-
-function DecryptionFailedError(innerError) {
-    this.innerError = innerError;
-}
-
-// __________________________________________________________________________ //
-
-function Algo(random) {
-    this._random = random;
-
-    this.dhAesKey = null;
-    this._dhk = null;
-    this._dh = null;
-    this._auth = null;
-    this._check = null;
-    this._authData = null;
-}
-
-Algo.prototype._getRandomBytes = function (bitLength) {
-    invariant(isFunction(this._random.bitArray), "random must implement IRandom");
-    return this._random.bitArray(bitLength);
-}
-
-Algo.prototype._encrypt = function (bytes, customKey) {
-    var iv = this._getRandomBytes(128);
-    var aes = new Aes(customKey || this.dhAesKey);
-    var encryptedData = aes.encryptCbc(bytes, iv);
-    return iv.as(Bytes).concat(encryptedData);
-}
-
-Algo.prototype._decrypt = function (bytes, customKey) {
-    var dataBitArray = bytes.as(BitArray);
-    var iv = dataBitArray.bitSlice(0, 128);
-    var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
-    var aes = new Aes(customKey || this.dhAesKey);
-    try {
-        return aes.decryptCbc(encryptedData, iv);
-    }
-    catch (ex) {
-        throw new DecryptionFailedError(ex);
-    }
-}
-
-// Alice 1.1 (instantiation)
-Algo.prototype.generateOffer = function () {
-    this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
-    var dhAes = this._getRandomBytes(Algo.offerBitLength);
-    this.dhAesKey = dhAes;
-    var outId = dhAes.bitSlice(0, 16);
-    var inId = dhAes.bitSlice(16, 32);
-    return {inId: inId, outId: outId};
-}
-
-// Bob 2.1 (instantiation) offer is from getOffer (via IM)
-Algo.prototype.acceptOffer = function (offer) {
-    this._dh = DiffieHellman.generate(Algo.dhPrivBitLength, this._random);
-    var dhAes = offer.as(Hex).as(BitArray);
-    this.dhAesKey = dhAes;
-    var inId = dhAes.bitSlice(0, 16);
-    var outId = dhAes.bitSlice(16, 32);
-    return {inId: inId, outId: outId};
-}
-
-
-Algo.prototype.getOfferData = function () {
-    var dhData = new Hex(this._dh.createKeyExchange());
-    return this._encrypt(dhData);
-}
-
-// Bob 2.2.
-Algo.prototype.acceptOfferData = function (bytes) {
-    var dhData = this._decrypt(bytes);
-    var dhDataHex = dhData.as(Hex).value;
-    var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
-    this._dhk = new Hex(dhkHex);
-}
-
-Algo.prototype.getOfferResponse = function () {
-    var dhData = new Hex(this._dh.createKeyExchange());
-    return this._encrypt(dhData);
-}
-
-// Alice 3.1
-Algo.prototype.acceptOfferResponse = function (data) {
-    var dhDataHex = this._decrypt(data).as(Hex).value;
-    var dhkHex = this._dh.decryptKeyExchange(dhDataHex);
-    this._dhk = new Hex(dhkHex);
-
-    this._auth = this._getRandomBytes(Algo.authBitLength);
-    this._check = this._getRandomBytes(128);
-    return this._auth;
-}
-
-Algo.prototype.getAuthData = function () {
-    return this._encrypt(this._check, this._getVerifiedDhk());
-}
-
-Algo.prototype._getVerifiedDhk = function () {
-    var dhk = this._dhk.as(Bytes);
-    var auth = this._auth.as(Bytes);
-    return hash(dhk.concat(auth));
-}
-
-// Bob 4.2
-Algo.prototype.acceptAuthData = function (bytes) {
-    this._authData = bytes;
-}
-
-// Bob 4.1
-Algo.prototype.acceptAuth = function (auth) {
-    this._auth = auth;
-}
-
-Algo.prototype.hasAuth = function () {        
-    return !!this._auth;
-}
-
-Algo.prototype.hasAuthData = function () {        
-    return !!this._authData;
-}
-
-// Bob 4.3 (4.1 + 4.2)
-Algo.prototype.acceptAuthAndData = function () {
-    var bytes = this._authData;
-    // todo check's checksum and ACHTUNG if not match
-    var verified = this._getVerifiedDhk();
-    this._check = this._decrypt(bytes, verified);
-    var hCheck = hash(this._check);
-    return {
-        inId: hCheck.bitSlice(0, 16),
-        outId: hCheck.bitSlice(16, 32),
-        key: hash(this._check.as(Bytes).concat(verified))
-    };
-}
-
-Algo.prototype.getAuthResponse = function () {
-    var hCheck = hash(this._check);
-    return this._encrypt(hCheck, this._getVerifiedDhk());
-}
-
-// Alice 5
-Algo.prototype.acceptAuthResponse = function (bytes) {
-    var verified = this._getVerifiedDhk(),
-        hCheck = this._decrypt(bytes, verified);
-    if (hash(this._check).as(Hex).value !== hCheck.as(Hex).value) {
-        return;
-    }
-    return {
-        inId: hCheck.bitSlice(16, 32),
-        outId: hCheck.bitSlice(0, 16),
-        key: hash(this._check.as(Bytes).concat(verified))
-    };
-}
-
-Algo.prototype.deserialize = function (data) {
-    this.dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-    this._dhk = data.dhk ? Hex.deserialize(data.dhk) : null;
-    this._dh = data.dh ? DiffieHellman.deserialize(data.dh) : null;
-    this._auth = data.auth ? Hex.deserialize(data.auth) : null;
-    this._check = data.check ? Hex.deserialize(data.check) : null;
-    this._authData = data.authData ? Hex.deserialize(data.authData) : null;
-}
-
-Algo.prototype.serialize = function () {
-    return {
-        dhAesKey: this.dhAesKey ? this.dhAesKey.as(Hex).serialize() : null,
-        dhk: this._dhk ? this._dhk.as(Hex).serialize() : null,
-        dh: this._dh ? this._dh.serialize() : null,
-        auth: this._auth ? this._auth.as(Hex).serialize() : null,
-        check: this._check ? this._check.as(Hex).serialize() : null,
-        authData: this._authData ? this._authData.as(Hex).serialize() : null
-    };
-}
-
-// __________________________________________________________________________ //
 
 // tl channel that is used during key exchange (while channel is being set up)
 function Tlke(factory) {
@@ -217,7 +37,7 @@ function Tlke(factory) {
     // use the rng without serialization (assume singleton)
     this.random = factory.createRandom();
 
-    this._algo = new Algo(this.random);
+    this._algo = new TlkeAlgo(this.random);
 
     this.state = null;        
 }

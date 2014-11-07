@@ -1,12 +1,8 @@
 "use strict";
 
 var tools = require("../modules/tools");
-var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 var Hex = require("../modules/multivalue/hex");
-var BitArray = require("../modules/multivalue/bitArray");
 var Utf8String = require("../modules/multivalue/utf8string");
-var Bytes = require("../modules/multivalue/bytes");
-var Aes = require("../modules/cryptography/aes-sjcl");
 
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
@@ -15,107 +11,12 @@ var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");
 
+var TlhtAlgo = require("./tlht-algo");
+var DecryptionFailedError = require('./decryption-failed-error');
+
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
-
-
-function hash(value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
-}
-
-// __________________________________________________________________________ //
-
-function DecryptionFailedError(innerError) {
-    this.innerError = innerError;
-}
-
-// __________________________________________________________________________ //
-
-function Algo(random) {
-    this._random = random;
-
-    this._dhAesKey = null;
-    this._hashStart = null;
-    this._hashEnd = null;
-}
-
-Algo.prototype.init = function (key) {
-    invariant(this._random, "rng is not set");
-    this._dhAesKey = key;
-}
-
-Algo.prototype.generate = function () {
-    this._hashStart = this._random.bitArray(128);
-    var hashEnd = this._hashStart, i;
-    for (i = 0; i < Tlec.HashCount; i += 1) {
-        hashEnd = hash(hashEnd);
-    }
-    return hashEnd;
-}
-
-Algo.prototype.isHashReady = function () {
-    return !!this._hashStart && !!this._hashEnd;
-}
-
-Algo.prototype.getHashReady = function () {
-    return { 
-        hashStart: this._hashStart,
-        hashEnd: this._hashEnd
-    };
-}
-
-Algo.prototype.createMessage = function (raw) {
-    var hx = new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-    return this._encrypt(hx.concat(raw));
-}
-
-Algo.prototype.processMessage = function (bytes) {
-    var decryptedData = this._decrypt(bytes);
-    return decryptedData.bitSlice(128, decryptedData.bitLength());
-}
-
-Algo.prototype.setHashEnd = function (hashEnd) {
-    this._hashEnd = hashEnd;
-}
-
-Algo.prototype.deserialize = function (data) {
-    this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-    this._hashStart = data.hashStart ? Hex.deserialize(data.hashStart) : null;
-    this._hashEnd = data.hashEnd ? Hex.deserialize(data.hashEnd) : null;
-}
-
-Algo.prototype.serialize = function () {
-    return {
-        dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-        hashStart: this._hashStart ? this._hashStart.as(Hex).serialize() : null,
-        hashEnd: this._hashEnd ? this._hashEnd.as(Hex).serialize() : null
-    };
-}
-
-Algo.prototype._encrypt = function (bytes) {
-    invariant(this._dhAesKey, "channel is not configured");
-    var iv = this._random.bitArray(128);
-    var aes = new Aes(this._dhAesKey);
-    var encryptedData = aes.encryptCbc(bytes, iv);
-    return iv.as(Bytes).concat(encryptedData);
-}
-
-Algo.prototype._decrypt = function (bytes) {
-    invariant(this._dhAesKey, "channel is not configured");
-    var dataBitArray = bytes.as(BitArray);
-    var iv = dataBitArray.bitSlice(0, 128);
-    var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
-    var aes = new Aes(this._dhAesKey);
-    try {
-        return aes.decryptCbc(encryptedData, iv);
-    }
-    catch (ex) {
-        throw new DecryptionFailedError(ex);
-    }
-}
-
-// __________________________________________________________________________ //
 
 function Tlht(factory) {
     invariant(factory, "Can be constructed only with factory");
@@ -127,7 +28,7 @@ function Tlht(factory) {
     this._defineEvent("htReady");
 
     this._readyCalled = false;
-    this._algo = new Algo(factory.createRandom());
+    this._algo = new TlhtAlgo(factory.createRandom());
 }
 
 extend(Tlht.prototype, eventEmitter, serializable, {
