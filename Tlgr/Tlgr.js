@@ -42,6 +42,20 @@
 
 // __________________________________________________________________________ //
 
+    SerializationHelper.serializeValueAsHex = function (value) {
+        return value ? value.as(Hex).serialize() : null;
+    }
+
+    SerializationHelper.serializeValue = function (value) {
+        return value ? value.serialize() : null;
+    }
+
+    SerializationHelper.deserializeValueAsHex = function (value) {
+        return value ? Hex.deserialize(value) : null;
+    }
+
+// __________________________________________________________________________ //
+
     function Users() {
         this._byAid = {};
     }
@@ -68,6 +82,30 @@
         }
     }
 
+    Users.prototype.serialize = function () {
+        var byAid = this._byAid;
+        var result = {};
+        for (var key in byAid) {
+            result[key] = {
+                aid = byAid[key].aid.as(Hex).serialize(),
+                ht = byAid[key].ht.as(Hex).serialize(),
+                publicKey = byAid[key].publicKey.serialize(),
+                meta = byAid[key].meta
+            }
+        }
+        return result;
+    }
+
+    Users.prototype.deserialize = function (byAid) {
+        for (var key in byAid) {
+            this._byAid[key] = { 
+                aid = Hex.deserialize(byAid[key].aid),
+                ht = Hex.deserialize(byAid[key].ht),
+                meta = byAid[key].meta,
+                publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey)
+            }
+        }
+    }
 // __________________________________________________________________________ //
 
     function Algo(random) {
@@ -238,6 +276,50 @@
         }
     };
 
+    Algo.prototype._deserializeUsers = function (byAid) {
+        var dest = this._users._byAid;
+        for (var key in byAid) {
+            dest[key] = { };
+            dest[key].aid = Hex.deserialize(byAid[key].aid);
+            dest[key].ht = Hex.deserialize(byAid[key].ht);
+            dest[key].meta = byAid[key].meta;
+            dest[key].publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey);
+        }
+    }
+
+    Algo.prototype.serialize = function () {
+        return {
+            groupUid: SerializationHelper.serializeValueAsHex(this._groupUid),
+            channelId: SerializationHelper.serializeValueAsHex(this._channelId),
+            sharedKey: SerializationHelper.serializeValueAsHex(this._sharedKey),
+            inviteId: SerializationHelper.serializeValueAsHex(this._inviteId),
+            hashStart: SerializationHelper.serializeValueAsHex(this._hashStart),
+            hashTail: SerializationHelper.serializeValueAsHex(this._hashTail),
+            publicKey: SerializationHelper.serializeValue(this._keyPair.publicKey),
+            privateKey: SerializationHelper.serializeValue(this._keyPair.privateKey),
+            users: this._users.serialize(),
+            aid: SerializationHelper.serializeValueAsHex(this._aid)
+        };
+    }
+    
+    Algo.prototype.deserialize = function (data) {
+        this._keyPair = { };
+        this._keyPair.publicKey = (data.publicKey)?(rsa.PublicKey.deserialize(data.publicKey)):null;
+        this._keyPair.privateKey = (data.privateKey)?(rsa.PrivateKey.deserialize(data.privateKey)):null;
+        this._groupUid = SerializationHelper.deserializeValueAsHex(data.groupUid);
+        this._channelId = SerializationHelper.deserializeValueAsHex(data.channelId);
+        this._sharedKey = SerializationHelper.deserializeValueAsHex(data.sharedKey);
+        this._inviteId = SerializationHelper.deserializeValueAsHex(data.inviteId);
+        this._hashStart = SerializationHelper.deserializeValueAsHex(data.hashStart);
+        this._hashTail = SerializationHelper.deserializeValueAsHex(data.hashTail);
+        if(data.users) {
+            this._users.deserialize(data.users);
+        }
+        this._aid = SerializationHelper.deserializeValueAsHex(data.aid);
+    },
+        
+
+
     Tlgr.Algo = Algo;
 // __________________________________________________________________________ //
 
@@ -261,60 +343,14 @@
     }
 
     extend(Tlgr.prototype, eventEmitter, serializable, {
-        serializeUsers: function () {
-            var byAid = this._algo._users._byAid;
-            var result = {};
-            for (var key in byAid) {
-                result[key] = { };
-                result[key].aid = byAid[key].aid.as(Hex).serialize();
-                result[key].ht = byAid[key].ht.as(Hex).serialize();
-                result[key].publicKey = byAid[key].publicKey.serialize();
-                result[key].meta = byAid[key].meta;
-            }
-            return result;
-        },
-        deserializeUsers: function (byAid) {
-            var dest = this._algo._users._byAid;
-            for (var key in byAid) {
-                dest[key] = { };
-                dest[key].aid = Hex.deserialize(byAid[key].aid);
-                dest[key].ht = Hex.deserialize(byAid[key].ht);
-                dest[key].meta = byAid[key].meta;
-                dest[key].publicKey = rsa.PublicKey.deserialize(byAid[key].publicKey);
-            }
-        },
         serialize: function (packet, context) {
-            var usersByAid = this.serializeUsers();
-            packet.setData({
-                groupUid: (this._algo._groupUid)?(this._algo._groupUid.as(Hex).serialize()):(null),
-                channelId: (this._algo._channelId)?(this._algo._channelId.as(Hex).serialize()):null,
-                sharedKey: (this._algo._sharedKey)?(this._algo._sharedKey.as(Hex).serialize()):null,
-                inviteId: (this._algo._inviteId)?(this._algo._inviteId.as(Hex).serialize()):null,
-                hashStart: (this._algo._hashStart)?(this._algo._hashStart.as(Hex).serialize()):null,
-                hashTail: (this._algo._hashTail)?(this._algo._hashTail.as(Hex).serialize()):null,
-                publicKey: (this._algo._keyPair.publicKey)?(this._algo._keyPair.publicKey.serialize()):null,
-                privateKey: (this._algo._keyPair.privateKey)?(this._algo._keyPair.privateKey.serialize()):null,
-                users: usersByAid,
-                aid: (this._algo._aid)?(this._algo._aid.as(Hex).serialize()):null
-            });
+            var data = this._algo.serialize();
+            packet.setData(data);
         },
 
         deserialize: function (packet, context) {
-            var factory = this._factory;
             var data = packet.getData();
-            this._algo._keyPair = { };
-            this._algo._keyPair.publicKey = (data.publicKey)?(rsa.PublicKey.deserialize(data.publicKey)):null;
-            this._algo._keyPair.privateKey = (data.publicKey)?(rsa.PrivateKey.deserialize(data.privateKey)):null;
-            this._algo._groupUid = (data.groupUid)?(Hex.deserialize(data.groupUid)):null;
-            this._algo._channelId = (data.channelId)?(Hex.deserialize(data.channelId)):null;
-            this._algo._sharedKey = (data.sharedKey)?(Hex.deserialize(data.sharedKey)):null;
-            this._algo._inviteId = (data.inviteId)?(Hex.deserialize(data.inviteId)):null;
-            this._algo._hashStart = (data.hashStart)?(Hex.deserialize(data.hashStart)):null;
-            this._algo._hashTail = (data.hashTail)?(Hex.deserialize(data.hashTail)):null;
-            if(data.users) {
-                this.deserializeUsers(data.users);
-            }
-            this._algo._aid = (data.aid)?(Hex.deserialize(data.aid)):null;
+            this._algo.deserialize(data);
         },
 
         getUID: function () {
