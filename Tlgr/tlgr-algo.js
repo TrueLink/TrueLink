@@ -11,12 +11,6 @@ TlgrAlgo.hashCount = 1000;
 TlgrAlgo.hashLength = 128;
 TlgrAlgo.ivLength = 128;
 TlgrAlgo.keyLength = 128;
-TlgrAlgo.messageTypes = {
-    "REKEY_INFO": "rekey info",
-    "CHANNEL_ABANDONED": "channel abandoned",
-    "TEXT" : "text",
-    "GJP" : "gjp"
-}
 
 var rsa = require("../modules/cryptography/rsa-forge");
 var AES = require("../modules/cryptography/aes-forge");
