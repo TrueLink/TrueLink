@@ -8,7 +8,7 @@ var Aes = require("../modules/cryptography/aes-sjcl");
 
 var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
-var Tlec = require("./../Tlec/Tlec");
+var TlecAlgo = require("./../Tlec/tlec-algo");
 
 
 
@@ -38,7 +38,7 @@ TlhtAlgo.prototype.init = function (key) {
 TlhtAlgo.prototype.generate = function () {
     this._hashStart = this._random.bitArray(128);
     var hashEnd = this._hashStart, i;
-    for (i = 0; i < Tlec.HashCount; i += 1) {
+    for (i = 0; i < TlecAlgo.HashCount; i += 1) {
         hashEnd = this._hash(hashEnd);
     }
     return hashEnd;
