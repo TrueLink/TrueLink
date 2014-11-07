@@ -11,10 +11,12 @@ var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");
 
+var TlhtAlgo = require("./tlht-algo");
+var DecryptionFailedError = require('./decryption-failed-error');
+
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
-var TlhtAlgo = require("./tlht-algo");
 
 function Tlht(factory) {
     invariant(factory, "Can be constructed only with factory");

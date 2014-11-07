@@ -10,17 +10,7 @@ var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
 var TlecAlgo = require("./../Tlec/tlec-algo");
 
-
-
-
-
-// __________________________________________________________________________ //
-
-function DecryptionFailedError(innerError) {
-    this.innerError = innerError;
-}
-
-// __________________________________________________________________________ //
+var DecryptionFailedError = require('./decryption-failed-error');
 
 function TlhtAlgo(random) {
     this._random = random;

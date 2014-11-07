@@ -9,15 +9,9 @@ var Aes = require("../modules/cryptography/aes-sjcl");
 var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
 
+var DecryptionFailedError = require('./decryption-failed-error');
+
 var isFunction = tools.isFunction;
-
-// __________________________________________________________________________ //
-
-function DecryptionFailedError(innerError) {
-    this.innerError = innerError;
-}
-
-// __________________________________________________________________________ //
 
 function TlecAlgo(random) {
     this._random = random;

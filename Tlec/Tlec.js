@@ -7,6 +7,7 @@ var invariant = require("../modules/invariant");
 var serializable = require("../modules/serialization/serializable");
 
 var TlecAlgo = require("../Tlec/tlec-algo");
+var DecryptionFailedError = require('./decryption-failed-error');
 
 var extend = tools.extend;
 var isFunction = tools.isFunction;
