@@ -74,7 +74,12 @@
     };
 
     Users.prototype.getUserData = function (aid) {
-        return this._byAid[aid.as(Hex).serialize()];
+        if (aid instanceof Multivalue) {
+            return this.getUserData(aid.as(Hex).serialize());
+        }
+        if (typeof aid === 'string' || aid instanceof String) {
+            return this._byAid[aid];
+        }
     }
 
     Users.prototype.putUserData = function (data) {
@@ -142,8 +147,24 @@
     };
 
     Algo.prototype.getUsers = function () {
-        return this._users.getUsers();
+        return this._users;
     };
+
+    Algo.prototype.getChannelId = function () {
+        return this._channelId;
+    }
+
+    Algo.prototype.getAid = function () {
+        return this._aid;
+    }
+
+    Algo.prototype.getMyAid = function () {
+        return this._aid.as(Hex).toString();
+    }
+
+    Algo.prototype.getMyName = function () {
+        return this._users.getUserData(this.getMyAid()).meta.name;
+    }
 
 
     Algo.prototype._hash = function (value) {
@@ -370,11 +391,11 @@
         },
 
         getUsers: function () {
-            return this._algo.getUsers();
+            return this._algo.getUsers().getUsers();
         },
 
         makePrivateMessage: function (aid, message/*string*/) {
-            var usrData = this._algo._users._byAid[aid];
+            var usrData = this._algo.getUsers().getUserData(aid);
             var encrypted = this._algo.privatize(Hex.deserialize(aid), new Utf8String(message));
             var msg = {
                 type: Tlgr.messageTypes.REKEY_INFO,
@@ -386,11 +407,11 @@
         //rekeyInfo -  invitation object
         sendRekeyInfo: function (aidList, rekeyInfo) {
             aidList.forEach(function (aid) {
-                if (this._algo._users._byAid[aid]) {
-                    var usrData = this._algo._users._byAid[aid];
+                var usrData = this._algo.getUsers().getUserData(aid);
+                if (usrData) {
                     var msg = this.makePrivateMessage(aid, JSON.stringify(rekeyInfo));
                     this.fire("packet", {
-                        addr: this._algo._channelId,
+                        addr: this._algo.getChannelId(),
                         data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
                     });
                 }
@@ -404,7 +425,7 @@
                 data: (reasonRekey)?("reason=rekey"):("reason=user exit")
             }
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
             });
             this.fire("changed", this);
@@ -413,7 +434,7 @@
         afterDeserialize: function () {
             this._channelContext = urandom.int(0, 0xFFFFFFFF);
             this.fire("openAddrIn", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 context: this._channelContext,
                 fetch: false
             });
@@ -421,11 +442,11 @@
 
 
         getMyAid: function () {
-            return this._algo._aid.as(Hex).toString();
+            return this._algo.getMyAid();
         },
 
         getMyName: function () {
-            return this._algo._users._byAid[this.getMyAid()].meta.name;
+            return this._algo.getMyName();
         },
         
         //process only packets from our  channel
@@ -433,7 +454,7 @@
             invariant(networkPacket
                 && networkPacket.addr instanceof Multivalue
                 && networkPacket.data instanceof Multivalue, "networkPacket must be {addr: multivalue, data: multivalue}");
-            if (this._algo._channelId && this._algo._channelId.as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
+            if (this._algo.getChannelId() && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
                 //packet is for our channel lets try to decrypt
                 console.log("Tlgr: trying to decrypt packet");
                 var message = null;
@@ -450,7 +471,7 @@
                 if(decryptedData.sender) {
                     console.log("Tlgr got something: ", decryptedData.sender, message);
                     //if not our own text msg 
-                    if(decryptedData.sender.aid.as(Hex).toString() !== this._algo._aid.as(Hex).toString() &&
+                    if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
                             message.type === Tlgr.messageTypes.TEXT) {
                         this.fire("message", {
                             sender: { 
@@ -462,7 +483,7 @@
                         // == CHANNEL_ABANDONED
                     } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
                         if (message.data === "reason=user exit") {
-                            this._algo._users.removeUserData(decryptedData.sender);
+                            this._algo.getUsers().removeUserData(decryptedData.sender);
                             this.fire("user_left", { 
                                 aid: decryptedData.sender.aid.as(Hex).toString(),
                                 name: decryptedData.sender.meta.name
@@ -506,7 +527,7 @@
                 data: text
             }
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
             });
             this.fire("changed", this);
@@ -524,7 +545,7 @@
             this._channelContext = urandom.int(0, 0xFFFFFFFF);
             //lets listen for packets from that channel
             this.fire("openAddrIn", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 context: this._channelContext,
                 fetch: true
             });
@@ -537,7 +558,7 @@
             var gjpJson = JSON.stringify(gjp);
             
             this.fire("packet", {
-                addr: this._algo._channelId,
+                addr: this._algo.getChannelId(),
                 data: this._algo.encrypt(new Utf8String(gjpJson))
             });
         },
