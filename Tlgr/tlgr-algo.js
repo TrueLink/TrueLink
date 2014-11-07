@@ -29,6 +29,26 @@ var isFunction = tools.isFunction;
 var Users = require('./users');
 
 
+// __________________________________________________________________________ //
+
+function SerializationHelper() {
+
+}
+
+SerializationHelper.serializeValueAsHex = function (value) {
+    return value ? value.as(Hex).serialize() : null;
+}
+
+SerializationHelper.serializeValue = function (value) {
+    return value ? value.serialize() : null;
+}
+
+SerializationHelper.deserializeValueAsHex = function (value) {
+    return value ? Hex.deserialize(value) : null;
+}
+
+// __________________________________________________________________________ //
+
 function TlgrAlgo(random) {
     this._random = random;
 

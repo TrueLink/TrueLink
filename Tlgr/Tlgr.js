@@ -23,29 +23,7 @@ var isFunction = tools.isFunction;
 
 var TlgrAlgo = require('./tlgr-algo');
 
-// __________________________________________________________________________ //
-
-function SerializationHelper() {
-
-}
-
-SerializationHelper.serializeValueAsHex = function (value) {
-    return value ? value.as(Hex).serialize() : null;
-}
-
-SerializationHelper.serializeValue = function (value) {
-    return value ? value.serialize() : null;
-}
-
-SerializationHelper.deserializeValueAsHex = function (value) {
-    return value ? Hex.deserialize(value) : null;
-}
-
-// __________________________________________________________________________ //
-
 Tlgr.Algo = TlgrAlgo;
-
-// __________________________________________________________________________ //
 
 function Tlgr(factory) {
     console.log("Constructing Tlgr...");
