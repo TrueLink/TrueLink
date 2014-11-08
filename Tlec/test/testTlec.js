@@ -1,9 +1,8 @@
 "use strict";
-var utils = require("converters/all");
-var Hex = require("modules/multivalue/hex");
-var Utf8String = require("modules/multivalue/utf8string");
-var EventEmitter = require("modules/events/eventEmitter");
-var extend = require("extend");
+//var utils = require("../../frontend/build/converters/all");
+var Hex = require("../../modules/multivalue/hex");
+var Utf8String = require("../../modules/multivalue/utf8string");
+var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
 
 var logfunc = function() {
