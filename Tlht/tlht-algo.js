@@ -7,7 +7,6 @@ var Bytes = require("../modules/multivalue/bytes");
 var Aes = require("../modules/cryptography/aes-sjcl");
 
 var invariant = require("../modules/invariant");
-var Multivalue = require("../modules/multivalue/multivalue");
 var TlecAlgo = require("./../Tlec/tlec-algo");
 
 var DecryptionFailedError = require('./decryption-failed-error');

@@ -7,7 +7,6 @@ var Utf8String = require("../modules/multivalue/utf8string");
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
 var Multivalue = require("../modules/multivalue/multivalue");
-var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");
 
@@ -16,7 +15,6 @@ var DecryptionFailedError = require('./decryption-failed-error');
 
 var extend = tools.extend;
 var isFunction = tools.isFunction;
-
 
 function Tlht(factory) {
     invariant(factory, "Can be constructed only with factory");
