@@ -12,10 +12,7 @@ var eventEmitter = require("../events/eventEmitter");
 
 var extend = require("../tools").extend;
 
-var window;
-if (typeof realwindow !== 'undefined') {
-    var window = realwindow; // HACK
-}
+var window = typeof realwindow !== 'undefined' ? realwindow : {}; // HACK
 
 function Random() {
     this._defineEvent("changed");
@@ -40,7 +37,7 @@ function Random() {
     ["MSPointerMove", "touchmove", "mousemove", "mousedown", "touchstart"].map(function (evtName) {
         if (window.addEventListener) {
             window.addEventListener(evtName, mouseCollector, false);
-        } else if (document.attachEvent) {
+        } else if (typeof document !== 'undefined' && document.attachEvent) {
             document.attachEvent(evtName, mouseCollector);
         }
     });

@@ -1,9 +1,12 @@
 "use strict";
-//var utils = require("../../frontend/build/converters/all");
+var utils = require("../../modules/converters/all");
 var Hex = require("../../modules/multivalue/hex");
 var Utf8String = require("../../modules/multivalue/utf8string");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
+
+var chai = require('chai');
+var expect = chai.expect;
 
 var logfunc = function() {
     var args = [this.name].concat(arguments);
@@ -11,6 +14,7 @@ var logfunc = function() {
 }
 
 describe("True Link Encrypted Channel", function() {
+    this.timeout(10000);
 
     describe("with builder", function() {
         before(function(done) {
