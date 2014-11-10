@@ -1,12 +1,6 @@
 "use strict";
 
 var tools = require("../modules/tools");
-var SHA1 = require("../modules/cryptography/sha1-crypto-js");
-var DiffieHellman = require("../modules/cryptography/diffie-hellman-leemon");
-var Hex = require("../modules/multivalue/hex");
-var BitArray = require("../modules/multivalue/bitArray");
-var Bytes = require("../modules/multivalue/bytes");
-var Aes = require("../modules/cryptography/aes-sjcl");
 
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");

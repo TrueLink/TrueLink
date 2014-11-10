@@ -1,13 +1,11 @@
 "use strict";
 
 var SHA1 = require("../modules/cryptography/sha1-crypto-js");
-var Hex = require("../modules/multivalue/hex");
 var BitArray = require("../modules/multivalue/bitArray");
 var Bytes = require("../modules/multivalue/bytes");
 var Aes = require("../modules/cryptography/aes-sjcl");
 
 var invariant = require("../modules/invariant");
-var Multivalue = require("../modules/multivalue/multivalue");
 var TlecAlgo = require("./../Tlec/tlec-algo");
 
 var DecryptionFailedError = require('./decryption-failed-error');
