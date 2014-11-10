@@ -11,7 +11,11 @@ var serializable = require("../serialization/serializable");
 var eventEmitter = require("../events/eventEmitter");
 
 var extend = require("../tools").extend;
-var window = realwindow; // HACK
+
+var window;
+if (typeof realwindow !== 'undefined') {
+    var window = realwindow; // HACK
+}
 
 function Random() {
     this._defineEvent("changed");
