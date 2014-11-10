@@ -1,6 +1,6 @@
 
     "use strict";
-    var forge = require("forge");
+    var forge = require("node-forge");
     var BigIntForge = require("../multivalue/bigIntForge");
     var ByteBuffer = require("../multivalue/byteBuffer");
     var Hex = require("../multivalue/hex");

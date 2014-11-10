@@ -10,7 +10,7 @@ var DecBlocks = modules.multivalue.decBlocks;
 var BigIntSjcl = modules.multivalue.bigIntSjcl;
 var ByteBuffer = modules.multivalue.byteBuffer;
 var Utf8String = modules.multivalue.utf8string;
-var forge = require("forge");
+var forge = require("node-forge");
 var converter = converter_mod.getInstance();
 converter.register("bigIntForge", "hex", function (value) {
     return new Hex(value.toString(16));

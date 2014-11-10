@@ -1,7 +1,7 @@
     "use strict";
 
     var Multivalue = require("./multivalue");
-    var forge = require("forge");
+    var forge = require("node-forge");
     var tools = require("../tools");
 
     function ByteBuffer(value) {

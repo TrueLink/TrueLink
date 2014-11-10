@@ -9,6 +9,6 @@
   "author": "wizzard0",
   "license": "MIT",
   "dependencies": {
-    "forge": "^2.2.0"
+    "node-forge": "^0.6.16"
   }
 }

@@ -1,5 +1,5 @@
     "use strict";
-    var forge = require("forge");
+    var forge = require("node-forge");
     var ByteBuffer = require("../multivalue/byteBuffer");
 
     exports.encryptCbc = function (data, key, iv) {
