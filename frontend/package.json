@@ -23,7 +23,7 @@
     "react": "^0.11.2",
     "react-bootstrap": "^0.12.0",
     "react-typescript-definitions": "0.0.6",
-    "spa": "^0.2.7",
+    "spa": "^0.3.2",
     "yargs": "^1.3.2"
   },
   "devDependencies": {},
