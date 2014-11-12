@@ -1,5 +1,5 @@
 ﻿import multivalue = require("../index");
-import sjcl = require("sjcl");
+import sjcl = require("sjcl-all");
 
 class BigIntSjcl extends multivalue.Multivalue {
     public static get typeName(): string {

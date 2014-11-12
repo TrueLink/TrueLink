@@ -1,3 +1,3 @@
-declare module "sjcl" {
+declare module "sjcl-all" {
     export = sjcl;
 }

@@ -6,7 +6,7 @@ import Base64Url = require("../multivalue/base64url");
 import Utf8String = require("../multivalue/utf8string");
 import Hex = require("../multivalue/hex");
 import leemon = require("BigInt");
-import sjcl = require("sjcl");
+import sjcl = require("sjcl-all");;
 
 export function HexToDecBlocks(source: Hex): DecBlocks {
     var bi = leemon.str2bigInt(source.value, 16);
