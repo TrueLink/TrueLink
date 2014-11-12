@@ -1,5 +1,5 @@
 "use strict";
-var utils = require("../../Multivalue/converters");
+var converters = require("../../Multivalue/converters");
 var Hex = require("../../Multivalue/multivalue/hex");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
@@ -7,6 +7,8 @@ var tools = require("../../modules/tools");
 var extend = tools.extend;
 var chai = require('chai');
 var expect = chai.expect;
+
+converters.register();
 
 
 var logfunc = function() {

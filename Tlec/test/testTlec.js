@@ -1,9 +1,11 @@
 "use strict";
-var utils = require("../../Multivalue/converters");
+var converters = require("../../Multivalue/converters");
 var Hex = require("../../Multivalue/multivalue/hex");
 var Utf8String = require("../../Multivalue/multivalue/utf8string");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
+
+converters.register();
 
 var chai = require('chai');
 var expect = chai.expect;
