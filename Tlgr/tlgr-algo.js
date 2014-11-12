@@ -200,7 +200,7 @@ TlgrAlgo.prototype.privatize = function (aid, data) {
 };
 
 TlgrAlgo.prototype.deprivatize = function(message) {
-    var encrypted = message.as(ByteBuffer);
+    var encrypted = new ByteBuffer(message.as(ByteBuffer).value);
     var encrypted_key = encrypted.take(TlgrAlgo.keyPairLength);
     var iv = encrypted.take(TlgrAlgo.ivLength);
     var key = this._keyPair.privateKey.decrypt(encrypted_key, 'RSA-OAEP');
