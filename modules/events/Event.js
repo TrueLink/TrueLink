@@ -14,9 +14,14 @@
                 try {
                     item.callback.call(item.context, args, sender);
                 } catch (ex) {
-                    console.group(name + " event handler failed");
-                    console.error(ex);
-                    console.groupEnd();
+                    if (console.group) {
+                        console.group(name + " event handler failed");
+                        console.error(ex);
+                        console.groupEnd();
+                    } else {
+                        console.log(name + " event handler failed");
+                        console.error(ex);                        
+                    }
                 }
             });
         },
