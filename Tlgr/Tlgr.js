@@ -10,7 +10,7 @@ Tlgr.messageTypes = {
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
 
-var Multivalue = require("../Multivalue");
+var Multivalue = require("../Multivalue").Multivalue;
 var Hex = require("../Multivalue/multivalue/hex");
 var Utf8String = require("../Multivalue/multivalue/utf8string");
 

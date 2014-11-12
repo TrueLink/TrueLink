@@ -6,7 +6,7 @@ var Utf8String = require("../Multivalue/multivalue/utf8string");
 
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
-var Multivalue = require("../Multivalue");
+var Multivalue = require("../Multivalue").Multivalue;
 var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");
