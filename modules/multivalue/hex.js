@@ -1,5 +1,5 @@
     "use strict";
-    var Multivalue = require("./multivalue");
+    var Multivalue = require("./../Multivalue/multivalue");
     // 0x does not matter
     // always adds leading zero if string.length is odd
     function Hex(string) {

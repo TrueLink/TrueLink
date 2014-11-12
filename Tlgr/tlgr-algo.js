@@ -18,10 +18,10 @@ var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 
 var invariant = require("../modules/invariant");
 
-var Hex = require("../modules/multivalue/hex");
-var Utf8String = require("../modules/multivalue/utf8string");
-var ByteBuffer = require("../modules/multivalue/byteBuffer");
-var BitArray = require("../modules/multivalue/bitArray");
+var Hex = require("../Multivalue/multivalue/hex");
+var Utf8String = require("../Multivalue/multivalue/utf8string");
+var ByteBuffer = require("../Multivalue/multivalue/byteBuffer");
+var BitArray = require("../Multivalue/multivalue/bitArray");
 
 var tools = require("../modules/tools");
 var isFunction = tools.isFunction;

@@ -1,12 +1,12 @@
 "use strict";
 
 var tools = require("../modules/tools");
-var Hex = require("../modules/multivalue/hex");
-var Utf8String = require("../modules/multivalue/utf8string");
+var Hex = require("../Multivalue/multivalue/hex");
+var Utf8String = require("../Multivalue/multivalue/utf8string");
 
 var eventEmitter = require("../modules/events/eventEmitter");
 var invariant = require("../modules/invariant");
-var Multivalue = require("../modules/multivalue/multivalue");
+var Multivalue = require("../Multivalue");
 var Tlec = require("./../Tlec/Tlec");
 
 var serializable = require("../modules/serialization/serializable");

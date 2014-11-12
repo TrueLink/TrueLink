@@ -1,6 +1,6 @@
 "use strict";
-var utils = require("../../modules/converters/all");
-var Hex = require("../../modules/multivalue/hex");
+var utils = require("../../Multivalue/converters");
+var Hex = require("../../Multivalue/multivalue/hex");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
 var tools = require("../../modules/tools");

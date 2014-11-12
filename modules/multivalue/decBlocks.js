@@ -1,6 +1,6 @@
     "use strict";
 
-    var Multivalue = require("./multivalue");
+    var Multivalue = require("./../Multivalue/multivalue");
 
     var table = [
         [0, 3, 1, 7, 5, 9, 8, 6, 4, 2],

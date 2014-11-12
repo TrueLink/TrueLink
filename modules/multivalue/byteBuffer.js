@@ -1,6 +1,6 @@
     "use strict";
 
-    var Multivalue = require("./multivalue");
+    var Multivalue = require("./../Multivalue/multivalue");
     var forge = require("node-forge");
     var tools = require("../tools");
 

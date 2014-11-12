@@ -1,6 +1,6 @@
     "use strict";
 
-    var Multivalue = require("./multivalue");
+    var Multivalue = require("./../Multivalue/multivalue");
     var Ba = require("../sjcl/bitArray");
 
     function BitArray(arr) {

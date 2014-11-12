@@ -1,6 +1,6 @@
     "use strict";
 
-    var Multivalue = require("./multivalue");
+    var Multivalue = require("./../Multivalue/multivalue");
     var WordArray = require("../crypto-js/x32wordArray");
 
     function X32WordArray(value, sigBytes) {
