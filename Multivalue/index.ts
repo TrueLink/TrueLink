@@ -53,7 +53,7 @@ export class Multivalue {
         return this._getMediator(from, to) || this._getMediator(from, to, true);
     }
 
-    public static convert(from: string, to: string, value: any) {
+    public static convert(from: string, to: string, value: any): any {
         if (this.canConvertDirectly(from, to)) {
             return this.map[from][to].fn(value);
         }
