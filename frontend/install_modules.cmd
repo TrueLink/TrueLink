@@ -1,4 +1,5 @@
 npm install ..\Filter ^
+& npm install ..\Multivalue ^
 & npm install ..\OverTlecBuilder ^
 & npm install ..\Route ^
 & npm install ..\SerializationContext ^
