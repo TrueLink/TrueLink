@@ -29,9 +29,9 @@
             this.onUserLeft = new Event.Event<ITlgrShortUserInfo>("GrConnection.onUserLeft");
             this.onMessage = new Event.Event<any>("GrConnection.onMessage");
 
-        this._activeTlgr = null;
-        this._transport = null;
-    }
+            this._activeTlgr = null;
+            this._transport = null;
+        }
 
     //interface IGrConnectionInitParams {
     //
