@@ -1,13 +1,13 @@
 "use strict";
 var tools = require("../modules/tools");
 var SHA1 = require("../modules/cryptography/sha1-crypto-js");
-var Hex = require("../modules/multivalue/hex");
-var BitArray = require("../modules/multivalue/bitArray");
-var Bytes = require("../modules/multivalue/bytes");
+var Hex = require("../Multivalue/multivalue/hex");
+var BitArray = require("../Multivalue/multivalue/bitArray");
+var Bytes = require("../Multivalue/multivalue/bytes");
 var Aes = require("../modules/cryptography/aes-sjcl");
 
 var invariant = require("../modules/invariant");
-var Multivalue = require("../modules/multivalue/multivalue");
+var Multivalue = require("../Multivalue").Multivalue;
 
 var DecryptionFailedError = require('./decryption-failed-error');
 

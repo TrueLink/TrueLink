@@ -18,9 +18,9 @@ var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 
 var invariant = require("../modules/invariant");
 
-var Hex = require("../modules/multivalue/hex");
-var ByteBuffer = require("../modules/multivalue/byteBuffer");
-var BitArray = require("../modules/multivalue/bitArray");
+var Hex = require("../Multivalue/multivalue/hex");
+var ByteBuffer = require("../Multivalue/multivalue/byteBuffer");
+var BitArray = require("../Multivalue/multivalue/bitArray");
 
 var tools = require("../modules/tools");
 var isFunction = tools.isFunction;
@@ -199,7 +199,7 @@ TlgrAlgo.prototype.privatize = function (aid, data) {
 };
 
 TlgrAlgo.prototype.deprivatize = function(message) {
-    var encrypted = message.as(ByteBuffer);
+    var encrypted = new ByteBuffer(message.as(ByteBuffer).value);
     var encrypted_key = encrypted.take(TlgrAlgo.keyPairLength);
     var iv = encrypted.take(TlgrAlgo.ivLength);
     var key = this._keyPair.privateKey.decrypt(encrypted_key, 'RSA-OAEP');

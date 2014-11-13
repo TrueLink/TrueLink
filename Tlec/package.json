@@ -4,12 +4,13 @@
   "description": "Tlec",
   "main": "Tlec.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "toliman",
   "license": "MIT",
-  "optionalDependencies": {
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "mocha": "^2.0.1"
   }
 }

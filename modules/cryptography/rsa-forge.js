@@ -1,9 +1,9 @@
 
     "use strict";
-    var forge = require("forge");
-    var BigIntForge = require("../multivalue/bigIntForge");
-    var ByteBuffer = require("../multivalue/byteBuffer");
-    var Hex = require("../multivalue/hex");
+    var forge = require("node-forge");
+    var BigIntForge = require("../../Multivalue/multivalue/bigIntForge");
+    var ByteBuffer = require("../../Multivalue/multivalue/byteBuffer");
+    var Hex = require("../../Multivalue/multivalue/hex");
 
     var invariant = require("../invariant");
 
