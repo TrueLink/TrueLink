@@ -3,7 +3,6 @@
     var invariant = modules.invariant;
     import extend = require("../tools/extend");
     import Event = require("../tools/event");
-    var eventEmitter = modules.events.eventEmitter;
     var serializable = modules.serialization.serializable;
     import Model = require("../tools/model");
     var urandom = modules.urandom.urandom;

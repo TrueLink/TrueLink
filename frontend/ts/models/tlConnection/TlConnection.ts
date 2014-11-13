@@ -19,19 +19,17 @@
         private _initialTlec : any;
         private _tlecs : Array<any>;
         private _addrIns : Array<any>;
-        private _transport : CouchTransport.CouchTransport;
 
         constructor () {
             super();
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
-        this.offer = null;
-        this.auth = null;
-        this._initialTlec = null;
-        this._tlecs = [];
-        this._addrIns = [];
-        this._transport = null;
-    }
+            this.offer = null;
+            this.auth = null;
+            this._initialTlec = null;
+            this._tlecs = [];
+            this._addrIns = [];
+        }
 
         init  () {
             this._initialTlec = this.getFactory().createCouchTlec();
