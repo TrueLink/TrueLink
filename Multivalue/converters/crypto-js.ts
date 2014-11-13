@@ -1,4 +1,5 @@
-import crypto = require("crypto-js");
+import crypto = require("../../modules/crypto-js");
+
 import multivalue = require("../index");
 import X32WordArray = require("../multivalue/x32wordArray");
 import Utf8String = require("../multivalue/utf8string");

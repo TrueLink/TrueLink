@@ -1,5 +1,5 @@
 ﻿import multivalue = require("../index");
-import cryptojs = require("crypto-js");
+import cryptojs = require("../../modules/crypto-js");
 
 function compareArrays(a: number[], b: number[]): boolean {
     if (a.length != b.length) return false;
