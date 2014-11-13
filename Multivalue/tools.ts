@@ -1,5 +1,5 @@
 "use strict";
-import _ = require("lodash");
+import _ = require("../modules/lodash");
 
 export var extend = _.extend;
 export var isFunction = _.isFunction;

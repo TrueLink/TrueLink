@@ -1,5 +1,5 @@
 "use strict";
-var _ = require("lodash");
+var _ = require("../modules/lodash");
 exports.extend = _.extend;
 exports.isFunction = _.isFunction;
 exports.isArray = _.isArray;
