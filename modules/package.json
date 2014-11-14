@@ -9,6 +9,7 @@
   "author": "wizzard0",
   "license": "MIT",
   "dependencies": {
-    "node-forge": "^0.6.16"
+    "node-forge": "^0.6.16",
+    "sjcl-all": "^1.0.1"
   }
 }

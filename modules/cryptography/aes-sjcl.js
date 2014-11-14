@@ -1,6 +1,8 @@
 "use strict";
-var AesAlg = require("../sjcl/aes");
-var cbc = require("../sjcl/cbc");
+var sjcl = require("sjcl-all");
+var AesAlg = sjcl.cipher.aes;
+sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."]();
+var cbc = sjcl.mode.cbc;
 var BitArray = require("Multivalue/multivalue/bitArray");
 /**
  * Schedule out an AES key for both encryption and decryption.
