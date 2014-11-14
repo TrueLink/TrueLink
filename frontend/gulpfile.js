@@ -167,10 +167,12 @@ gulp.task("push", ['spa'], function () {
 });
 */
 gulp.task('revision', ['clean'], function (cb) {
-    exec('hg id -i > build/rev.txt', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
+    exec('mkdir build', function (err) {
+        exec('hg id -i > build/rev.txt', function (err, stdout, stderr) {
+            console.log(stdout);
+            console.log(stderr);
+            cb(err);
+        });
     });
 })
 
