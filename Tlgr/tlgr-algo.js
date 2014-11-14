@@ -18,9 +18,9 @@ var SHA1 = require("../modules/cryptography/sha1-crypto-js");
 
 var invariant = require("../modules/invariant");
 
-var Hex = require("../Multivalue/multivalue/hex");
-var ByteBuffer = require("../Multivalue/multivalue/byteBuffer");
-var BitArray = require("../Multivalue/multivalue/bitArray");
+var Hex = require("Multivalue/multivalue/hex");
+var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
+var BitArray = require("Multivalue/multivalue/bitArray");
 
 var tools = require("../modules/tools");
 var isFunction = tools.isFunction;

@@ -1,8 +1,8 @@
 "use strict";
-var converters = require("../../Multivalue/converters");
-var Hex = require("../../Multivalue/multivalue/hex");
-var ByteBuffer = require("../../Multivalue/multivalue/byteBuffer");
-var Utf8String = require("../../Multivalue/multivalue/utf8string");
+var converters = require("Multivalue/converters");
+var Hex = require("Multivalue/multivalue/hex");
+var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
+var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
 var tools = require("../../modules/tools");

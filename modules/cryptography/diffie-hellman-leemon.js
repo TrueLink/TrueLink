@@ -1,7 +1,7 @@
 "use strict";
 
 var Random = require("./random");
-var Hex = require("../../Multivalue/multivalue/hex");
+var Hex = require("Multivalue/multivalue/hex");
 var lemon = require("../leemon/BigInt");
 var invariant = require("../invariant");
 

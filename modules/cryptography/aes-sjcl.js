@@ -1,7 +1,7 @@
 "use strict";
 var AesAlg = require("../sjcl/aes");
 var cbc = require("../sjcl/cbc");
-var BitArray = require("../../Multivalue/multivalue/bitArray");
+var BitArray = require("Multivalue/multivalue/bitArray");
 /**
  * Schedule out an AES key for both encryption and decryption.
  * @constructor

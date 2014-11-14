@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{855644ca-3f72-41c4-96f0-f3079bb9c3b8}</ProjectGuid>
+    <ProjectHome />
+    <ProjectView>ProjectFiles</ProjectView>
+    <StartupFile>converters.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <EnableTypeScript>true</EnableTypeScript>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="package.json" />
+    <Content Include="tsd.json" />
+    <TypeScriptCompile Include="converters.ts" />
+    <TypeScriptCompile Include="exports.d.ts" />
+    <TypeScriptCompile Include="index.ts" />
+    <Compile Include="gulpfile.js" />
+    <TypeScriptCompile Include="converters\crypto-js.ts" />
+    <TypeScriptCompile Include="converters\customTypes.ts" />
+    <TypeScriptCompile Include="converters\forge.ts" />
+    <TypeScriptCompile Include="converters\sjcl.ts" />
+    <TypeScriptCompile Include="multivalue\base64.ts" />
+    <TypeScriptCompile Include="multivalue\base64url.ts" />
+    <TypeScriptCompile Include="multivalue\bigIntForge.ts" />
+    <TypeScriptCompile Include="multivalue\bigIntSjcl.ts" />
+    <TypeScriptCompile Include="multivalue\bitArray.ts" />
+    <TypeScriptCompile Include="multivalue\byteBuffer.ts" />
+    <TypeScriptCompile Include="multivalue\bytes.ts" />
+    <TypeScriptCompile Include="multivalue\decBlocks.ts" />
+    <TypeScriptCompile Include="multivalue\hex.ts" />
+    <TypeScriptCompile Include="multivalue\utf8string.ts" />
+    <TypeScriptCompile Include="multivalue\x32wordArray.ts" />
+    <TypeScriptCompile Include="test\multivalue_spec.ts" />
+    <TypeScriptCompile Include="tools.ts" />
+    <TypeScriptCompile Include="typings\bigint.d.ts" />
+    <TypeScriptCompile Include="typings\crypto-js.d.ts" />
+    <TypeScriptCompile Include="typings\forge.d.ts" />
+    <TypeScriptCompile Include="typings\sjcl.d.ts" />
+    <TypeScriptCompile Include="typings\tsd.d.ts" />
+    <TypeScriptCompile Include="typings\chai\chai.d.ts" />
+    <TypeScriptCompile Include="typings\cryptojs\cryptojs.d.ts" />
+    <TypeScriptCompile Include="typings\mocha\mocha.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="converters" />
+    <Folder Include="multivalue" />
+    <Folder Include="test" />
+    <Folder Include="typings" />
+    <Folder Include="typings\chai" />
+    <Folder Include="typings\cryptojs" />
+    <Folder Include="typings\mocha" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+  </PropertyGroup>
+</Project>

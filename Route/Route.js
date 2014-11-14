@@ -4,13 +4,13 @@ var tools = require("../modules/tools");
 
 var eventEmitter = require("../modules/events/eventEmitter");
 var serializable = require("../modules/serialization/serializable");
-var Hex = require("../Multivalue/multivalue/hex");
+var Hex = require("Multivalue/multivalue/hex");
 var urandom = require("../modules/urandom/urandom");
 
 
 var extend = tools.extend;
 
-var Multivalue = require("../Multivalue").Multivalue;
+var Multivalue = require("Multivalue").Multivalue;
 
 function Route(factory) {
     invariant(factory, "Can be constructed only with factory");

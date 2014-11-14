@@ -2,8 +2,8 @@
 
 var rsa = require("../modules/cryptography/rsa-forge");
 
-var Multivalue = require("../Multivalue").Multivalue;
-var Hex = require("../Multivalue/multivalue/hex");
+var Multivalue = require("Multivalue").Multivalue;
+var Hex = require("Multivalue/multivalue/hex");
 
 
 function Users() {

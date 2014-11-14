@@ -1,8 +1,8 @@
 "use strict";
 
-var Bytes = require("../../Multivalue/multivalue/bytes");
-var BitArray = require("../../Multivalue/multivalue/bitArray");
-var BigInt = require("../../Multivalue/multivalue/bigIntSjcl");
+var Bytes = require("Multivalue/multivalue/bytes");
+var BitArray = require("Multivalue/multivalue/bitArray");
+var BigInt = require("Multivalue/multivalue/bigIntSjcl");
 var Bn = require("../sjcl/bn");
 var Ba = require("../sjcl/bitArray");
 var RandomSjcl = require("../sjcl/random");

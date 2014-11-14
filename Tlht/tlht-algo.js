@@ -1,9 +1,9 @@
 "use strict";
 
 var SHA1 = require("../modules/cryptography/sha1-crypto-js");
-var Hex = require("../Multivalue/multivalue/hex");
-var BitArray = require("../Multivalue/multivalue/bitArray");
-var Bytes = require("../Multivalue/multivalue/bytes");
+var Hex = require("Multivalue/multivalue/hex");
+var BitArray = require("Multivalue/multivalue/bitArray");
+var Bytes = require("Multivalue/multivalue/bytes");
 var Aes = require("../modules/cryptography/aes-sjcl");
 
 var invariant = require("../modules/invariant");

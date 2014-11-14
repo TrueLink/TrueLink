@@ -1,7 +1,7 @@
 "use strict";
-var converters = require("../../Multivalue/converters");
-var Hex = require("../../Multivalue/multivalue/hex");
-var Utf8String = require("../../Multivalue/multivalue/utf8string");
+var converters = require("Multivalue/converters");
+var Hex = require("Multivalue/multivalue/hex");
+var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("../../modules/events/eventEmitter");
 var utils = require("./utils");
 
