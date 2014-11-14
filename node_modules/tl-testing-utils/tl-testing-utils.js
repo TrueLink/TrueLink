@@ -1,16 +1,15 @@
 "use strict";
-var invariant = require("modules/invariant");
 var tools = require("modules/tools");
 var extend = tools.extend;
 
-var TlkeBuilder = require("../../TlkeBuilder");
-var TlhtBuilder = require("../../TlhtBuilder");
-var TlecBuilder = require("../../TlecBuilder");
+var TlkeBuilder = require("TlkeBuilder");
+var TlhtBuilder = require("TlhtBuilder");
+var TlecBuilder = require("TlecBuilder");
 var OverTlecBuilder = require("OverTlecBuilder");
-var Tlke = require("../../Tlke");
-var Tlht = require("../../Tlht");
-var Tlec = require("../../Tlec");
-var Tlgr = require("../../Tlgr");
+var Tlke = require("Tlke");
+var Tlht = require("Tlht");
+var Tlec = require("Tlec");
+var Tlgr = require("Tlgr");
 var Route = require("Route");
 var TestTransport = require("TestTransport");
 var Random = require("modules/cryptography/random");
