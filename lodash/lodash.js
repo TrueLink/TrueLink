@@ -6780,6 +6780,13 @@
   }
   else {
     // in a browser or Rhino
-    root._ = _;
+
+    // spa-ify (spa 0.3.3)
+    //root._ = _;
+    define([], function() {
+      return {_:_}; // ass like that :)
+    });
+    // end spa-ify
+
   }
 }.call(this));
