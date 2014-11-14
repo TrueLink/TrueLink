@@ -7,7 +7,7 @@ start.lnk
 start2.lnk
 server2.js
 *.sublime-workspace
-node_modules
+*/node_modules
 *.orig
 rev.txt
 build/*
