@@ -4,15 +4,15 @@ TlkeAlgo.authBitLength = 16;
 TlkeAlgo.offerBitLength = 128;
 TlkeAlgo.dhPrivBitLength = 160;
 
-var tools = require("../modules/tools");
-var SHA1 = require("../modules/cryptography/sha1-crypto-js");
-var DiffieHellman = require("../modules/cryptography/diffie-hellman-leemon");
+var tools = require("modules/tools");
+var SHA1 = require("modules/cryptography/sha1-crypto-js");
+var DiffieHellman = require("modules/cryptography/diffie-hellman-leemon");
 var Hex = require("Multivalue/multivalue/hex");
 var BitArray = require("Multivalue/multivalue/bitArray");
 var Bytes = require("Multivalue/multivalue/bytes");
-var Aes = require("../modules/cryptography/aes-sjcl");
+var Aes = require("modules/cryptography/aes-sjcl");
 
-var invariant = require("../modules/invariant");
+var invariant = require("modules/invariant");
 
 var DecryptionFailedError = require('./decryption-failed-error');
 

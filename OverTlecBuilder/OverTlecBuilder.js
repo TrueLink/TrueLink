@@ -1,9 +1,9 @@
 "use strict";
-var invariant = require("../modules/invariant");
-var eventEmitter = require("../modules/events/eventEmitter");
-var serializable = require("../modules/serialization/serializable");
+var invariant = require("modules/invariant");
+var eventEmitter = require("modules/events/eventEmitter");
+var serializable = require("modules/serialization/serializable");
 var Hex = require("Multivalue/multivalue/hex");
-var tools = require("../modules/tools");
+var tools = require("modules/tools");
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 //    var wrapperFactory = require("./wrapperFactory");

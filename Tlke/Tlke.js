@@ -1,12 +1,12 @@
 "use strict";
 
-var tools = require("../modules/tools");
+var tools = require("modules/tools");
 
-var eventEmitter = require("../modules/events/eventEmitter");
-var invariant = require("../modules/invariant");
+var eventEmitter = require("modules/events/eventEmitter");
+var invariant = require("modules/invariant");
 var Multivalue = require("Multivalue").Multivalue;
 
-var serializable = require("../modules/serialization/serializable");
+var serializable = require("modules/serialization/serializable");
 
 
 var DecryptionFailedError = require('./decryption-failed-error');

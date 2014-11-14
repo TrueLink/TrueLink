@@ -1,6 +1,6 @@
 "use strict";
-var invariant = require("../../modules/invariant");
-var tools = require("../../modules/tools");
+var invariant = require("modules/invariant");
+var tools = require("modules/tools");
 var extend = tools.extend;
 
 var TlkeBuilder = require("../../TlkeBuilder");
@@ -13,7 +13,7 @@ var Tlec = require("../../Tlec");
 var Tlgr = require("../../Tlgr");
 var Route = require("../../Route");
 var TestTransport = require("../../TestTransport");
-var Random = require("../../modules/cryptography/random");
+var Random = require("modules/cryptography/random");
 
 function TlConnectionFactory() {
     this._transport = null;

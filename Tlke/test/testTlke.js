@@ -1,9 +1,9 @@
 "use strict";
 var converters = require("Multivalue/converters");
 var Hex = require("Multivalue/multivalue/hex");
-var EventEmitter = require("../../modules/events/eventEmitter");
+var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
-var tools = require("../../modules/tools");
+var tools = require("modules/tools");
 var extend = tools.extend;
 var chai = require('chai');
 var expect = chai.expect;

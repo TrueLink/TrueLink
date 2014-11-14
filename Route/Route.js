@@ -1,11 +1,11 @@
 "use strict";
-var invariant = require("../modules/invariant");
-var tools = require("../modules/tools");
+var invariant = require("modules/invariant");
+var tools = require("modules/tools");
 
-var eventEmitter = require("../modules/events/eventEmitter");
-var serializable = require("../modules/serialization/serializable");
+var eventEmitter = require("modules/events/eventEmitter");
+var serializable = require("modules/serialization/serializable");
 var Hex = require("Multivalue/multivalue/hex");
-var urandom = require("../modules/urandom/urandom");
+var urandom = require("modules/urandom/urandom");
 
 
 var extend = tools.extend;

@@ -7,17 +7,17 @@ Tlgr.messageTypes = {
     "GJP" : "gjp"
 }
 
-var eventEmitter = require("../modules/events/eventEmitter");
-var invariant = require("../modules/invariant");
+var eventEmitter = require("modules/events/eventEmitter");
+var invariant = require("modules/invariant");
 
 var Multivalue = require("Multivalue").Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 
-var serializable = require("../modules/serialization/serializable");
-var urandom = require("../modules/urandom/urandom");
+var serializable = require("modules/serialization/serializable");
+var urandom = require("modules/urandom/urandom");
 
-var tools = require("../modules/tools");
+var tools = require("modules/tools");
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 

@@ -3,9 +3,9 @@ var converters = require("Multivalue/converters");
 var Hex = require("Multivalue/multivalue/hex");
 var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
 var Utf8String = require("Multivalue/multivalue/utf8string");
-var EventEmitter = require("../../modules/events/eventEmitter");
+var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
-var tools = require("../../modules/tools");
+var tools = require("modules/tools");
 var extend = tools.extend;
 var chai = require('chai');
 var expect = chai.expect;
@@ -18,7 +18,7 @@ var logfunc = function() {
 }
 
 describe("AES Forge Wrapper", function() {
-    var AES = require("../../modules/cryptography/aes-forge");
+    var AES = require("modules/cryptography/aes-forge");
 
     it("encrypt and dercypt", function() {
         var key = new Hex("FE568E7F453CB6EB837EBD8D1EBB647A");
@@ -31,7 +31,7 @@ describe("AES Forge Wrapper", function() {
 });
 
 describe("RSA Forge Wrapper", function() {
-    var rsa = require("../../modules/cryptography/rsa-forge");
+    var rsa = require("modules/cryptography/rsa-forge");
 
     it("should generate serializable keypair", function() {
         var keyPair = rsa.generateKeyPair({bits: 512});

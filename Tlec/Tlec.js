@@ -1,10 +1,10 @@
 "use strict";
-var tools = require("../modules/tools");
+var tools = require("modules/tools");
 
-var eventEmitter = require("../modules/events/eventEmitter");
-var invariant = require("../modules/invariant");
+var eventEmitter = require("modules/events/eventEmitter");
+var invariant = require("modules/invariant");
 
-var serializable = require("../modules/serialization/serializable");
+var serializable = require("modules/serialization/serializable");
 
 var TlecAlgo = require("../Tlec/tlec-algo");
 var DecryptionFailedError = require('./decryption-failed-error');

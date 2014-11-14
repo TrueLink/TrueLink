@@ -12,17 +12,17 @@ TlgrAlgo.hashLength = 128;
 TlgrAlgo.ivLength = 128;
 TlgrAlgo.keyLength = 128;
 
-var rsa = require("../modules/cryptography/rsa-forge");
-var AES = require("../modules/cryptography/aes-forge");
-var SHA1 = require("../modules/cryptography/sha1-crypto-js");
+var rsa = require("modules/cryptography/rsa-forge");
+var AES = require("modules/cryptography/aes-forge");
+var SHA1 = require("modules/cryptography/sha1-crypto-js");
 
-var invariant = require("../modules/invariant");
+var invariant = require("modules/invariant");
 
 var Hex = require("Multivalue/multivalue/hex");
 var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
 var BitArray = require("Multivalue/multivalue/bitArray");
 
-var tools = require("../modules/tools");
+var tools = require("modules/tools");
 var isFunction = tools.isFunction;
 
 var Users = require('./users');
