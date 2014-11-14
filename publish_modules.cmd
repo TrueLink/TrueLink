@@ -6,4 +6,5 @@ npm install .\Filter & ^
 npm install .\Route & ^
 npm install .\SerializationContext & ^
 npm install .\TestTransport & ^
-npm install .\OverTlecBuilder
+npm install .\OverTlecBuilder & ^
+npm install .\tl-testing-utils
