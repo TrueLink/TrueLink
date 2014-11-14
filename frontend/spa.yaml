@@ -22,7 +22,6 @@ loaders:
     "./../node_modules/q/q.js": "cjs"
     #"./../node_modules/zepto/index.js": "junk"
     #"./../node_modules/react-dist/index.js": "junk"
-    "./../node_modules/modules/lodash.js": "junk"
     #"./serialization/fakeDb.js": "junk"
     #"./../node_modules/forge/index.js": "junk"
 default_loader: "cjs"
