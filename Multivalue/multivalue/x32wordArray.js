@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var multivalue = require("../index");
-var cryptojs = require("../../modules/crypto-js");
+var cryptojs = require("crypto-js");
 function compareArrays(a, b) {
     if (a.length != b.length)
         return false;

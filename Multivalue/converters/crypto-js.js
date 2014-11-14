@@ -1,4 +1,4 @@
-var crypto = require("../../modules/crypto-js");
+var crypto = require("crypto-js");
 var multivalue = require("../index");
 var X32WordArray = require("../multivalue/x32wordArray");
 var Utf8String = require("../multivalue/utf8string");

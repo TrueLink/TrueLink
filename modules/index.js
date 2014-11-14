@@ -1,5 +1,3 @@
-exports.channels = {};
-exports.crypto_js = {};
 exports.cryptography = {};
 exports.dictionary = {};
 exports.events = {};
@@ -13,26 +11,12 @@ exports.tools = {};
 exports.urandom = {};
 
 
-//exports.channels.OverTlecBuilder = require("./../OverTlecBuilder/OverTlecBuilder");
-//exports.channels.Route = require("./../Route/Route");
-//exports.channels.Tlec = require("./channels/Tlec");
-//exports.channels.TlecBuilder = require("./../TlecBuilder/TlecBuilder");
-//exports.channels.Tlgr = require("./../Tlgr/Tlgr");
-//exports.channels.Tlht = require("./../Tlht/Tlht");
-//exports.channels.TlhtBuilder = require("./../Tlht/TlhtBuilder");
-//exports.channels.Tlke = require("./channels/Tlke");
-//exports.channels.TlkeBuilder = require("./../TlkeBuilder/TlkeBuilder");
-exports.crypto_js.enc_base64 = require("./crypto-js/enc-base64");
-exports.crypto_js.enc_hex = require("./crypto-js/enc-hex");
-exports.crypto_js.enc_utf8 = require("./crypto-js/enc-utf8");
 exports.cryptography.random = require("./cryptography/random");
 exports.cryptography.sha1_crypto_js = require("./cryptography/sha1-crypto-js");
 exports.dictionary.dictionary = require("./dictionary/dictionary");
 exports.events.eventEmitter = require("./events/eventEmitter");
-//exports.filter.Filter = require("./../Filter/Filter");
 exports.invariant = require("./invariant");
 exports.leemon.BigInt = require("./leemon/BigInt");
-//exports.serialization.SerializationContext = require("././SerializationContext");
 exports.serialization.SerializationPacket = require("./serialization/SerializationPacket");
 exports.serialization.serializable = require("./serialization/serializable");
 exports.sjcl.bitArray = require("./sjcl/bitArray");
