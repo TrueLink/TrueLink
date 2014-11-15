@@ -5,7 +5,6 @@
     var eventEmitter = modules.events.eventEmitter;
     var serializable = modules.serialization.serializable;
     import model = require("../../mixins/model");
-    var Hex = modules.multivalue.hex;
     import Event = require("../../tools/event");
     import Model = require("../../tools/model");
     import TlecBuilder = require("TlecBuilder");

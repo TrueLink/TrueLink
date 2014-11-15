@@ -5,10 +5,10 @@
     import Event = require("../../tools/event");
     import Model = require("../../tools/model");
     var serializable = modules.serialization.serializable;
-    var Hex = modules.multivalue.hex;
+    import Hex = require("Multivalue/multivalue/hex");
     import TlecBuilder = require("TlecBuilder");
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
-    var Utf8String = modules.multivalue.utf8string;
+    import Utf8String = require("Multivalue/multivalue/utf8string");
 
     export class TlConnection extends Model.Model implements ISerializable {
 

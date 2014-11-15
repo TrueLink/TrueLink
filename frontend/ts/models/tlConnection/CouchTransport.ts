@@ -7,8 +7,9 @@
     import model = require("../../mixins/model");
     import Event = require("../../tools/event");
     var Dictionary = modules.dictionary.dictionary;
-    var Multivalue = modules.multivalue.multivalue;
-    var Hex = modules.multivalue.hex;
+    import MultivalueModule = require("Multivalue");
+    var Multivalue = MultivalueModule.Multivalue;
+    import Hex = require("Multivalue/multivalue/hex");
     import CouchPolling = require("../../misc/CouchPolling");
     import CouchPosting = require("../../misc/CouchPosting");
     import CouchFetching = require("../../misc/CouchFetching");
