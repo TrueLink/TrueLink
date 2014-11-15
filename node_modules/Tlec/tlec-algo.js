@@ -6,7 +6,7 @@ var BitArray = require("Multivalue/multivalue/bitArray");
 var Bytes = require("Multivalue/multivalue/bytes");
 var Aes = require("modules/cryptography/aes-sjcl");
 
-var invariant = require("modules/invariant");
+var invariant = require("invariant");
 var Multivalue = require("Multivalue").Multivalue;
 
 var DecryptionFailedError = require('./decryption-failed-error');

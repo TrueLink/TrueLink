@@ -1,5 +1,5 @@
     "use strict";
-    var invariant = require("../invariant");
+    var invariant = require("invariant");
 
     function isFunction(functionToCheck) {
         var getType = {};

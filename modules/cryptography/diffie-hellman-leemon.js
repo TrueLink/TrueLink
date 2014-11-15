@@ -3,7 +3,7 @@
 var Random = require("./random");
 var Hex = require("Multivalue/multivalue/hex");
 var lemon = require("../leemon/BigInt");
-var invariant = require("../invariant");
+var invariant = require("invariant");
 
 /*
 * Uses hex strings for now

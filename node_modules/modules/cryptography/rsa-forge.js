@@ -5,7 +5,7 @@
     var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
     var Hex = require("Multivalue/multivalue/hex");
 
-    var invariant = require("../invariant");
+    var invariant = require("invariant");
 
     function extend(dst, src) {
         var key;

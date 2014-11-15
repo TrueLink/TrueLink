@@ -1,6 +1,7 @@
 npm install .\lodash & ^
 npm install .\crypto-js & ^
 npm install .\Multivalue & ^
+npm install .\invariant & ^
 npm install .\modules & ^
 npm install .\Filter & ^
 npm install .\Route & ^

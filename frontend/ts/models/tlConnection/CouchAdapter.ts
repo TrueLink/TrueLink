@@ -1,6 +1,6 @@
 "use strict";
 import modules = require("modules");
-var invariant = modules.invariant;
+import invariant = require("invariant");
 import extend = require("../../tools/extend");
 import CouchFetching = require("../../misc/CouchFetching");
 import Event = require("../../tools/event");

@@ -1,5 +1,5 @@
 "use strict";
-var invariant = require("modules/invariant");
+var invariant = require("invariant");
 var tools = require("modules/tools");
 var eventEmitter = require("modules/events/eventEmitter");
 var serializable = require("modules/serialization/serializable");

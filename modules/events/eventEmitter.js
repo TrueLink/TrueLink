@@ -1,7 +1,7 @@
     "use strict";
 
     var Event = require("./Event");
-    var invariant = require("../invariant");
+    var invariant = require("invariant");
 
     module.exports = {
         _defineEvent: function (name) {

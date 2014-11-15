@@ -1,7 +1,7 @@
     "use strict";
     import modules = require("modules");
     import extend = require("../tools/extend");
-    var invariant = modules.invariant;
+    import invariant = require("invariant");
     var eventEmitter = modules.events.eventEmitter;
 import $=require("zepto");
     var SHA1 = modules.cryptography.sha1_crypto_js;

@@ -1,7 +1,7 @@
 
     "use strict";
     var Dictionary = require("modules/dictionary/dictionary");
-    var invariant = require("modules/invariant");
+    var invariant = require("invariant");
     var SerializationPacket = require("modules/serialization/SerializationPacket");
     var serializable = require("modules/serialization/serializable");
     var tools = require("modules/tools");

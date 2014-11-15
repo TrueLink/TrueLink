@@ -3,7 +3,7 @@
 var tools = require("modules/tools");
 
 var eventEmitter = require("modules/events/eventEmitter");
-var invariant = require("modules/invariant");
+var invariant = require("invariant");
 var Multivalue = require("Multivalue").Multivalue;
 
 var serializable = require("modules/serialization/serializable");

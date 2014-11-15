@@ -1,6 +1,6 @@
     "use strict";
 
-    var invariant = require("../invariant");
+    var invariant = require("invariant");
     var tools = require("../tools");
     var extend = tools.extend;
     var isArray = tools.isArray;

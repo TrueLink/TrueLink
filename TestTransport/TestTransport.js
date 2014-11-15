@@ -4,7 +4,7 @@ var tools = require("modules/tools");
 var Dictionary = require("modules/dictionary/dictionary");
 var Multivalue = require("Multivalue").Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
-var invariant = require("modules/invariant");
+var invariant = require("invariant");
 var eventEmitter = require("modules/events/eventEmitter");
 
 var extend = tools.extend;

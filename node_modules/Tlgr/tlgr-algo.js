@@ -16,7 +16,7 @@ var rsa = require("modules/cryptography/rsa-forge");
 var AES = require("modules/cryptography/aes-forge");
 var SHA1 = require("modules/cryptography/sha1-crypto-js");
 
-var invariant = require("modules/invariant");
+var invariant = require("invariant");
 
 var Hex = require("Multivalue/multivalue/hex");
 var ByteBuffer = require("Multivalue/multivalue/byteBuffer");

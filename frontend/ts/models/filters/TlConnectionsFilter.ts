@@ -4,7 +4,7 @@
     var serializable = modules.serialization.serializable;
     var tools = modules.tools;
     var extend = tools.extend;
-    var invariant = modules.invariant;
+    import invariant = require("invariant");
     import model = require("../../mixins/model");
 
     // NOT SO INTUITIVE
