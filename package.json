@@ -1,0 +1,24 @@
+{
+  "name": "flux-react",
+  "version": "0.0.0",
+  "optionalDependencies": {
+    "lodash": "",
+    "crypto-js": "",
+    "Multivalue": "",
+    "invariant": "",
+    "modules": "",
+    "Filter": "",
+    "Route": "",
+    "SerializationContext": "",
+    "TestTransport": "",
+    "OverTlecBuilder": "",
+    "Tlec": "",
+    "TlecBuilder": "",
+    "Tlgr": "",
+    "Tlht": "",
+    "TlhtBuilder": "",
+    "Tlke": "",
+    "TlkeBuilder": "",
+    "tl-testing-utils": ""
+  }
+}
