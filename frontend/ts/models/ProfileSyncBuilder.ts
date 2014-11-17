@@ -88,10 +88,7 @@ export class ProfileSyncBuilder extends Model.Model implements ISerializable {
         var result = JSON.parse(messageData.as(Utf8String).toString());
         console.log(result); // parse invitation to group chat
 
-        var grConnection = this.getFactory().createGrConnection();
-        grConnection.init({
-            invite: (invite)?(invite.invite):null,
-            userName: deviceName, // just to identify
-        });
+        //destroy tlec
+        //call done with invite
     }
 }
