@@ -2,19 +2,19 @@
 /// <reference path="../vendor/typings/require/require.d.ts"/>
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
-/// <reference path="../../node_modules/invariant/invariant.d.ts"/>
-/// <reference path="../../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
-/// <reference path="../../node_modules/TlhtBuilder/TlhtBuilder.d.ts"/>
-/// <reference path="../../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
-/// <reference path="../../node_modules/Tlgr/Tlgr.d.ts"/>
-/// <reference path="../../node_modules/Tlht/Tlht.d.ts"/>
-/// <reference path="../../node_modules/Tlec/Tlec.d.ts"/>
-/// <reference path="../../node_modules/Tlke/Tlke.d.ts"/>
-/// <reference path="../../node_modules/SerializationContext/SerializationContext.d.ts"/>
-/// <reference path="../../node_modules/Route/Route.d.ts"/>
-/// <reference path="../../node_modules/Filter/Filter.d.ts"/>
-/// <reference path="../../node_modules/OverTlecBuilder/OverTlecBuilder.d.ts"/>
-/// <reference path="../../node_modules/modules/modules.d.ts"/>
+/// <reference path="../node_modules/invariant/invariant.d.ts"/>
+/// <reference path="../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
+/// <reference path="../node_modules/TlhtBuilder/TlhtBuilder.d.ts"/>
+/// <reference path="../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
+/// <reference path="../node_modules/Tlgr/Tlgr.d.ts"/>
+/// <reference path="../node_modules/Tlht/Tlht.d.ts"/>
+/// <reference path="../node_modules/Tlec/Tlec.d.ts"/>
+/// <reference path="../node_modules/Tlke/Tlke.d.ts"/>
+/// <reference path="../node_modules/SerializationContext/SerializationContext.d.ts"/>
+/// <reference path="../node_modules/Route/Route.d.ts"/>
+/// <reference path="../node_modules/Filter/Filter.d.ts"/>
+/// <reference path="../node_modules/OverTlecBuilder/OverTlecBuilder.d.ts"/>
+/// <reference path="../node_modules/modules/modules.d.ts"/>
 /// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
 /// <reference path="../node_modules/forge-typescript-definitions/forge/forge.d.ts"/>
 import Application = require("./models/App");
@@ -29,7 +29,6 @@ import converters = require("Multivalue/converters");
 
     "use strict";
 
-        converters.register();
 
         //window.app = serializer.createApp();
         var serializer = new Serializer();
@@ -37,6 +36,8 @@ import converters = require("Multivalue/converters");
 
 
         $(function () {
+            converters.register();
+
             console.log(navigator.userAgent);
 
             var tabUuid = uuid(); 
