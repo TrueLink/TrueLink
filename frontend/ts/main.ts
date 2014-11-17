@@ -25,8 +25,11 @@ declare var realwindow;
 import $=require("zepto");
 import React = require("react");
 import uuid = require("uuid");
+import converters = require("Multivalue/converters");
 
     "use strict";
+
+        converters.register();
 
         //window.app = serializer.createApp();
         var serializer = new Serializer();
