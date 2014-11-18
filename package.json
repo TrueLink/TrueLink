@@ -2,7 +2,7 @@
   "name": "flux-react",
   "version": "0.0.0",
   "private": true,
-  "optionalDependencies": {
+  "dependencies": {
     "crypto-js": "",
     "Multivalue": "",
     "invariant": "",
