@@ -11,5 +11,6 @@
   "author": "toliman",
   "license": "MIT",
   "optionalDependencies": {
-  }
+  },
+  "private": true
 }

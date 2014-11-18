@@ -1,6 +1,7 @@
 {
   "name": "flux-react",
   "version": "0.0.0",
+  "private": true,
   "optionalDependencies": {
     "lodash": "",
     "crypto-js": "",

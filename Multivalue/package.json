@@ -26,5 +26,6 @@
     "gulp-rename": "^1.2.0",
     "gulp-typescript": "^2.2.0",
     "mocha": "^2.0.1"
-  }
+  },
+  "private": true
 }

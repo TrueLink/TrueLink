@@ -2,5 +2,6 @@
   "name": "tl-testing-utils",
   "version": "0.0.0",
   "description": "Utils for Tlgr, Tlec, Tlht, TYlke tests",
-  "main": "tl-testing-utils"
+  "main": "tl-testing-utils",
+  "private": true
 }
