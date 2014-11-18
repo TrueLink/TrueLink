@@ -15,12 +15,12 @@
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
 
 
-    function TlConnectionFactory(serializer, tlConnection, profile) {
+    function TlConnectionFactory(serializer, tlConnection, transport) {
         invariant(serializer, "Can i haz serializer?");
         invariant(tlConnection, "Can i haz tlConnection?");
         this.serializer = serializer;
         this.tlConnection = tlConnection;
-        this.profile = profile;
+        this.transport = transport;
     }
 
     extend(TlConnectionFactory.prototype, prototype, {
@@ -54,10 +54,9 @@
         },
 
         createCouchTlec: function () {
-            invariant(this.profile.transport, "cannot create CouchTlec: profile.transport is not set");
             var tlecWrapper = new CouchTlec();
             tlecWrapper.setFactory(this);
-            tlecWrapper.setTransport(this.profile.transport);
+            tlecWrapper.setTransport(this.transport);
             return this._observed(tlecWrapper);
         },
 

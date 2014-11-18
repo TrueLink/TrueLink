@@ -7,9 +7,12 @@
     import Document = require("../../models/Document");
     import Contact = require("../../models/Contact");
     import Profile = require("../../models/Profile");
+    import SyncObject = require("../../models/SyncObject");
     //import Dialog = require("../../models/Dialog");
     //import GroupChat = require("../../models/GroupChat");
     import MessageHistory = require("../../models/MessageHistory");
+
+    import SyncFactory = require("./syncFactory");
 
     import TlConnection = require("../../models/tlConnection/TlConnection");
     import GrConnection = require("../../models/grConnection/GrConnection");
@@ -76,7 +79,7 @@
 
         createGrConnection: function () {
             var grConnection = new GrConnection.GrConnection();
-            var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile);
+            var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile.factory);
             grConnection.setFactory(grConnectionFactory);
             return this._observed(grConnection);
         },
@@ -89,10 +92,17 @@
 
         createTlConnection: function () {
             var tlConnection = new TlConnection.TlConnection();
-            var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile);
+            var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile.factory);
             tlConnection.setFactory(tlConnectionFactory);
             return this._observed(tlConnection);
-        }
+        },
+
+        createSync: function () {
+            var sync = new SyncObject.SyncObject();
+            var syncFactory = new SyncFactory(this.serializer, sync);
+            sync.setFactory(syncFactory);
+            return this._observed(sync);  
+        },
     });
 
     export = ProfileFactory;

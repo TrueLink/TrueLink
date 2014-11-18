@@ -12,13 +12,13 @@
     import Contact = require("../models/Contact");
     import MessageHistory = require("../models/MessageHistory");
     import notifications = require("../tools/notifications-api");
-
+    import SyncObject = require("../models/SyncObject");
 
     import model = require("../mixins/model");
     import CouchAdapter = require("../models/tlConnection/CouchAdapter");
 
     export class Profile extends Model.Model implements ISerializable {
-        public onUrlChanged : Event.Event<any>;
+        //public onUrlChanged : Event.Event<any>; maybe it was used long time ago
         public grConnections : Array<GrConnection.GrConnection>;
         public dialogs : Array<any>;
         public app : any;
@@ -37,6 +37,7 @@
         public transport : CouchTransport.CouchTransport;
         public notificationType : string;
         public notificationSound : string;
+        public sync: SyncObject.SyncObject;
 
         public static NOTIFICATION_NONE = "1";
         public static NOTIFICATION_COUNT = "2";
@@ -47,20 +48,21 @@
         constructor () {
             super();
 
-            this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
-        this.app = null;
-        this.bg = null;
-        this.documents = [];
-        this.contacts = [];
-        this.tlConnections = [];
-        this.dialogs = [];
-        this.grConnections = [];
-        this.serverUrl = "";
-        this.unreadCount = 0;
-        this.notificationType = Profile.NOTIFICATION_MESSAGE;
+            //this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
+            this.app = null;
+            this.bg = null;
+            this.documents = [];
+            this.contacts = [];
+            this.tlConnections = [];
+            this.dialogs = [];
+            this.grConnections = [];
+            this.serverUrl = "";
+            this.unreadCount = 0;
+            this.notificationType = Profile.NOTIFICATION_MESSAGE;
 
-        this.transport = null;
-    }
+            this.transport = null;
+            this.sync = null;
+        }
 
         // called by factory
         setApp  (app) {
@@ -78,7 +80,6 @@
             invariant(args.name && (typeof args.name === "string"), "args.name must be non-empty string");
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
             invariant(typeof args.bg === "number", "args.bg must be number");
-
             
             this.temporaryId = undefined;
             this.temporaryName = undefined;
@@ -95,6 +96,13 @@
 
             this.transport = this.getFactory().createTransport();
             this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
+
+            this.sync = this.getFactory().createSync();
+            this.sync.init({
+                master: true,
+                transport: this.transport,
+            });
+
             this._onChanged();
         }
 
@@ -133,6 +141,19 @@
             this._linkContact(contact);
             this._onChanged();
             return contact;
+        }
+
+        // for the unfinished profile to be synced with profile created on another device
+        startSyncing (args) {
+            this.sync = this.getFactory().createSync();
+
+            var transport = this.getFactory().createTransport();
+            transport.init({postingUrl: args.serverUrl, pollingUrl: args.serverUrl});
+
+            this.sync.init({
+                transport: transport,
+                master: false
+            });
         }
 
         startDirectDialog  (contact, firstMessage?: any) {

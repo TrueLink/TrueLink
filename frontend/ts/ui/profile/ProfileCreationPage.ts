@@ -41,19 +41,19 @@ var ProfileTypeChooser = React.createClass({
     displayName: "ProfileTypeChooser",
 
     _handleAnonymousType: function() {
-        this.props.handleAnonymousType();
+        return this.props.handleAnonymousType();
     },
 
     _handlePseudoAnonymousType: function() {
-        this.props.handlePseudoAnonymousType();
+        return this.props.handlePseudoAnonymousType();
     },
 
-    _handlePublic: function() {
-        this.props.handlePublic();
+    _handlePublicType: function() {
+        return this.props.handlePublicType();
     },
     
     _handleProfileSync: function() {
-        this.props.handleProfileSync();
+        return this.props.handleProfileSync();
     },
 
     render: function () {
@@ -71,7 +71,7 @@ var ProfileTypeChooser = React.createClass({
                     }, "Nothing is known about you. No one can initiate contact with you."),
                 React.DOM.a({
                         className: "button profile-creation-pseudonymous",
-                        href: "#",-
+                        href: "#",
                         onClick: this._handlePseudoAnonymousType
                     }, "Pseudonymous"),
                 React.DOM.p({
@@ -80,7 +80,7 @@ var ProfileTypeChooser = React.createClass({
                 React.DOM.a({
                         className: "button profile-creation-public",
                         href: "#",
-                        onClick: this._handlePublic
+                        onClick: this._handlePublicType
                     }, "Public Account"),
                 React.DOM.p({
                         className: "hint"
@@ -99,7 +99,7 @@ var AnonymousProfileForm = React.createClass({
     displayName: "AnonymousProfileForm",
 
     _handleProfileCreation: function() {
-        this.props.handleProfileCreation();
+        return this.props.handleProfileCreation();
     },
 
     render: function () {
@@ -115,7 +115,7 @@ var PseudonymousProfileForm = React.createClass({
     displayName: "PseudonymousProfileForm",
 
     _handleProfileCreation: function() {
-        this.props.handleProfileCreation();
+        return this.props.handleProfileCreation();
     },
 
     _renderPublicKeyFormElement: function () {
@@ -132,14 +132,62 @@ var PseudonymousProfileForm = React.createClass({
 
     render: function () {
         return renderForm(this._handleProfileCreation, [
-                renderFormElement(this.props.pageModel.model,
-                    "Nickname:",
-                    "Your contacts will be able to see this name.",
-                    "temporaryName"),
-                this._renderPublicKeyFormElement()
-            ]);
+            renderFormElement(this.props.pageModel.model,
+                "Nickname:",
+                "Your contacts will be able to see this name.",
+                "temporaryName"),
+            this._renderPublicKeyFormElement()
+        ]);
     },
 }); 
+
+var PublicProfileForm = React.createClass({
+    displayName: "PseudonymousProfileForm",
+
+    _handleProfileCreation: function() {
+        return this.props.handleProfileCreation();
+    },
+
+    _renderPublicKeyFormElement: function () {
+        return [
+            React.DOM.div({className: "separator"}),
+            renderFormElement(this.props.pageModel.model,
+                "Public key:",
+                "Other people can initiate contacts with you using this key. You can manage your keys in settings later.",
+                null,
+                true,
+                "XXXX-876B-GH6V-DFG8-K45Z-JHG3-XXXX")
+        ];
+    },
+
+    render: function () {
+        return renderForm(this._handleProfileCreation, [
+            renderFormElement(this.props.pageModel.model, "Your name:", null, "temporaryName"),
+            renderFormElement(this.props.pageModel.model, "Email:", null, "email"),
+            renderFormElement(this.props.pageModel.model, "Phone number:", null, "phoneNumber"),
+            React.DOM.p({
+                    className: "hint"
+            }, "Your contacts will be able to see this information."),                
+            this._renderPublicKeyFormElement()
+        ]);
+    },
+}); 
+
+var SyncProfileForm = React.createClass({
+    displayName: "SyncProfileForm",
+
+    render: function () {
+        var profile = this.props.pageModel.model;
+        var sync = profile.sync;
+        var connection = sync.initialConnection;
+        return renderForm(this._handleProfileCreation, [
+            renderFormElement(this.props.pageModel.model, "Enter auth:", null, "temporaryName"),
+            React.DOM.p({
+                    className: "hint"
+            }, "Your contacts will be able to see this information.")
+        ]);
+    },
+});
 
 var exp = React.createClass({
     displayName: "ProfileCreationPage",
@@ -158,59 +206,60 @@ var exp = React.createClass({
         return false;
     },
 
-    _renderPublicProfileForm: function () {
-        return renderForm(this._handleProfileCreation, [
-                renderFormElement(this.props.pageModel.model, "Your name:", null, "temporaryName"),
-                renderFormElement(this.props.pageModel.model, "Email:", null, "email"),
-                renderFormElement(this.props.pageModel.model, "Phone number:", null, "phoneNumber"),
-                React.DOM.p({
-                        className: "hint"
-                }, "Your contacts will be able to see this information."),                
-                this._renderPublicKeyFormElement()
-            ]);
+    _handleProfileTypeChoosen: function(profileType) {
+        var profile = this.props.pageModel.model;
+        profile.set("publicityType", profileType);
+        this.setState({});
+        return false;
+    },
+
+    _handleProfileSync: function() {
+        var profile = this.props.pageModel.model;
+        profile.startSyncing({
+            serverUrl: profile.app.defaultPollingUrl
+            });
+        this.setState({});
+        return false;
     },
 
     render: function () {
         var router = this.props.router;
         var profile = this.props.pageModel.model;
 
+
+        if(profile.sync) {
+            return SyncProfileForm({
+                pageModel: this.props.pageModel
+            });
+        }
+
         switch (profile.publicityType) {
             case "anonymous": {
-                return this._renderAnonymousProfileForm();
+                return AnonymousProfileForm({
+                    handleProfileCreation: this._handleProfileCreation,
+                    pageModel: this.props.pageModel
+                });
             }
             case "pseudonymous": {
-                return this._renderPseudonymousProfileForm();
+                return PseudonymousProfileForm({
+                    handleProfileCreation: this._handleProfileCreation,
+                    pageModel: this.props.pageModel
+                });
             }
             case "public": {
-                return this._renderPublicProfileForm();
-            }
-            default: {
-                return ProfileTypeChooser({
-                    handleAnonymousType: function() {
-                        var profile = this.props.pageModel.model;
-                        profile.set("publicityType", "anonymous");
-                        this.setState({});
-                        return false;
-                    },
-                    handlePseudoAnonymousType: function() {
-                        var profile = this.props.pageModel.model;
-                        profile.set("publicityType", "pseudonymous");
-                        this.setState({});
-                        return false;
-                    },
-                    handlePublic: function() {
-                        var profile = this.props.pageModel.model;
-                        profile.set("publicityType", "public");
-                        this.setState({});
-                        return false;
-                    },
-                    handleProfileSync: function() {
-                        var profile = this.props.pageModel.model;
-                        return false;
-                    }
+                return PublicProfileForm({
+                    handleProfileCreation: this._handleProfileCreation,
+                    pageModel: this.props.pageModel
                 });
             }
         }
+
+        return ProfileTypeChooser({
+            handleAnonymousType: this._handleProfileTypeChoosen.bind(this, "anonymous"),
+            handlePseudoAnonymousType: this._handleProfileTypeChoosen.bind(this, "pseudonymous"),
+            handlePublicType: this._handleProfileTypeChoosen.bind(this, "public"),
+            handleProfileSync: this._handleProfileSync,
+        });
     }
 });
 
