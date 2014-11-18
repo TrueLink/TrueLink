@@ -2,7 +2,7 @@
 
 var Random = require("./random");
 var Hex = require("Multivalue/multivalue/hex");
-var lemon = require("../leemon/BigInt");
+var lemon = require("BigInt");
 var invariant = require("invariant");
 
 /*

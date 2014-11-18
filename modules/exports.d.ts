@@ -11,7 +11,6 @@ export interface IChannelsModule {
     export declare var cryptography : any;
     export declare var dictionary : any;
     export declare var events : any;
-    export declare var leemon : any;
     export declare var tools : any;
     export declare var urandom : any; 
     export declare var serialization: ISerializableModule;

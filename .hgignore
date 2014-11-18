@@ -21,3 +21,4 @@ syntax: regexp
 # npm ddp for /node_modules:
 ^node_modules/sjcl-all/
 ^node_modules/node-forge/
+^node_modules/BigInt/
