@@ -31,7 +31,6 @@ var filesToMove = [
     './favicon.png',
     './zepto.js',
     './uuid.js',
-    './forge.js',
     './react-dist.js'
 ];
 

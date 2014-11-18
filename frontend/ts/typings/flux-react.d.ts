@@ -157,7 +157,3 @@ declare module "react-bootstrap" {
     export = __any;
 }
 
-declare module "forge" {
-    export = __any;
-}
-
