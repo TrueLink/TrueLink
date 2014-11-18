@@ -21,7 +21,7 @@ var DecBlocks = (function (_super) {
     DecBlocks.generateDamm = function (input) {
         var row = 0;
         for (var i = 0; i < input.length; i++) {
-            var col = input.charCodeAt(i);
+            var col = +input[i];
             row = this.table[row][col];
         }
         return row.toString();

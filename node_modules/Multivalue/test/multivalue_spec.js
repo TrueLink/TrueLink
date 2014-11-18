@@ -84,6 +84,29 @@ describe('Multivalue', function () {
             expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
         });
     });
+    describe('Damm', function () {
+        describe("Generation", function () {
+            var testGeneration = function (values, expected) {
+                it("should generate damm", function () {
+                    expect(values.DecBlocks.toString()).equals((values.DecBlocks.value + expected).match(/.{1,4}/g).join("-"));
+                });
+            };
+            testGeneration(values1, "2");
+            testGeneration(values2, "1");
+        });
+        describe("Generation verification", function () {
+            var testGenerationVerification = function (values) {
+                it("should generate damm correctly", function () {
+                    expect(DecBlocks.fromString(values.DecBlocks.toString())).to.be.not.null;
+                });
+            };
+            testGenerationVerification(values1);
+            testGenerationVerification(values2);
+        });
+        it("should fail verifying wrong damm input", function () {
+            expect(DecBlocks.fromString("5")).to.be.null;
+        });
+    });
     describe('Comparison', function () {
         function testComparatorsFor(from) {
             function testFailComparison(to) {

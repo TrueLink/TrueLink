@@ -111,6 +111,36 @@ describe('Multivalue', () => {
             expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(BitArray).bitLength()).to.equals(128);
             expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
         });
+
+
+    });
+
+    describe('Damm', function () {
+        describe("Generation", () => {
+            var testGeneration = function (values: DataSet, expected: string) {
+                it("should generate damm", function () {
+                    expect(values.DecBlocks.toString())
+                        .equals((values.DecBlocks.value + expected).match(/.{1,4}/g).join("-"));
+                });
+            }
+            testGeneration(values1, "2");
+            testGeneration(values2, "1");
+        });
+
+        describe("Generation verification", () => {
+            var testGenerationVerification = function (values: DataSet) {
+                it("should generate damm correctly", function () {
+                    expect(DecBlocks.fromString(values.DecBlocks.toString())).to.be.not.null;
+                });
+            }
+
+            testGenerationVerification(values1);
+            testGenerationVerification(values2);
+        });
+
+        it("should fail verifying wrong damm input", function () {
+            expect(DecBlocks.fromString("5")).to.be.null;
+        });
     });
 
     describe('Comparison', function () {
