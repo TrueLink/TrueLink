@@ -16,3 +16,8 @@ ts/config.ts
 npm-debug.log
 Multivalue\obj\**
 .ntvs_analysis.dat
+
+syntax: regexp
+# npm ddp for /node_modules:
+^node_modules/sjcl-all/
+^node_modules/node-forge/
