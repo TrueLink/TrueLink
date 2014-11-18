@@ -22,3 +22,4 @@ syntax: regexp
 ^node_modules/sjcl-all/
 ^node_modules/node-forge/
 ^node_modules/BigInt/
+^node_modules/lodash/
