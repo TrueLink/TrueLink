@@ -26,6 +26,8 @@ loaders:
     #"./../node_modules/forge/index.js": "junk"
     "./../node_modules/Multivalue/node_modules/BigInt/src/BigInt.js": "cjs"
     "./../node_modules/modules/node_modules/BigInt/src/BigInt.js": "cjs"
+    "./../node_modules/Multivalue/node_modules/lodash/dist/lodash.js": "cjs"
+    "./../node_modules/modules/node_modules/lodash/dist/lodash.js": "cjs"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:

@@ -1,7 +1,0 @@
-{
-  "name": "lodash",
-  "version": "0.0.0",
-  "description": "Lodash that does not break spa",
-  "main": "lodash.js",
-  "private": true
-}

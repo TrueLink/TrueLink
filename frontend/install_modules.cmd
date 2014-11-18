@@ -1,4 +1,3 @@
-npm install ..\node_modules\lodash & ^
 npm install ..\node_modules\crypto-js & ^
 npm install ..\node_modules\Multivalue & ^
 npm install ..\node_modules\invariant & ^
