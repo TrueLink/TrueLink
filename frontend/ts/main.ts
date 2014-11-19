@@ -3,6 +3,7 @@
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
 /// <reference path="../node_modules/invariant/invariant.d.ts"/>
+/// <reference path="../node_modules/Multivalue/index.d.ts"/>
 /// <reference path="../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
 /// <reference path="../node_modules/TlhtBuilder/TlhtBuilder.d.ts"/>
 /// <reference path="../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
@@ -25,7 +26,7 @@ declare var realwindow;
 import $=require("zepto");
 import React = require("react");
 import uuid = require("uuid");
-import converters = require("Multivalue/converters");
+import MultivalueModule = require("Multivalue");
 
     "use strict";
 
@@ -36,7 +37,7 @@ import converters = require("Multivalue/converters");
 
 
         $(function () {
-            converters.register();
+            MultivalueModule.converters.register();
 
             console.log(navigator.userAgent);
 

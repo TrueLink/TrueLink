@@ -1,4 +1,4 @@
-﻿import multivalue = require("../index");
+﻿import multivalue = require("../multivalue");
 import converters = require("../converters");
 import BitArray = require("../multivalue/bitArray");
 import Base64 = require("../multivalue/base64");

@@ -1,4 +1,4 @@
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import DecBlocks = require("../multivalue/decBlocks");
 import Bytes = require("../multivalue/bytes");
 import Base64 = require("../multivalue/base64");

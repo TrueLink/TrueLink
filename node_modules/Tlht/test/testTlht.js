@@ -1,5 +1,5 @@
 "use strict";
-var converters = require("Multivalue/converters");
+require("Multivalue").converters.register();
 var Hex = require("Multivalue/multivalue/hex");
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("tl-testing-utils");
@@ -7,8 +7,6 @@ var tools = require("modules/tools");
 var extend = tools.extend;
 var chai = require('chai');
 var expect = chai.expect;
-
-converters.register();
 
 
 var logfunc = function() {

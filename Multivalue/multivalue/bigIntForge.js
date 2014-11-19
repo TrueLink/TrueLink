@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var multivalue = require("../index");
+var multivalue = require("../multivalue");
 var forge = require("node-forge");
 var tools = require("../tools");
 var BigIntForge = (function (_super) {

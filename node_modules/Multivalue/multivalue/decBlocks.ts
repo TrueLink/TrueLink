@@ -1,4 +1,4 @@
-﻿import multivalue = require("../index");
+﻿import multivalue = require("../multivalue");
 
 class DecBlocks extends multivalue.Multivalue {
     public static get typeName(): string {

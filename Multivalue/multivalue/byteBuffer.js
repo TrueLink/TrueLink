@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var forge = require("node-forge");
-var multivalue = require("../index");
+var multivalue = require("../multivalue");
 var tools = require("../tools");
 var ByteBuffer = (function (_super) {
     __extends(ByteBuffer, _super);

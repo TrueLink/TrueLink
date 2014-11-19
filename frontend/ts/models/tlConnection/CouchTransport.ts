@@ -8,7 +8,7 @@
     import Event = require("../../tools/event");
     var Dictionary = modules.dictionary.dictionary;
     import MultivalueModule = require("Multivalue");
-    var Multivalue = MultivalueModule.Multivalue;
+    var Multivalue = MultivalueModule.multivalue.Multivalue;
     import Hex = require("Multivalue/multivalue/hex");
     import CouchPolling = require("../../misc/CouchPolling");
     import CouchPosting = require("../../misc/CouchPosting");

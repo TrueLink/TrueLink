@@ -1,6 +1,6 @@
 "use strict";
 import forge = require("node-forge");
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import tools = require("../tools");
 
 class ByteBuffer extends multivalue.Multivalue {

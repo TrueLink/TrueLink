@@ -1,5 +1,5 @@
 "use strict";
-var converters = require("Multivalue/converters");
+require("Multivalue").converters.register();
 var Hex = require("Multivalue/multivalue/hex");
 var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
 var Utf8String = require("Multivalue/multivalue/utf8string");
@@ -9,8 +9,6 @@ var tools = require("modules/tools");
 var extend = tools.extend;
 var chai = require('chai');
 var expect = chai.expect;
-
-converters.register();
 
 var logfunc = function() {
     var args = [this.name].concat(arguments);

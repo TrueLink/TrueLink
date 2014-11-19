@@ -1,6 +1,6 @@
 import crypto = require("crypto-js");
 
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import X32WordArray = require("../multivalue/x32wordArray");
 import Utf8String = require("../multivalue/utf8string");
 import Base64 = require("../multivalue/base64");

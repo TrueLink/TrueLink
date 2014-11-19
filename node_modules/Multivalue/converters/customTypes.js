@@ -1,4 +1,4 @@
-var multivalue = require("../index");
+var multivalue = require("../multivalue");
 var DecBlocks = require("../multivalue/decBlocks");
 var Bytes = require("../multivalue/bytes");
 var Base64 = require("../multivalue/base64");

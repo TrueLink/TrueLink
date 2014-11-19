@@ -1,4 +1,4 @@
-var multivalue = require("../index");
+var multivalue = require("../multivalue");
 var sjcl = require("sjcl-all");
 var Hex = require("../multivalue/hex");
 var Bytes = require("../multivalue/bytes");

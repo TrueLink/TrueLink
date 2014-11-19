@@ -1,7 +1,7 @@
 "use strict";
 import forge = require("node-forge");
 
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import BigIntForge = require("../multivalue/bigIntForge");
 import Hex = require("../multivalue/hex");
 import Base64 = require("../multivalue/base64");

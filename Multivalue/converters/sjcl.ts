@@ -1,4 +1,4 @@
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import sjcl = require("sjcl-all");
 import Hex = require("../multivalue/hex");
 import Bytes = require("../multivalue/bytes");

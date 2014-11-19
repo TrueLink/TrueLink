@@ -10,7 +10,7 @@ var urandom = require("modules/urandom/urandom");
 
 var extend = tools.extend;
 
-var Multivalue = require("Multivalue").Multivalue;
+var Multivalue = require("Multivalue").multivalue.Multivalue;
 
 function Route(factory) {
     invariant(factory, "Can be constructed only with factory");

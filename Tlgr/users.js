@@ -2,7 +2,7 @@
 
 var rsa = require("modules/cryptography/rsa-forge");
 
-var Multivalue = require("Multivalue").Multivalue;
+var Multivalue = require("Multivalue").multivalue.Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
 
 

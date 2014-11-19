@@ -1,4 +1,4 @@
-﻿import multivalue = require("../index");
+﻿import multivalue = require("../multivalue");
 import sjcl = require("sjcl-all");
 
 class BigIntSjcl extends multivalue.Multivalue {

@@ -1,4 +1,4 @@
-﻿import multivalue = require("../index");
+﻿import multivalue = require("../multivalue");
 import cryptojs = require("crypto-js");
 
 function compareArrays(a: number[], b: number[]): boolean {

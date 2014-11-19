@@ -1,6 +1,6 @@
 "use strict";
 
-import multivalue = require("../index");
+import multivalue = require("../multivalue");
 import forge = require("node-forge");
 import tools = require("../tools");
 
