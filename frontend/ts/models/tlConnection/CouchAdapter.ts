@@ -1,12 +1,13 @@
 "use strict";
 import modules = require("modules");
-var invariant = modules.invariant;
+import invariant = require("invariant");
 import extend = require("../../tools/extend");
 import CouchFetching = require("../../misc/CouchFetching");
 import Event = require("../../tools/event");
 var eventEmitter = modules.events.eventEmitter;
-var Hex = modules.multivalue.hex;
-var Multivalue = modules.multivalue.multivalue;
+import Hex = require("Multivalue/multivalue/hex");
+import MultivalueModule = require("Multivalue");
+var Multivalue = MultivalueModule.multivalue.Multivalue;
 var urandom = modules.urandom.urandom;
 var tools = modules.tools;
 import $=require("zepto");

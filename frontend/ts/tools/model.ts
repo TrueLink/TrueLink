@@ -1,7 +1,7 @@
     "use strict";
 
     import modules = require("modules");
-    var invariant = modules.invariant;
+    import invariant = require("invariant");
     import Event = require("./event");
 
     export class Model {

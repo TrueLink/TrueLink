@@ -1,14 +1,16 @@
-npm install ..\Filter ^
-& npm install ..\Multivalue ^
-& npm install ..\OverTlecBuilder ^
-& npm install ..\Route ^
-& npm install ..\SerializationContext ^
-& npm install ..\TestTransport ^
-& npm install ..\TlecBuilder ^
-& npm install ..\Tlgr ^
-& npm install ..\Tlht ^
-& npm install ..\TlhtBuilder ^
-& npm install ..\TlkeBuilder ^
-& npm install ..\Tlec ^
-& npm install ..\Tlke ^
-& npm install ..\modules
+npm install ..\node_modules\crypto-js & ^
+npm install ..\node_modules\Multivalue & ^
+npm install ..\node_modules\invariant & ^
+npm install ..\node_modules\modules & ^
+npm install ..\node_modules\Filter & ^
+npm install ..\node_modules\Route & ^
+npm install ..\node_modules\SerializationContext & ^
+npm install ..\node_modules\TestTransport & ^
+npm install ..\node_modules\OverTlecBuilder & ^
+npm install ..\node_modules\Tlec & ^
+npm install ..\node_modules\TlecBuilder & ^
+npm install ..\node_modules\Tlgr & ^
+npm install ..\node_modules\Tlht & ^
+npm install ..\node_modules\TlhtBuilder & ^
+npm install ..\node_modules\Tlke & ^
+npm install ..\node_modules\TlkeBuilder

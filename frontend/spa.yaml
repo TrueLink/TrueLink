@@ -12,7 +12,6 @@ excludes:
 - "./bugsnag*"
 - "./react-dist.js"
 - "./zepto.js"
-- "./forge.js"
 - "./uuid.js"
 #- "./config*"
 loaders:
@@ -22,9 +21,13 @@ loaders:
     "./../node_modules/q/q.js": "cjs"
     #"./../node_modules/zepto/index.js": "junk"
     #"./../node_modules/react-dist/index.js": "junk"
-    "./../node_modules/modules/lodash.js": "junk"
     #"./serialization/fakeDb.js": "junk"
-    #"./../node_modules/forge/index.js": "junk"
+    "./../node_modules/Multivalue/node_modules/BigInt/src/BigInt.js": "cjs"
+    "./../node_modules/modules/node_modules/BigInt/src/BigInt.js": "cjs"
+    "./../node_modules/BigInt/src/BigInt.js": "cjs"
+    "./../node_modules/Multivalue/node_modules/lodash/dist/lodash.js": "cjs"
+    "./../node_modules/modules/node_modules/lodash/dist/lodash.js": "cjs"
+    "./../node_modules/lodash/dist/lodash.js": "cjs"
 default_loader: "cjs"
 appcache: "./tl.appcache"
 assets:
@@ -41,7 +44,6 @@ cached:
     #- "./config_p.js" # patch before spa
     - "./react-dist.js"
     - "./zepto.js"
-    - "./forge.js"
     - "./uuid.js"
     - "./css/bootstrap.css"
     - "./css/main.css"

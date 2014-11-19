@@ -1,8 +1,8 @@
     "use strict";
     import modules = require("modules");
     import React = require("react");
-    var Hex = modules.multivalue.hex;
-    var DecBlocks = modules.multivalue.decBlocks;
+    import Hex = require("Multivalue/multivalue/hex");
+    import DecBlocks = require("Multivalue/multivalue/decBlocks");
     import TlecBuilder = require("TlecBuilder");
 
     var exp = React.createClass({

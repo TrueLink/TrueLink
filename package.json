@@ -1,0 +1,23 @@
+{
+  "name": "flux-react",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "crypto-js": "",
+    "Multivalue": "",
+    "invariant": "",
+    "modules": "",
+    "Filter": "",
+    "Route": "",
+    "SerializationContext": "",
+    "TestTransport": "",
+    "OverTlecBuilder": "",
+    "Tlec": "",
+    "TlecBuilder": "",
+    "Tlgr": "",
+    "Tlht": "",
+    "TlhtBuilder": "",
+    "Tlke": "",
+    "TlkeBuilder": ""
+  }
+}

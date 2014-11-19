@@ -1,0 +1,6 @@
+{
+  "name": "crypto-js",
+  "version": "0.0.0",
+  "description": "crypto-js that does not break spa",
+  "private": true
+}
