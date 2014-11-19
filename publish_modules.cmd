@@ -13,5 +13,4 @@ npm install .\Tlgr & ^
 npm install .\Tlht & ^
 npm install .\TlhtBuilder & ^
 npm install .\Tlke & ^
-npm install .\TlkeBuilder & ^
-npm install .\tl-testing-utils
+npm install .\TlkeBuilder

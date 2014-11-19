@@ -3,7 +3,7 @@ require("Multivalue").converters.register();
 var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("modules/events/eventEmitter");
-var utils = require("tl-testing-utils");
+var utils = require("./utils");
 
 var chai = require('chai');
 var expect = chai.expect;

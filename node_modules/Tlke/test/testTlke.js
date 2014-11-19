@@ -2,7 +2,7 @@
 require("Multivalue").converters.register();
 var Hex = require("Multivalue/multivalue/hex");
 var EventEmitter = require("modules/events/eventEmitter");
-var utils = require("tl-testing-utils");
+var utils = require("./utils");
 var tools = require("modules/tools");
 var extend = tools.extend;
 var chai = require('chai');

@@ -31,8 +31,7 @@
     "Tlht": "",
     "TlhtBuilder": "",
     "Tlke": "",
-    "TlkeBuilder": "",
-    "tl-testing-utils": ""
+    "TlkeBuilder": ""
   },
   "devDependencies": {
     "spa": "^0.3.3",

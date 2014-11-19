@@ -13,5 +13,4 @@ npm install ..\node_modules\Tlgr & ^
 npm install ..\node_modules\Tlht & ^
 npm install ..\node_modules\TlhtBuilder & ^
 npm install ..\node_modules\Tlke & ^
-npm install ..\node_modules\TlkeBuilder & ^
-npm install ..\node_modules\tl-testing-utils
+npm install ..\node_modules\TlkeBuilder
