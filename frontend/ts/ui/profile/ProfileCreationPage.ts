@@ -1,6 +1,10 @@
 "use strict";
 import React = require("react");
 import reactObserver = require("../../mixins/reactObserver");
+import TlecBuilder = require("TlecBuilder");
+
+import modules = require("modules");
+var DecBlocks = modules.multivalue.decBlocks;
 
 function renderForm(submitHandler, children) {
     return React.DOM.div({className: "profile-creation-page app-page"},
@@ -176,17 +180,87 @@ var PublicProfileForm = React.createClass({
 var SyncProfileForm = React.createClass({
     displayName: "SyncProfileForm",
 
+    componentDidMount: function () {
+        var profile = this.props.pageModel.model;
+        var sync = profile.sync;
+        var connection = sync.initialConnection;
+        connection.on("changed", this.props.pageModel._onChanged, this.props.pageModel);
+    },
+
+    componentWillUnmount: function () {
+        var profile = this.props.pageModel.model;
+        var sync = profile.sync;
+        var connection = sync.initialConnection;
+        connection.off("changed", this.props.pageModel._onChanged, this.props.pageModel);
+    },
+
+    handleOfferInput: function () {
+        var profile = this.props.pageModel.model;
+        var sync = profile.sync;
+        var connection = sync.initialConnection;
+
+        var offer = DecBlocks.fromString(this.refs.offer.getDOMNode().value);
+        connection.enterOffer(offer);
+    },
+
+    handleAuthInput: function () {
+        var profile = this.props.pageModel.model;
+        var sync = profile.sync;
+        var connection = sync.initialConnection;
+
+        var offer = DecBlocks.fromString(this.refs.auth.getDOMNode().value);
+        connection.enterAuth(offer);
+    },
+
+    renderStatus: function (status) {
+        var tlStatus: string = "";
+        switch (status) {
+            case TlecBuilder.STATUS_NOT_STARTED:
+                return React.DOM.div(null,
+                    React.DOM.label(null, "Offer:", 
+                        React.DOM.br(),
+                        React.DOM.input({ref: "offer"})),
+                    React.DOM.div(null, 
+                        React.DOM.button({onClick: this.handleOfferInput}, "Accept offer")));
+            case TlecBuilder.STATUS_OFFER_GENERATED:
+                tlStatus = "Offer provided";
+                break;
+            case TlecBuilder.STATUS_AUTH_GENERATED:
+                tlStatus = "Offer and Auth provided";
+                break;
+            case TlecBuilder.STATUS_AUTH_ERROR:
+                tlStatus = "Auth error";
+                break;
+            case TlecBuilder.STATUS_OFFERDATA_NEEDED:
+                tlStatus = "Waiting for response (offer data)";
+                break;
+            case TlecBuilder.STATUS_AUTHDATA_NEEDED:
+                tlStatus = "Waiting for response (auth data)";
+                break;
+            case TlecBuilder.STATUS_AUTH_NEEDED:
+                return React.DOM.div(null,
+                    React.DOM.label(null, "Auth:", 
+                        React.DOM.br(),
+                        React.DOM.input({ref: "auth"})),
+                    React.DOM.div(null, 
+                        React.DOM.button({onClick: this.handleAuthInput}, "Accept auth")));
+            case TlecBuilder.STATUS_HT_EXCHANGE:
+                tlStatus = "Hashtail exchange";
+                break;
+            case TlecBuilder.STATUS_ESTABLISHED:
+                tlStatus = "Established";
+                break;
+        }
+        return React.DOM.label(null, "Status: " + tlStatus);
+    },
+
     render: function () {
         var profile = this.props.pageModel.model;
         var sync = profile.sync;
         var connection = sync.initialConnection;
-        return renderForm(this._handleProfileCreation, [
-            renderFormElement(this.props.pageModel.model, "Enter auth:", null, "temporaryName"),
-            React.DOM.p({
-                    className: "hint"
-            }, "Your contacts will be able to see this information.")
-        ]);
-    },
+        var status = connection.getStatus();
+        return this.renderStatus(status);
+    }
 });
 
 var exp = React.createClass({
