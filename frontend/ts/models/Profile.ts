@@ -296,6 +296,7 @@
             packet.setLink("tlConnections", context.getPacket(this.tlConnections));
             packet.setLink("transport", context.getPacket(this.transport));
             packet.setLink("grConnections", context.getPacket(this.grConnections));
+            packet.setLink("sync", context.getPacket(this.sync));
         }
 
         deserialize  (packet, context) {
@@ -324,6 +325,7 @@
             //this.grConnections.forEach(function (grCon) { grCon.on("changed", this._onChanged, this); }, this);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
+            this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
         }
 
         private _linkTlConnection  (conn) {

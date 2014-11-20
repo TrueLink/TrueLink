@@ -19,6 +19,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.transport = null;
         this.initialConnection = null;
         this.deviceName = navigator.userAgent;
+        this.master = undefined;
     }
 
     init (args) {
@@ -53,5 +54,28 @@ export class SyncObject extends Model.Model implements ISerializable {
     }
 
     private _onTlConnectionMessage  (message, tlConnection) {
+    }
+
+    serialize  (packet, context) {
+        packet.setData({
+            deviceName: this.deviceName,
+            master: this.master
+        });
+        packet.setLink("tlConnections", context.getPacket(this.tlConnections));
+        packet.setLink("grConnection", context.getPacket(this.grConnection));
+        packet.setLink("initialConnection", context.getPacket(this.initialConnection));
+        packet.setLink("transport", context.getPacket(this.transport));
+    }
+
+    deserialize  (packet, context) {
+        this.checkFactory();
+        var factory = this.getFactory();
+        var data = packet.getData();
+        this.deviceName = data.deviceName;
+        this.master = data.master;
+        this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
+        this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createGrConnection, factory);
+        this.initialConnection = context.deserialize(packet.getLink("initialConnection"), factory.createTlConnection, factory);
+        this.transport = context.deserialize(packet.getLink("transport"));
     }
 }
