@@ -3,7 +3,7 @@
 /// <reference path="../vendor/typings/es6-promises/es6-promises.d.ts"/>
 /// <reference path="../vendor/typings/localforage/localforage.d.ts"/>
 /// <reference path="../node_modules/invariant/invariant.d.ts"/>
-/// <reference path="../node_modules/Multivalue/index.d.ts"/>
+/// <reference path="../node_modules/Multivalue/definitions/exports.d.ts"/>
 /// <reference path="../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
 /// <reference path="../node_modules/TlhtBuilder/TlhtBuilder.d.ts"/>
 /// <reference path="../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
@@ -17,7 +17,6 @@
 /// <reference path="../node_modules/OverTlecBuilder/OverTlecBuilder.d.ts"/>
 /// <reference path="../node_modules/modules/modules.d.ts"/>
 /// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
-/// <reference path="../node_modules/forge-typescript-definitions/forge/forge.d.ts"/>
 import Application = require("./models/App");
 import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");

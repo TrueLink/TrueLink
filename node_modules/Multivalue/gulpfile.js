@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
 var mv = require('gulp-rename');
+var eventStream = require('event-stream');
 
 gulp.task('default', function () {
     var compiler = ts({
@@ -17,11 +18,13 @@ gulp.task('default', function () {
     var result = gulp
         .src([
             './**/*.ts',
-            '!./node_modules/**'
+            '!./node_modules/**',
+            '!./definitions/**'
             ])
         .pipe(compiler)
         ;
 
-    result.dts.pipe(mv('exports.d.ts')).pipe(gulp.dest('.'));
-    return result.js.pipe(gulp.dest('.'));
+    return eventStream.merge(
+        result.dts.pipe(gulp.dest('./definitions')),
+        result.js.pipe(gulp.dest('.')));
 });

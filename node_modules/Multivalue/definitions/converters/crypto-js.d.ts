@@ -1,0 +1,11 @@
+import X32WordArray = require("../multivalue/x32wordArray");
+import Utf8String = require("../multivalue/utf8string");
+import Base64 = require("../multivalue/base64");
+import Hex = require("../multivalue/hex");
+export declare function Utf8StringToX32WordArray(source: Utf8String): X32WordArray;
+export declare function X32WordArrayToUtf8String(source: X32WordArray): Utf8String;
+export declare function Base64ToX32WordArray(source: Base64): X32WordArray;
+export declare function X32WordArrayToBase64(source: X32WordArray): Base64;
+export declare function HexToX32WordArray(source: Hex): X32WordArray;
+export declare function X32WordArrayToHex(source: X32WordArray): Hex;
+export declare function register(): void;

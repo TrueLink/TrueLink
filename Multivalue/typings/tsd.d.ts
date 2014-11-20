@@ -5,3 +5,7 @@
 /// <reference path="../node_modules/sjcl-typescript-definitions/sjcl/sjcl.d.ts" />
 /// <reference path="../node_modules/forge-typescript-definitions/forge/forge.d.ts" />
 /// <reference path="lodash/lodash.d.ts" />
+/// <reference path="bigint.d.ts" />
+/// <reference path="crypto-js.d.ts" />
+/// <reference path="forge.d.ts" />
+/// <reference path="sjcl.d.ts" />
