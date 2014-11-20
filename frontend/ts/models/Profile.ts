@@ -97,11 +97,13 @@
             this.transport = this.getFactory().createTransport();
             this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
 
-            this.sync = this.getFactory().createSync();
-            this.sync.init({
-                master: true,
-                transport: this.transport,
-            });
+            if(!this.sync) {
+                this.sync = this.getFactory().createSync();
+                this.sync.init({
+                    master: true,
+                    transport: this.transport,
+                });                
+            }
 
             this._onChanged();
         }

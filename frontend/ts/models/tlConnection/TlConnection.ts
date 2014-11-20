@@ -13,6 +13,7 @@
     export class TlConnection extends Model.Model implements ISerializable {
 
         public onMessage : Event.Event<IUserMessage>;
+        public onDone : Event.Event<TlConnection>;
         public offer : any;
         public auth : any;
 
@@ -24,6 +25,7 @@
             super();
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
+            this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
             this.offer = null;
             this.auth = null;
             this._initialTlec = null;
@@ -144,6 +146,7 @@
         _onInitialTlecBuilderDone  (builder) {
             this._initialTlec = null;
             this._addTlec(builder);
+            this.onDone.emit(this);
             this._onChanged();
         }
 

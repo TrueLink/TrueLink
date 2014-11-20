@@ -185,6 +185,7 @@ var SyncProfileForm = React.createClass({
         var sync = profile.sync;
         var connection = sync.initialConnection;
         connection.on("changed", this.props.pageModel._onChanged, this.props.pageModel);
+        sync.onJoinedToSync.on(this._handleJoined, this);
     },
 
     componentWillUnmount: function () {
@@ -192,6 +193,7 @@ var SyncProfileForm = React.createClass({
         var sync = profile.sync;
         var connection = sync.initialConnection;
         connection.off("changed", this.props.pageModel._onChanged, this.props.pageModel);
+        sync.onJoinedToSync.off(this._handleJoined, this);
     },
 
     handleOfferInput: function () {
@@ -210,6 +212,12 @@ var SyncProfileForm = React.createClass({
 
         var offer = DecBlocks.fromString(this.refs.auth.getDOMNode().value);
         connection.enterAuth(offer);
+    },
+
+    _handleJoined: function() {
+        var profile = this.props.pageModel.model;
+        profile.temporaryName = "to be synced";
+        this.props.handleProfileCreation();
     },
 
     renderStatus: function (status) {
@@ -303,7 +311,8 @@ var exp = React.createClass({
 
         if(profile.sync) {
             return SyncProfileForm({
-                pageModel: this.props.pageModel
+                handleProfileCreation: this._handleProfileCreation,
+                pageModel: this.props.pageModel                
             });
         }
 
@@ -322,7 +331,6 @@ var exp = React.createClass({
             }
             case "public": {
                 return PublicProfileForm({
-                    handleProfileCreation: this._handleProfileCreation,
                     pageModel: this.props.pageModel
                 });
             }
