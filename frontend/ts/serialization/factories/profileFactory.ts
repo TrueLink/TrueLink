@@ -79,7 +79,7 @@
 
         createGrConnection: function () {
             var grConnection = new GrConnection.GrConnection();
-            var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile.factory);
+            var grConnectionFactory = new GrConnectionFactory(this.serializer, grConnection, this.profile.transport);
             grConnection.setFactory(grConnectionFactory);
             return this._observed(grConnection);
         },
@@ -92,7 +92,7 @@
 
         createTlConnection: function () {
             var tlConnection = new TlConnection.TlConnection();
-            var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile.factory);
+            var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.profile.transport);
             tlConnection.setFactory(tlConnectionFactory);
             return this._observed(tlConnection);
         },

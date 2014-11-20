@@ -18,6 +18,7 @@
     function TlConnectionFactory(serializer, tlConnection, transport) {
         invariant(serializer, "Can i haz serializer?");
         invariant(tlConnection, "Can i haz tlConnection?");
+        invariant(transport, "Can i haz transport?");
         this.serializer = serializer;
         this.tlConnection = tlConnection;
         this.transport = transport;

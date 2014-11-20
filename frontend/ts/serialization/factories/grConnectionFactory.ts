@@ -9,6 +9,7 @@
     function GrConnectionFactory(serializer, grConnection, transport) {
         invariant(serializer, "Can i haz serializer?");
         invariant(grConnection, "Can i haz grConnection?");
+        invariant(transport, "Can i haz transport?");
         this.serializer = serializer;
         this.grConnection = grConnection;
         this.transport = transport;
