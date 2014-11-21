@@ -68,7 +68,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     processNetworkPacket: function (packet) {
-        console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
+        //console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
         if (this._route) {
             this._route.processNetworkPacket(packet);
         }
@@ -110,6 +110,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
             tlec.on("packet", route.processPacket, route);
             tlec.on("message", this._onMessage, this);
+            tlec.on("requestedHash", this._onRequestedHash, this);
+            tlec.on("requestedHashCheck", this._onRequestedHashCheck, this);
         }
     },
 
@@ -123,8 +125,24 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             route.off("openAddrIn", this._onRouteAddrIn, this);
             route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
             tlec.off("packet", route.processPacket, route);
+            tlec.off("message", this._onMessage, this);
+            tlec.off("requestedHash", this._onRequestedHash, this);
+            tlec.off("requestedHashCheck", this._onRequestedHashCheck, this);
         }
     },
+    _onRequestedHash: function (args) {
+        this._tlhtBuilder.fulfillHashRequest(args);
+    },
+    _onRequestedHashCheck: function (args) {
+        this._tlhtBuilder.fulfillHashCheckRequest(args);
+    },
+    _onFulfilledHashRequest: function (args) {
+        this._tlec.sendHashedMessage(args);
+    },
+    _onFulfilledHashCheckRequest: function (args) {
+        this._tlec.processCheckedPacket(args);
+    },
+    
     _onRouteAddrIn: function (args) {
         this.fire("openAddrIn", args);
     },
@@ -132,7 +150,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this.fire("closeAddrIn", args);
     },
     _onNetworkPacket: function (packet) {
-        console.log("Sending some packet: ", packet);
+        //console.log("Sending some packet: ", packet);
         this.fire("networkPacket", packet);
     },
     _onMessage: function (msg) {
@@ -152,9 +170,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlhtBuilder.on("networkPacket", this._onNetworkPacket, this);
             this._tlhtBuilder.on("openAddrIn", this._onRouteAddrIn, this);
             this._tlhtBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
+            this._tlhtBuilder.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            this._tlhtBuilder.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
         }
     },
-
 
     _unlinkTlkeBuilder: function () {
         if (this._tlkeBuilder) {
@@ -174,6 +193,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlhtBuilder.off("networkPacket", this._onNetworkPacket, this);
             this._tlhtBuilder.off("openAddrIn", this._onRouteAddrIn, this);
             this._tlhtBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
+            this._tlhtBuilder.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            this._tlhtBuilder.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
         }
     },
 

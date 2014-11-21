@@ -7,27 +7,81 @@ var Bytes = require("Multivalue/multivalue/bytes");
 var Aes = require("modules/cryptography/aes-sjcl");
 
 var invariant = require("invariant");
-var TlecAlgo = require("Tlec/tlec-algo");
+
+var invariant = require("invariant");
+var Multivalue = require("Multivalue").multivalue.Multivalue;
 
 var DecryptionFailedError = require('./decryption-failed-error');
+
+TlhtAlgo.HashCount = 1000;
 
 function TlhtAlgo(random) {
     this._random = random;
 
     this._dhAesKey = null;
-    this._hashStart = null;
     this._hashEnd = null;
+    this._hashStart = null;
+    this._hashCounter = null;
 }
 
 TlhtAlgo.prototype.init = function (key) {
     invariant(this._random, "rng is not set");
     this._dhAesKey = key;
+    this._hashCounter = TlhtAlgo.HashCount - 1;
 }
+
+TlhtAlgo.prototype._isHashValid = function (hx) {
+    invariant(this._hashEnd, "channel is not configured");
+
+    var end = this._hashEnd.as(Hex).value, i;
+    for (i = 0; i < TlhtAlgo.HashCount; i += 1) {
+        hx = this._hash(hx);
+        if (hx.as(Hex).value === end) {
+            return true;
+        }
+    }
+    return false;
+}
+
+TlhtAlgo.prototype._getNextHash = function () {
+    invariant(this._hashStart, "channel is not configured");
+    invariant(this._hashCounter && this._hashCounter > 1, "This channel is expired");
+
+    var hx = this._hashStart, i;
+    for (i = 0; i < this._hashCounter; i += 1) {
+        hx = this._hash(hx);
+    }
+    this._hashCounter -= 1;
+
+    return hx;    
+}
+
+TlhtAlgo.prototype.isExpired = function () {
+    return this._hashCounter <= 1;
+}
+
+TlhtAlgo.prototype.hashMessage = function (raw) {
+    invariant(raw instanceof Multivalue, "raw must be multivalue");
+    var hx = this._getNextHash();
+    return hx.as(Bytes).concat(raw);
+}
+
+TlhtAlgo.prototype.processPacket = function (decryptedData) {
+    var hx = decryptedData.bitSlice(0, 128);
+    var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
+
+    if (!this._isHashValid(hx)) {
+        return null;
+    }
+    
+    return netData;
+},
+
 
 TlhtAlgo.prototype.generate = function () {
     this._hashStart = this._random.bitArray(128);
     var hashEnd = this._hashStart, i;
-    for (i = 0; i < TlecAlgo.HashCount; i += 1) {
+    for (i = 0; i < TlhtAlgo.HashCount; i += 1) {
         hashEnd = this._hash(hashEnd);
     }
     return hashEnd;
@@ -62,13 +116,16 @@ TlhtAlgo.prototype.deserialize = function (data) {
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
     this._hashStart = data.hashStart ? Hex.deserialize(data.hashStart) : null;
     this._hashEnd = data.hashEnd ? Hex.deserialize(data.hashEnd) : null;
+    this._hashCounter = data.hashCounter;
+
 }
 
 TlhtAlgo.prototype.serialize = function () {
     return {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
         hashStart: this._hashStart ? this._hashStart.as(Hex).serialize() : null,
-        hashEnd: this._hashEnd ? this._hashEnd.as(Hex).serialize() : null
+        hashEnd: this._hashEnd ? this._hashEnd.as(Hex).serialize() : null,
+        hashCounter: this._hashCounter
     };
 }
 

@@ -4,7 +4,7 @@ var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
-var TlecAlgo = require("../tlec-algo");
+var TlhtAlgo = require("../../Tlht/tlht-algo");
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -118,8 +118,8 @@ describe("True Link Encrypted Channel", function() {
 
     describe("multihashtail (TlecAlgo.HashCount = 5)", function() {
         before(function(done) {
-            this.TlecAlgoHashCount = TlecAlgo.HashCount;
-            TlecAlgo.HashCount = 5;
+            this.TlecAlgoHashCount = TlhtAlgo.HashCount;
+            TlhtAlgo.HashCount = 5;
 
             var transport = this.transport = utils.factory.createTransport();
             var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
@@ -173,7 +173,7 @@ describe("True Link Encrypted Channel", function() {
         });
 
         after(function () {
-            TlecAlgo.HashCount = this.TlecAlgoHashCount;
+            TlhtAlgo.HashCount = this.TlecAlgoHashCount;
         });
 
         beforeEach(function() {

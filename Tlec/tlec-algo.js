@@ -15,89 +15,33 @@ var isFunction = tools.isFunction;
 
 function TlecAlgo(random) {
     this._random = random;
-
-    this._backHashEnd = null;
-    this._hashStart = null;
     this._dhAesKey = null;
-    this._hashCounter = null;
 }
-
-TlecAlgo.HashCount = 1000;
 
 TlecAlgo.prototype.init = function (initObj) {
-    var message = "initObj mus be {key: multivalue, hashStart: multivalue, hashEnd: multivalue}";
+    var message = "initObj mus be {key: multivalue}";
     invariant(initObj, message);
     invariant(initObj.key instanceof Multivalue, message);
-    invariant(initObj.hashStart instanceof Multivalue, message);
-    invariant(initObj.hashEnd instanceof Multivalue, message);
 
-    this._backHashEnd = initObj.hashEnd;
-    this._hashStart = initObj.hashStart;
     this._dhAesKey = initObj.key;
-    this._hashCounter = TlecAlgo.HashCount - 1;
 },
 
-TlecAlgo.prototype._isHashValid = function (hx) {
-    invariant(this._backHashEnd, "channel is not configured");
-
-    var end = this._backHashEnd.as(Hex).value, i;
-    for (i = 0; i < TlecAlgo.HashCount; i += 1) {
-        hx = this._hash(hx);
-        if (hx.as(Hex).value === end) {
-            return true;
-        }
-    }
-    return false;
-}
-
-TlecAlgo.prototype._getNextHash = function () {
-    invariant(this._hashStart, "channel is not configured");
-    invariant(this._hashCounter && this._hashCounter > 1, "This channel is expired");
-
-    var hx = this._hashStart, i;
-    for (i = 0; i < this._hashCounter; i += 1) {
-        hx = this._hash(hx);
-    }
-    this._hashCounter -= 1;
-
-    return hx;    
-}
-
-TlecAlgo.prototype.createMessage = function (raw) {
-    invariant(raw instanceof Multivalue, "raw must be multivalue");
-    var hx = this._getNextHash();
-    return this._encrypt(hx.as(Bytes).concat(raw));
-}
-
-TlecAlgo.prototype.isExpired = function () {
-    return this._hashCounter <= 1;
+TlecAlgo.prototype.createMessage = function (bytes) {
+    return this._encrypt(bytes);
 }
 
 // process packet from the network
 TlecAlgo.prototype.processPacket = function (bytes) {
-    var decryptedData = this._decrypt(bytes);
-    var hx = decryptedData.bitSlice(0, 128);
-    var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
-
-    if (!this._isHashValid(hx)) {
-        return false;
-    }
-    return netData;
+    return this._decrypt(bytes);
 },
 
 TlecAlgo.prototype.deserialize = function (data) {
-    this._hashStart = data.hashStart ? Hex.deserialize(data.hashStart) : null;
-    this._hashCounter = data.hashCounter;
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-    this._backHashEnd = data.backHashEnd ? Hex.deserialize(data.backHashEnd) : null;
 }
 
 TlecAlgo.prototype.serialize = function () {
     return {
-        hashStart: this._hashStart ? this._hashStart.as(Hex).serialize() : null,
-        hashCounter: this._hashCounter,
-        dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-        backHashEnd: this._backHashEnd ? this._backHashEnd.as(Hex).serialize() : null
+        dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null
     };
 }
 
@@ -126,10 +70,6 @@ TlecAlgo.prototype._decrypt = function (bytes, customKey) {
 TlecAlgo.prototype._getRandomBytes = function (bitLength) {
     invariant(isFunction(this._random.bitArray), "random must implement IRandom");
     return this._random.bitArray(bitLength);
-}
-
-TlecAlgo.prototype._hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
 }
 
 module.exports = TlecAlgo;

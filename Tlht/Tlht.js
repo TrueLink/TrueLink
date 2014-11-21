@@ -24,6 +24,9 @@ function Tlht(factory) {
     this._defineEvent("changed");
     this._defineEvent("packet");
     this._defineEvent("htReady");
+    this._defineEvent("expired");
+    this._defineEvent("fulfilledHashCheckRequest");
+    this._defineEvent("fulfilledHashRequest");
 
     this._readyCalled = false;
     this._algo = new TlhtAlgo(factory.createRandom());
@@ -61,6 +64,18 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             this._onHashReady();
         }
         this._onChanged();
+    },
+
+    fulfillHashRequest: function (message) {
+        var hashedMessage = this._algo.hashMessage(message);
+        if (this._algo.isExpired()) { 
+            this.fire("expired");
+        }
+        this.fire("fulfilledHashRequest", hashedMessage);
+    },
+
+    fulfillHashCheckRequest: function (netData) {
+        this.fire("fulfilledHashCheckRequest", this._algo.processPacket(netData));
     },
 
     _onMessage: function (messageData) {

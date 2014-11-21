@@ -16,12 +16,13 @@ function Tlec(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createRandom), "factory must have createRandom() method");
 
-    this._defineEvent("expired");
     this._defineEvent("packet");
     this._defineEvent("message");
     this._defineEvent("wrongSignatureMessage");
     this._defineEvent("changed");
-
+    this._defineEvent("requestedHashCheck");
+    this._defineEvent("requestedHash");
+    
     this._factory = factory;
     this._algo = new TlecAlgo(factory.createRandom());
 }
@@ -43,15 +44,15 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
 
     sendMessage: function (message) {
-        var encrypted = this._algo.createMessage(message);
-        if (this._algo.isExpired()) {
-            this.fire("expired");
-        }
-        this._onChanged();
-        this.fire("packet", encrypted);
+        this.fire("requestedHash", message);
     },
 
-    // process packet from the network
+    sendHashedMessage: function(hashedMessage) {
+        var encrypted = this._algo.createMessage(hashedMessage);
+        this._onChanged();
+        this.fire("packet", encrypted);        
+    },
+
     processPacket: function (bytes) {
         var netData;
         try {
@@ -64,11 +65,15 @@ extend(Tlec.prototype, eventEmitter, serializable, {
             }
         }
 
-        if (netData === false) {
-            this.fire("wrongSignatureMessage", netData);
+        this.fire("requestedHashCheck", netData);      
+    },
+
+    processCheckedPacket: function (checkedNetData) {
+        if (checkedNetData == null) {
+            this.fire("wrongSignatureMessage", checkedNetData);
             return;
         }
-        this.fire("message", netData);
+        this.fire("message", checkedNetData);
     },
 
     _onChanged: function () {
