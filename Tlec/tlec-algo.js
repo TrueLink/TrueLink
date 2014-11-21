@@ -50,8 +50,7 @@ TlecAlgo.prototype._isHashValid = function (hx) {
     return false;
 }
 
-TlecAlgo.prototype.createMessage = function (raw) {
-    invariant(raw instanceof Multivalue, "raw must be multivalue");
+TlecAlgo.prototype._getNextHash = function () {
     invariant(this._hashStart, "channel is not configured");
     invariant(this._hashCounter && this._hashCounter > 1, "This channel is expired");
 
@@ -61,6 +60,12 @@ TlecAlgo.prototype.createMessage = function (raw) {
     }
     this._hashCounter -= 1;
 
+    return hx;    
+}
+
+TlecAlgo.prototype.createMessage = function (raw) {
+    invariant(raw instanceof Multivalue, "raw must be multivalue");
+    var hx = this._getNextHash();
     return this._encrypt(hx.as(Bytes).concat(raw));
 }
 
