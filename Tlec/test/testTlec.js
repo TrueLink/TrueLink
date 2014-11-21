@@ -4,6 +4,7 @@ var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
+var TlecAlgo = require("../tlec-algo");
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -115,6 +116,119 @@ describe("True Link Encrypted Channel", function() {
         });
     });
 
+    describe("multihashtail (TlecAlgo.HashCount = 5)", function() {
+        before(function(done) {
+            this.TlecAlgoHashCount = TlecAlgo.HashCount;
+            TlecAlgo.HashCount = 5;
+
+            var transport = this.transport = utils.factory.createTransport();
+            var aliceTlec = this.aliceTlec = utils.factory.createTlecBuilder();
+            var bobTlec = this.bobTlec = utils.factory.createTlecBuilder();
+
+            aliceTlec.on("networkPacket", transport.sendNetworkPacket, transport);
+            bobTlec.on("networkPacket", transport.sendNetworkPacket, transport);
+
+            aliceTlec.on("openAddrIn", transport.openAddr, transport);
+            bobTlec.on("openAddrIn", transport.openAddr, transport);
+
+            transport.on("networkPacket", aliceTlec.processNetworkPacket, aliceTlec);
+            transport.on("networkPacket", bobTlec.processNetworkPacket, bobTlec);
+
+            aliceTlec.on("offer", bobTlec.enterOffer, bobTlec);
+            aliceTlec.on("auth", bobTlec.enterAuth, bobTlec);
+
+            var results = [];
+            var success = function() {
+                results.push(this);
+                if (results.length == 2) done();
+            };
+
+            aliceTlec.on("done", function(tlec) {
+                this.aliceTlec = tlec;
+                tlec.on("message", function(bytes) {
+                    this.aliceHistory.push(bytes.as(Utf8String).value);
+                }, this);
+                success();
+            }, this);
+            this.sendMessageFromAlice = function(text) {
+                this.aliceHistory.push(text);
+                this.aliceTlec.sendMessage(new Utf8String(text));
+            };
+
+            bobTlec.on("done", function(tlec) {
+                this.bobTlec = tlec;
+                tlec.on("message", function(bytes) {
+                    this.bobHistory.push(bytes.as(Utf8String).value);
+                }, this);
+                success();
+            }, this);
+            this.sendMessageFromBob = function(text) {
+                this.bobHistory.push(text);
+                this.bobTlec.sendMessage(new Utf8String(text));
+            };
+
+            aliceTlec.build();
+            bobTlec.build();
+            aliceTlec.generateOffer();
+        });
+
+        after(function () {
+            TlecAlgo.HashCount = this.TlecAlgoHashCount;
+        });
+
+        beforeEach(function() {
+            this.aliceHistory = [];
+            this.bobHistory = [];
+        });
+
+        it("can send messages (10 times more)", function() {
+            for (var i = 0; i < 10; i++) {
+                this.sendMessageFromAlice("Hi, Bob.");
+                this.sendMessageFromBob("Hi, Alice.");
+                this.sendMessageFromAlice("How are you doing, Bob?");
+                this.sendMessageFromBob("I'm sending messages to you over TLEC!!!");
+                this.sendMessageFromAlice("Wow, and how is it?");
+                this.sendMessageFromBob("It is awesome!!!");
+                this.sendMessageFromAlice("Why?");
+                this.sendMessageFromBob("Because our conversation now is more secured than ever");
+            }
+
+            expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+
+            var expected = [];
+            for (var i = 0; i < 10; i++) {
+                expected = expected.concat([
+                    "Hi, Bob.",
+                    "Hi, Alice.",
+                    "How are you doing, Bob?",
+                    "I'm sending messages to you over TLEC!!!",
+                    "Wow, and how is it?",
+                    "It is awesome!!!",
+                    "Why?",
+                    "Because our conversation now is more secured than ever"
+                ]);
+            }
+            expect(this.aliceHistory).to.deep.equal(expected);
+        });
+
+        it.skip("can send long messages (16k)", function() {
+            var message="-"
+            while(message.length < 10000) {
+                message = message + "|" + message;
+            }
+            this.sendMessageFromAlice(message);
+            expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+            expect(this.aliceHistory).to.deep.equal([message]);
+        });
+
+        it.skip("can send many messages (100)", function() {
+            for(var i=0; i<100; i++) {
+                this.sendMessageFromAlice("message #" + i);
+            }
+            expect(this.aliceHistory).to.deep.equal(this.bobHistory);
+        });
+    });
+
     describe("tlec over tlec", function() {
         before(function(done) {
             var transport = this.transport = utils.factory.createTransport();
@@ -140,7 +254,7 @@ describe("True Link Encrypted Channel", function() {
             };
 
             aliceTlec.on("done", function(tlec) {
-                console.log("alice building over", tlec);
+                //console.log("alice building over", tlec);
                 var over = utils.factory.createOverTlecBuilder();
 
                 over.on("networkPacket", transport.sendNetworkPacket, transport);
@@ -155,7 +269,7 @@ describe("True Link Encrypted Channel", function() {
                     aliceTlec.sendMessage(new Utf8String(JSON.stringify(msg)));
                 });
                 over.on("done", function(tlec2) {
-                    console.log("alice !!!!", tlec2);
+                    //console.log("alice !!!!", tlec2);
                     this.aliceNewTlec = tlec2;
                     tlec2.on("message", function(bytes) {
                         this.aliceHistory.push(bytes.as(Utf8String).value);
@@ -165,7 +279,7 @@ describe("True Link Encrypted Channel", function() {
                 over.build(false);
             }, this);
             bobTlec.on("done", function(tlec) {
-                console.log("bob building over", tlec);
+                //console.log("bob building over", tlec);
                 var over = utils.factory.createOverTlecBuilder();
 
                 over.on("networkPacket", transport.sendNetworkPacket, transport);
@@ -180,7 +294,7 @@ describe("True Link Encrypted Channel", function() {
                     bobTlec.sendMessage(new Utf8String(JSON.stringify(msg)));
                 });
                 over.on("done", function(tlec2) {
-                    console.log("bob !!!!", tlec2);
+                    //console.log("bob !!!!", tlec2);
                     this.bobNewTlec = tlec2;
                     tlec2.on("message", function(bytes) {
                         this.bobHistory.push(bytes.as(Utf8String).value);
