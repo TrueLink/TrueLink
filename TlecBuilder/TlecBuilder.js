@@ -155,20 +155,31 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
 
-    _unlinkBuilders: function () {
-        if (this._tlkeBuilder && this._tlhtBuilder) {
+
+    _unlinkTlkeBuilder: function () {
+        if (this._tlkeBuilder) {
             this._tlkeBuilder.off("offer", this._onOffer, this);
             this._tlkeBuilder.off("auth", this._onAuth, this);
             this._tlkeBuilder.off("done", this._tlhtBuilder.build, this._tlhtBuilder);
             this._tlkeBuilder.off("changed", this._onTlkeBuilderChanged, this);
-            this._tlhtBuilder.off("done", this._initTlec, this);
             this._tlkeBuilder.off("networkPacket", this._onNetworkPacket, this);
             this._tlkeBuilder.off("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
+        }
+    }, 
+
+    _unlinkTlhtBuilder: function () {
+        if (this._tlhtBuilder) {
+            this._tlhtBuilder.off("done", this._initTlec, this);
             this._tlhtBuilder.off("networkPacket", this._onNetworkPacket, this);
             this._tlhtBuilder.off("openAddrIn", this._onRouteAddrIn, this);
             this._tlhtBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
+    },
+
+    _unlinkBuilders: function () {
+        this._unlinkTlhtBuilder();
+        this._unlinkTlkeBuilder();
     },
 
 
@@ -183,9 +194,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlec.init(args);
         this._route.setAddr(args);
         this._tlkeBuilder.destroy();
-        this._tlhtBuilder.destroy();
-        this._unlinkBuilders();
-        this._tlhtBuilder = null;
+        this._unlinkTlkeBuilder();
         this._tlkeBuilder = null;
         this.status = TlecBuilder.STATUS_ESTABLISHED;
         this._onChanged();
