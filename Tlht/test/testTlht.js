@@ -15,7 +15,6 @@ var logfunc = function() {
 }
 
 describe("True Link Hash Tail Exchange", function() {
-
     function TlkeTestBuilder(name, transport) {
         this.name = "TlkeTestBuilder" + name;
         this._defineEvent("offer");
@@ -104,10 +103,25 @@ describe("True Link Hash Tail Exchange", function() {
         },
         on_htReady: function(args) {
             this._log("on_htReady", args);
-            this.hashStart = args.hashStart;
-            this.hashEnd = args.hashEnd;
-            this._log("hashStart", args.hashStart.as(Hex));
-            this._log("hashEnd", args.hashEnd.as(Hex));
+            this.hashStart = this.tlht._algo._myHashes;
+            if (this.hashStart) {
+                this.hashStart = this.hashStart.map(function (hashInfo) {
+                    return {
+                        start: hashInfo.start.as(Hex).serialize(),
+                        counter: hashInfo.counter
+                    }
+                });
+            }
+            this.hashEnd = this.tlht._algo._herHashes;
+            if (this.hashEnd) {
+                this.hashEnd = this.hashEnd.map(function (hashInfo) {
+                    return {
+                        end: hashInfo.end.as(Hex).serialize()
+                    }
+                });
+            }
+            this._log("hashStart", this.hashStart);
+            this._log("hashEnd", this.hashEnd);
             this.fire("done");
         },
         _log: logfunc
@@ -210,14 +224,14 @@ describe("True Link Hash Tail Exchange", function() {
         });
 
         it("alice hash tails are ready", function() {
-            expect(this.aliceResult.hashStart).not.to.be.undefined;
-            expect(this.aliceResult.hashEnd).not.to.be.undefined;
+            expect(this.aliceTlht._tlht._algo._myHashes).not.to.be.undefined;
+            expect(this.aliceTlht._tlht._algo._herHashes).not.to.be.undefined;
         });
 
         it("bob hash tails are ready", function() {
-            expect(this.bobResult.hashStart).not.to.be.undefined;
-            expect(this.bobResult.hashEnd).not.to.be.undefined;
+            expect(this.bobTlht._tlht._algo._myHashes).not.to.be.undefined;
+            expect(this.bobTlht._tlht._algo._herHashes).not.to.be.undefined;
         });
     });
 
-});
+}); 
