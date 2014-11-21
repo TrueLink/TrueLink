@@ -142,8 +142,6 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
     _onDone: function (args) {
         var result = {
             key: this._key,
-            hashStart: args.hashStart,
-            hashEnd: args.hashEnd,
             inId: this._inId,
             outId: this._outId
         };

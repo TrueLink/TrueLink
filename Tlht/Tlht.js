@@ -123,7 +123,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     _onHashReady: function () {
         if (this._readyCalled) { return; }
         this._readyCalled = true;
-        this.fire("htReady", this._algo.getHashReady());
+        this.fire("htReady");
         this._onChanged();
     },
 
