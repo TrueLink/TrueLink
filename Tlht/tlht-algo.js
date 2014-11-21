@@ -133,18 +133,37 @@ TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
 
 TlhtAlgo.prototype.deserialize = function (data) {
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-    this._hashStart = data.hashStart ? Hex.deserialize(data.hashStart) : null;
-    this._hashEnd = data.hashEnd ? Hex.deserialize(data.hashEnd) : null;
-    this._hashCounter = data.hashCounter;
-
+    this._myHashes = !data.myHashes ? null : 
+        data.myHashes.map(function (hashInfo) {
+            return {
+                start: Hex.deserialize(hashInfo.start),
+                counter: hashInfo.counter
+            }
+        });
+    this._herHashes = !data.herHashes ? null : 
+        data.herHashes.map(function (hashInfo) {
+            return {
+                end: Hex.deserialize(hashInfo.end)
+            }
+        });
 }
 
 TlhtAlgo.prototype.serialize = function () {
     return {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-        hashStart: this._hashStart ? this._hashStart.as(Hex).serialize() : null,
-        hashEnd: this._hashEnd ? this._hashEnd.as(Hex).serialize() : null,
-        hashCounter: this._hashCounter
+        myHashes: !this._myHashes ? null :
+            this._myHashes.map(function (hashInfo) {
+                return {
+                    start: hashInfo.start.as(Hex).serialize(),
+                    counter: hashInfo.counter
+                }
+            }),
+        herHashes: !this._herHashes ? null :
+            this._herHashes.map(function (hashInfo) {
+                return {
+                    end: hashInfo.end.as(Hex).serialize()
+                }
+            })        
     };
 }
 
