@@ -27,6 +27,7 @@ function Tlht(factory) {
     this._defineEvent("expired");
     this._defineEvent("fulfilledHashCheckRequest");
     this._defineEvent("fulfilledHashRequest");
+    this._defineEvent("wrongSignatureMessage");
 
     this._readyCalled = false;
     this._algo = new TlhtAlgo(factory.createRandom());
@@ -101,6 +102,11 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             } else {
                 throw ex;
             }
+        }
+
+        if (netData === null) {
+            this.fire("wrongSignatureMessage", netData);
+            return;
         }
 
         var message;

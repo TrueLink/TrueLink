@@ -20,8 +20,11 @@ function TlhtAlgo(random) {
 
     this._dhAesKey = null;
 
-    this._myHashes = null; //todo serialization
-    this._herHashes = null; //todo serialization
+    this._myHashes = null;
+    this._herHashes = null;
+
+    this._isFirstHashCheked = false;
+    this._isFirstHashGenerated = false;
 }
 
 TlhtAlgo.prototype.init = function (key) {
@@ -30,6 +33,12 @@ TlhtAlgo.prototype.init = function (key) {
 }
 
 TlhtAlgo.prototype._isHashValid = function (hx) {
+    // first time check, is used for initial hashtail exchange
+    if (!this._isFirstHashCheked) {
+        this._isFirstHashCheked = true;
+        return hx.as(Hex).value === "00000000000000000000000000000000";
+    }
+
     invariant(this._herHashes, "channel is not configured");
 
     for (var hashIndex = 0; hashIndex < this._herHashes.length; hashIndex++) {
@@ -48,6 +57,12 @@ TlhtAlgo.prototype._isHashValid = function (hx) {
 }
 
 TlhtAlgo.prototype._getNextHash = function () {
+    // first 'next hash', is used for initial hashtail exchange
+    if (!this._isFirstHashGenerated) {
+        this._isFirstHashGenerated = true;
+        return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    }
+
     invariant(this._myHashes, "channel is not configured");
 
     this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
@@ -70,7 +85,7 @@ TlhtAlgo.prototype.isExpired = function () {
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
-    return this._myHashes.length >= 3;
+    return this._myHashes.length >= 1;
 }
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
@@ -106,18 +121,16 @@ TlhtAlgo.prototype.generate = function () {
 }
 
 TlhtAlgo.prototype.isHashReady = function () {
-    return this._myHashes.length > 0 && this._myHashes.length > 0;
+    return !!(this._myHashes && this._herHashes && this._myHashes.length && this._herHashes.length);
 }
 
 TlhtAlgo.prototype.createMessage = function (raw) {
-    //todo sign hashtail if not first
-    var hx = new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-    return this._encrypt(hx.concat(raw));
+    return this._encrypt(this.hashMessage(raw));
 }
 
 TlhtAlgo.prototype.processMessage = function (bytes) {
     var decryptedData = this._decrypt(bytes);
-    return decryptedData.bitSlice(128, decryptedData.bitLength());
+    return this.processPacket(decryptedData);
 }
 
 TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
@@ -146,6 +159,8 @@ TlhtAlgo.prototype.deserialize = function (data) {
                 end: Hex.deserialize(hashInfo.end)
             }
         });
+    this._isFirstHashCheked = data.isFirstHashCheked;
+    this._isFirstHashGenerated = data.isFirstHashGenerated;
 }
 
 TlhtAlgo.prototype.serialize = function () {
@@ -163,7 +178,9 @@ TlhtAlgo.prototype.serialize = function () {
                 return {
                     end: hashInfo.end.as(Hex).serialize()
                 }
-            })        
+            }),
+        isFirstHashCheked: this._isFirstHashCheked,
+        isFirstHashGenerated: this._isFirstHashGenerated      
     };
 }
 
