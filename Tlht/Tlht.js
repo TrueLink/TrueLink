@@ -67,6 +67,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     fulfillHashRequest: function (message) {
+        while (!this._algo.areEnoughHashtailsAvailable()) {
+            this.generate();
+        }
         var hashedMessage = this._algo.hashMessage(message);
         if (this._algo.isExpired()) { 
             this.fire("expired");

@@ -36,19 +36,21 @@ TlhtAlgo.prototype._isHashValid = function (hx) {
         var hashInfo = this._herHashes[hashIndex];
 
         var end = hashInfo.end.as(Hex).value;
+        var gotTail = hx;
         for (var i = 0; i < TlhtAlgo.HashCount; i++) {
-            hx = this._hash(hx);
-            if (hx.as(Hex).value === end) {
+            gotTail = this._hash(gotTail);
+            if (gotTail.as(Hex).value === end) {
                 return true;
             }
         }
     }
-
     return false;
 }
 
 TlhtAlgo.prototype._getNextHash = function () {
     invariant(this._myHashes, "channel is not configured");
+
+    this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
     invariant(!this.isExpired(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * this._myHashes.length);
@@ -64,7 +66,11 @@ TlhtAlgo.prototype._getNextHash = function () {
 }
 
 TlhtAlgo.prototype.isExpired = function () {
-    return (this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; }).length === 0);
+    return this._myHashes.length === 0;
+}
+
+TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
+    return this._myHashes.length >= 3;
 }
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
@@ -104,6 +110,7 @@ TlhtAlgo.prototype.isHashReady = function () {
 }
 
 TlhtAlgo.prototype.createMessage = function (raw) {
+    //todo sign hashtail if not first
     var hx = new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     return this._encrypt(hx.concat(raw));
 }
