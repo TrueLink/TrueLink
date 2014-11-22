@@ -9,8 +9,8 @@
   "dependencies": {
     "connect": "^2.8.4",
     "es6-promise": "^2.0.0",
-    "forge-typescript-definitions": "git://github.com/Evgenus/forge-typescript-definitions",
-    "jsbn-typescript-definitions": "git://github.com/Evgenus/jsbn-typescript-definitions",
+    "forge-typescript-definitions": "git+https://github.com/Evgenus/forge-typescript-definitions",
+    "jsbn-typescript-definitions": "^1.2.0-3",
     "node-uuid": "^1.4.1",
     "q": "^1.0.1",
     "react": "^0.11.2",
