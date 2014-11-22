@@ -1,6 +1,10 @@
 "use strict";
 var tools = require("modules/tools");
 
+var Hex = require("Multivalue/multivalue/hex");
+var Utf8String = require("Multivalue/multivalue/utf8string");
+
+
 var eventEmitter = require("modules/events/eventEmitter");
 var invariant = require("invariant");
 
@@ -44,7 +48,12 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
 
     sendMessage: function (message) {
-        this.fire("requestedHash", message);
+        var messageData = {
+            "t": "u",
+            "d": message.as(Hex).serialize()
+        };
+        var raw = new Utf8String(JSON.stringify(messageData));        
+        this.fire("requestedHash", raw);
     },
 
     sendHashedMessage: function(hashedMessage) {
@@ -64,7 +73,6 @@ extend(Tlec.prototype, eventEmitter, serializable, {
                 throw ex;
             }
         }
-
         this.fire("requestedHashCheck", netData);      
     },
 
@@ -73,7 +81,22 @@ extend(Tlec.prototype, eventEmitter, serializable, {
             this.fire("wrongSignatureMessage", checkedNetData);
             return;
         }
-        this.fire("message", checkedNetData);
+
+        var message;
+        try {
+            message = JSON.parse(checkedNetData.as(Utf8String).value);
+        } catch (ex) {
+            console.log("Tlec failed to parse message");
+            // not for me
+            return;
+        }
+
+        if (message.t === "u" && message.d) {
+            this.fire("message", Hex.deserialize(message.d));
+        } else {
+            console.log("Tlec process packet, skiping some msg", message);
+        }
+        
     },
 
     _onChanged: function () {

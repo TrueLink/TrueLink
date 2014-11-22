@@ -14,6 +14,7 @@ var Multivalue = require("Multivalue").multivalue.Multivalue;
 var DecryptionFailedError = require('./decryption-failed-error');
 
 TlhtAlgo.HashCount = 1000;
+TlhtAlgo.MinHashtailsWanted = 3;
 
 function TlhtAlgo(random) {
     this._random = random;
@@ -85,7 +86,7 @@ TlhtAlgo.prototype.isExpired = function () {
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
-    return this._myHashes.length >= 1;
+    return this._myHashes.length >= TlhtAlgo.MinHashtailsWanted;
 }
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
@@ -115,17 +116,19 @@ TlhtAlgo.prototype.generate = function () {
     for (var i = 0; i < TlhtAlgo.HashCount; i++) {
         hashEnd = this._hash(hashEnd);
     }
-    if (!this._myHashes) { this._myHashes = []; }
-    this._myHashes.push(hashInfo);
-    return hashEnd;
+    return {
+        hashEnd: hashEnd,
+        hashInfo: hashInfo
+    };
 }
 
 TlhtAlgo.prototype.isHashReady = function () {
     return !!(this._myHashes && this._herHashes && this._myHashes.length && this._herHashes.length);
 }
 
-TlhtAlgo.prototype.createMessage = function (raw) {
-    return this._encrypt(this.hashMessage(raw));
+TlhtAlgo.prototype.createMessage = function (raw, hash) {
+    var message = this._encrypt(this.hashMessage(raw));
+    return message;
 }
 
 TlhtAlgo.prototype.processMessage = function (bytes) {
@@ -133,6 +136,10 @@ TlhtAlgo.prototype.processMessage = function (bytes) {
     return this.processPacket(decryptedData);
 }
 
+TlhtAlgo.prototype.pushMyHashInfo = function (hashInfo) {
+    if (!this._myHashes) { this._myHashes = []; }
+    this._myHashes.push(hashInfo);
+}
 TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
     if (!this._herHashes) { this._herHashes = []; }
     this._herHashes.push({

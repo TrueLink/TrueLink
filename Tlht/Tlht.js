@@ -54,12 +54,13 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     generate: function () {
         console.log("Tlht generate");
-        var hashEnd = this._algo.generate();
+        var hash = this._algo.generate();
         var messageData = {
             "t": "h",
-            "d": hashEnd.as(Hex).serialize()
+            "d": hash.hashEnd.as(Hex).serialize()
         };
         this._onMessage(messageData);
+        this._algo.pushMyHashInfo(hash.hashInfo);
         if (this._algo.isHashReady()) {
             console.log("hashes ready");
             this._onHashReady();
