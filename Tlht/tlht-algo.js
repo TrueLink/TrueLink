@@ -23,7 +23,7 @@ function TlhtAlgo(random) {
     this._myHashes = null;
     this._herHashes = null;
 
-    this._isFirstHashCheked = false;
+    this._isFirstHashChecked = false;
     this._isFirstHashGenerated = false;
 }
 
@@ -34,8 +34,8 @@ TlhtAlgo.prototype.init = function (key) {
 
 TlhtAlgo.prototype._isHashValid = function (hx) {
     // first time check, is used for initial hashtail exchange
-    if (!this._isFirstHashCheked) {
-        this._isFirstHashCheked = true;
+    if (!this._isFirstHashChecked) {
+        this._isFirstHashChecked = true;
         return hx.as(Hex).value === "00000000000000000000000000000000";
     }
 
@@ -159,7 +159,7 @@ TlhtAlgo.prototype.deserialize = function (data) {
                 end: Hex.deserialize(hashInfo.end)
             }
         });
-    this._isFirstHashCheked = data.isFirstHashCheked;
+    this._isFirstHashChecked = data.isFirstHashChecked;
     this._isFirstHashGenerated = data.isFirstHashGenerated;
 }
 
@@ -179,7 +179,7 @@ TlhtAlgo.prototype.serialize = function () {
                     end: hashInfo.end.as(Hex).serialize()
                 }
             }),
-        isFirstHashCheked: this._isFirstHashCheked,
+        isFirstHashChecked: this._isFirstHashChecked,
         isFirstHashGenerated: this._isFirstHashGenerated      
     };
 }
