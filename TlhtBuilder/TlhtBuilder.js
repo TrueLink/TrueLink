@@ -19,7 +19,9 @@ function TlhtBuilder(factory) {
     this._defineEvent("done");
     this._defineEvent("networkPacket");
     this._defineEvent("openAddrIn");
-    this._defineEvent("closeAddrIn");
+    this._defineEvent("closeAddrIn");    
+    this._defineEvent("fulfilledHashCheckRequest");
+    this._defineEvent("fulfilledHashRequest");
 
     this._factory = factory;
     this._key = null;
@@ -50,12 +52,23 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._outId = args.outId;
 
         this._tlht.generate();
+
+        this.fire("changed", this);
     },
 
     processNetworkPacket: function (packet) {
         if (!this._route) { return; }
         this._route.processNetworkPacket(packet);
     },
+
+    fulfillHashRequest: function (message) {
+        this._tlht.fulfillHashRequest(message); 
+    },
+
+    fulfillHashCheckRequest: function (netData) {
+        this._tlht.fulfillHashCheckRequest(netData); 
+    },
+
 
     serialize: function (packet, context) {
         packet.setLink("_tlht", context.getPacket(this._tlht));
@@ -90,6 +103,9 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
 
             tlht.on("packet", route.processPacket, route);
             tlht.on("htReady", this._onDone, this);
+
+            tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
         }
     },
 
@@ -105,7 +121,16 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
 
             tlht.off("packet", route.processPacket, route);
             tlht.off("htReady", this._onDone, this);
+
+            tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
         }
+    },
+    _onFulfilledHashRequest: function (args) {
+        this.fire("fulfilledHashRequest", args);
+    },
+    _onFulfilledHashCheckRequest: function (args) {
+        this.fire("fulfilledHashCheckRequest", args);
     },
     _onRouteAddrIn: function (args) {
         this.fire("openAddrIn", args);
@@ -119,12 +144,12 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
     _onDone: function (args) {
         var result = {
             key: this._key,
-            hashStart: args.hashStart,
-            hashEnd: args.hashEnd,
             inId: this._inId,
-            outId: this._outId
+            outId: this._outId,
+            route: this._route
         };
         this.fire("done", result);
+        this._route.off("networkPacket", this._onRouteNetworkPacket, this);
     },
 
     destroy: function () {

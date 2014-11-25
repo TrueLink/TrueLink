@@ -24,6 +24,10 @@ function Tlht(factory) {
     this._defineEvent("changed");
     this._defineEvent("packet");
     this._defineEvent("htReady");
+    this._defineEvent("expired");
+    this._defineEvent("fulfilledHashCheckRequest");
+    this._defineEvent("fulfilledHashRequest");
+    this._defineEvent("wrongSignatureMessage");
 
     this._readyCalled = false;
     this._algo = new TlhtAlgo(factory.createRandom());
@@ -37,7 +41,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
     deserialize: function (packet, context) {
         var data = packet.getData();
-        this._readyCalled = dto.readyCalled;
+        this._readyCalled = data.readyCalled;
         this._algo.deserialize(data);
     },
 
@@ -50,17 +54,33 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     generate: function () {
         console.log("Tlht generate");
-        var hashEnd = this._algo.generate();
+        var hash = this._algo.generate();
         var messageData = {
             "t": "h",
-            "d": hashEnd.as(Hex).serialize()
+            "d": hash.hashEnd.as(Hex).serialize()
         };
         this._onMessage(messageData);
+        this._algo.pushMyHashInfo(hash.hashInfo);
         if (this._algo.isHashReady()) {
             console.log("hashes ready");
             this._onHashReady();
         }
         this._onChanged();
+    },
+
+    fulfillHashRequest: function (message) {
+        while (!this._algo.areEnoughHashtailsAvailable()) {
+            this.generate();
+        }
+        var hashedMessage = this._algo.hashMessage(message);
+        if (this._algo.isExpired()) { 
+            this.fire("expired");
+        }
+        this.fire("fulfilledHashRequest", hashedMessage);
+    },
+
+    fulfillHashCheckRequest: function (netData) {
+        this.fire("fulfilledHashCheckRequest", this._algo.processPacket(netData));
     },
 
     _onMessage: function (messageData) {
@@ -85,6 +105,11 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             }
         }
 
+        if (netData === null) {
+            this.fire("wrongSignatureMessage", netData);
+            return;
+        }
+
         var message;
         try {
             message = JSON.parse(netData.as(Utf8String).value);
@@ -100,6 +125,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
                 console.log("hashes ready");
                 this._onHashReady();
             }
+            this._onChanged();
         } else {
             console.log("Tlht process packet, skiping some msg", message);
         }
@@ -108,8 +134,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     _onHashReady: function () {
         if (this._readyCalled) { return; }
         this._readyCalled = true;
-        this.fire("htReady", this._algo.getHashReady());
-        this._onChanged();
+        this.fire("htReady");
     },
 
     _onChanged: function () {

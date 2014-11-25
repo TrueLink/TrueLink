@@ -1,6 +1,10 @@
 "use strict";
 var tools = require("modules/tools");
 
+var Hex = require("Multivalue/multivalue/hex");
+var Utf8String = require("Multivalue/multivalue/utf8string");
+
+
 var eventEmitter = require("modules/events/eventEmitter");
 var invariant = require("invariant");
 
@@ -16,12 +20,13 @@ function Tlec(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createRandom), "factory must have createRandom() method");
 
-    this._defineEvent("expired");
     this._defineEvent("packet");
     this._defineEvent("message");
     this._defineEvent("wrongSignatureMessage");
     this._defineEvent("changed");
-
+    this._defineEvent("requestedHashCheck");
+    this._defineEvent("requestedHash");
+    
     this._factory = factory;
     this._algo = new TlecAlgo(factory.createRandom());
 }
@@ -43,15 +48,20 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
 
     sendMessage: function (message) {
-        var encrypted = this._algo.createMessage(message);
-        if (this._algo.isExpired()) {
-            this.fire("expired");
-        }
-        this._onChanged();
-        this.fire("packet", encrypted);
+        var messageData = {
+            "t": "u",
+            "d": message.as(Hex).serialize()
+        };
+        var raw = new Utf8String(JSON.stringify(messageData));        
+        this.fire("requestedHash", raw);
     },
 
-    // process packet from the network
+    sendHashedMessage: function(hashedMessage) {
+        var encrypted = this._algo.createMessage(hashedMessage);
+        this._onChanged();
+        this.fire("packet", encrypted);        
+    },
+
     processPacket: function (bytes) {
         var netData;
         try {
@@ -63,12 +73,30 @@ extend(Tlec.prototype, eventEmitter, serializable, {
                 throw ex;
             }
         }
+        this.fire("requestedHashCheck", netData);      
+    },
 
-        if (netData === false) {
-            this.fire("wrongSignatureMessage", netData);
+    processCheckedPacket: function (checkedNetData) {
+        if (checkedNetData == null) {
+            this.fire("wrongSignatureMessage", checkedNetData);
             return;
         }
-        this.fire("message", netData);
+
+        var message;
+        try {
+            message = JSON.parse(checkedNetData.as(Utf8String).value);
+        } catch (ex) {
+            console.log("Tlec failed to parse message");
+            // not for me
+            return;
+        }
+
+        if (message.t === "u" && message.d) {
+            this.fire("message", Hex.deserialize(message.d));
+        } else {
+            console.log("Tlec process packet, skiping some msg", message);
+        }
+        
     },
 
     _onChanged: function () {
