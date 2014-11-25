@@ -3,8 +3,8 @@ import React = require("react");
 import reactObserver = require("../../mixins/reactObserver");
 import TlecBuilder = require("TlecBuilder");
 
-import modules = require("modules");
-var DecBlocks = modules.multivalue.decBlocks;
+import multivalue = require("Multivalue");
+var DecBlocks = multivalue.DecBlocks;
 
 function renderForm(submitHandler, children) {
     return React.DOM.div({className: "profile-creation-page app-page"},

@@ -1,8 +1,7 @@
 "use strict";
 
 import prototype = require("./prototype");
-import modules = require("modules");
-var invariant = modules.invariant;
+import invariant = require("invariant");
 import extend = require("../../tools/extend");
 
 import TlConnection = require("../../models/tlConnection/TlConnection");

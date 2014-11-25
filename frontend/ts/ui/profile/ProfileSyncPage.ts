@@ -4,8 +4,8 @@ import Profile = require("../../models/Profile");
 import reactObserver = require("../../mixins/reactObserver");
 import TlecBuilder = require("TlecBuilder");
 
-import modules = require("modules");
-var DecBlocks = modules.multivalue.decBlocks;
+import multivalue = require("Multivalue");
+var DecBlocks = multivalue.DecBlocks;
 
 var ProfileSyncPage = React.createClass({
     displayName: "ProfileSyncPage",
