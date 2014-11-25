@@ -52,6 +52,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._onChanged();
     },
 
+    isReadyCalled: function () {
+        return this._readyCalled;
+    },
+
     generate: function () {
         console.log("Tlht generate");
         var hash = this._algo.generate();

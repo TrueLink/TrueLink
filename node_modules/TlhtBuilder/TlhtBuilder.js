@@ -97,7 +97,10 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
 
         if (route && tlht) {
             route.on("packet", tlht.processPacket, tlht);
-            route.on("networkPacket", this._onRouteNetworkPacket, this);
+
+            if (!tlht.isReadyCalled()) {
+                route.on("networkPacket", this._onRouteNetworkPacket, this);
+            }
             route.on("openAddrIn", this._onRouteAddrIn, this);
             route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
 
