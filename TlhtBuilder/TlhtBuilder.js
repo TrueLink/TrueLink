@@ -52,6 +52,8 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._outId = args.outId;
 
         this._tlht.generate();
+
+        this.fire("changed", this);
     },
 
     processNetworkPacket: function (packet) {

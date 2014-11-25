@@ -41,7 +41,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
     deserialize: function (packet, context) {
         var data = packet.getData();
-        this._readyCalled = dto.readyCalled;
+        this._readyCalled = data.readyCalled;
         this._algo.deserialize(data);
     },
 
@@ -125,6 +125,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
                 console.log("hashes ready");
                 this._onHashReady();
             }
+            this._onChanged();
         } else {
             console.log("Tlht process packet, skiping some msg", message);
         }
@@ -134,7 +135,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         if (this._readyCalled) { return; }
         this._readyCalled = true;
         this.fire("htReady");
-        this._onChanged();
     },
 
     _onChanged: function () {
