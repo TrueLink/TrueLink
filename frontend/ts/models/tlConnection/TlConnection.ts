@@ -13,25 +13,25 @@
     export class TlConnection extends Model.Model implements ISerializable {
 
         public onMessage : Event.Event<IUserMessage>;
+        public onDone : Event.Event<TlConnection>;
         public offer : any;
         public auth : any;
 
         private _initialTlec : any;
         private _tlecs : Array<any>;
         private _addrIns : Array<any>;
-        private _transport : CouchTransport.CouchTransport;
 
         constructor () {
             super();
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
-        this.offer = null;
-        this.auth = null;
-        this._initialTlec = null;
-        this._tlecs = [];
-        this._addrIns = [];
-        this._transport = null;
-    }
+            this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
+            this.offer = null;
+            this.auth = null;
+            this._initialTlec = null;
+            this._tlecs = [];
+            this._addrIns = [];
+        }
 
         init  () {
             this._initialTlec = this.getFactory().createCouchTlec();
@@ -146,6 +146,7 @@
         _onInitialTlecBuilderDone  (builder) {
             this._initialTlec = null;
             this._addTlec(builder);
+            this.onDone.emit(this);
             this._onChanged();
         }
 

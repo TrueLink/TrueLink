@@ -24,6 +24,8 @@
     import ProfileSettingsPageModel = require("../models/pageModels/ProfileSettingsPageModel");
     import ProfileCreationPage = require("../ui/profile/ProfileCreationPage");
     import ProfileCreationPageModel = require("../models/pageModels/ProfileCreationPageModel");
+    import ProfileSyncPage = require("../ui/profile/ProfileSyncPage");
+    import ProfileSyncPageModel = require("../models/pageModels/ProfileSyncPageModel");
 
     var pages = {
         "home": {
@@ -38,6 +40,11 @@
         "profileSettings": {
             view: ProfileSettingsPage,
             model: ProfileSettingsPageModel
+        },
+
+        "profileSync": {
+            view: ProfileSyncPage,
+            model: ProfileSyncPageModel
         },
 
         "contact": {

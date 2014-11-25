@@ -58,6 +58,9 @@
                                 onClick: router.createNavigateHandler("profileSettings", app.currentProfile)
                             }, "Settings"),
                             ReactBootstrap.MenuItem({
+                                onClick: router.createNavigateHandler("profileSync", app.currentProfile)
+                            }, "Sync"),
+                            ReactBootstrap.MenuItem({
                                 onClick: function () {/* stub */}
                             }, "(stub) Help"))),
                     React.DOM.a({

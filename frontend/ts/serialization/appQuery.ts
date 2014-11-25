@@ -20,7 +20,14 @@
             documents: {propType: "many", type: "Document"},
             dialogs: {propType: "many", type: "_auto"},
             grConnections: {propType: "many", type: "GrConnection"},
-            transport: {propType: "one", type: "CouchTransport"}
+            transport: {propType: "one", type: "CouchTransport"},
+            sync: {propType: "one", type: "Sync"}
+        },
+        Sync: {
+            transport: {propType: "one", type: "CouchTransport"},
+            grConnection: {propType: "one", type: "GrConnection"},
+            tlConnections: {propType: "many", type: "TlConnection"},
+            initialConnection: {propType: "one", type: "TlConnection"}
         },
         GrConnection: {
             activeTlgr: {propType: "one", type: "Tlgr"},
