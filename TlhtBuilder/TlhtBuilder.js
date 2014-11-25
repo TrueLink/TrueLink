@@ -145,7 +145,8 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         var result = {
             key: this._key,
             inId: this._inId,
-            outId: this._outId
+            outId: this._outId,
+            route: this._route
         };
         this.fire("done", result);
     },

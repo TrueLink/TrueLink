@@ -41,10 +41,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlkeBuilder = factory.createTlkeBuilder();
         this._tlkeBuilder.build();
         this._tlhtBuilder = factory.createTlhtBuilder();
-        this._tlec = this._factory.createTlec();
-        this._route = this._factory.createRoute();
         this._linkBuilders();
-        this._link();
         this._onChanged();
     },
 
@@ -71,8 +68,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         //console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
         if (this._route) {
             this._route.processNetworkPacket(packet);
-        }
-        if (this._tlhtBuilder) {
+        } else if (this._tlhtBuilder) {
             this._tlhtBuilder.processNetworkPacket(packet);
         }
         if (this._tlkeBuilder) {
@@ -214,8 +210,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _initTlec: function (args) {
+        this._tlec = this._factory.createTlec();
         this._tlec.init(args);
-        this._route.setAddr(args);
+        this._route = args.route;
+        this._link();
         this._tlkeBuilder.destroy();
         this._unlinkTlkeBuilder();
         this._tlkeBuilder = null;
