@@ -158,15 +158,17 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _linkBuilders: function () {
-        if (this._tlkeBuilder && this._tlhtBuilder) {
+        if (this._tlkeBuilder) {
             this._tlkeBuilder.on("offer", this._onOffer, this);
             this._tlkeBuilder.on("auth", this._onAuth, this);
             this._tlkeBuilder.on("done", this._tlhtBuilder.build, this._tlhtBuilder);
             this._tlkeBuilder.on("changed", this._onTlkeBuilderChanged, this);
-            this._tlhtBuilder.on("done", this._initTlec, this);
             this._tlkeBuilder.on("networkPacket", this._onNetworkPacket, this);
             this._tlkeBuilder.on("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
+        }
+        if (this._tlhtBuilder) {
+            this._tlhtBuilder.on("done", this._initTlec, this);
             this._tlhtBuilder.on("networkPacket", this._onNetworkPacket, this);
             this._tlhtBuilder.on("openAddrIn", this._onRouteAddrIn, this);
             this._tlhtBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
