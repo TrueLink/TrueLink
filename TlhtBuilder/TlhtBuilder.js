@@ -149,6 +149,7 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
             route: this._route
         };
         this.fire("done", result);
+        this._route.off("networkPacket", this._onRouteNetworkPacket, this);
     },
 
     destroy: function () {
