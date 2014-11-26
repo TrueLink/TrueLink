@@ -331,6 +331,7 @@ var exp = React.createClass({
             }
             case "public": {
                 return PublicProfileForm({
+                    handleProfileCreation: this._handleProfileCreation,
                     pageModel: this.props.pageModel
                 });
             }
