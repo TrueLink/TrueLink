@@ -40,6 +40,11 @@ var exp = React.createClass({
             },
             "Profile settings": {
                 handler: router.createNavigateHandler("profileSettings", currentProfile),
+                className: "menu-item",
+                needsProfile: true
+            },
+            "Sync": {
+                handler: router.createNavigateHandler("profileSync", currentProfile),
                 className: "menu-item last",
                 needsProfile: true
             },

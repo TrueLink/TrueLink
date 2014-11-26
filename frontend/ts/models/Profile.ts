@@ -94,15 +94,18 @@
             this.bg = args.bg;
             this.serverUrl = args.serverUrl;
 
-            this.transport = this.getFactory().createTransport();
-            this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
 
             if(!this.sync) {
+                this.transport = this.getFactory().createTransport();
+                this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
                 this.sync = this.getFactory().createSync();
                 this.sync.init({
                     master: true,
                     transport: this.transport,
-                });                
+                }); 
+                this.__debug_createSyncGroupChat(this.sync.grConnection);               
+            } else {
+                this.transport = this.sync.transport;
             }
 
             this._onChanged();
@@ -156,6 +159,7 @@
                 transport: transport,
                 master: false
             });
+            this.__debug_createSyncGroupChat(this.sync.grConnection);
         }
 
         startDirectDialog  (contact, firstMessage?: any) {
@@ -241,6 +245,19 @@
             return chat;
         }
 
+        __debug_createSyncGroupChat(grConnection: GrConnection.GrConnection): GroupChat {
+            var chat = this.getFactory().createGroupChat();
+            chat.init({
+                name: "Sync (debug)",
+                grConnection: grConnection
+            });
+            this.dialogs.push(chat);
+            this._linkDialog(chat);
+            this._onChanged();
+            //console.log("startGroupChat", invite);
+            return chat;
+        }
+
         private _linkDialog  (dialog) {
             dialog.onChanged.on(this._onDialogChanged, this);
         }
@@ -320,6 +337,7 @@
             this.documents = context.deserialize(packet.getLink("documents"), factory.createDocument, factory);
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
+            this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
             this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
@@ -327,7 +345,6 @@
             //this.grConnections.forEach(function (grCon) { grCon.on("changed", this._onChanged, this); }, this);
             this.tlConnections.forEach(this._linkTlConnection, this);
             this.tlConnections.forEach(function (con) { con.run(); });
-            this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
         }
 
         private _linkTlConnection  (conn) {

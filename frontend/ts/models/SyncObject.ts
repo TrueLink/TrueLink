@@ -124,6 +124,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.deviceName = data.deviceName;
         this.master = data.master;
         this.devices = data.devices;
+        this.transport = context.deserialize(packet.getLink("transport"));
         this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
         this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createGrConnection, factory);
         this._linkGrConnection(this.grConnection);
@@ -131,7 +132,6 @@ export class SyncObject extends Model.Model implements ISerializable {
         if(this.initialConnection) {
             this._linkConnectionToMaster(this.initialConnection);
         }
-        this.transport = context.deserialize(packet.getLink("transport"));
     }
 }
 
