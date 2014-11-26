@@ -92,22 +92,22 @@
 
             this.name = args.name;
             this.bg = args.bg;
-            this.serverUrl = args.serverUrl;
-
 
             if(!this.sync) {
-                this.transport = this.getFactory().createTransport();
-                this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
-                this.sync = this.getFactory().createSync();
-                this.sync.init({
-                    master: true,
-                    transport: this.transport,
-                }); 
-                this.__debug_createSyncGroupChat(this.sync.grConnection);               
-            } else {
-                this.transport = this.sync.transport;
+                this._initTransport(args);
+                this._initSync(this.transport, true);          
+            
+                this._sendSyncMessage({
+                    action: "profile-userinfo-edit",
+                    data: {
+                        name: this.name,
+                        publicityType: this.publicityType,
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        bg: this.bg
+                    }
+                });
             }
-
             this._onChanged();
         }
 
@@ -150,16 +150,47 @@
 
         // for the unfinished profile to be synced with profile created on another device
         startSyncing (args) {
+            this._initTransport(args);
+            this._initSync(this.transport, false);
+        }
+
+        private _initTransport(args) {
+            this.serverUrl = args.serverUrl;
+            this.transport = this.getFactory().createTransport();
+            this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
+        }
+
+        private _initSync(transport, isMaster) {
             this.sync = this.getFactory().createSync();
-
-            var transport = this.getFactory().createTransport();
-            transport.init({postingUrl: args.serverUrl, pollingUrl: args.serverUrl});
-
+            this.sync.onSyncMessage.on(this._processSyncMessage, this);    
             this.sync.init({
-                transport: transport,
-                master: false
+                transport: this.transport,
+                master: isMaster
             });
-            this.__debug_createSyncGroupChat(this.sync.grConnection);
+            this.__debug_createSyncGroupChat(this.sync.grConnection);        
+        }
+
+        private _processSyncMessage(message: ITlgrTextMessageWrapper) {
+            console.log(this.name, "got sync message", message);
+            var parsed = JSON.parse(message.text);
+            if (parsed.action) {
+                var action = parsed.action;
+                var data = parsed.data;
+
+                if (action === "profile-userinfo-edit") {
+                    this.name = data.name;
+                    this.publicityType = data.publicityType;
+                    this.email = data.email;
+                    this.phoneNumber = data.phoneNumber;
+                    this.bg = data.bg;
+
+                    this._onChanged();           
+                }
+            }
+        }
+
+        private _sendSyncMessage(data: any) {
+            this.sync.sendSyncMessage(data);
         }
 
         startDirectDialog  (contact, firstMessage?: any) {
