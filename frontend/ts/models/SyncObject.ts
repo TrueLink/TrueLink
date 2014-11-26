@@ -19,6 +19,7 @@ export class SyncObject extends Model.Model implements ISerializable {
     public deviceName: string;
     public master: boolean;
     public devices: ITlgrShortUserInfo[];
+    public profileUuid: string;
 
     constructor () {
         super();
@@ -31,17 +32,19 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.deviceName = navigator.userAgent;
         this.master = undefined;
         this.devices = [];
+        this.profileUuid = null;
     }
 
     init (args) {
         this.transport = args.transport;
         this.master = args.master;
+        this.profileUuid = args.profileUuid;
         this.grConnection = this.getFactory().createGrConnection();
         this._linkGrConnection(this.grConnection);
         if(this.master) {
             this.grConnection.init({
                 invite: null,
-                userName: this.deviceName,
+                userName: this.profileUuid,
                 transport: this.transport
             });
         } else {
@@ -109,7 +112,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         if(message.type == "tlgr-invite") {
             this.grConnection.init({
                 invite: message.invite,
-                userName: this.deviceName,
+                userName: this.profileUuid,
                 transport: this.transport
             });
             this.onJoinedToSync.emit(this);   
@@ -119,6 +122,7 @@ export class SyncObject extends Model.Model implements ISerializable {
     serialize(packet, context) {
         packet.setData({
             deviceName: this.deviceName,
+            profileUuid: this.profileUuid,
             master: this.master,
             devices: this.devices,
         });
@@ -133,6 +137,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         var factory = this.getFactory();
         var data = packet.getData();
         this.deviceName = data.deviceName;
+        this.profileUuid = data.profileUuid;
         this.master = data.master;
         this.devices = data.devices;
         this.transport = context.deserialize(packet.getLink("transport"));

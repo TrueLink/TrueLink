@@ -17,6 +17,8 @@
     import model = require("../mixins/model");
     import CouchAdapter = require("../models/tlConnection/CouchAdapter");
 
+    import uuid = require("uuid");
+
     export class Profile extends Model.Model implements ISerializable {
         //public onUrlChanged : Event.Event<any>; maybe it was used long time ago
         public grConnections : Array<GrConnection.GrConnection>;
@@ -25,7 +27,6 @@
         public bg : any;
         public documents : any;
         public contacts : any;
-        public temporaryId : string;
         public temporaryName : string;
         public publicityType : string;
         public name : string;
@@ -38,6 +39,7 @@
         public notificationType : string;
         public notificationSound : string;
         public sync: SyncObject.SyncObject;
+        public uuid: string;
 
         public static NOTIFICATION_NONE = "1";
         public static NOTIFICATION_COUNT = "2";
@@ -47,6 +49,8 @@
 
         constructor () {
             super();
+
+            this.uuid = uuid();
 
             //this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
             this.app = null;
@@ -72,7 +76,6 @@
         }
 
         preinit() {
-            this.temporaryId = urandom.string(30);
         }
 
         init  (args) {
@@ -81,7 +84,6 @@
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
             invariant(typeof args.bg === "number", "args.bg must be number");
             
-            this.temporaryId = undefined;
             this.temporaryName = undefined;
 
             if (this.publicityType != "public") {
@@ -165,7 +167,8 @@
             this.sync.onSyncMessage.on(this._processSyncMessage, this);    
             this.sync.init({
                 transport: this.transport,
-                master: isMaster
+                master: isMaster,
+                profileUuid: this.uuid
             });
             this.__debug_createSyncGroupChat(this.sync.grConnection);        
         }
@@ -327,7 +330,7 @@
 
         serialize  (packet, context) {
             packet.setData({
-                temporaryId: this.temporaryId,
+                uuid: this.uuid,
                 temporaryName: this.temporaryName,
                 publicityType: this.publicityType,
                 name: this.name,
@@ -353,7 +356,7 @@
             this.checkFactory();
             var factory = this.getFactory();
             var data = packet.getData();
-            this.temporaryId = data.temporaryId;
+            this.uuid = data.uuid;
             this.temporaryName = data.temporaryName;
             this.publicityType = data.publicityType;
             this.name = data.name;
