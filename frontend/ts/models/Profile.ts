@@ -19,6 +19,9 @@
 
     import uuid = require("uuid");
 
+    import MultivalueModule = require("Multivalue");
+    var Hex = MultivalueModule.Hex;
+
     export class Profile extends Model.Model implements ISerializable {
         //public onUrlChanged : Event.Event<any>; maybe it was used long time ago
         public grConnections : Array<GrConnection.GrConnection>;
