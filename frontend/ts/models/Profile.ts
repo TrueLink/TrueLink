@@ -100,7 +100,7 @@
                 this._initSync(this.transport, true);          
             
                 this._sendSyncMessage({
-                    action: "profile-userinfo-edit",
+                    event: "profile-userinfo-edited",
                     data: {
                         name: this.name,
                         publicityType: this.publicityType,
@@ -176,11 +176,11 @@
         private _processSyncMessage(message: ITlgrTextMessageWrapper) {
             console.log(this.name, "got sync message", message);
             var parsed = JSON.parse(message.text);
-            if (parsed.action) {
-                var action = parsed.action;
+            if (parsed.event) {
+                var event = parsed.event;
                 var data = parsed.data;
 
-                if (action === "profile-userinfo-edit") {
+                if (event === "profile-userinfo-edited") {
                     this.name = data.name;
                     this.publicityType = data.publicityType;
                     this.email = data.email;
@@ -393,8 +393,13 @@
 
         private _handleContactConnectionEstablished(args) {
             this._sendSyncMessage({
-                action: "contact-create",
-                data: args
+                event: "contact-created",
+                data: {
+                    contactName: args.contactName,
+                    inId: args.inId.as(Hex).serialize,
+                    outId: args.outId.as(Hex).serialize,
+                    key: args.key.as(Hex).serialize
+                }
             });
         }
 
