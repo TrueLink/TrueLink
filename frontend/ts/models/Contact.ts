@@ -17,6 +17,7 @@
     export class Contact extends Model.Model implements ISerializable {
         public onInviteReceived : Event.Event<ITlgrInvitationWrapper>;
         public onInviteAccepted : Event.Event<IInviteAccepted>;
+        public onConnectionEstablished : Event.Event<any>;
 
         public name : string;
         public profile : Profile.Profile;
@@ -28,6 +29,7 @@
            super(); 
             this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>("Contact.onInviteReceived");
             this.onInviteAccepted = new Event.Event<any>("Contact.onInviteAccepted");
+        this.onConnectionEstablished = new Event.Event<any>("Contact.onConnectionEstablished");
         this.name = null;
         this.profile = null;
         this.tlConnection = null;
@@ -75,6 +77,12 @@
 
         _link  () {
             this.tlConnection.onMessage.on(this.processMessage, this);
+            this.tlConnection.onTlkeDone.on(this._onConnectionEstablished, this);
+        }
+
+        _onConnectionEstablished(args) {
+            args.contactName = this.name;
+            this.onConnectionEstablished.emit(args);
         }
 
         processMessage  (message) {

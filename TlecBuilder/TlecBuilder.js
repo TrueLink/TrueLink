@@ -17,6 +17,7 @@ function TlecBuilder(factory) {
 
 
     this._defineEvent("changed");
+    this._defineEvent("tlkeDone");
     this._defineEvent("done");
     this._defineEvent("message");
     this._defineEvent("offer");
@@ -157,7 +158,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.on("offer", this._onOffer, this);
             this._tlkeBuilder.on("auth", this._onAuth, this);
-            this._tlkeBuilder.on("done", this._tlhtBuilder.build, this._tlhtBuilder);
+            this._tlkeBuilder.on("done", this._onTlkeDone, this);
             this._tlkeBuilder.on("changed", this._onTlkeBuilderChanged, this);
             this._tlkeBuilder.on("networkPacket", this._onNetworkPacket, this);
             this._tlkeBuilder.on("openAddrIn", this._onRouteAddrIn, this);
@@ -177,7 +178,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.off("offer", this._onOffer, this);
             this._tlkeBuilder.off("auth", this._onAuth, this);
-            this._tlkeBuilder.off("done", this._tlhtBuilder.build, this._tlhtBuilder);
+            this._tlkeBuilder.off("done", this._onTlkeDone, this);
             this._tlkeBuilder.off("changed", this._onTlkeBuilderChanged, this);
             this._tlkeBuilder.off("networkPacket", this._onNetworkPacket, this);
             this._tlkeBuilder.off("openAddrIn", this._onRouteAddrIn, this);
@@ -207,6 +208,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
     _onAuth: function (auth) {
         this.fire("auth", auth);
+    },
+
+    _onTlkeDone: function (args) {
+        this.fire("tlkeDone", args);
+        this._tlhtBuilder.build(args);
     },
 
     _initTlec: function (args) {

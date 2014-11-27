@@ -388,6 +388,14 @@
         private _linkContact  (contact) {
             contact.onInviteReceived.on(this._inviteReceived, this);
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
+            contact.onConnectionEstablished.on(this._handleContactConnectionEstablished, this);
+        }
+
+        private _handleContactConnectionEstablished(args) {
+            this._sendSyncMessage({
+                action: "contact-create",
+                data: args
+            });
         }
 
         private _inviteReceived (invite : ITlgrInvitationWrapper) {

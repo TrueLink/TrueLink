@@ -14,6 +14,7 @@
 
         public onMessage : Event.Event<IUserMessage>;
         public onDone : Event.Event<TlConnection>;
+        public onTlkeDone : Event.Event<any>;
         public offer : any;
         public auth : any;
 
@@ -26,6 +27,7 @@
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
             this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
+            this.onTlkeDone = new Event.Event<any>("TlConnection.onTlkeDone");
             this.offer = null;
             this.auth = null;
             this._initialTlec = null;
@@ -141,6 +143,7 @@
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
+            builder.on("tlkeDone", this._onInitialTlecBuilderTlkeDone, this);
         }
 
         _onInitialTlecBuilderDone  (builder) {
@@ -148,6 +151,10 @@
             this._addTlec(builder);
             this.onDone.emit(this);
             this._onChanged();
+        }
+
+        _onInitialTlecBuilderTlkeDone  (args) {
+            this.onTlkeDone.emit(args);
         }
 
         _onInitialOffer  (offer) {
