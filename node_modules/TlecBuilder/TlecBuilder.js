@@ -52,7 +52,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var factory = this._factory;
         this._tlhtBuilder = factory.createTlhtBuilder();
         this._linkBuilders();
-        this._tlhtBuilder.clone(args);
+        this._tlhtBuilder.sync(args);
         this._onChanged();  
     },
 
