@@ -18,7 +18,8 @@
         public onInviteReceived : Event.Event<ITlgrInvitationWrapper>;
         public onInviteAccepted : Event.Event<IInviteAccepted>;
         public onConnectionEstablished : Event.Event<any>;
-
+        public onGeneratedHashtail : Event.Event<any>;
+        
         public name : string;
         public profile : Profile.Profile;
         public tlConnection : any;
@@ -30,6 +31,7 @@
             this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>("Contact.onInviteReceived");
             this.onInviteAccepted = new Event.Event<any>("Contact.onInviteAccepted");
         this.onConnectionEstablished = new Event.Event<any>("Contact.onConnectionEstablished");
+        this.onGeneratedHashtail = new Event.Event<any>("Contact.onGeneratedHashtail");
         this.name = null;
         this.profile = null;
         this.tlConnection = null;
@@ -78,11 +80,17 @@
         _link  () {
             this.tlConnection.onMessage.on(this.processMessage, this);
             this.tlConnection.onTlkeDone.on(this._onConnectionEstablished, this);
+            this.tlConnection.onGeneratedHashtail.on(this._onGeneratedHashtail, this);
         }
 
-        _onConnectionEstablished(args) {
+        private _onConnectionEstablished(args) {
             args.contactName = this.name;
             this.onConnectionEstablished.emit(args);
+        }
+
+        private _onGeneratedHashtail(args) {
+            args.contactName = this.name;
+            this.onGeneratedHashtail.emit(args);            
         }
 
         processMessage  (message) {

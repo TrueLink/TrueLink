@@ -20,6 +20,7 @@ function TlhtBuilder(factory) {
     this._defineEvent("networkPacket");
     this._defineEvent("openAddrIn");
     this._defineEvent("closeAddrIn");    
+    this._defineEvent("generatedHashtail");
     this._defineEvent("fulfilledHashCheckRequest");
     this._defineEvent("fulfilledHashRequest");
 
@@ -109,6 +110,8 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
 
             tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+
+            tlht.on("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
 
@@ -127,6 +130,8 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
 
             tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+
+            tlht.off("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
     _onFulfilledHashRequest: function (args) {
@@ -153,6 +158,9 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         };
         this.fire("done", result);
         this._route.off("networkPacket", this._onRouteNetworkPacket, this);
+    },
+    _onGeneratedHashtail: function (args) {
+        this.fire("generatedHashtail", args);
     },
 
     destroy: function () {

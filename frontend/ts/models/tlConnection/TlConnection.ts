@@ -15,6 +15,7 @@
         public onMessage : Event.Event<IUserMessage>;
         public onDone : Event.Event<TlConnection>;
         public onTlkeDone : Event.Event<any>;
+        public onGeneratedHashtail : Event.Event<any>;
         public offer : any;
         public auth : any;
 
@@ -28,6 +29,7 @@
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
             this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
             this.onTlkeDone = new Event.Event<any>("TlConnection.onTlkeDone");
+            this.onGeneratedHashtail = new Event.Event<any>("TlConnection.onGeneratedHashtail");
             this.offer = null;
             this.auth = null;
             this._initialTlec = null;
@@ -144,6 +146,7 @@
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
             builder.on("tlkeDone", this._onInitialTlecBuilderTlkeDone, this);
+            builder.on("generatedHashtail", this._onGeneratedHashtail, this);
         }
 
         _onInitialTlecBuilderDone  (builder) {
@@ -167,6 +170,10 @@
                 this.auth = auth;
                 this._onChanged();
             }
+        }
+
+        _onGeneratedHashtail (args) {
+            this.onGeneratedHashtail.emit(args);
         }
     };
 extend(TlConnection.prototype, serializable);

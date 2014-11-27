@@ -14,6 +14,7 @@
         this._defineEvent("message");
         this._defineEvent("done");
         this._defineEvent("tlkeDone");
+        this._defineEvent("generatedHashtail");
 
         this._tlecBuilder = null;
         this._transportAdapters = {};
@@ -101,7 +102,12 @@
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
                 this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
+                this._tlecBuilder.on("generatedHashtail", this._onGeneratedHashtail, this);
             }
+        },
+
+        _onGeneratedHashtail: function (args) {
+            this.fire("generatedHashtail", args);
         },
 
         _onTlecOpenAddr: function (args) {

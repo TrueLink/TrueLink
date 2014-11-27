@@ -392,6 +392,7 @@
             contact.onInviteReceived.on(this._inviteReceived, this);
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
             contact.onConnectionEstablished.on(this._handleContactConnectionEstablished, this);
+            contact.onGeneratedHashtail.on(this._handleContactGeneratedHashtail, this);
         }
 
         private _handleContactConnectionEstablished(args) {
@@ -399,11 +400,22 @@
                 event: "contact-created",
                 data: {
                     contactName: args.contactName,
-                    inId: args.inId.as(Hex).serialize,
-                    outId: args.outId.as(Hex).serialize,
-                    key: args.key.as(Hex).serialize
+                    inId: args.inId.as(Hex).serialize(),
+                    outId: args.outId.as(Hex).serialize(),
+                    key: args.key.as(Hex).serialize()
                 }
             });
+        }
+
+        private _handleContactGeneratedHashtail(args) {
+            this._sendSyncMessage({
+                event: "contact-hashtail-generated",
+                data: {
+                    contactName: args.contactName,
+                    start: args.start.as(Hex).serialize(),
+                    counter: args.counter
+                }
+            });            
         }
 
         private _inviteReceived (invite : ITlgrInvitationWrapper) {

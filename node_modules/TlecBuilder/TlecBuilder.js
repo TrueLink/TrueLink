@@ -25,6 +25,7 @@ function TlecBuilder(factory) {
     this._defineEvent("openAddrIn");
     this._defineEvent("closeAddrIn");
     this._defineEvent("networkPacket");
+    this._defineEvent("generatedHashtail");
 
     this._factory = factory;
     this._tlec = null;
@@ -171,6 +172,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlhtBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
             this._tlhtBuilder.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             this._tlhtBuilder.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+            this._tlhtBuilder.on("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
 
@@ -194,6 +196,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlhtBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
             this._tlhtBuilder.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             this._tlhtBuilder.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+            this._tlhtBuilder.off("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
 
@@ -213,6 +216,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _onTlkeDone: function (args) {
         this.fire("tlkeDone", args);
         this._tlhtBuilder.build(args);
+    },
+
+    _onGeneratedHashtail: function (args) {
+        this.fire("generatedHashtail", args);
     },
 
     _initTlec: function (args) {

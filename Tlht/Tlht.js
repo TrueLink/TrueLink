@@ -25,6 +25,7 @@ function Tlht(factory) {
     this._defineEvent("packet");
     this._defineEvent("htReady");
     this._defineEvent("expired");
+    this._defineEvent("generatedHashtail");
     this._defineEvent("fulfilledHashCheckRequest");
     this._defineEvent("fulfilledHashRequest");
     this._defineEvent("wrongSignatureMessage");
@@ -69,6 +70,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             console.log("hashes ready");
             this._onHashReady();
         }
+        this.fire("generatedHashtail", hash.hashInfo);
         this._onChanged();
     },
 
