@@ -36,6 +36,14 @@
             this._tlecBuilder.build();
         },
 
+        sync: function (args) {
+            this.checkFactory();
+            var factory = this._factory;
+            this._tlecBuilder = factory.createTlecBuilder();
+            this._link();
+            this._tlecBuilder.sync(args);            
+        },
+
         //runs only after deserializing established connection
         run: function () {
             var adapters = this._transportAdapters, context;

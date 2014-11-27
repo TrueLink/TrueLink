@@ -47,6 +47,15 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._onChanged();
     },
 
+    sync: function (args) {
+        this.status = TlecBuilder.STATUS_HT_EXCHANGE;
+        var factory = this._factory;
+        this._tlhtBuilder = factory.createTlhtBuilder();
+        this._linkBuilders();
+        this._tlhtBuilder.clone(args);
+        this._onChanged();  
+    },
+
     enterOffer: function (offer) {
         this._tlkeBuilder.enterOffer(offer);
     },

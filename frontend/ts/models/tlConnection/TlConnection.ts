@@ -43,6 +43,13 @@
             this._initialTlec.init();
             this._onChanged();
         }
+        
+        sync  (args) {
+            this._initialTlec = this.getFactory().createCouchTlec();
+            this._linkInitial();
+            this._initialTlec.sync(args);
+            this._onChanged();
+        }
 
         run  () {
             if (this._initialTlec) {

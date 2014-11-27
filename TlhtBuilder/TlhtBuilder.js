@@ -57,6 +57,28 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this.fire("changed", this);
     },
 
+    sync: function (args) {
+        var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
+        invariant(args, message);
+        invariant(args.key instanceof Multivalue, message);
+        invariant(args.inId instanceof Multivalue, message);
+        invariant(args.outId instanceof Multivalue, message);
+
+        var factory = this._factory;
+        this._tlht = factory.createTlht();
+        this._route = factory.createRoute();
+
+        this._link();
+        this._tlht.init(args.key);
+        this._route.setAddr(args);
+
+        this._key = args.key;
+        this._inId = args.inId;
+        this._outId = args.outId;
+
+        this.fire("changed", this); 
+    },
+
     processNetworkPacket: function (packet) {
         if (!this._route) { return; }
         this._route.processNetworkPacket(packet);

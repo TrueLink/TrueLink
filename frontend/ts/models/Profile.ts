@@ -153,6 +153,21 @@
             return contact;
         }
 
+        private _syncContact(args) {
+            this.checkFactory();
+            var contact = this.getFactory().createContact(this);
+            var contactTlConnection = this._syncTlConnection(args);
+            this._addTlConnection(contactTlConnection);
+            contact.init({
+                name : args.contactName,
+                tlConnection: contactTlConnection
+            });
+            this.contacts.push(contact);
+            this._linkContact(contact);
+            this._onChanged();
+            return contact;
+        }
+
         // for the unfinished profile to be synced with profile created on another device
         startSyncing (args) {
             this._initTransport(args);
@@ -191,6 +206,14 @@
                     this.bg = data.bg;
 
                     this._onChanged();           
+                }
+                if (event === "contact-created") {
+                    this._syncContact({
+                        contactName: data.contactName,
+                        inId: Hex.deserialize(data.inId),
+                        outId: Hex.deserialize(data.outId),
+                        key: Hex.deserialize(data.key)
+                    });      
                 }
             }
         }
@@ -311,6 +334,13 @@
             this.checkFactory();
             var tlConnection = this.getFactory().createTlConnection();
             tlConnection.init();
+            return tlConnection;
+        }
+
+        private _syncTlConnection(args) {
+            this.checkFactory();
+            var tlConnection = this.getFactory().createTlConnection();
+            tlConnection.sync(args);
             return tlConnection;
         }
 
