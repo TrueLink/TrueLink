@@ -85,7 +85,10 @@
 
         private _onConnectionEstablished(args) {
             args.contactName = this.name;
-            this.onConnectionEstablished.emit(args);
+            this.onConnectionEstablished.emit({
+                contact: this,
+                args: args
+            });
         }
 
         private _onGeneratedHashtail(args) {

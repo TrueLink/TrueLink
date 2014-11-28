@@ -456,12 +456,26 @@
             this._sendSyncMessage({
                 event: "contact-created",
                 data: {
-                    contactName: args.contactName,
-                    inId: args.inId.as(Hex).serialize(),
-                    outId: args.outId.as(Hex).serialize(),
-                    key: args.key.as(Hex).serialize()
+                    contactName: args.args.contactName,
+                    inId: args.args.inId.as(Hex).serialize(),
+                    outId: args.args.outId.as(Hex).serialize(),
+                    key: args.args.key.as(Hex).serialize()
                 }
             });
+            this.sync.devices.forEach(function (device) {
+                var hashtail = args.contact.takeHashtail();
+                this._sendSyncMessage({
+                    event: "tlConnection-hashtail-delegated",
+                    data: {
+                        to: device.name,
+                        hashtail: {
+                            start: hashtail.start.as(Hex).serialize(),
+                            counter: hashtail.counter
+                        }
+                    }
+                });
+            }.bind(this));
+            
         }
 
         private _handleContactGeneratedHashtail(args) {
