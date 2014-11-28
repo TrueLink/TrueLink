@@ -87,6 +87,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
 
+    takeHashtail: function () {
+        return this._tlhtBuilder.takeHashtail();
+    },
+
     serialize: function (packet, context) {
         packet.setData({status: this.status});
         packet.setLink("_tlkeBuilder", context.getPacket(this._tlkeBuilder));

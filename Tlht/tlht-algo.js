@@ -33,6 +33,20 @@ TlhtAlgo.prototype.init = function (key) {
     this._dhAesKey = key;
 }
 
+TlhtAlgo.prototype._chooseHashtailIndex = function () {
+    this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
+    invariant(!this.isExpired(), "This channel is expired");
+
+    var hashIndex = Math.floor(this._random.double() * this._myHashes.length);
+    return hashIndex;
+}
+
+TlhtAlgo.prototype.takeHashtail = function () {
+    var hashIndex = this._chooseHashtailIndex();
+    var takenHashArr = this._myHashes.splice(hashIndex, 1);
+    return takenHashArr[0];
+}
+
 TlhtAlgo.prototype._isHashValid = function (hx) {
     // first time check, is used for initial hashtail exchange
     if (!this._isFirstHashChecked) {
@@ -66,10 +80,7 @@ TlhtAlgo.prototype._getNextHash = function () {
 
     invariant(this._myHashes, "channel is not configured");
 
-    this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
-    invariant(!this.isExpired(), "This channel is expired");
-
-    var hashIndex = Math.floor(this._random.double() * this._myHashes.length);
+    var hashIndex = this._chooseHashtailIndex();    
     var hashInfo = this._myHashes[hashIndex];
 
     var hx = hashInfo.start;

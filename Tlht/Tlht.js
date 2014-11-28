@@ -57,6 +57,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         return this._readyCalled;
     },
 
+
     generate: function () {
         console.log("Tlht generate");
         var hash = this._algo.generate();
@@ -72,17 +73,29 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         }
         this.fire("generatedHashtail", hash.hashInfo);
         this._onChanged();
+        this._supplyHashtails();
+    },
+
+    takeHashtail: function () {
+        console.log("Tlht giving hashtail");
+        var takenHashtail = this._algo.takeHashtail();
+        this._supplyHashtails();
+        return takeHashtail;
     },
 
     fulfillHashRequest: function (message) {
-        while (!this._algo.areEnoughHashtailsAvailable()) {
-            this.generate();
-        }
         var hashedMessage = this._algo.hashMessage(message);
         if (this._algo.isExpired()) { 
             this.fire("expired");
         }
         this.fire("fulfilledHashRequest", hashedMessage);
+        this._supplyHashtails();
+    },
+
+    _supplyHashtails: function () {
+        while (!this._algo.areEnoughHashtailsAvailable()) {
+            this.generate();
+        }            
     },
 
     fulfillHashCheckRequest: function (netData) {

@@ -15,6 +15,8 @@ var logfunc = function() {
 }
 
 describe("True Link Hash Tail Exchange", function() {
+    this.timeout(10000);
+
     function TlkeTestBuilder(name, transport) {
         this.name = "TlkeTestBuilder" + name;
         this._defineEvent("offer");
