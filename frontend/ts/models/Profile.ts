@@ -182,14 +182,18 @@
 
         private _initSync(transport, isMaster) {
             this.sync = this.getFactory().createSync();
-            this.sync.onSyncMessage.on(this._processSyncMessage, this);    
-            this.sync.onDeviceAdded.on(this._handleNewSyncDevice, this);    
+            this._linkSync();
             this.sync.init({
                 transport: this.transport,
                 master: isMaster,
                 profileUuid: this.uuid
             });
             this.__debug_createSyncGroupChat(this.sync.grConnection);        
+        }
+
+        private _linkSync() {
+            this.sync.onSyncMessage.on(this._processSyncMessage, this);    
+            this.sync.onDeviceAdded.on(this._handleNewSyncDevice, this);                
         }
 
         private _handleNewSyncDevice(newProfileId: string) {
@@ -423,6 +427,7 @@
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
             this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
+            this._linkSync();
             this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
