@@ -46,9 +46,14 @@ TlhtAlgo.prototype.sync = function (key) {
     this._isFirstHashGenerated = true;
 }
 
+TlhtAlgo.prototype._getMyActiveHashes = function () {
+    return this._ourHashes.filter(function (hashInfo) {
+        return hashInfo.counter > 1 && hashInfo.owner === this._id; 
+    });    
+}
+
 TlhtAlgo.prototype._chooseHashtail = function () {
-    this._ourHashes = this._ourHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
-    myHashes = this._ourHashes.filter(function (hashInfo) { return hashInfo.owner === this._id; });
+    myHashes = this._getMyActiveHashes();
     invariant(!this.isExpired(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * this._ourHashes.length);
@@ -107,11 +112,11 @@ TlhtAlgo.prototype._getNextHash = function () {
 }
 
 TlhtAlgo.prototype.isExpired = function () {
-    return this._ourHashes.length === 0;
+    return this._getMyActiveHashes().length === 0;
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
-    return this._ourHashes.length >= TlhtAlgo.MinHashtailsWanted;
+    return this._getMyActiveHashes().length >= TlhtAlgo.MinHashtailsWanted;
 }
 
 TlhtAlgo.prototype.addCowriter = function (id) {
