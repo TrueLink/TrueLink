@@ -21,8 +21,8 @@ function TlhtAlgo(random) {
 
     this._dhAesKey = null;
 
-    this._myHashes = null;
-    this._herHashes = null;
+    this._ourHashes = null;
+    this._theirHashes = null;
 
     this._isFirstHashChecked = false;
     this._isFirstHashGenerated = false;
@@ -37,24 +37,24 @@ TlhtAlgo.prototype.sync = function (key) {
     invariant(this._random, "rng is not set");
     this._dhAesKey = key;
 
-    this._myHashes = [];
-    this._herHashes = [];
+    this._ourHashes = [];
+    this._theirHashes = [];
 
     this._isFirstHashChecked = true;
     this._isFirstHashGenerated = true;
 }
 
 TlhtAlgo.prototype._chooseHashtailIndex = function () {
-    this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
+    this._ourHashes = this._ourHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
     invariant(!this.isExpired(), "This channel is expired");
 
-    var hashIndex = Math.floor(this._random.double() * this._myHashes.length);
+    var hashIndex = Math.floor(this._random.double() * this._ourHashes.length);
     return hashIndex;
 }
 
 TlhtAlgo.prototype.takeHashtail = function () {
     var hashIndex = this._chooseHashtailIndex();
-    var takenHashArr = this._myHashes.splice(hashIndex, 1);
+    var takenHashArr = this._ourHashes.splice(hashIndex, 1);
     return takenHashArr[0];
 }
 
@@ -65,10 +65,10 @@ TlhtAlgo.prototype._isHashValid = function (hx) {
         return hx.as(Hex).value === "00000000000000000000000000000000";
     }
 
-    invariant(this._herHashes, "channel is not configured");
+    invariant(this._theirHashes, "channel is not configured");
 
-    for (var hashIndex = 0; hashIndex < this._herHashes.length; hashIndex++) {
-        var hashInfo = this._herHashes[hashIndex];
+    for (var hashIndex = 0; hashIndex < this._theirHashes.length; hashIndex++) {
+        var hashInfo = this._theirHashes[hashIndex];
 
         var end = hashInfo.end.as(Hex).value;
         var gotTail = hx;
@@ -89,10 +89,10 @@ TlhtAlgo.prototype._getNextHash = function () {
         return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
-    invariant(this._myHashes, "channel is not configured");
+    invariant(this._ourHashes, "channel is not configured");
 
     var hashIndex = this._chooseHashtailIndex();    
-    var hashInfo = this._myHashes[hashIndex];
+    var hashInfo = this._ourHashes[hashIndex];
 
     var hx = hashInfo.start;
     for (var i = 0; i < hashInfo.counter; i++) {
@@ -104,11 +104,11 @@ TlhtAlgo.prototype._getNextHash = function () {
 }
 
 TlhtAlgo.prototype.isExpired = function () {
-    return this._myHashes.length === 0;
+    return this._ourHashes.length === 0;
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
-    return this._myHashes.length >= TlhtAlgo.MinHashtailsWanted;
+    return this._ourHashes.length >= TlhtAlgo.MinHashtailsWanted;
 }
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
@@ -145,7 +145,7 @@ TlhtAlgo.prototype.generate = function () {
 }
 
 TlhtAlgo.prototype.isHashReady = function () {
-    return !!(this._myHashes && this._herHashes && this._myHashes.length && this._herHashes.length);
+    return !!(this._ourHashes && this._theirHashes && this._ourHashes.length && this._theirHashes.length);
 }
 
 TlhtAlgo.prototype.createMessage = function (raw, hash) {
@@ -159,12 +159,12 @@ TlhtAlgo.prototype.processMessage = function (bytes) {
 }
 
 TlhtAlgo.prototype.pushMyHashInfo = function (hashInfo) {
-    if (!this._myHashes) { this._myHashes = []; }
-    this._myHashes.push(hashInfo);
+    if (!this._ourHashes) { this._ourHashes = []; }
+    this._ourHashes.push(hashInfo);
 }
 TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
-    if (!this._herHashes) { this._herHashes = []; }
-    this._herHashes.push({
+    if (!this._theirHashes) { this._theirHashes = []; }
+    this._theirHashes.push({
         end: hashEnd
     });
 }
@@ -175,14 +175,14 @@ TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
 
 TlhtAlgo.prototype.deserialize = function (data) {
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
-    this._myHashes = !data.myHashes ? null : 
+    this._ourHashes = !data.myHashes ? null : 
         data.myHashes.map(function (hashInfo) {
             return {
                 start: Hex.deserialize(hashInfo.start),
                 counter: hashInfo.counter
             }
         });
-    this._herHashes = !data.herHashes ? null : 
+    this._theirHashes = !data.herHashes ? null : 
         data.herHashes.map(function (hashInfo) {
             return {
                 end: Hex.deserialize(hashInfo.end)
@@ -195,15 +195,15 @@ TlhtAlgo.prototype.deserialize = function (data) {
 TlhtAlgo.prototype.serialize = function () {
     return {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
-        myHashes: !this._myHashes ? null :
-            this._myHashes.map(function (hashInfo) {
+        myHashes: !this._ourHashes ? null :
+            this._ourHashes.map(function (hashInfo) {
                 return {
                     start: hashInfo.start.as(Hex).serialize(),
                     counter: hashInfo.counter
                 }
             }),
-        herHashes: !this._herHashes ? null :
-            this._herHashes.map(function (hashInfo) {
+        herHashes: !this._theirHashes ? null :
+            this._theirHashes.map(function (hashInfo) {
                 return {
                     end: hashInfo.end.as(Hex).serialize()
                 }
