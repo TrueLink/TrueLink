@@ -69,7 +69,7 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._route = factory.createRoute();
 
         this._link();
-        this._tlht.init(args.key);
+        this._tlht.sync(args.key);
         this._route.setAddr(args);
 
         this._key = args.key;

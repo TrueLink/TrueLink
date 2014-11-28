@@ -199,6 +199,10 @@
         private _handleNewSyncDevice(newProfileId: string) {
             this.tlConnections.forEach(function (conn) {
                 var hashtail = conn.takeHashtail();
+                if (hashtail === null) {
+                    // nothing to delegate
+                    return;
+                }
                 this._sendSyncMessage({
                     event: "tlConnection-hashtail-delegated",
                     data: {

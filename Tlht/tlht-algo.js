@@ -33,6 +33,17 @@ TlhtAlgo.prototype.init = function (key) {
     this._dhAesKey = key;
 }
 
+TlhtAlgo.prototype.sync = function (key) {
+    invariant(this._random, "rng is not set");
+    this._dhAesKey = key;
+
+    this._myHashes = [];
+    this._herHashes = [];
+
+    this._isFirstHashChecked = true;
+    this._isFirstHashGenerated = true;
+}
+
 TlhtAlgo.prototype._chooseHashtailIndex = function () {
     this._myHashes = this._myHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
     invariant(!this.isExpired(), "This channel is expired");

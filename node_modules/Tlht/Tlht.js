@@ -53,6 +53,13 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._onChanged();
     },
 
+    sync: function (key) {
+        invariant(key instanceof Multivalue, "key must be multivalue");
+        this._algo.sync(key);
+        this.checkEventHandlers();
+        this._onChanged();
+    },
+
     isReadyCalled: function () {
         return this._readyCalled;
     },
@@ -77,6 +84,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     takeHashtail: function () {
+        if (this._algo.isExpired()) {
+            return null;
+        }
         console.log("Tlht giving hashtail");
         var takenHashtail = this._algo.takeHashtail();
         this._supplyHashtails();
