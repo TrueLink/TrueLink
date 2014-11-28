@@ -90,7 +90,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         console.log("Tlht giving hashtail");
         var takenHashtail = this._algo.takeHashtail();
         this._supplyHashtails();
-        return takeHashtail;
+        return takenHashtail;
     },
 
     fulfillHashRequest: function (message) {
