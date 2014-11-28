@@ -214,7 +214,7 @@
                         }
                     }
                 });
-            });
+            }.bind(this));
         }
 
         private _processSyncMessage(message: ITlgrTextMessageWrapper) {
