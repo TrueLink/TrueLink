@@ -163,6 +163,10 @@
             if (this._tlecBuilder) {
                 this._tlecBuilder.destroy();
             }
+        },
+
+        takeHashtail: function () {
+            return this._tlecBuilder.takeHashtail();
         }
 
     });

@@ -183,12 +183,30 @@
         private _initSync(transport, isMaster) {
             this.sync = this.getFactory().createSync();
             this.sync.onSyncMessage.on(this._processSyncMessage, this);    
+            this.sync.onDeviceAdded.on(this._handleNewSyncDevice, this);    
             this.sync.init({
                 transport: this.transport,
                 master: isMaster,
                 profileUuid: this.uuid
             });
             this.__debug_createSyncGroupChat(this.sync.grConnection);        
+        }
+
+        private _handleNewSyncDevice(newProfileId: string) {
+            this.tlConnections.forEach(function (conn) {
+                var hashtail = conn.takeHashtail();
+                this._sendSyncMessage({
+                    event: "tlConnection-hashtail-delegated",
+                    data: {
+                        from: this.uuid,
+                        to: newProfileId,
+                        hashtail: {
+                            start: hashtail.start.as(Hex).serialize(),
+                            counter: hashtail.counter
+                        }
+                    }
+                });
+            });
         }
 
         private _processSyncMessage(message: ITlgrTextMessageWrapper) {

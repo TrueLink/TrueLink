@@ -182,6 +182,11 @@
         _onGeneratedHashtail (args) {
             this.onGeneratedHashtail.emit(args);
         }
+
+        takeHashtail () {
+            var activeTlec = this._tlecs[0];
+            return activeTlec.takeHashtail();
+        }
     };
 extend(TlConnection.prototype, serializable);
 

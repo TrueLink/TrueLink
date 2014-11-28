@@ -11,6 +11,7 @@ import GrConnection = require("../models/grConnection/GrConnection");
 export class SyncObject extends Model.Model implements ISerializable {
     public onJoinedToSync: Event.Event<SyncObject>;
     public onSyncMessage: Event.Event<ITlgrTextMessageWrapper>;
+    public onDeviceAdded: Event.Event<string>;
 
     public grConnection: GrConnection.GrConnection;
     public tlConnections: TlConnection.TlConnection[];
@@ -25,6 +26,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         super();
         this.onJoinedToSync = new Event.Event<SyncObject>("SyncObject.onJoinedToSync");
         this.onSyncMessage = new Event.Event<ITlgrTextMessageWrapper>("SyncObject.onSyncMessage");
+        this.onDeviceAdded = new Event.Event<string>("SyncObject.onDeviceAdded");
         this.grConnection = null;
         this.tlConnections = [];
         this.transport = null;
@@ -94,6 +96,7 @@ export class SyncObject extends Model.Model implements ISerializable {
     private _deviceAdded(device: ITlgrShortUserInfo) {
         this.devices.push(device)
         this._onChanged();
+        this.onDeviceAdded.emit(device.name);
     }
 
     private _deviceRemoved(device: ITlgrShortUserInfo) {
