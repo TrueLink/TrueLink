@@ -79,6 +79,10 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this.fire("changed", this); 
     },
 
+    takeHashtail: function () {
+        return this._tlht.takeHashtail();
+    },
+
     processNetworkPacket: function (packet) {
         if (!this._route) { return; }
         this._route.processNetworkPacket(packet);
