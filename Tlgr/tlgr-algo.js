@@ -182,6 +182,7 @@ TlgrAlgo.prototype.processGroupJoinPackage = function (gjp) {
         "publicKey": publicKey,
         "meta": gjp.meta,
         "ht": ht,
+        htCounter: TlgrAlgo.hashCount - 1
     };
     this._users.putUserData(data)
     return data;
@@ -216,7 +217,6 @@ TlgrAlgo.prototype.encrypt = function (message) {
     return iv.as(ByteBuffer).concat(encrypted);
 };
 
-//todo split decryption and owner search
 TlgrAlgo.prototype.decrypt = function (message) {
     invariant(this._sharedKey, "not configured");
     var encrypted = message.as(ByteBuffer);
@@ -229,8 +229,8 @@ TlgrAlgo.prototype.decrypt = function (message) {
     // find message owner
     for (var i = 0; i < TlgrAlgo.hashCount; i += 1) {
         var user = this._users.findUserByHash(hx);
-        if(user) {
-            //todo check hashtail order
+        if (user && user.htCounter === TlgrAlgo.hashCount - i) {
+            user.htCounter--;
             return {
                 "sender": user,
                 "message": message,
