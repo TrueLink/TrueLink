@@ -16,10 +16,12 @@ var DecryptionFailedError = require('./decryption-failed-error');
 TlhtAlgo.HashCount = 1000;
 TlhtAlgo.MinHashtailsWanted = 3;
 
-function TlhtAlgo(random) {
+function TlhtAlgo(random, id) {
     this._random = random;
 
     this._dhAesKey = null;
+    this._id = id;
+    this._cowriters = [];
 
     this._ourHashes = null;
     this._theirHashes = null;
@@ -44,18 +46,20 @@ TlhtAlgo.prototype.sync = function (key) {
     this._isFirstHashGenerated = true;
 }
 
-TlhtAlgo.prototype._chooseHashtailIndex = function () {
+TlhtAlgo.prototype._chooseHashtail = function () {
     this._ourHashes = this._ourHashes.filter(function (hashInfo) { return hashInfo.counter > 1; });
+    myHashes = this._ourHashes.filter(function (hashInfo) { return hashInfo.owner === this._id; });
     invariant(!this.isExpired(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * this._ourHashes.length);
-    return hashIndex;
+    return myHashes[hashIndex];
 }
 
-TlhtAlgo.prototype.takeHashtail = function () {
-    var hashIndex = this._chooseHashtailIndex();
-    var takenHashArr = this._ourHashes.splice(hashIndex, 1);
-    return takenHashArr[0];
+TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
+    var hashInfo = this._chooseHashtail();
+    this._ourHashes.splice(this._ourHashes(indexOf(hashInfo), 1);
+    hashInfo.owner = newOwnerId;
+    return hashInfo;
 }
 
 TlhtAlgo.prototype._isHashValid = function (hx) {
@@ -91,14 +95,13 @@ TlhtAlgo.prototype._getNextHash = function () {
 
     invariant(this._ourHashes, "channel is not configured");
 
-    var hashIndex = this._chooseHashtailIndex();    
-    var hashInfo = this._ourHashes[hashIndex];
+    var hashInfo = this._chooseHashtail();
 
     var hx = hashInfo.start;
     for (var i = 0; i < hashInfo.counter; i++) {
         hx = this._hash(hx);
     }
-    hashInfo.counter--;
+    hashInfo.counter--;    
 
     return hx;    
 }
@@ -110,6 +113,22 @@ TlhtAlgo.prototype.isExpired = function () {
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
     return this._ourHashes.length >= TlhtAlgo.MinHashtailsWanted;
 }
+
+TlhtAlgo.prototype.addCowriter = function (id) {
+    this._cowriters.push(id);
+}
+
+TlhtAlgo.prototype.getCowritersWithoutHashtails = function () {
+    var owners = this._ourHashes.reduce(function (owners, hashInfo) {
+        owners[hashInfo.owner] = true;
+    }, {});
+    return this._cowriters.filter(function (cowriter) {
+        !owners[cowriter];
+    });
+}
+
+
+
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
     invariant(raw instanceof Multivalue, "raw must be multivalue");
@@ -132,7 +151,8 @@ TlhtAlgo.prototype.processPacket = function (decryptedData) {
 TlhtAlgo.prototype.generate = function () {
     var hashInfo = {
         start: this._random.bitArray(128),
-        counter: TlhtAlgo.HashCount - 1
+        counter: TlhtAlgo.HashCount - 1,
+        owner: this._id
     };
     var hashEnd = hashInfo.start;
     for (var i = 0; i < TlhtAlgo.HashCount; i++) {
@@ -175,11 +195,13 @@ TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
 
 TlhtAlgo.prototype.deserialize = function (data) {
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
+    this._cowriters = data.cowriters;
     this._ourHashes = !data.myHashes ? null : 
         data.myHashes.map(function (hashInfo) {
             return {
                 start: Hex.deserialize(hashInfo.start),
-                counter: hashInfo.counter
+                counter: hashInfo.counter,
+                owner: hashInfo.owner
             }
         });
     this._theirHashes = !data.herHashes ? null : 
@@ -195,11 +217,13 @@ TlhtAlgo.prototype.deserialize = function (data) {
 TlhtAlgo.prototype.serialize = function () {
     return {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
+        cowriters: this._cowriters,
         myHashes: !this._ourHashes ? null :
             this._ourHashes.map(function (hashInfo) {
                 return {
                     start: hashInfo.start.as(Hex).serialize(),
-                    counter: hashInfo.counter
+                    counter: hashInfo.counter,
+                    owner: hashInfo.owner
                 }
             }),
         herHashes: !this._theirHashes ? null :
