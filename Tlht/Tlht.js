@@ -46,16 +46,8 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._algo.deserialize(data);
     },
 
-    init: function (key) {
-        invariant(key instanceof Multivalue, "key must be multivalue");
-        this._algo.init(key);
-        this.checkEventHandlers();
-        this._onChanged();
-    },
-
-    sync: function (key) {
-        invariant(key instanceof Multivalue, "key must be multivalue");
-        this._algo.sync(key);
+    init: function (args, sync) {
+        this._algo.init(args, sync);
         this.checkEventHandlers();
         this._onChanged();
     },

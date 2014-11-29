@@ -7,8 +7,6 @@ var Bytes = require("Multivalue/multivalue/bytes");
 var Aes = require("modules/cryptography/aes-sjcl");
 
 var invariant = require("invariant");
-
-var invariant = require("invariant");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 
 var DecryptionFailedError = require('./decryption-failed-error');
@@ -20,7 +18,7 @@ function TlhtAlgo(random, id) {
     this._random = random;
 
     this._dhAesKey = null;
-    this._id = id;
+    this._id = null;
     this._cowriters = [];
 
     this._ourHashes = null;
@@ -30,20 +28,21 @@ function TlhtAlgo(random, id) {
     this._isFirstHashGenerated = false;
 }
 
-TlhtAlgo.prototype.init = function (key) {
+TlhtAlgo.prototype.init = function (args, sync) {
+    invariant(args.key instanceof Multivalue, "args.key must be multivalue");
+    invariant(typeof args.id === "string", "args.id must be string");
     invariant(this._random, "rng is not set");
-    this._dhAesKey = key;
-}
+    
+    this._dhAesKey = args.key;
+    this._id = args.id;
 
-TlhtAlgo.prototype.sync = function (key) {
-    invariant(this._random, "rng is not set");
-    this._dhAesKey = key;
+    if (sync) {
+        this._ourHashes = [];
+        this._theirHashes = [];
 
-    this._ourHashes = [];
-    this._theirHashes = [];
-
-    this._isFirstHashChecked = true;
-    this._isFirstHashGenerated = true;
+        this._isFirstHashChecked = true;
+        this._isFirstHashGenerated = true;        
+    }
 }
 
 TlhtAlgo.prototype._getMyActiveHashes = function () {

@@ -33,7 +33,7 @@ function TlhtBuilder(factory) {
 }
 
 extend(TlhtBuilder.prototype, eventEmitter, serializable, {
-    build: function (args) {
+    build: function (args, sync) {
         var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
         invariant(args, message);
         invariant(args.key instanceof Multivalue, message);
@@ -45,7 +45,7 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._route = factory.createRoute();
 
         this._link();
-        this._tlht.init(args.key);
+        this._tlht.init(args.key, sync);
         this._route.setAddr(args);
 
         this._key = args.key;
@@ -55,28 +55,6 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._tlht.generate();
 
         this.fire("changed", this);
-    },
-
-    sync: function (args) {
-        var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
-        invariant(args, message);
-        invariant(args.key instanceof Multivalue, message);
-        invariant(args.inId instanceof Multivalue, message);
-        invariant(args.outId instanceof Multivalue, message);
-
-        var factory = this._factory;
-        this._tlht = factory.createTlht();
-        this._route = factory.createRoute();
-
-        this._link();
-        this._tlht.sync(args.key);
-        this._route.setAddr(args);
-
-        this._key = args.key;
-        this._inId = args.inId;
-        this._outId = args.outId;
-
-        this.fire("changed", this); 
     },
 
     takeHashtail: function () {
