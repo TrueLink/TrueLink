@@ -55,7 +55,7 @@ TlhtAlgo.prototype._chooseHashtail = function () {
     var myHashes = this._getMyActiveHashes();
     invariant(!this.isExpired(), "This channel is expired");
 
-    var hashIndex = Math.floor(this._random.double() * this._ourHashes.length);
+    var hashIndex = Math.floor(this._random.double() * myHashes.length);
     return myHashes[hashIndex];
 }
 

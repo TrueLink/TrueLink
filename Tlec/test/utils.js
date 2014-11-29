@@ -2,11 +2,11 @@
 var tools = require("modules/tools");
 var extend = tools.extend;
 
-var TlkeBuilder = require("TlkeBuilder");
+var TlkeBuilder = require("../../TlkeBuilder");
 var TlhtBuilder = require("../../TlhtBuilder");
 var TlecBuilder = require("../../TlecBuilder");
 var OverTlecBuilder = require("../../OverTlecBuilder");
-var Tlke = require("Tlke");
+var Tlke = require("../../Tlke");
 var Tlht = require("../../Tlht");
 var Tlec = require("../Tlec");
 var Tlgr = require("Tlgr");

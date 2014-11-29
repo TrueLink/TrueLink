@@ -228,7 +228,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
     _onTlkeDone: function (args) {
         this.fire("tlkeDone", args);
-        args.id = "TEMPORARY ID!"; //todo
         this._tlhtBuilder.build(args);
     },
 

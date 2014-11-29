@@ -99,13 +99,13 @@ describe("True Link Hash Tail Exchange", function() {
             transport.on("networkPacket", route.processNetworkPacket, route);
             tlht.on("htReady", this.on_htReady, this);
 
-            tlht.init(args.key);
+            tlht.init(args);
             route.setAddr(args);
             tlht.generate();
         },
         on_htReady: function(args) {
             this._log("on_htReady", args);
-            this.hashStart = this.tlht._algo._myHashes;
+            this.hashStart = this.tlht._algo._ourHashes;
             if (this.hashStart) {
                 this.hashStart = this.hashStart.map(function (hashInfo) {
                     return {
@@ -114,7 +114,7 @@ describe("True Link Hash Tail Exchange", function() {
                     }
                 });
             }
-            this.hashEnd = this.tlht._algo._herHashes;
+            this.hashEnd = this.tlht._algo._theirHashes;
             if (this.hashEnd) {
                 this.hashEnd = this.hashEnd.map(function (hashInfo) {
                     return {
@@ -226,13 +226,13 @@ describe("True Link Hash Tail Exchange", function() {
         });
 
         it("alice hash tails are ready", function() {
-            expect(this.aliceTlht._tlht._algo._myHashes).not.to.be.undefined;
-            expect(this.aliceTlht._tlht._algo._herHashes).not.to.be.undefined;
+            expect(this.aliceTlht._tlht._algo._ourHashes).not.to.be.undefined;
+            expect(this.aliceTlht._tlht._algo._theirHashes).not.to.be.undefined;
         });
 
         it("bob hash tails are ready", function() {
-            expect(this.bobTlht._tlht._algo._myHashes).not.to.be.undefined;
-            expect(this.bobTlht._tlht._algo._herHashes).not.to.be.undefined;
+            expect(this.bobTlht._tlht._algo._ourHashes).not.to.be.undefined;
+            expect(this.bobTlht._tlht._algo._theirHashes).not.to.be.undefined;
         });
     });
 
