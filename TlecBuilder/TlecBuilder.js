@@ -7,13 +7,17 @@ var Tlke = require("Tlke");
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
+var Multivalue = require("Multivalue").multivalue.Multivalue;
+var Hex = require("Multivalue/multivalue/hex");
+
+
 
 function TlecBuilder(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createTlec), "factory must have createTlec() method");
     invariant(isFunction(factory.createRoute), "factory must have createRoute() method");
     invariant(isFunction(factory.createTlkeBuilder), "factory must have createTlkeBuilder() method");
-    invariant(isFunction(factory.createTlhtBuilder), "factory must have createTlhtBuilder() method");
+    invariant(isFunction(factory.createTlht), "factory must have createTlht() method");
 
 
     this._defineEvent("changed");
@@ -31,9 +35,11 @@ function TlecBuilder(factory) {
     this._tlec = null;
     this._route = null;
     this._tlkeBuilder = null;
-    this._tlhtBuilder = null;
+    this._tlht = null;
     this.status = null;
-
+    this._key = null;
+    this._inId = null;
+    this._outId = null;
 }
 
 extend(TlecBuilder.prototype, eventEmitter, serializable, {
@@ -42,7 +48,9 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var factory = this._factory;
         this._tlkeBuilder = factory.createTlkeBuilder();
         this._tlkeBuilder.build();
-        this._tlhtBuilder = factory.createTlhtBuilder();
+        this._route = factory.createRoute();
+        this._linkRoute();
+        this._tlht = factory.createTlht();
         this._linkBuilders();
         this._onChanged();
     },
@@ -50,9 +58,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     sync: function (args) {
         this.status = TlecBuilder.STATUS_HT_EXCHANGE;
         var factory = this._factory;
-        this._tlhtBuilder = factory.createTlhtBuilder();
+        this._route = factory.createRoute();
+        this._linkRoute();
+        this._tlht = factory.createTlht();
         this._linkBuilders();
-        this._tlhtBuilder.build(args, true);
+        this._tlht.init(args, true);
         this._onChanged();  
     },
 
@@ -79,8 +89,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         //console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
         if (this._route) {
             this._route.processNetworkPacket(packet);
-        } else if (this._tlhtBuilder) {
-            this._tlhtBuilder.processNetworkPacket(packet);
         }
         if (this._tlkeBuilder) {
             this._tlkeBuilder.processNetworkPacket(packet);
@@ -88,13 +96,18 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     takeHashtail: function () {
-        return this._tlhtBuilder.takeHashtail();
+        return this._tlht.takeHashtail();
     },
 
     serialize: function (packet, context) {
-        packet.setData({status: this.status});
+        packet.setData({
+            status: this.status,
+            key: this._key ? this._key.as(Hex).serialize() : null,
+            inId: this._inId ? this._inId.as(Hex).serialize() : null,
+            outId: this._outId ? this._outId.as(Hex).serialize() : null
+        });
         packet.setLink("_tlkeBuilder", context.getPacket(this._tlkeBuilder));
-        packet.setLink("_tlhtBuilder", context.getPacket(this._tlhtBuilder));
+        packet.setLink("_tlht", context.getPacket(this._tlht));
         packet.setLink("_tlec", context.getPacket(this._tlec));
         packet.setLink("_route", context.getPacket(this._route));
     },
@@ -102,23 +115,41 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var factory = this._factory;
         var data = packet.getData();
         this.status = data.status;
+        this._key = data.key ? Hex.deserialize(data.key) : null;
+        this._inId = data.inId ? Hex.deserialize(data.inId) : null;
+        this._outId = data.outId ? Hex.deserialize(data.outId) : null;
+        
         this._tlkeBuilder = context.deserialize(packet.getLink("_tlkeBuilder"), factory.createTlkeBuilder, factory);
-        this._tlhtBuilder = context.deserialize(packet.getLink("_tlhtBuilder"), factory.createTlhtBuilder, factory);
+        this._tlht = context.deserialize(packet.getLink("_tlht"), factory.createTlht, factory);
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
+        this._linkRoute();
         this._link();
         this._linkBuilders();
+    },
+
+    _linkRoute: function () {
+        var route = this._route;
+
+        route.on("networkPacket", this._onNetworkPacket, this);
+        route.on("openAddrIn", this._onRouteAddrIn, this);
+        route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
+    },
+
+    _unlinkRoute: function () {
+        var route = this._route;
+
+        route.off("networkPacket", this._onNetworkPacket, this);
+        route.off("openAddrIn", this._onRouteAddrIn, this);
+        route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
     },
 
     _link: function () {
         var tlec = this._tlec;
         var route = this._route;
 
-        if (route && tlec) {
+        if (tlec) {
             route.on("packet", tlec.processPacket, tlec);
-            route.on("networkPacket", this._onNetworkPacket, this);
-            route.on("openAddrIn", this._onRouteAddrIn, this);
-            route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
             tlec.on("packet", route.processPacket, route);
             tlec.on("message", this._onMessage, this);
             tlec.on("requestedHash", this._onRequestedHash, this);
@@ -130,11 +161,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var tlec = this._tlec;
         var route = this._route;
 
-        if (route && tlec) {
+        if (tlec) {
             route.off("packet", tlec.processPacket, tlec);
-            route.off("networkPacket", this._onNetworkPacket, this);
-            route.off("openAddrIn", this._onRouteAddrIn, this);
-            route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
             tlec.off("packet", route.processPacket, route);
             tlec.off("message", this._onMessage, this);
             tlec.off("requestedHash", this._onRequestedHash, this);
@@ -142,10 +170,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
     _onRequestedHash: function (args) {
-        this._tlhtBuilder.fulfillHashRequest(args);
+        this._tlht.fulfillHashRequest(args);
     },
     _onRequestedHashCheck: function (args) {
-        this._tlhtBuilder.fulfillHashCheckRequest(args);
+        this._tlht.fulfillHashCheckRequest(args);
     },
     _onFulfilledHashRequest: function (args) {
         this._tlec.sendHashedMessage(args);
@@ -178,14 +206,16 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlkeBuilder.on("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
-        if (this._tlhtBuilder) {
-            this._tlhtBuilder.on("done", this._initTlec, this);
-            this._tlhtBuilder.on("networkPacket", this._onNetworkPacket, this);
-            this._tlhtBuilder.on("openAddrIn", this._onRouteAddrIn, this);
-            this._tlhtBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
-            this._tlhtBuilder.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            this._tlhtBuilder.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            this._tlhtBuilder.on("generatedHashtail", this._onGeneratedHashtail, this);
+
+        var tlht = this._tlht;
+        var route = this._route;
+        if (tlht) {
+            route.on("packet", tlht.processPacket, tlht);
+            tlht.on("packet", route.processPacket, route);
+            tlht.on("htReady", this._initTlec, this);
+            tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+            tlht.on("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
 
@@ -201,20 +231,21 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     }, 
 
-    _unlinkTlhtBuilder: function () {
-        if (this._tlhtBuilder) {
-            this._tlhtBuilder.off("done", this._initTlec, this);
-            this._tlhtBuilder.off("networkPacket", this._onNetworkPacket, this);
-            this._tlhtBuilder.off("openAddrIn", this._onRouteAddrIn, this);
-            this._tlhtBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
-            this._tlhtBuilder.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            this._tlhtBuilder.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            this._tlhtBuilder.off("generatedHashtail", this._onGeneratedHashtail, this);
+    _unlinkTlht: function () {
+        var tlht = this._tlht;
+        var route = this._route;
+        if (tlht) {
+            route.off("packet", tlht.processPacket, tlht);
+            tlht.off("packet", route.processPacket, route);
+            tlht.off("htReady", this._initTlec, this);
+            tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
+            tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
+            tlht.off("generatedHashtail", this._onGeneratedHashtail, this);
         }
     },
 
     _unlinkBuilders: function () {
-        this._unlinkTlhtBuilder();
+        this._unlinkTlht();
         this._unlinkTlkeBuilder();
     },
 
@@ -228,7 +259,22 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
     _onTlkeDone: function (args) {
         this.fire("tlkeDone", args);
-        this._tlhtBuilder.build(args);
+
+        var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
+        invariant(args, message);
+        invariant(args.key instanceof Multivalue, message);
+        invariant(args.inId instanceof Multivalue, message);
+        invariant(args.outId instanceof Multivalue, message);
+        
+        this._key = args.key;
+        this._inId = args.inId;
+        this._outId = args.outId;
+
+
+        this._tlht.init(args);
+        this._route.setAddr(args);
+
+        this._tlht.generate();
     },
 
     _onGeneratedHashtail: function (args) {
@@ -237,8 +283,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
     _initTlec: function (args) {
         this._tlec = this._factory.createTlec();
-        this._tlec.init(args);
-        this._route = args.route;
+        this._tlec.init({
+            key: this._key,
+            inId: this._inId,
+            outId: this._outId
+        });
         this._link();
         this._tlkeBuilder.destroy();
         this._unlinkTlkeBuilder();
@@ -281,13 +330,13 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
     destroy: function () {
         if (this._route) { this._route.destroy(); }
-        if (this._tlhtBuilder) { this._tlhtBuilder.destroy(); }
+        if (this._tlht) { this._tlht.destroy(); }
         if (this._tlkeBuilder) { this._tlkeBuilder.destroy(); }
         this._unlink();
         this._unlinkBuilders();
         this._tlec = null;
         this._route = null;
-        this._tlhtBuilder = null;
+        this._tlht = null;
         this._tlkeBuilder = null;
     }
 
