@@ -52,7 +52,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var factory = this._factory;
         this._tlhtBuilder = factory.createTlhtBuilder();
         this._linkBuilders();
-        this._tlhtBuilder.sync(args);
+        this._tlhtBuilder.build(args, true);
         this._onChanged();  
     },
 
@@ -228,6 +228,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
     _onTlkeDone: function (args) {
         this.fire("tlkeDone", args);
+        args.id = "TEMPORARY ID!"; //todo
         this._tlhtBuilder.build(args);
     },
 

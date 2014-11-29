@@ -45,7 +45,7 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
         this._route = factory.createRoute();
 
         this._link();
-        this._tlht.init(args.key, sync);
+        this._tlht.init(args, sync);
         this._route.setAddr(args);
 
         this._key = args.key;
@@ -58,7 +58,7 @@ extend(TlhtBuilder.prototype, eventEmitter, serializable, {
     },
 
     takeHashtail: function () {
-        return this._tlht.takeHashtail();
+        return null;
     },
 
     processNetworkPacket: function (packet) {

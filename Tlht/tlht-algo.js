@@ -32,7 +32,7 @@ TlhtAlgo.prototype.init = function (args, sync) {
     invariant(args.key instanceof Multivalue, "args.key must be multivalue");
     invariant(typeof args.id === "string", "args.id must be string");
     invariant(this._random, "rng is not set");
-    
+
     this._dhAesKey = args.key;
     this._id = args.id;
 
@@ -48,11 +48,11 @@ TlhtAlgo.prototype.init = function (args, sync) {
 TlhtAlgo.prototype._getMyActiveHashes = function () {
     return this._ourHashes.filter(function (hashInfo) {
         return hashInfo.counter > 1 && hashInfo.owner === this._id; 
-    });    
+    }.bind(this));    
 }
 
 TlhtAlgo.prototype._chooseHashtail = function () {
-    myHashes = this._getMyActiveHashes();
+    var myHashes = this._getMyActiveHashes();
     invariant(!this.isExpired(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * this._ourHashes.length);
@@ -61,7 +61,7 @@ TlhtAlgo.prototype._chooseHashtail = function () {
 
 TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
     var hashInfo = this._chooseHashtail();
-    this._ourHashes.splice(this._ourHashes(indexOf(hashInfo), 1);
+    this._ourHashes.splice(this._ourHashes.indexOf(hashInfo), 1);
     hashInfo.owner = newOwnerId;
     return hashInfo;
 }
