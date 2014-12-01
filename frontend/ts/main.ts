@@ -5,7 +5,6 @@
 /// <reference path="../node_modules/invariant/invariant.d.ts"/>
 /// <reference path="../node_modules/Multivalue/definitions/exports.d.ts"/>
 /// <reference path="../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
-/// <reference path="../node_modules/TlhtBuilder/TlhtBuilder.d.ts"/>
 /// <reference path="../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
 /// <reference path="../node_modules/Tlgr/Tlgr.d.ts"/>
 /// <reference path="../node_modules/Tlht/Tlht.d.ts"/>

@@ -5,7 +5,6 @@
     import prototype = require("./prototype");
 
     import TlkeBuilder = require("TlkeBuilder");
-    import TlhtBuilder = require("TlhtBuilder");
     import TlecBuilder = require("TlecBuilder");
     import OverTlecBuilder = require("OverTlecBuilder");
     import Tlke = require("Tlke");
@@ -27,9 +26,6 @@
     extend(TlConnectionFactory.prototype, prototype, {
         createTlkeBuilder: function () {
             return this._observed(new TlkeBuilder(this));
-        },
-        createTlhtBuilder: function () {
-            return this._observed(new TlhtBuilder(this));
         },
         createTlecBuilder: function () {
             return this._observed(new TlecBuilder(this));

@@ -42,12 +42,8 @@
         },
         TlecBuilder: {
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},
-            _tlhtBuilder: {propType: "one", type: "TlhtBuilder"},
-            _tlec: {propType: "one", type: "Tlec"},
-            _route: {propType: "one", type: "Route"}
-        },
-        TlhtBuilder: {
             _tlht: {propType: "one", type: "Tlht"},
+            _tlec: {propType: "one", type: "Tlec"},
             _route: {propType: "one", type: "Route"}
         },
         TlkeBuilder: {

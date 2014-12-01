@@ -11,6 +11,5 @@ npm install ..\node_modules\Tlec & ^
 npm install ..\node_modules\TlecBuilder & ^
 npm install ..\node_modules\Tlgr & ^
 npm install ..\node_modules\Tlht & ^
-npm install ..\node_modules\TlhtBuilder & ^
 npm install ..\node_modules\Tlke & ^
 npm install ..\node_modules\TlkeBuilder
