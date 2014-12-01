@@ -34,18 +34,16 @@
             this._transport = transport;
         },
 
-        init: function (syncArgs?) {
+        init: function (args?, sync?) {
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = factory.createTlecBuilder();
             this._link();
-            if (syncArgs) {
-                this.id = syncArgs.id;
-                this._tlecBuilder.sync(syncArgs);
-            } else {
-                this.id = uuid();
-                this._tlecBuilder.build();
-            }
+
+            this.id = uuid();
+            this._onChanged();
+
+            this._tlecBuilder.build(args, sync);
         },
 
         //runs only after deserializing established connection

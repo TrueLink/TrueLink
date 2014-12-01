@@ -351,7 +351,9 @@
         private _createTlConnection (syncArgs?) {
             this.checkFactory();
             var tlConnection = this.getFactory().createTlConnection();
-            tlConnection.init(syncArgs);
+            tlConnection.init({
+                profileId: this.uuid
+            }, syncArgs);
             return tlConnection;
         }
 

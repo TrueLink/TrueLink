@@ -42,16 +42,11 @@
             this.id = null;
         }
 
-        init(syncArgs?) {
+        init(args?, sync?) {
             this._initialTlec = this.getFactory().createCouchTlec();
             this._linkInitial();
-            if (syncArgs) {
-                this._initialTlec.sync(syncArgs);
-                this.id = syncArgs.id;
-            } else {
-                this._initialTlec.init();
-                this.id = uuid();
-            }
+            this._initialTlec.init(args, sync);
+            this.id = uuid();
             this._onChanged();
         }
 

@@ -175,8 +175,6 @@ extend(Tlke.prototype, eventEmitter, serializable, {
             }
         }                
 
-        keyAndCids.id = "TEMPORARY ID!"; //todo
-         
         this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
         this.fire("packet", this._algo.getAuthResponse());
         this.fire("keyReady", keyAndCids);
@@ -203,8 +201,6 @@ extend(Tlke.prototype, eventEmitter, serializable, {
         }
         this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
 
-        keyAndCids.id = "TEMPORARY ID!"; //todo
-        
         this.fire("keyReady", keyAndCids);
     },
 

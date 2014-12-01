@@ -29,12 +29,14 @@ function TlhtAlgo(random, id) {
 }
 
 TlhtAlgo.prototype.init = function (args, sync) {
-    invariant(args.key instanceof Multivalue, "args.key must be multivalue");
-    invariant(typeof args.id === "string", "args.id must be string");
+    invariant(sync ? sync.key : args.key instanceof Multivalue, "args.key or sync.key must be multivalue");    
     invariant(this._random, "rng is not set");
 
-    this._dhAesKey = args.key;
-    this._id = args.id;
+    // assume single mode (no cowriters) if profileId not set
+    invariant(!args.profileId || (typeof args.profileId === "string"), "args.profileId must be string");
+    
+    this._dhAesKey = sync ? sync.key : args.key;
+    this._id = args.profileId;
 
     if (sync) {
         this._ourHashes = [];
@@ -67,6 +69,7 @@ TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
 }
 
 TlhtAlgo.prototype.processHashtail = function (hashInfo) {
+    invariant(this._id, "processHashtail is disabled is single mode");
     var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
         return hashInfo.as(Hex).equals(_hashInfo.as(Hex));
     });
@@ -130,10 +133,12 @@ TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
 }
 
 TlhtAlgo.prototype.addCowriter = function (id) {
+    invariant(this._id, "addCowriter is disabled is single mode");
     this._cowriters.push(id);
 }
 
 TlhtAlgo.prototype.getCowritersWithoutHashtails = function () {
+    invariant(this._id, "getCowritersWithoutHashtails is disabled is single mode");
     var owners = this._ourHashes.reduce(function (owners, hashInfo) {
         owners[hashInfo.owner] = true;
     }, {});
