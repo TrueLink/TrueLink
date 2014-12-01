@@ -17,7 +17,7 @@
         public onMessage : Event.Event<IUserMessage>;
         public onDone : Event.Event<TlConnection>;
         public onTlkeDone : Event.Event<any>;
-        public onGeneratedHashtail : Event.Event<any>;
+        public onSyncMessage : Event.Event<any>;
         public offer : any;
         public auth : any;
 
@@ -33,7 +33,7 @@
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
             this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
             this.onTlkeDone = new Event.Event<any>("TlConnection.onTlkeDone");
-            this.onGeneratedHashtail = new Event.Event<any>("TlConnection.onGeneratedHashtail");
+            this.onSyncMessage = new Event.Event<any>("TlConnection.onSyncMessage");
             this.offer = null;
             this.auth = null;
             this._initialTlec = null;
@@ -159,7 +159,7 @@
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
             builder.on("tlkeDone", this._onInitialTlecBuilderTlkeDone, this);
-            builder.on("generatedHashtail", this._onGeneratedHashtail, this);
+            builder.on("syncMessage", this._onTlecSyncMessage, this);
         }
 
         _onInitialTlecBuilderDone  (builder) {
@@ -185,10 +185,14 @@
             }
         }
 
-        private _onGeneratedHashtail(args) {            
-            this.onGeneratedHashtail.emit({
+        private _onTlecSyncMessage(args) {
+            this._sendSyncMessage("tlec", args);
+        }
+
+        private _sendSyncMessage(what, args) {
+            this.onSyncMessage.emit({
                 id: this.id,
-                what: "tlec",
+                what: what,
                 args: args
             });
         }
@@ -198,8 +202,6 @@
 
             if (args.what === "tlec") {
                 this._initialTlec.processSyncMessage(args.args);
-            } else {
-                console.warn("TlConnection", this.id, "got sync message of unknown type", args.what);
             }
         }
 

@@ -428,7 +428,7 @@
 
         private _linkTlConnection  (conn) {
             conn.onMessage.on(this._onTlConnectionMessage, this);
-            conn.onGeneratedHashtail.on(this._onTlConnectionGeneratedHashtail, this);
+            conn.onSyncMessage.on(this._onTlConnectionSyncMessage, this);
         }
 
         private _linkContact  (contact) {
@@ -463,7 +463,7 @@
             
         }
 
-        private _onTlConnectionGeneratedHashtail(args) {
+        private _onTlConnectionSyncMessage(args) {
             this._sendSyncMessage({
                 what: "tlConnection",
                 args: args
@@ -503,13 +503,13 @@ extend(Profile.prototype, serializable);
         constructor () {
 
             super();
-        this.profile = null;
-        this.name = null;
-        this.history = null;
-        this.contact = null;
-        this.unreadCount = 0;
+            this.profile = null;
+            this.name = null;
+            this.history = null;
+            this.contact = null;
+            this.unreadCount = 0;
 
-    }
+        }
 
         setProfile  (profile: Profile) {
             this.profile = profile;

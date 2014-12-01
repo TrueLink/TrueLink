@@ -18,8 +18,8 @@
         this._defineEvent("auth");
         this._defineEvent("message");
         this._defineEvent("done");
-        this._defineEvent("tlkeDone");
-        this._defineEvent("generatedHashtail");
+        this._defineEvent("tlkeDone");        
+        this._defineEvent("syncMessage");
 
         this._tlecBuilder = null;
         this._transportAdapters = {};
@@ -117,31 +117,55 @@
                 this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
                 this._tlecBuilder.on("generatedHashtail", this._onGeneratedHashtail, this);
+                this._tlecBuilder.on("delegatedHashtail", this._onDelegatedHashtail, this);
             }
         },
 
         _onGeneratedHashtail: function (args) {
-            this.fire("generatedHashtail", {
+            this._sendSyncMessage("hashtail-generated", {
+                start: args.start.as(Hex).serialize(),
+                counter: args.counter
+            });
+        },
+
+        _onDelegatedHashtail: function (what, args) {
+            this._sendSyncMessage("hashtail-delegated", {
+                start: args.start.as(Hex).serialize(),
+                counter: args.counter
+            });
+        },
+
+        _sendSyncMessage: function (what, args) {
+            this.fire("syncMessage", {
                 id: this.id,
-                what: "hashtail-generated",
-                args: {
-                    start: args.start.as(Hex).serialize(),
-                    counter: args.counter
-                }
+                what: what,
+                args: args             
             });
         },
 
         processSyncMessage: function (args) {
             if (args.id !== this.id) { return; }
 
-            if (args.what === "tlec") {
+            if (args.what === "hashtail-generated") {
                 this._processHashtailGeneratedSyncMessage(args.args);
+            } else if (args.what === "hashtail-generated") {
+                this._processHashtailDelegatedSyncMessage(args.args);
             }
         },
 
         _processHashtailGeneratedSyncMessage: function (args) {
             this._tlecBuilder.addHashtail({
+                start: Hex.deserialize(args.start),
+                counter: args.counter
+            });
+        },
 
+        _processHashtailDelegatedSyncMessage: function (args) {
+            this._tlecBuilder.processHashtailDelegation({
+                target: args.target,
+                hashtail: {
+                    start: Hex.deserialize(args.hashtail.start)
+                }
             });
         },
 
