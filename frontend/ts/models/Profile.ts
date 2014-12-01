@@ -138,28 +138,13 @@
             return document;
         }
 
-        createContact  () {
+        createContact(syncArgs?) {
             this.checkFactory();
             var contact = this.getFactory().createContact(this);
-            var contactTlConnection = this._createTlConnection();
+            var contactTlConnection = this._createTlConnection(syncArgs);
             this._addTlConnection(contactTlConnection);
             contact.init({
-                name : urandom.name(),
-                tlConnection: contactTlConnection
-            });
-            this.contacts.push(contact);
-            this._linkContact(contact);
-            this._onChanged();
-            return contact;
-        }
-
-        private _syncContact(args) {
-            this.checkFactory();
-            var contact = this.getFactory().createContact(this);
-            var contactTlConnection = this._syncTlConnection(args);
-            this._addTlConnection(contactTlConnection);
-            contact.init({
-                name : args.contactName,
+                name : syncArgs ? syncArgs.contactName : urandom.name(),
                 tlConnection: contactTlConnection
             });
             this.contacts.push(contact);
@@ -219,6 +204,13 @@
 
         private _processSyncMessage(message: ITlgrTextMessageWrapper) {
             console.log(this.name, "got sync message", message);
+
+            var args = JSON.parse(message.text);
+            if (args.what === "tlConnection") {
+                this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
+            }
+
+
             var parsed = JSON.parse(message.text);
             if (parsed.event) {
                 var event = parsed.event;
@@ -234,7 +226,7 @@
                     this._onChanged();           
                 }
                 if (event === "contact-created") {
-                    this._syncContact({
+                    this.createContact({
                         contactName: data.contactName,
                         inId: Hex.deserialize(data.inId),
                         outId: Hex.deserialize(data.outId),
@@ -436,13 +428,13 @@
 
         private _linkTlConnection  (conn) {
             conn.onMessage.on(this._onTlConnectionMessage, this);
+            conn.onGeneratedHashtail.on(this._onTlConnectionGeneratedHashtail, this);
         }
 
         private _linkContact  (contact) {
             contact.onInviteReceived.on(this._inviteReceived, this);
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
             contact.onConnectionEstablished.on(this._handleContactConnectionEstablished, this);
-            contact.onGeneratedHashtail.on(this._handleContactGeneratedHashtail, this);
         }
 
         private _handleContactConnectionEstablished(args) {
@@ -471,14 +463,10 @@
             
         }
 
-        private _handleContactGeneratedHashtail(args) {
+        private _onTlConnectionGeneratedHashtail(args) {
             this._sendSyncMessage({
-                event: "contact-hashtail-generated",
-                data: {
-                    contactName: args.contactName,
-                    start: args.start.as(Hex).serialize(),
-                    counter: args.counter
-                }
+                what: "tlConnection",
+                args: args
             });            
         }
 

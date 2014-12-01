@@ -185,8 +185,22 @@
             }
         }
 
-        _onGeneratedHashtail (args) {
-            this.onGeneratedHashtail.emit(args);
+        private _onGeneratedHashtail(args) {            
+            this.onGeneratedHashtail.emit({
+                id: this.id,
+                what: "tlec",
+                args: args
+            });
+        }
+
+        processSyncMessage(args) {
+            if (args.id !== this.id) { return; }
+
+            if (args.what === "tlec") {
+                this._initialTlec.processSyncMessage(args.args);
+            } else {
+                console.warn("TlConnection", this.id, "got sync message of unknown type", args.what);
+            }
         }
 
         takeHashtail () {
