@@ -29,7 +29,7 @@ function TlecBuilder(factory) {
     this._defineEvent("openAddrIn");
     this._defineEvent("closeAddrIn");
     this._defineEvent("networkPacket");
-    this._defineEvent("generatedHashtail");
+    this._defineEvent("hashtail");
 
     this._factory = factory;
     this._tlec = null;
@@ -95,8 +95,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
 
-    takeHashtail: function () {
-        return this._tlht.takeHashtail();
+    processHashtail: function (args) {
+        return this._tlht.processHashtail(args);
     },
 
     serialize: function (packet, context) {
@@ -215,7 +215,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             tlht.on("htReady", this._initTlec, this);
             tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.on("generatedHashtail", this._onGeneratedHashtail, this);
+            tlht.on("hashtail", this._onHashtail, this);
         }
     },
 
@@ -240,7 +240,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             tlht.off("htReady", this._initTlec, this);
             tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.off("generatedHashtail", this._onGeneratedHashtail, this);
+            tlht.off("hashtail", this._onHashtail, this);
         }
     },
 
@@ -277,8 +277,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlht.generate();
     },
 
-    _onGeneratedHashtail: function (args) {
-        this.fire("generatedHashtail", args);
+    _onHashtail: function (args) {
+        this.fire("hashtail", args);
     },
 
     _initTlec: function (args) {
