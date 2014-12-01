@@ -25,8 +25,7 @@ function Tlht(factory) {
     this._defineEvent("packet");
     this._defineEvent("htReady");
     this._defineEvent("expired");
-    this._defineEvent("generatedHashtail");
-    this._defineEvent("delegatedHashtail");
+    this._defineEvent("hashtail");
     this._defineEvent("fulfilledHashCheckRequest");
     this._defineEvent("fulfilledHashRequest");
     this._defineEvent("wrongSignatureMessage");
@@ -71,7 +70,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             console.log("hashes ready");
             this._onHashReady();
         }
-        this.fire("generatedHashtail", hash.hashInfo);
+        this.fire("hashtail", hash.hashInfo);
         this._onChanged();
         this._supplyHashtails();
     },
@@ -84,10 +83,12 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         console.log("Tlht giving hashtail");
         var takenHashtail = this._algo.takeHashtail();
         this._supplyHashtails();
-        this.fire("delegatedHashtail", {
-            target: cowriter,
-            hashtail: takenHashtail
-        });
+        this.fire("hashtail", takenHashtail);
+    },
+
+    processHashtail: function (hashInfo) {
+        this._algo.processHashtail(hashInfo);
+        this._onChanged();
     },
 
     fulfillHashRequest: function (message) {

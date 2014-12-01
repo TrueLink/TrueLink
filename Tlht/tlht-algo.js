@@ -66,6 +66,17 @@ TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
     return hashInfo;
 }
 
+TlhtAlgo.prototype.processHashtail = function (hashInfo) {
+    var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
+        return hashInfo.as(Hex).equals(_hashInfo.as(Hex));
+    });
+    if (existingHashInfoArr.length === 0) {
+        this._ourHashes.push(hashInfo);
+    } else {
+        this._ourHashes.owner = hashInfo.owner;
+    }
+}
+
 TlhtAlgo.prototype._isHashValid = function (hx) {
     // first time check, is used for initial hashtail exchange
     if (!this._isFirstHashChecked) {
