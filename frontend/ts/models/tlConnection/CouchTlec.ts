@@ -116,20 +116,12 @@
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
                 this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
-                this._tlecBuilder.on("generatedHashtail", this._onGeneratedHashtail, this);
-                this._tlecBuilder.on("delegatedHashtail", this._onDelegatedHashtail, this);
+                this._tlecBuilder.on("hashtail", this._onHashtail, this);
             }
         },
 
-        _onGeneratedHashtail: function (args) {
-            this._sendSyncMessage("hashtail-generated", {
-                start: args.start.as(Hex).serialize(),
-                counter: args.counter
-            });
-        },
-
-        _onDelegatedHashtail: function (what, args) {
-            this._sendSyncMessage("hashtail-delegated", {
+        _onHashtail: function (args) {
+            this._sendSyncMessage("hashtail", {
                 start: args.start.as(Hex).serialize(),
                 counter: args.counter
             });
@@ -146,26 +138,16 @@
         processSyncMessage: function (args) {
             if (args.id !== this.id) { return; }
 
-            if (args.what === "hashtail-generated") {
-                this._processHashtailGeneratedSyncMessage(args.args);
-            } else if (args.what === "hashtail-generated") {
-                this._processHashtailDelegatedSyncMessage(args.args);
+            if (args.what === "hashtail") {
+                this._processHashtailSyncMessage(args.args);
             }
         },
 
-        _processHashtailGeneratedSyncMessage: function (args) {
-            this._tlecBuilder.addHashtail({
+        _processHashtailSyncMessage: function (args) {
+            this._tlecBuilder.processHashtail({
+                owner: args.owner,
                 start: Hex.deserialize(args.start),
                 counter: args.counter
-            });
-        },
-
-        _processHashtailDelegatedSyncMessage: function (args) {
-            this._tlecBuilder.processHashtailDelegation({
-                target: args.target,
-                hashtail: {
-                    start: Hex.deserialize(args.hashtail.start)
-                }
             });
         },
 
