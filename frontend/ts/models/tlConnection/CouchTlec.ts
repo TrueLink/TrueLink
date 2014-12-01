@@ -120,6 +120,7 @@
 
         _onHashtail: function (args) {
             this._sendSyncMessage("hashtail", {
+                owner: args.owner,
                 start: args.start.as(Hex).serialize(),
                 counter: args.counter
             });
