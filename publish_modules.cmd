@@ -11,6 +11,5 @@ npm install .\Tlec & ^
 npm install .\TlecBuilder & ^
 npm install .\Tlgr & ^
 npm install .\Tlht & ^
-npm install .\TlhtBuilder & ^
 npm install .\Tlke & ^
 npm install .\TlkeBuilder
