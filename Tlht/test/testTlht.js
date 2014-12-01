@@ -169,7 +169,7 @@ describe("True Link Hash Tail Exchange", function() {
 
     });
 
-    describe("with builder", function() {
+    describe.skip("with builder (obsolete: tlht does not have builder anymore)", function() {
         before(function(done) {
             var transport = this.transport = utils.factory.createTransport();
             var aliceTlke = this.aliceTlke = utils.factory.createTlkeBuilder();
