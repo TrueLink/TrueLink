@@ -356,17 +356,10 @@
             }
         }
 
-        private _createTlConnection  () {
+        private _createTlConnection (syncArgs?) {
             this.checkFactory();
             var tlConnection = this.getFactory().createTlConnection();
-            tlConnection.init();
-            return tlConnection;
-        }
-
-        private _syncTlConnection(args) {
-            this.checkFactory();
-            var tlConnection = this.getFactory().createTlConnection();
-            tlConnection.sync(args);
+            tlConnection.init(syncArgs);
             return tlConnection;
         }
 

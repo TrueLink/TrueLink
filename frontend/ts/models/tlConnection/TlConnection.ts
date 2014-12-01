@@ -10,6 +10,8 @@
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
     import Utf8String = require("Multivalue/multivalue/utf8string");
 
+    import uuid = require("uuid");
+
     export class TlConnection extends Model.Model implements ISerializable {
 
         public onMessage : Event.Event<IUserMessage>;
@@ -18,6 +20,8 @@
         public onGeneratedHashtail : Event.Event<any>;
         public offer : any;
         public auth : any;
+
+        public id: string;
 
         private _initialTlec : any;
         private _tlecs : Array<any>;
@@ -35,19 +39,19 @@
             this._initialTlec = null;
             this._tlecs = [];
             this._addrIns = [];
+            this.id = null;
         }
 
-        init  () {
+        init(syncArgs?) {
             this._initialTlec = this.getFactory().createCouchTlec();
             this._linkInitial();
-            this._initialTlec.init();
-            this._onChanged();
-        }
-        
-        sync  (args) {
-            this._initialTlec = this.getFactory().createCouchTlec();
-            this._linkInitial();
-            this._initialTlec.sync(args);
+            if (syncArgs) {
+                this._initialTlec.sync(syncArgs);
+                this.id = syncArgs.id;
+            } else {
+                this._initialTlec.init();
+                this.id = uuid();
+            }
             this._onChanged();
         }
 
@@ -93,7 +97,8 @@
             packet.setData({
                 offer: this.offer ? this.offer.as(Hex).serialize() : null,
                 auth: this.auth ? this.auth.as(Hex).serialize() : null,
-                addrIns: this._addrIns.map(function (addr) { return addr.as(Hex).serialize(); })
+                addrIns: this._addrIns.map(function (addr) { return addr.as(Hex).serialize(); }),
+                id: this.id
             });
 
             packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
@@ -108,6 +113,7 @@
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
             this._addrIns = data.addrIns ? data.addrIns.map(function (addr) { return Hex.deserialize(addr); }) : [];
+            this.id = data.id;
 
             this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createCouchTlec, factory);
             this._linkInitial();
