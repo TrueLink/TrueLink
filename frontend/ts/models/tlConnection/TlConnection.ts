@@ -206,7 +206,7 @@
         }
 
         addCowriter(cowriter) {
-            var activeTlec = this._tlecs[0];
+            var activeTlec = this._tlecs[0] || this._initialTlec;
             activeTlec.addCowriter(cowriter);
         }
     };

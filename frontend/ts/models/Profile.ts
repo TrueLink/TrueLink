@@ -425,9 +425,10 @@
             });
 
             var conn = this.contacts.filter(contact => contact.name === args.id)[0].tlConnection;
-            this.sync.devices
-                .map(device => device.name)
-                .forEach(devId => conn.addCowriter(devId));            
+            this.sync.devices.forEach(device => { 
+                if (device.name === this.id) { return; }
+                conn.addCowriter(device.name);
+            });            
         }
 
         private _onTlConnectionSyncMessage(args) {
