@@ -78,7 +78,7 @@ TlhtAlgo.prototype.processHashtail = function (hashInfo) {
     if (existingHashInfoArr.length === 0) {
         this._ourHashes.push(hashInfo);
     } else {
-        this._ourHashes.owner = hashInfo.owner;
+        existingHashInfoArr[0].owner = hashInfo.owner;
     }
 }
 
