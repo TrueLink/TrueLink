@@ -44,7 +44,6 @@ TlhtAlgo.prototype.init = function (args, sync) {
         this._ourHashes = [];
         this._theirHashes = [];
 
-        this._isFirstHashChecked = true;
         this._isFirstHashGenerated = true;        
     }
 }
@@ -75,11 +74,10 @@ TlhtAlgo.prototype.processHashtail = function (hashInfo) {
     var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
         return hashInfo.start.as(Hex).isEqualTo(_hashInfo.start.as(Hex));
     });
-    if (existingHashInfoArr.length === 0) {
-        this._ourHashes.push(hashInfo);
-    } else {
-        existingHashInfoArr[0].owner = hashInfo.owner;
+    if (existingHashInfoArr.length) {
+        this._ourHashes.splice(this._ourHashes.indexOf(existingHashInfoArr[0]), 1);
     }
+    this._ourHashes.push(hashInfo);
 }
 
 TlhtAlgo.prototype._isHashValid = function (hx) {

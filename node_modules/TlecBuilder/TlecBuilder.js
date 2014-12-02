@@ -133,7 +133,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._linkTlkeBuilder();
 
         this._tlht = context.deserialize(packet.getLink("_tlht"), factory.createTlht, factory);
-        this._initTlht();
+        this._linkTlht();
 
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
