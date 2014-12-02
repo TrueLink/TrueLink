@@ -47,6 +47,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     init: function (args, sync) {
+        //TODO 'sync' should not be needed here!
         this._algo.init(args, sync);
         this.checkEventHandlers();
         this._onChanged();

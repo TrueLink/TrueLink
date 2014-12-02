@@ -29,16 +29,18 @@ function TlhtAlgo(random, id) {
 }
 
 TlhtAlgo.prototype.init = function (args, sync) {
-    invariant(sync ? sync.key : args.key instanceof Multivalue, "args.key or sync.key must be multivalue");    
+    invariant(args.key instanceof Multivalue, "args.key must be multivalue");    
     invariant(this._random, "rng is not set");
 
     // assume single mode (no cowriters) if profileId not set
     invariant(!args.profileId || (typeof args.profileId === "string"), "args.profileId must be string");
     
-    this._dhAesKey = sync ? sync.key : args.key;
+    this._dhAesKey = args.key;
     this._id = args.profileId;
 
     if (sync) {
+        //TODO 'sync' should not be needed here!
+
         this._ourHashes = [];
         this._theirHashes = [];
 

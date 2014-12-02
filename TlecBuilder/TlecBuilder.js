@@ -54,7 +54,13 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlht = factory.createTlht();
         if (sync) {
             this.status = TlecBuilder.STATUS_HT_EXCHANGE;
-            this._tlht.init(args, sync);    
+            this._key = Hex.deserialize(sync.key);
+            this._inId = Hex.deserialize(sync.inId);
+            this._outId = Hex.deserialize(sync.outId);
+            this._tlht.init({
+                profileId: args ? args.profileId : undefined,
+                key: this._key
+            }, true); //TODO 'sync = true' should not be needed here!
         } else {
             this.status = TlecBuilder.STATUS_NOT_STARTED;
             this._tlkeBuilder = factory.createTlkeBuilder();

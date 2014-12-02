@@ -16,7 +16,7 @@
 
         public onMessage : Event.Event<IUserMessage>;
         public onDone : Event.Event<TlConnection>;
-        public onTlkeDone : Event.Event<any>;
+        public onReadyForSync : Event.Event<any>;
         public onSyncMessage : Event.Event<any>;
         public offer : any;
         public auth : any;
@@ -32,7 +32,7 @@
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
             this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
-            this.onTlkeDone = new Event.Event<any>("TlConnection.onTlkeDone");
+            this.onReadyForSync = new Event.Event<any>("TlConnection.onReadyForSync");
             this.onSyncMessage = new Event.Event<any>("TlConnection.onSyncMessage");
             this.offer = null;
             this.auth = null;
@@ -43,10 +43,12 @@
         }
 
         init(args?, sync?) {
+            sync = sync || {};
+
             this._initialTlec = this.getFactory().createCouchTlec();
             this._linkInitial();
-            this._initialTlec.init(args, sync);
-            this.id = uuid();
+            this.id = sync.id || uuid();
+            this._initialTlec.init(args, sync.args);
             this._onChanged();
         }
 
@@ -153,7 +155,7 @@
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
-            builder.on("tlkeDone", this._onInitialTlecBuilderTlkeDone, this);
+            builder.on("onReadyForSync", this._onInitialTlecBuilderReadyForSync, this);
             builder.on("syncMessage", this._onTlecSyncMessage, this);
         }
 
@@ -164,8 +166,11 @@
             this._onChanged();
         }
 
-        _onInitialTlecBuilderTlkeDone  (args) {
-            this.onTlkeDone.emit(args);
+        _onInitialTlecBuilderReadyForSync  (args) {
+            this.onReadyForSync.emit({
+                id: this.id,
+                args: args
+            });
         }
 
         _onInitialOffer  (offer) {

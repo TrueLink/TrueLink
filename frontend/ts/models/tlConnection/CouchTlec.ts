@@ -18,7 +18,7 @@
         this._defineEvent("auth");
         this._defineEvent("message");
         this._defineEvent("done");
-        this._defineEvent("tlkeDone");        
+        this._defineEvent("readyForSync");        
         this._defineEvent("syncMessage");
 
         this._tlecBuilder = null;
@@ -35,15 +35,17 @@
         },
 
         init: function (args?, sync?) {
+            sync = sync || {};
+
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = factory.createTlecBuilder();
             this._link();
 
-            this.id = uuid();
+            this.id = sync.id || uuid();
             this._onChanged();
 
-            this._tlecBuilder.build(args, sync);
+            this._tlecBuilder.build(args, sync.args);
         },
 
         //runs only after deserializing established connection
@@ -107,7 +109,7 @@
             if (this._tlecBuilder) {
                 this._tlecBuilder.on("changed", this._onChanged, this);
                 this._tlecBuilder.on("done", this._onDone, this);
-                this._tlecBuilder.on("tlkeDone", this._onTlkeDone, this);
+                this._tlecBuilder.on("tlkeDone", this._onReadyForSync, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
@@ -116,6 +118,13 @@
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
                 this._tlecBuilder.on("hashtail", this._onHashtail, this);
             }
+        },
+
+        _onReadyForSync: function (args) {
+            this.fire("readyForSync", {
+                id: this.id,
+                args: args
+            });
         },
 
         _onHashtail: function (args) {
@@ -187,9 +196,7 @@
         _onDone: function () {
             this.fire("done", this);
         },
-        _onTlkeDone: function (args) {
-            this.fire("tlkeDone", args);
-        },
+
 
         destroy: function () {
             if (this._tlecBuilder) {

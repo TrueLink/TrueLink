@@ -17,7 +17,7 @@
     export class Contact extends Model.Model implements ISerializable {
         public onInviteReceived : Event.Event<ITlgrInvitationWrapper>;
         public onInviteAccepted : Event.Event<IInviteAccepted>;
-        public onConnectionEstablished : Event.Event<any>;
+        public onReadyForSync : Event.Event<any>;
         
         public name : string;
         public profile : Profile.Profile;
@@ -26,15 +26,15 @@
         public tlgrFilter : any;
 
         constructor () {
-           super(); 
+            super(); 
             this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>("Contact.onInviteReceived");
             this.onInviteAccepted = new Event.Event<any>("Contact.onInviteAccepted");
-        this.onConnectionEstablished = new Event.Event<any>("Contact.onConnectionEstablished");
-        this.name = null;
-        this.profile = null;
-        this.tlConnection = null;
-        this.invites = {};
-    }
+            this.onReadyForSync = new Event.Event<any>("Contact.onReadyForSync");
+            this.name = null;
+            this.profile = null;
+            this.tlConnection = null;
+            this.invites = {};
+        }
 
         on (eName: string, handler : any, context : any) {
             super.on(eName, handler, context);
@@ -77,13 +77,12 @@
 
         _link  () {
             this.tlConnection.onMessage.on(this.processMessage, this);
-            this.tlConnection.onTlkeDone.on(this._onConnectionEstablished, this);
+            this.tlConnection.onReadyForSync.on(this._onConnectiononReadyForSync, this);
         }
 
-        private _onConnectionEstablished(args) {
-            args.contactName = this.name;
-            this.onConnectionEstablished.emit({
-                contact: this,
+        private _onConnectiononReadyForSync(args) {
+            this.onReadyForSync.emit({
+                id: this.name,
                 args: args
             });
         }

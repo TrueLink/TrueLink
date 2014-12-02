@@ -139,12 +139,14 @@
         }
 
         createContact(syncArgs?) {
+            syncArgs = syncArgs || {};
+
             this.checkFactory();
             var contact = this.getFactory().createContact(this);
-            var contactTlConnection = this._createTlConnection(syncArgs);
+            var contactTlConnection = this._createTlConnection(syncArgs.args);
             this._addTlConnection(contactTlConnection);
             contact.init({
-                name : syncArgs ? syncArgs.contactName : urandom.name(),
+                name : syncArgs.contactName || urandom.name(),
                 tlConnection: contactTlConnection
             });
             this.contacts.push(contact);
@@ -206,7 +208,9 @@
             console.log(this.name, "got sync message", message);
 
             var args = JSON.parse(message.text);
-            if (args.what === "tlConnection") {
+            if (args.what === "contact-created") {
+                this.createContact(args.args);
+            } else if (args.what === "tlConnection") {
                 this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
             }
 
@@ -224,14 +228,6 @@
                     this.bg = data.bg;
 
                     this._onChanged();           
-                }
-                if (event === "contact-created") {
-                    this.createContact({
-                        contactName: data.contactName,
-                        inId: Hex.deserialize(data.inId),
-                        outId: Hex.deserialize(data.outId),
-                        key: Hex.deserialize(data.key)
-                    });      
                 }
             }
         }
@@ -436,33 +432,14 @@
         private _linkContact  (contact) {
             contact.onInviteReceived.on(this._inviteReceived, this);
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
-            contact.onConnectionEstablished.on(this._handleContactConnectionEstablished, this);
+            contact.onReadyForSync.on(this._handleContactReadyForSync, this);
         }
 
-        private _handleContactConnectionEstablished(args) {
+        private _handleContactReadyForSync(args) {
             this._sendSyncMessage({
-                event: "contact-created",
-                data: {
-                    contactName: args.args.contactName,
-                    inId: args.args.inId.as(Hex).serialize(),
-                    outId: args.args.outId.as(Hex).serialize(),
-                    key: args.args.key.as(Hex).serialize()
-                }
-            });
-            this.sync.devices.forEach(function (device) {
-                var hashtail = args.contact.takeHashtail();
-                this._sendSyncMessage({
-                    event: "tlConnection-hashtail-delegated",
-                    data: {
-                        to: device.name,
-                        hashtail: {
-                            start: hashtail.start.as(Hex).serialize(),
-                            counter: hashtail.counter
-                        }
-                    }
-                });
-            }.bind(this));
-            
+                what: "contact-created",
+                args: args
+            });            
         }
 
         private _onTlConnectionSyncMessage(args) {
