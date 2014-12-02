@@ -103,6 +103,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         return this._tlht.processHashtail(args);
     },
 
+    addCowriter: function (cowriter) {
+        this._tlht.addCowriter(cowriter);
+    },
+
     serialize: function (packet, context) {
         packet.setData({
             status: this.status,

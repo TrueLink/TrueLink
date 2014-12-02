@@ -184,24 +184,7 @@
         }
 
         private _handleNewSyncDevice(newProfileId: string) {
-            this.tlConnections.forEach(function (conn) {
-                var hashtail = conn.takeHashtail();
-                if (hashtail === null) {
-                    // nothing to delegate
-                    return;
-                }
-                this._sendSyncMessage({
-                    event: "tlConnection-hashtail-delegated",
-                    data: {
-                        from: this.uuid,
-                        to: newProfileId,
-                        hashtail: {
-                            start: hashtail.start.as(Hex).serialize(),
-                            counter: hashtail.counter
-                        }
-                    }
-                });
-            }.bind(this));
+            this.tlConnections.forEach(conn => conn.addCowriter(newProfileId));
         }
 
         private _processSyncMessage(message: ITlgrTextMessageWrapper) {
@@ -439,7 +422,12 @@
             this._sendSyncMessage({
                 what: "contact-created",
                 args: args
-            });            
+            });
+
+            var conn = this.contacts.filter(contact => contact.name === args.id)[0].tlConnection;
+            this.sync.devices
+                .map(device => device.name)
+                .forEach(devId => conn.addCowriter(devId));            
         }
 
         private _onTlConnectionSyncMessage(args) {

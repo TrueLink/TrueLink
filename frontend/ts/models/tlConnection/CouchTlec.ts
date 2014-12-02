@@ -204,8 +204,8 @@
             }
         },
 
-        takeHashtail: function () {
-            return this._tlecBuilder.takeHashtail();
+        addCowriter: function (cowriter) {
+            this._tlecBuilder.addCowriter(cowriter);
         }
 
     });

@@ -205,9 +205,9 @@
             }
         }
 
-        takeHashtail () {
+        addCowriter(cowriter) {
             var activeTlec = this._tlecs[0];
-            return activeTlec.takeHashtail();
+            activeTlec.addCowriter(cowriter);
         }
     };
 extend(TlConnection.prototype, serializable);
