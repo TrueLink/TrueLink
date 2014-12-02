@@ -103,8 +103,8 @@
                 this._initSync(this.transport, true);          
             
                 this._sendSyncMessage({
-                    event: "profile-userinfo-edited",
-                    data: {
+                    what: "userinfo-edited",
+                    args: {
                         name: this.name,
                         publicityType: this.publicityType,
                         email: this.email,
@@ -191,28 +191,24 @@
             console.log(this.name, "got sync message", message);
 
             var args = JSON.parse(message.text);
-            if (args.what === "contact-created") {
+            if (args.what === "userinfo-edited") {
+                this._updateUserInfo(args.args);
+            } else if (args.what === "contact-created") {
                 this.createContact(args.args);
             } else if (args.what === "tlConnection") {
                 this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
             }
+        }
 
+        //todo separate them all
+        private _updateUserInfo(args) {
+            this.name = args.name;
+            this.publicityType = args.publicityType;
+            this.email = args.email;
+            this.phoneNumber = args.phoneNumber;
+            this.bg = args.bg;
 
-            var parsed = JSON.parse(message.text);
-            if (parsed.event) {
-                var event = parsed.event;
-                var data = parsed.data;
-
-                if (event === "profile-userinfo-edited") {
-                    this.name = data.name;
-                    this.publicityType = data.publicityType;
-                    this.email = data.email;
-                    this.phoneNumber = data.phoneNumber;
-                    this.bg = data.bg;
-
-                    this._onChanged();           
-                }
-            }
+            this._onChanged();                    
         }
 
         private _sendSyncMessage(data: any) {
