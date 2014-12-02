@@ -32,17 +32,34 @@ function Tlht(factory) {
 
     this._readyCalled = false;
     this._algo = new TlhtAlgo(factory.createRandom());
+
+    this._unhandledPacketsData = [];
+    this._unhandledPacketsDataInner = [];
 }
 
 extend(Tlht.prototype, eventEmitter, serializable, {
     serialize: function (packet, context) {
         var data = this._algo.serialize();
         data.readyCalled = this._readyCalled;
+        data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
+            return packetData.as(Hex).serialize();
+        });
+        data.unhandledPacketsDataInner = this._unhandledPacketsDataInner.map(function (packetData) {
+            return packetData.as(Hex).serialize();
+        });
         packet.setData(data);
     },
     deserialize: function (packet, context) {
         var data = packet.getData();
         this._readyCalled = data.readyCalled;
+        this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
+            data.unhandledPacketsData.map(function (packetData) {
+                return Hex.deserialize(packetData);
+            });
+        this._unhandledPacketsDataInner = !data.unhandledPacketsDataInner ? [] :
+            data.unhandledPacketsDataInner.map(function (packetData) {
+                return Hex.deserialize(packetData);
+            });
         this._algo.deserialize(data);
     },
 
@@ -106,7 +123,42 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     fulfillHashCheckRequest: function (netData) {
-        this.fire("fulfilledHashCheckRequest", this._algo.processPacket(netData));
+        this._fulfillHashCheckRequestBoby(this._unhandledPacketsData, netData, function (data) {
+            this.fire("fulfilledHashCheckRequest", data);
+        }.bind(this));
+    },
+
+    _fulfillHashCheckRequestBoby: function (unhandledPacketsData, netData, cb) {
+        unhandledPacketsData.unshift(netData);
+        
+        // try to handle packets one per cycle while handling succeeds
+        var handled;
+        do {
+            handled = false;
+            var i = 0;
+            for ( ; i < unhandledPacketsData.length; i++) {
+                var packetData = unhandledPacketsData[i];
+                handled = this._handlePacketData(packetData, cb);
+                if (handled) {
+                    break;
+                }
+            }
+            if (handled) {
+                unhandledPacketsData.splice(i, 1);                
+            }
+        } while (handled);
+
+        this._onChanged;
+    },
+
+
+    _handlePacketData: function (netData, cb) {
+        var data = this._algo.processPacket(netData);
+        if (data !== null) {
+            cb(data);
+            return true;
+        }
+        return false;     
     },
 
     _onMessage: function (messageData) {
@@ -131,11 +183,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             }
         }
 
-        if (netData === null) {
-            this.fire("wrongSignatureMessage", netData);
-            return;
-        }
+        this._fulfillHashCheckRequestBoby(this._unhandledPacketsDataInner, netData, this._processPacketBody.bind(this));
+    },
 
+    _processPacketBody: function (netData) {
         var message;
         try {
             message = JSON.parse(netData.as(Utf8String).value);

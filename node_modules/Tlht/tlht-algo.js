@@ -83,11 +83,14 @@ TlhtAlgo.prototype.processHashtail = function (hashInfo) {
 TlhtAlgo.prototype._isHashValid = function (hx) {
     // first time check, is used for initial hashtail exchange
     if (!this._isFirstHashChecked) {
-        this._isFirstHashChecked = true;
-        return hx.as(Hex).value === "00000000000000000000000000000000";
+        if (hx.as(Hex).value === "00000000000000000000000000000000") {
+            this._isFirstHashChecked = true;
+            return true;
+        }        
+        return false;
     }
 
-    invariant(this._theirHashes, "channel is not configured");
+    invariant(this._theirHashes, "hash checker: channel is not configured");
 
     for (var hashIndex = 0; hashIndex < this._theirHashes.length; hashIndex++) {
         var hashInfo = this._theirHashes[hashIndex];
@@ -111,7 +114,7 @@ TlhtAlgo.prototype._getNextHash = function () {
         return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
-    invariant(this._ourHashes, "channel is not configured");
+    invariant(this._ourHashes, "hash getter: channel is not configured");
 
     var hashInfo = this._chooseHashtail();
 
@@ -194,8 +197,7 @@ TlhtAlgo.prototype.createMessage = function (raw, hash) {
 }
 
 TlhtAlgo.prototype.processMessage = function (bytes) {
-    var decryptedData = this._decrypt(bytes);
-    return this.processPacket(decryptedData);
+    return this._decrypt(bytes);
 }
 
 TlhtAlgo.prototype.pushMyHashInfo = function (hashInfo) {
