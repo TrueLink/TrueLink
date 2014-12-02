@@ -52,21 +52,20 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._route = factory.createRoute();
         this._linkRoute();
         this._tlht = factory.createTlht();
+        this._linkTlht();
         if (sync) {
             this.status = TlecBuilder.STATUS_HT_EXCHANGE;
-            this._key = Hex.deserialize(sync.key);
-            this._inId = Hex.deserialize(sync.inId);
-            this._outId = Hex.deserialize(sync.outId);
-            this._tlht.init({
-                profileId: args ? args.profileId : undefined,
-                key: this._key
-            }, true); //TODO 'sync = true' should not be needed here!
+            this._initTlht({
+                key: Hex.deserialize(sync.key),
+                inId: Hex.deserialize(sync.inId),
+                outId: Hex.deserialize(sync.outId)
+            }, true);
         } else {
             this.status = TlecBuilder.STATUS_NOT_STARTED;
             this._tlkeBuilder = factory.createTlkeBuilder();
             this._tlkeBuilder.build();
+            this._linkTlkeBuilder();
         }
-        this._linkBuilders();
         this._onChanged();
     },
 
@@ -128,14 +127,18 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._inId = data.inId ? Hex.deserialize(data.inId) : null;
         this._outId = data.outId ? Hex.deserialize(data.outId) : null;
         this._profileId = data.profileId;
+
         
         this._tlkeBuilder = context.deserialize(packet.getLink("_tlkeBuilder"), factory.createTlkeBuilder, factory);
+        this._linkTlkeBuilder();
+
         this._tlht = context.deserialize(packet.getLink("_tlht"), factory.createTlht, factory);
+        this._initTlht();
+
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
         this._linkRoute();
         this._link();
-        this._linkBuilders();
     },
 
     _linkRoute: function () {
@@ -206,7 +209,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this.fire("message", msg);
     },
 
-    _linkBuilders: function () {
+    _linkTlkeBuilder: function () {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.on("offer", this._onOffer, this);
             this._tlkeBuilder.on("auth", this._onAuth, this);
@@ -216,7 +219,9 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlkeBuilder.on("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.on("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
+    },
 
+    _linkTlht: function () {
         var tlht = this._tlht;
         var route = this._route;
         if (tlht) {
@@ -268,7 +273,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _onTlkeDone: function (args) {
-        
+        this._initTlht(args);
+    },
+
+    _initTlht: function (args, sync) {
         var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
         invariant(args, message);
         invariant(args.key instanceof Multivalue, message);
@@ -279,20 +287,20 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._inId = args.inId;
         this._outId = args.outId;
 
-        this._onReadyForSync();
+        if (!sync) { this._onReadyForSync(args); }
 
         args.profileId = this._profileId;
-        this._tlht.init(args);
+        this._tlht.init(args, sync);  //TODO 'sync = true' should not be needed here!
         this._route.setAddr(args);
 
         this._tlht.generate();
     },
 
-    _onReadyForSync: function () {
+    _onReadyForSync: function (args) {
         this.fire("readyForSync", {
-            key: this._key.as(Hex).serialize(),
-            inId: this._inId.as(Hex).serialize(),
-            outId: this._outId.as(Hex).serialize(),
+            key: args.key.as(Hex).serialize(),
+            inId: args.inId.as(Hex).serialize(),
+            outId: args.outId.as(Hex).serialize(),
         });        
     },
 
