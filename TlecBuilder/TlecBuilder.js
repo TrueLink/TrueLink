@@ -318,9 +318,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             outId: this._outId
         });
         this._link();
-        this._tlkeBuilder.destroy();
-        this._unlinkTlkeBuilder();
-        this._tlkeBuilder = null;
+        if (this._tlkeBuilder) {
+            this._tlkeBuilder.destroy();
+            this._unlinkTlkeBuilder();
+            this._tlkeBuilder = null;
+        }
         this.status = TlecBuilder.STATUS_ESTABLISHED;
         this._onChanged();
         this.fire("done", this);
