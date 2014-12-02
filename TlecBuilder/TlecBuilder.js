@@ -293,7 +293,9 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlht.init(args, sync);  //TODO 'sync = true' should not be needed here!
         this._route.setAddr(args);
 
-        this._tlht.generate();
+        if (!sync) {
+            this._tlht.generate();
+        }
     },
 
     _onReadyForSync: function (args) {
