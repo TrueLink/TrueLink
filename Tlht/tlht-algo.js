@@ -73,7 +73,7 @@ TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
 TlhtAlgo.prototype.processHashtail = function (hashInfo) {
     invariant(this._id, "processHashtail is disabled is single mode");
     var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
-        return hashInfo.as(Hex).isEqualTo(_hashInfo.as(Hex));
+        return hashInfo.start.as(Hex).isEqualTo(_hashInfo.start.as(Hex));
     });
     if (existingHashInfoArr.length === 0) {
         this._ourHashes.push(hashInfo);
