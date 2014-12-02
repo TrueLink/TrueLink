@@ -179,6 +179,11 @@
         }
 
         private _linkSync() {
+            if (!this.sync) {
+                // this would happen on profile being in creation process deserialization
+                return;
+            }
+
             this.sync.onSyncMessage.on(this._processSyncMessage, this);    
             this.sync.onDeviceAdded.on(this._handleNewSyncDevice, this);                
         }
