@@ -67,10 +67,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         };
         this._onMessage(messageData);
         this._algo.pushMyHashInfo(hash.hashInfo);
-        if (this._algo.isHashReady()) {
-            console.log("hashes ready");
-            this._onHashReady();
-        }
+        this._onHashMayBeReady();
         this.fire("hashtail", hash.hashInfo);
         this._onChanged();
         this._supplyHashtails();
@@ -89,6 +86,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     processHashtail: function (hashInfo) {
         this._algo.processHashtail(hashInfo);
+        this._onHashMayBeReady();
         this._onChanged();
     },
 
@@ -149,18 +147,16 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
         if (message.t === "h" && message.d) {
             this._algo.setHashEnd(Hex.deserialize(message.d));
-            if (this._algo.isHashReady()) {
-                console.log("hashes ready");
-                this._onHashReady();
-            }
+            this._onHashMayBeReady();
             this._onChanged();
         } else {
             console.log("Tlht process packet, skiping some msg", message);
         }
     },
 
-    _onHashReady: function () {
-        if (this._readyCalled) { return; }
+    _onHashMayBeReady: function () {
+        if (this._readyCalled || !this._algo.isHashReady()) { return; }
+        console.log("hashes ready");
         this._readyCalled = true;
         this.fire("htReady");
     },
