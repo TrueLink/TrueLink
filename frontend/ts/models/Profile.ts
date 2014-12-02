@@ -422,7 +422,7 @@
 
             var conn = this.contacts.filter(contact => contact.name === args.id)[0].tlConnection;
             this.sync.devices.forEach(device => { 
-                if (device.name === this.id) { return; }
+                if (device.name === this.uuid) { return; }
                 conn.addCowriter(device.name);
             });            
         }
