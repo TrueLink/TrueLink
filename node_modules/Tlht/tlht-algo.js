@@ -232,6 +232,7 @@ TlhtAlgo.prototype.deserialize = function (data) {
                 end: Hex.deserialize(hashInfo.end)
             }
         });
+    this._id = data.id;
     this._isFirstHashChecked = data.isFirstHashChecked;
     this._isFirstHashGenerated = data.isFirstHashGenerated;
 }
@@ -255,7 +256,8 @@ TlhtAlgo.prototype.serialize = function () {
                 }
             }),
         isFirstHashChecked: this._isFirstHashChecked,
-        isFirstHashGenerated: this._isFirstHashGenerated      
+        isFirstHashGenerated: this._isFirstHashGenerated,
+        id: this._id   
     };
 }
 
