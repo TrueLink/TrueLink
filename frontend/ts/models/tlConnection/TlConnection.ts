@@ -155,7 +155,7 @@
             builder.on("offer", this._onInitialOffer, this);
             builder.on("auth", this._onInitialAuth, this);
             builder.on("done", this._onInitialTlecBuilderDone, this);
-            builder.on("onReadyForSync", this._onInitialTlecBuilderReadyForSync, this);
+            builder.on("readyForSync", this._onInitialTlecBuilderReadyForSync, this);
             builder.on("syncMessage", this._onTlecSyncMessage, this);
         }
 
