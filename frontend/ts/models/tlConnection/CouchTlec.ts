@@ -109,7 +109,7 @@
             if (this._tlecBuilder) {
                 this._tlecBuilder.on("changed", this._onChanged, this);
                 this._tlecBuilder.on("done", this._onDone, this);
-                this._tlecBuilder.on("tlkeDone", this._onReadyForSync, this);
+                this._tlecBuilder.on("readyForSync", this._onReadyForSync, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);

@@ -21,7 +21,7 @@ function TlecBuilder(factory) {
 
 
     this._defineEvent("changed");
-    this._defineEvent("tlkeDone");
+    this._defineEvent("readyForSync");
     this._defineEvent("done");
     this._defineEvent("message");
     this._defineEvent("offer");
@@ -264,8 +264,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _onTlkeDone: function (args) {
-        this.fire("tlkeDone", args);
-
+        
         var message = "args must be {key: multivalue, inId: multivalue, outId: multivalue}";
         invariant(args, message);
         invariant(args.key instanceof Multivalue, message);
@@ -275,12 +274,22 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._key = args.key;
         this._inId = args.inId;
         this._outId = args.outId;
-        args.profileId = this._profileId;
 
+        this._onReadyForSync();
+
+        args.profileId = this._profileId;
         this._tlht.init(args);
         this._route.setAddr(args);
 
         this._tlht.generate();
+    },
+
+    _onReadyForSync: function () {
+        this.fire("readyForSync", {
+            key: this._key.as(Hex).serialize(),
+            inId: this._inId.as(Hex).serialize(),
+            outId: this._outId.as(Hex).serialize(),
+        });        
     },
 
     _onHashtail: function (args) {
