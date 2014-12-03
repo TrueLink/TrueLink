@@ -146,7 +146,7 @@
             var contactTlConnection = this._createTlConnection(syncArgs.args);
             this._addTlConnection(contactTlConnection);
             contact.init({
-                name : syncArgs.id || uuid(),
+                id : syncArgs.id || uuid(),
                 name : syncArgs.name || urandom.name(),
                 tlConnection: contactTlConnection
             });
