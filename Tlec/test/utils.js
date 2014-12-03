@@ -4,6 +4,7 @@ var extend = tools.extend;
 
 var TlkeBuilder = require("../../TlkeBuilder");
 var TlecBuilder = require("../../TlecBuilder");
+var TlecCryptor = require("../../TlecBuilder/cryptor")
 var OverTlecBuilder = require("../../OverTlecBuilder");
 var Tlke = require("../../Tlke");
 var Tlht = require("../../Tlht");
@@ -23,6 +24,9 @@ extend(TlConnectionFactory.prototype, {
     },
     createTlecBuilder: function() {
         return new TlecBuilder(this);
+    },
+    createTlecCryptor: function() {
+        return new TlecCryptor(this);
     },
     createOverTlecBuilder: function() {
         return new OverTlecBuilder(this);

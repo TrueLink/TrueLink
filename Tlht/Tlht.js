@@ -173,20 +173,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     // process packet from the network
     processPacket: function (bytes) {
         invariant(bytes instanceof Multivalue, "bytes must be multivalue");
-
-        var netData;
-        try {
-            netData = this._algo.processMessage(bytes);
-        } catch (ex) {
-            if (ex instanceof DecryptionFailedError) {
-                console.warn("Tlht failed to decrypt message. " + ex.innerError.message);
-                return; // not for me
-            } else {
-                throw ex;
-            }
-        }
-
-        this._fulfillHashCheckRequestBoby(this._unhandledPacketsDataInner, netData, this._processPacketBody.bind(this));
+        this._fulfillHashCheckRequestBoby(this._unhandledPacketsDataInner, bytes, this._processPacketBody.bind(this));
     },
 
     _processPacketBody: function (netData) {
@@ -203,8 +190,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             this._algo.setHashEnd(Hex.deserialize(message.d));
             this._onHashMayBeReady();
             this._onChanged();
-        } else {
-            console.log("Tlht process packet, skiping some msg", message);
         }
     },
 

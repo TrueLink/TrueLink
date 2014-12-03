@@ -36,6 +36,7 @@ function TlecBuilder(factory) {
     this._route = null;
     this._tlkeBuilder = null;
     this._tlht = null;
+    this._cryptor = null;
     this.status = null;
     this._key = null;
     this._inId = null;
@@ -50,9 +51,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
         var factory = this._factory;
         this._route = factory.createRoute();
-        this._linkRoute();
         this._tlht = factory.createTlht();
+        this._cryptor = factory.createTlecCryptor();
+        this._linkRoute();
         this._linkTlht();
+        this._linkCryptor();
         if (sync) {
             this.status = TlecBuilder.STATUS_HT_EXCHANGE;
             this._initTlht({
@@ -118,6 +121,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         packet.setLink("_tlht", context.getPacket(this._tlht));
         packet.setLink("_tlec", context.getPacket(this._tlec));
         packet.setLink("_route", context.getPacket(this._route));
+        packet.setLink("_cryptor", context.getPacket(this._cryptor));
     },
     deserialize: function (packet, context) {
         var factory = this._factory;
@@ -137,8 +141,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
+        this._cryptor = context.deserialize(packet.getLink("_cryptor"), factory.createTlecCryptor, factory);
         this._linkRoute();
         this._link();
+        this._linkCryptor();
     },
 
     _linkRoute: function () {
@@ -162,8 +168,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var route = this._route;
 
         if (tlec) {
-            route.on("packet", tlec.processPacket, tlec);
-            tlec.on("packet", route.processPacket, route);
+            this._cryptor.on("decrypted", tlec.processPacket, tlec);
+            tlec.on("packet", this._cryptor.encrypt, this._cryptor);
             tlec.on("message", this._onMessage, this);
             tlec.on("requestedHash", this._onRequestedHash, this);
             tlec.on("requestedHashCheck", this._onRequestedHashCheck, this);
@@ -175,8 +181,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         var route = this._route;
 
         if (tlec) {
-            route.off("packet", tlec.processPacket, tlec);
-            tlec.off("packet", route.processPacket, route);
+            this._cryptor.off("decrypted", tlec.processPacket, tlec);
+            tlec.off("packet", this._cryptor.encrypt, this._cryptor);
             tlec.off("message", this._onMessage, this);
             tlec.off("requestedHash", this._onRequestedHash, this);
             tlec.off("requestedHashCheck", this._onRequestedHashCheck, this);
@@ -224,9 +230,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _linkTlht: function () {
         var tlht = this._tlht;
         var route = this._route;
+        var cryptor = this._cryptor;
         if (tlht) {
-            route.on("packet", tlht.processPacket, tlht);
-            tlht.on("packet", route.processPacket, route);
+            cryptor.on("decrypted", tlht.processPacket, tlht);
+            tlht.on("packet", cryptor.encrypt, cryptor);
             tlht.on("htReady", this._initTlec, this);
             tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
@@ -249,9 +256,10 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _unlinkTlht: function () {
         var tlht = this._tlht;
         var route = this._route;
+        var cryptor = this._cryptor;
         if (tlht) {
-            route.off("packet", tlht.processPacket, tlht);
-            tlht.off("packet", route.processPacket, route);
+            cryptor.off("decrypted", tlht.processPacket, tlht);
+            tlht.off("packet", cryptor.encrypt, cryptor);
             tlht.off("htReady", this._initTlec, this);
             tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
             tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
@@ -262,6 +270,15 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _unlinkBuilders: function () {
         this._unlinkTlht();
         this._unlinkTlkeBuilder();
+    },
+
+    _linkCryptor: function () {
+        this._cryptor.on("encrypted", this._route.processPacket, this._route);
+        this._route.on("packet", this._cryptor.decrypt, this._cryptor);
+    },
+    _unlinkCryptor: function () {
+        this._cryptor.off("encrypted", this._route.processPacket, this._route);
+        this._route.off("packet", this._cryptor.decrypt, this._cryptor);
     },
 
 
@@ -288,6 +305,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._outId = args.outId;
 
         args.profileId = this._profileId;
+        this._cryptor.init(args);
         this._tlht.init(args, sync);  //TODO 'sync = true' should not be needed here!
 
         if (!sync) { this._onReadyForSync(args); }
@@ -365,10 +383,13 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         if (this._tlkeBuilder) { this._tlkeBuilder.destroy(); }
         this._unlink();
         this._unlinkBuilders();
+        this._unlinkCryptor();
         this._tlec = null;
         this._route = null;
         this._tlht = null;
         this._tlkeBuilder = null;
+        this._cryptor.destroy();
+
     }
 
 });

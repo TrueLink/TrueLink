@@ -10,9 +10,6 @@ var invariant = require("invariant");
 
 var serializable = require("modules/serialization/serializable");
 
-var TlecAlgo = require("./tlec-algo");
-var DecryptionFailedError = require('./decryption-failed-error');
-
 var extend = tools.extend;
 var isFunction = tools.isFunction;
 
@@ -28,7 +25,6 @@ function Tlec(factory) {
     this._defineEvent("requestedHash");
     
     this._factory = factory;
-    this._algo = new TlecAlgo(factory.createRandom());
 }
 
 extend(Tlec.prototype, eventEmitter, serializable, {
@@ -42,7 +38,6 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
 
     init: function (initObj) {
-        this._algo.init(initObj);
         this.checkEventHandlers();
         this._onChanged();
     },
@@ -57,23 +52,11 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
 
     sendHashedMessage: function(hashedMessage) {
-        var encrypted = this._algo.createMessage(hashedMessage);
-        this._onChanged();
-        this.fire("packet", encrypted);        
+        this.fire("packet", hashedMessage);        
     },
 
     processPacket: function (bytes) {
-        var netData;
-        try {
-            netData = this._algo.processPacket(bytes);
-        } catch (ex) {
-            if (ex instanceof DecryptionFailedError) {
-                throw DecryptionFailedError.innerError;
-            } else {
-                throw ex;
-            }
-        }
-        this.fire("requestedHashCheck", netData);      
+        this.fire("requestedHashCheck", bytes);      
     },
 
     processCheckedPacket: function (checkedNetData) {
@@ -93,10 +76,7 @@ extend(Tlec.prototype, eventEmitter, serializable, {
 
         if (message.t === "u" && message.d) {
             this.fire("message", Hex.deserialize(message.d));
-        } else {
-            console.log("Tlec process packet, skiping some msg", message);
-        }
-        
+        }        
     },
 
     _onChanged: function () {
