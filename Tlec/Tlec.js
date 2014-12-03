@@ -17,65 +17,37 @@ function Tlec(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createRandom), "factory must have createRandom() method");
 
-    this._defineEvent("packet");
-    this._defineEvent("message");
-    this._defineEvent("wrongSignatureMessage");
+    this._defineEvent("messageToSend");
+    this._defineEvent("messageToProcess");
     this._defineEvent("changed");
-    this._defineEvent("requestedHashCheck");
-    this._defineEvent("requestedHash");
-    
     this._factory = factory;
 }
 
 extend(Tlec.prototype, eventEmitter, serializable, {
     serialize: function (packet, context) {
-        var data = this._algo.serialize();
+        var data = {};
         packet.setData(data);
     },
+
     deserialize: function (packet, context) {
         var data = packet.getData();
-        this._algo.deserialize(data);
     },
 
-    init: function (initObj) {
+    init: function (args) {
         this.checkEventHandlers();
         this._onChanged();
     },
 
     sendMessage: function (message) {
-        var messageData = {
+        this.fire("messageToSend", {
             "t": "u",
             "d": message.as(Hex).serialize()
-        };
-        var raw = new Utf8String(JSON.stringify(messageData));        
-        this.fire("requestedHash", raw);
+        });
     },
-
-    sendHashedMessage: function(hashedMessage) {
-        this.fire("packet", hashedMessage);        
-    },
-
-    processPacket: function (bytes) {
-        this.fire("requestedHashCheck", bytes);      
-    },
-
-    processCheckedPacket: function (checkedNetData) {
-        if (checkedNetData == null) {
-            this.fire("wrongSignatureMessage", checkedNetData);
-            return;
-        }
-
-        var message;
-        try {
-            message = JSON.parse(checkedNetData.as(Utf8String).value);
-        } catch (ex) {
-            console.log("Tlec failed to parse message");
-            // not for me
-            return;
-        }
-
+    
+    processMessage: function (message) {
         if (message.t === "u" && message.d) {
-            this.fire("message", Hex.deserialize(message.d));
+            this.fire("messageToProcess", Hex.deserialize(message.d));
         }        
     },
 

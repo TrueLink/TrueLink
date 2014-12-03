@@ -20,16 +20,17 @@ function Tlht(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createRandom), "factory must have createRandom() method");
 
-    this._factory = factory;
+    this._defineEvent("hashed");
+    this._defineEvent("unhashed");
+
+    this._defineEvent("messageToSend");
+    
     this._defineEvent("changed");
-    this._defineEvent("packet");
     this._defineEvent("htReady");
     this._defineEvent("expired");
     this._defineEvent("hashtail");
-    this._defineEvent("fulfilledHashCheckRequest");
-    this._defineEvent("fulfilledHashRequest");
-    this._defineEvent("wrongSignatureMessage");
-
+    
+    this._factory = factory;
     this._readyCalled = false;
     this._algo = new TlhtAlgo(factory.createRandom());
 
@@ -44,9 +45,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
             return packetData.as(Hex).serialize();
         });
-        data.unhandledPacketsDataInner = this._unhandledPacketsDataInner.map(function (packetData) {
-            return packetData.as(Hex).serialize();
-        });
         packet.setData(data);
     },
     deserialize: function (packet, context) {
@@ -54,10 +52,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._readyCalled = data.readyCalled;
         this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
             data.unhandledPacketsData.map(function (packetData) {
-                return Hex.deserialize(packetData);
-            });
-        this._unhandledPacketsDataInner = !data.unhandledPacketsDataInner ? [] :
-            data.unhandledPacketsDataInner.map(function (packetData) {
                 return Hex.deserialize(packetData);
             });
         this._algo.deserialize(data);
@@ -75,15 +69,81 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
 
+
+    // takes decrypted, fires unhashed and _parsed_!
+    unhash: function (bytes) {
+        invariant(bytes instanceof Multivalue, "bytes must be multivalue");
+        
+        this._unhandledPacketsData.unshift(bytes);
+        
+        // try to handle packets one per cycle while handling succeeds
+        var handled;
+        do {
+            handled = false;
+            var i = 0;
+            for ( ; i < this._unhandledPacketsData.length; i++) {
+                var data = this._algo.processPacket(this._unhandledPacketsData[i]);
+                if (data !== null) {
+                    this._doUnhash(data);
+                    handled = true;
+                    break;
+                }
+            }
+            if (handled) {
+                this._unhandledPacketsData.splice(i, 1); 
+                this._onChanged();             
+            }
+        } while (handled);                
+    },
+
+    _doUnhash: function (bytes) {
+        var message;
+        try {
+            message = JSON.parse(bytes.as(Utf8String).value);
+        } catch (ex) {
+            console.log("Tlec failed to parse message", ex, bytes);
+            // not for me
+            return;
+        }
+
+        this.fire("unhashed", message);        
+    },
+
+    // takes object (not Multivalue!), and fires stringified and hashed
+    hash: function (object) {
+        var raw = new Utf8String(JSON.stringify(object));
+        var hashed = this._algo.hashMessage(raw);
+        this._onChanged();
+        if (this._algo.isExpired()) { 
+            this.fire("expired");
+        }
+        this.fire("hashed", hashed);
+        this._supplyHashtails();
+    },
+
+
+    _sendMessage: function (message) {
+        this.fire("messageToSend", {
+            "t": "h",
+            "d": message.as(Hex).serialize()
+        });
+    },
+    
+    processMessage: function (message) {
+        if (message.t === "h" && message.d) {
+            this._algo.setHashEnd(Hex.deserialize(message.d));
+            this._onHashMayBeReady();
+            this._onChanged();
+        }    
+    },
+
+
+
     generate: function () {
         console.log("Tlht generate");
         var hash = this._algo.generate();
-        var messageData = {
-            "t": "h",
-            "d": hash.hashEnd.as(Hex).serialize()
-        };
-        this._onMessage(messageData);
         this._algo.pushMyHashInfo(hash.hashInfo);
+        this._sendMessage(hash.hashEnd);
         this._onHashMayBeReady();
         this.fire("hashtail", hash.hashInfo);
         this._onChanged();
@@ -110,88 +170,16 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._onChanged();
     },
 
-    fulfillHashRequest: function (message) {
-        var hashedMessage = this._algo.hashMessage(message);
-        if (this._algo.isExpired()) { 
-            this.fire("expired");
-        }
-        this.fire("fulfilledHashRequest", hashedMessage);
-        this._supplyHashtails();
-    },
-
     _supplyHashtails: function () {
         while (!this._algo.areEnoughHashtailsAvailable()) {
             this.generate();
         }            
     },
 
-    fulfillHashCheckRequest: function (netData) {
-        this._fulfillHashCheckRequestBoby(this._unhandledPacketsData, netData, function (data) {
-            this.fire("fulfilledHashCheckRequest", data);
-        }.bind(this));
-    },
-
-    _fulfillHashCheckRequestBoby: function (unhandledPacketsData, netData, cb) {
-        unhandledPacketsData.unshift(netData);
-        
-        // try to handle packets one per cycle while handling succeeds
-        var handled;
-        do {
-            handled = false;
-            var i = 0;
-            for ( ; i < unhandledPacketsData.length; i++) {
-                var packetData = unhandledPacketsData[i];
-                handled = this._handlePacketData(packetData, cb);
-                if (handled) {
-                    break;
-                }
-            }
-            if (handled) {
-                unhandledPacketsData.splice(i, 1);                
-            }
-        } while (handled);
-
-        this._onChanged;
-    },
 
 
-    _handlePacketData: function (netData, cb) {
-        var data = this._algo.processPacket(netData);
-        if (data !== null) {
-            cb(data);
-            return true;
-        }
-        return false;     
-    },
 
-    _onMessage: function (messageData) {
-        var raw = new Utf8String(JSON.stringify(messageData));
-        var encrypted = this._algo.createMessage(raw);
-        this.fire("packet", encrypted);
-    },
 
-    // process packet from the network
-    processPacket: function (bytes) {
-        invariant(bytes instanceof Multivalue, "bytes must be multivalue");
-        this._fulfillHashCheckRequestBoby(this._unhandledPacketsDataInner, bytes, this._processPacketBody.bind(this));
-    },
-
-    _processPacketBody: function (netData) {
-        var message;
-        try {
-            message = JSON.parse(netData.as(Utf8String).value);
-        } catch (ex) {
-            console.log("Tlht failed to parse message");
-            // not for me
-            return;
-        }
-
-        if (message.t === "h" && message.d) {
-            this._algo.setHashEnd(Hex.deserialize(message.d));
-            this._onHashMayBeReady();
-            this._onChanged();
-        }
-    },
 
     _onHashMayBeReady: function () {
         if (this._readyCalled || !this._algo.isHashReady()) { return; }

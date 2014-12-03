@@ -53,9 +53,8 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._route = factory.createRoute();
         this._tlht = factory.createTlht();
         this._cryptor = factory.createTlecCryptor();
-        this._linkRoute();
-        this._linkTlht();
-        this._linkCryptor();
+        this._tlec = this._factory.createTlec();
+        this._link();
         if (sync) {
             this.status = TlecBuilder.STATUS_HT_EXCHANGE;
             this._initTlht({
@@ -85,9 +84,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     sendMessage: function (msg) {
-        if (!this._tlec) {
-            throw new Error("tlec is not yet built");
-        }
         this._tlec.sendMessage(msg);
     },
 
@@ -102,7 +98,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     processHashtail: function (args) {
-        return this._tlht.processHashtail(args);
+        this._tlht.processHashtail(args);
     },
 
     addCowriter: function (cowriter) {
@@ -137,70 +133,80 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._linkTlkeBuilder();
 
         this._tlht = context.deserialize(packet.getLink("_tlht"), factory.createTlht, factory);
-        this._linkTlht();
-
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
         this._cryptor = context.deserialize(packet.getLink("_cryptor"), factory.createTlecCryptor, factory);
-        this._linkRoute();
         this._link();
-        this._linkCryptor();
-    },
-
-    _linkRoute: function () {
-        var route = this._route;
-
-        route.on("networkPacket", this._onNetworkPacket, this);
-        route.on("openAddrIn", this._onRouteAddrIn, this);
-        route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
-    },
-
-    _unlinkRoute: function () {
-        var route = this._route;
-
-        route.off("networkPacket", this._onNetworkPacket, this);
-        route.off("openAddrIn", this._onRouteAddrIn, this);
-        route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
     },
 
     _link: function () {
         var tlec = this._tlec;
         var route = this._route;
+        var tlht = this._tlht;
+        var cryptor = this._cryptor;
 
-        if (tlec) {
-            this._cryptor.on("decrypted", tlec.processPacket, tlec);
-            tlec.on("packet", this._cryptor.encrypt, this._cryptor);
-            tlec.on("message", this._onMessage, this);
-            tlec.on("requestedHash", this._onRequestedHash, this);
-            tlec.on("requestedHashCheck", this._onRequestedHashCheck, this);
-        }
+
+        // dataflow:
+        // packet from network goes to cryptor
+        route.on("packet", cryptor.decrypt, cryptor);
+        // if ok, gets decrypted and goes to hash checker
+        cryptor.on("decrypted", tlht.unhash, tlht);
+        // if ok, gets unhashed and _parsed_(!)
+        // and goes back to tlht to be processed as hashtail
+        tlht.on("unhashed", tlht.processMessage, tlht);
+        // and at the sane time -- to tlec 
+        tlht.on("unhashed", tlec.processMessage, tlec);
+        // if ok -- gets fired as user message
+        tlec.on("messageToProcess", this._onMessage, this);
+                  
+        // user message goes to hasher
+        tlec.on("messageToSend", tlht.hash, tlht);
+        // same as hashtail message
+        tlht.on("messageToSend", tlht.hash, tlht);
+        // gets _stringified_(!) hashed and goes to cryptor
+        tlht.on("hashed", cryptor.encrypt, cryptor);
+        // gets encrypted and goes to route to be sent
+        cryptor.on("encrypted", route.processPacket, route);
+        // and then gets sent
+        route.on("networkPacket", this._onNetworkPacket, this);
+            
+
+        // misc
+        route.on("openAddrIn", this._onRouteAddrIn, this);
+        route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
+
+        tlht.on("htReady", this._initTlec, this);
+        tlht.on("hashtail", this._onHashtail, this);       
     },
 
     _unlink: function () {
         var tlec = this._tlec;
         var route = this._route;
+        var tlht = this._tlht;
+        var cryptor = this._cryptor;
 
-        if (tlec) {
-            this._cryptor.off("decrypted", tlec.processPacket, tlec);
-            tlec.off("packet", this._cryptor.encrypt, this._cryptor);
-            tlec.off("message", this._onMessage, this);
-            tlec.off("requestedHash", this._onRequestedHash, this);
-            tlec.off("requestedHashCheck", this._onRequestedHashCheck, this);
-        }
-    },
-    _onRequestedHash: function (args) {
-        this._tlht.fulfillHashRequest(args);
-    },
-    _onRequestedHashCheck: function (args) {
-        this._tlht.fulfillHashCheckRequest(args);
-    },
-    _onFulfilledHashRequest: function (args) {
-        this._tlec.sendHashedMessage(args);
-    },
-    _onFulfilledHashCheckRequest: function (args) {
-        this._tlec.processCheckedPacket(args);
+
+        route.off("packet", cryptor.decrypt, cryptor);
+        cryptor.off("decrypted", tlht.unhash, tlht);
+        tlht.off("unhashed", tlht.processMessage, tlht);
+        tlht.off("unhashed", tlec.processMessage, tlec);
+        tlec.off("messageToProcess", this._onMessage, this);
+                  
+        tlec.off("messageToSend", tlht.hash, tlht);
+        tlht.off("messageToSend", tlht.hash, tlht);
+        tlht.off("hashed", cryptor.encrypt, cryptor);
+        cryptor.off("encrypted", route.processPacket, route);
+        route.off("networkPacket", this._onNetworkPacket, this);
+            
+
+        route.off("openAddrIn", this._onRouteAddrIn, this);
+        route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
+
+        tlht.off("htReady", this._initTlec, this);
+        tlht.off("hashtail", this._onHashtail, this);  
     },
     
+
     _onRouteAddrIn: function (args) {
         this.fire("openAddrIn", args);
     },
@@ -227,20 +233,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
 
-    _linkTlht: function () {
-        var tlht = this._tlht;
-        var route = this._route;
-        var cryptor = this._cryptor;
-        if (tlht) {
-            cryptor.on("decrypted", tlht.processPacket, tlht);
-            tlht.on("packet", cryptor.encrypt, cryptor);
-            tlht.on("htReady", this._initTlec, this);
-            tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.on("hashtail", this._onHashtail, this);
-        }
-    },
-
     _unlinkTlkeBuilder: function () {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.off("offer", this._onOffer, this);
@@ -251,34 +243,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlkeBuilder.off("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
-    }, 
-
-    _unlinkTlht: function () {
-        var tlht = this._tlht;
-        var route = this._route;
-        var cryptor = this._cryptor;
-        if (tlht) {
-            cryptor.off("decrypted", tlht.processPacket, tlht);
-            tlht.off("packet", cryptor.encrypt, cryptor);
-            tlht.off("htReady", this._initTlec, this);
-            tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.off("hashtail", this._onHashtail, this);
-        }
-    },
-
-    _unlinkBuilders: function () {
-        this._unlinkTlht();
-        this._unlinkTlkeBuilder();
-    },
-
-    _linkCryptor: function () {
-        this._cryptor.on("encrypted", this._route.processPacket, this._route);
-        this._route.on("packet", this._cryptor.decrypt, this._cryptor);
-    },
-    _unlinkCryptor: function () {
-        this._cryptor.off("encrypted", this._route.processPacket, this._route);
-        this._route.off("packet", this._cryptor.decrypt, this._cryptor);
     },
 
 
@@ -330,7 +294,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _initTlec: function (args) {
-        this._tlec = this._factory.createTlec();
         this._tlec.init({
             key: this._key,
             inId: this._inId,
@@ -381,15 +344,14 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     destroy: function () {
         if (this._route) { this._route.destroy(); }
         if (this._tlkeBuilder) { this._tlkeBuilder.destroy(); }
+        this._cryptor.destroy();
         this._unlink();
-        this._unlinkBuilders();
-        this._unlinkCryptor();
+        this._unlinkTlkeBuilder();
         this._tlec = null;
         this._route = null;
         this._tlht = null;
-        this._tlkeBuilder = null;
-        this._cryptor.destroy();
-
+        this._cryptor = null;
+        this._tlkeBuilder = null;        
     }
 
 });
