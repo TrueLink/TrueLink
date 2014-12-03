@@ -134,7 +134,8 @@ TlhtAlgo.prototype._getNextHash = function () {
 }
 
 TlhtAlgo.prototype.isExpired = function () {
-    return this._getMyActiveHashes().length === 0;
+    // if (!this._ourHashes) -- then we are not expired, we are unconfigured yet
+    return this._ourHashes && (this._getMyActiveHashes().length === 0);
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {

@@ -36,6 +36,11 @@ function Tlht(factory) {
 
     this._unhandledPacketsData = [];
     this._unhandledPacketsDataInner = [];
+
+    // is used to determine if we are hashing another hashtail or user-message
+    // in order to avoid calling this.generate() while already being in generation process
+    // (should not be serialized?)
+    this._unsentHashtailsCount = 0;
 }
 
 extend(Tlht.prototype, eventEmitter, serializable, {
@@ -111,6 +116,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     // takes object (not Multivalue!), and fires stringified and hashed
     hash: function (object) {
+        this._supplyHashtails();
         var raw = new Utf8String(JSON.stringify(object));
         var hashed = this._algo.hashMessage(raw);
         this._onChanged();
@@ -118,15 +124,16 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             this.fire("expired");
         }
         this.fire("hashed", hashed);
-        this._supplyHashtails();
     },
 
 
     _sendMessage: function (message) {
+        this._unsentHashtailsCount++;
         this.fire("messageToSend", {
             "t": "h",
             "d": message.as(Hex).serialize()
         });
+        this._unsentHashtailsCount--;        
     },
     
     processMessage: function (message) {
@@ -142,12 +149,18 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     generate: function () {
         console.log("Tlht generate");
         var hash = this._algo.generate();
-        this._algo.pushMyHashInfo(hash.hashInfo);
+
+
+        // order matters for this two!
+        // if we first push then send, we may sign it with itself
+        // (auto references everywhere, yeah...)
         this._sendMessage(hash.hashEnd);
+        this._algo.pushMyHashInfo(hash.hashInfo);
+
+
         this._onHashMayBeReady();
         this.fire("hashtail", hash.hashInfo);
         this._onChanged();
-        this._supplyHashtails();
     },
 
     addCowriter: function (cowriter) {
@@ -159,6 +172,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             return;
         }
         console.log("Tlht giving hashtail");
+        this._supplyHashtails();
         var takenHashtail = this._algo.takeHashtail(cowriter);
         this._supplyHashtails();
         this.fire("hashtail", takenHashtail);
@@ -171,6 +185,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     _supplyHashtails: function () {
+        //avoid calling this.generate() while already being in generation process
+        if (this._unsentHashtailsCount !== 0) { return; }        
+
         while (!this._algo.areEnoughHashtailsAvailable()) {
             this.generate();
         }            
