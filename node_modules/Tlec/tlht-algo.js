@@ -9,8 +9,6 @@ var Aes = require("modules/cryptography/aes-sjcl");
 var invariant = require("invariant");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 
-var DecryptionFailedError = require('./decryption-failed-error');
-
 TlhtAlgo.HashCount = 1000;
 TlhtAlgo.MinHashtailsWanted = 3;
 
@@ -49,7 +47,7 @@ TlhtAlgo.prototype.init = function (args, sync) {
 }
 
 TlhtAlgo.prototype.getCowriterActiveHashes = function(cowriter) {
-    invariant(this._id || !cowriter, "getCowriterActiveHashes is disabled is single mode");
+    invariant(this._id || !cowriter, "getCowriterActiveHashes is disabled in single mode");
 
     return this._ourHashes.filter(function (hashInfo) {
         return hashInfo.counter > 1 && hashInfo.owner === cowriter; 
@@ -76,7 +74,7 @@ TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
 }
 
 TlhtAlgo.prototype.processHashtail = function (hashInfo) {
-    invariant(this._id, "processHashtail is disabled is single mode");
+    invariant(this._id, "processHashtail is disabled in single mode");
     var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
         return hashInfo.start.as(Hex).isEqualTo(_hashInfo.start.as(Hex));
     });
@@ -134,7 +132,8 @@ TlhtAlgo.prototype._getNextHash = function () {
 }
 
 TlhtAlgo.prototype.isExpired = function () {
-    return this._getMyActiveHashes().length === 0;
+    // if (!this._ourHashes) -- then we are not expired, we are unconfigured yet
+    return this._ourHashes && (this._getMyActiveHashes().length === 0);
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
@@ -142,12 +141,12 @@ TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
 }
 
 TlhtAlgo.prototype.addCowriter = function (id) {
-    invariant(this._id, "addCowriter is disabled is single mode");
+    invariant(this._id, "addCowriter is disabled in single mode");
     this._cowriters.push(id);
 }
 
 TlhtAlgo.prototype.getCowritersWithoutHashtails = function () {
-    invariant(this._id, "getCowritersWithoutHashtails is disabled is single mode");
+    invariant(this._id, "getCowritersWithoutHashtails is disabled in single mode");
     var owners = this._ourHashes.reduce(function (owners, hashInfo) {
         owners[hashInfo.owner] = true;
     }, {});
@@ -196,12 +195,8 @@ TlhtAlgo.prototype.isHashReady = function () {
 }
 
 TlhtAlgo.prototype.createMessage = function (raw, hash) {
-    var message = this._encrypt(this.hashMessage(raw));
+    var message = this.hashMessage(raw);
     return message;
-}
-
-TlhtAlgo.prototype.processMessage = function (bytes) {
-    return this._decrypt(bytes);
 }
 
 TlhtAlgo.prototype.pushMyHashInfo = function (hashInfo) {
@@ -263,28 +258,6 @@ TlhtAlgo.prototype.serialize = function () {
         isFirstHashGenerated: this._isFirstHashGenerated,
         id: this._id   
     };
-}
-
-TlhtAlgo.prototype._encrypt = function (bytes) {
-    invariant(this._dhAesKey, "channel is not configured");
-    var iv = this._random.bitArray(128);
-    var aes = new Aes(this._dhAesKey);
-    var encryptedData = aes.encryptCbc(bytes, iv);
-    return iv.as(Bytes).concat(encryptedData);
-}
-
-TlhtAlgo.prototype._decrypt = function (bytes) {
-    invariant(this._dhAesKey, "channel is not configured");
-    var dataBitArray = bytes.as(BitArray);
-    var iv = dataBitArray.bitSlice(0, 128);
-    var encryptedData = dataBitArray.bitSlice(128, dataBitArray.bitLength());
-    var aes = new Aes(this._dhAesKey);
-    try {
-        return aes.decryptCbc(encryptedData, iv);
-    }
-    catch (ex) {
-        throw new DecryptionFailedError(ex);
-    }
 }
 
 TlhtAlgo.prototype._hash = function (value) {

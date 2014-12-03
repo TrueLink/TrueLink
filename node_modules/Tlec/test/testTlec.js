@@ -4,7 +4,7 @@ var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
-var TlhtAlgo = require("../../Tlht/tlht-algo");
+var TlhtAlgo = require("../tlht-algo");
 
 var chai = require('chai');
 var expect = chai.expect;
