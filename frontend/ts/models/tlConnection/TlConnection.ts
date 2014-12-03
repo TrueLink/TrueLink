@@ -162,7 +162,7 @@
         _onInitialTlecBuilderDone  (builder) {
             this._initialTlec = null;
             this._addTlec(builder);
-            this.onDone.emit(this);
+            this.onDone.emit(this, this);
             this._onChanged();
         }
 
@@ -201,7 +201,10 @@
             if (args.id !== this.id) { return; }
 
             if (args.what === "tlec") {
-                this._initialTlec.processSyncMessage(args.args);
+                if (this._initialTlec) {
+                    this._initialTlec.processSyncMessage(args.args);
+                }
+                this._tlecs.forEach(tlec => tlec.processSyncMessage(args.args));
             }
         }
 

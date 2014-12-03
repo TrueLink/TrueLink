@@ -287,10 +287,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._inId = args.inId;
         this._outId = args.outId;
 
-        if (!sync) { this._onReadyForSync(args); }
-
         args.profileId = this._profileId;
         this._tlht.init(args, sync);  //TODO 'sync = true' should not be needed here!
+
+        if (!sync) { this._onReadyForSync(args); }
+        
         this._route.setAddr(args);
 
         if (!sync) {

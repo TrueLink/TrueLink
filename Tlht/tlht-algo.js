@@ -48,10 +48,16 @@ TlhtAlgo.prototype.init = function (args, sync) {
     }
 }
 
-TlhtAlgo.prototype._getMyActiveHashes = function () {
+TlhtAlgo.prototype.getCowriterActiveHashes = function(cowriter) {
+    invariant(this._id || !cowriter, "getCowriterActiveHashes is disabled is single mode");
+
     return this._ourHashes.filter(function (hashInfo) {
-        return hashInfo.counter > 1 && hashInfo.owner === this._id; 
-    }.bind(this));    
+        return hashInfo.counter > 1 && hashInfo.owner === cowriter; 
+    }.bind(this));  
+}
+
+TlhtAlgo.prototype._getMyActiveHashes = function () {
+    return this.getCowriterActiveHashes(this._id); 
 }
 
 TlhtAlgo.prototype._chooseHashtail = function () {
@@ -149,8 +155,6 @@ TlhtAlgo.prototype.getCowritersWithoutHashtails = function () {
         !owners[cowriter];
     });
 }
-
-
 
 
 TlhtAlgo.prototype.hashMessage = function (raw) {

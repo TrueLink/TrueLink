@@ -95,6 +95,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         if (this._algo.isExpired()) {
             return;
         }
+        if (this._algo.getCowriterActiveHashes(cowriter).length > 0) {
+            return;
+        }
         console.log("Tlht giving hashtail");
         var takenHashtail = this._algo.takeHashtail(cowriter);
         this._supplyHashtails();

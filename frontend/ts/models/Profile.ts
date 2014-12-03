@@ -180,7 +180,7 @@
 
         private _linkSync() {
             if (!this.sync) {
-                // this would happen on profile being in creation process deserialization
+                // this would happen on deserialization of profile being in creation process 
                 return;
             }
 
@@ -411,6 +411,7 @@
         private _linkTlConnection  (conn) {
             conn.onMessage.on(this._onTlConnectionMessage, this);
             conn.onSyncMessage.on(this._onTlConnectionSyncMessage, this);
+            conn.onDone.on(this._onTlConnectionDone, this);
         }
 
         private _linkContact  (contact) {
@@ -423,13 +424,7 @@
             this._sendSyncMessage({
                 what: "contact-created",
                 args: args
-            });
-
-            var conn = this.contacts.filter(contact => contact.name === args.id)[0].tlConnection;
-            this.sync.devices.forEach(device => { 
-                if (device.name === this.uuid) { return; }
-                conn.addCowriter(device.name);
-            });            
+            });          
         }
 
         private _onTlConnectionSyncMessage(args) {
@@ -437,6 +432,14 @@
                 what: "tlConnection",
                 args: args
             });            
+        }
+
+        private _onTlConnectionDone(args, sender) {
+            var conn = sender;
+            this.sync.devices.forEach(device => { 
+                if (device.name === this.uuid) { return; }
+                conn.addCowriter(device.name);
+            });              
         }
 
         private _inviteReceived (invite : ITlgrInvitationWrapper) {
