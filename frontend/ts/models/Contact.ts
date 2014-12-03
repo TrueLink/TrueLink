@@ -24,6 +24,7 @@
         public tlConnection : any;
         public invites : {[key:string] : ITlgrInvitationMessage };
         public tlgrFilter : any;
+        public id: string;
 
         constructor () {
             super(); 
@@ -48,7 +49,9 @@
         init  (args) {
             invariant(args.tlConnection, "Can i haz args.tlConnection?");
             invariant(args.name, "Can i haz args.name?");
+            invariant(args.id, "Can i haz args.id?");
             this.tlConnection = args.tlConnection;
+            this.id = args.id;
             this.name = args.name;
             
             this._link();
@@ -61,7 +64,10 @@
         }
 
         serialize  (packet, context) {
-            packet.setData({name: this.name});
+            packet.setData({
+                id: this.id,
+                name: this.name
+            });
             packet.setLink("tlConnection", context.getPacket(this.tlConnection));
         }
 
@@ -70,6 +76,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
+            this.id = data.id;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
             
             this._link();
@@ -82,7 +89,8 @@
 
         private _onConnectiononReadyForSync(args) {
             this.onReadyForSync.emit({
-                id: this.name,
+                id: this.id,
+                name: this.name,
                 args: args
             });
         }
