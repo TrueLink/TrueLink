@@ -11,7 +11,6 @@ var Multivalue = require("Multivalue").multivalue.Multivalue;
 var serializable = require("modules/serialization/serializable");
 
 var TlhtAlgo = require("./tlht-algo");
-var DecryptionFailedError = require('./decryption-failed-error');
 
 var extend = tools.extend;
 var isFunction = tools.isFunction;

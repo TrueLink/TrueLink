@@ -1,4 +1,4 @@
 declare module "Tlec" {
-    import index = require("exports");
+    import index = require("index");
     export = index;
 }

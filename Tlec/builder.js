@@ -12,7 +12,7 @@ var Hex = require("Multivalue/multivalue/hex");
 
 
 
-function TlecBuilder(factory) {
+function Builder(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createTlec), "factory must have createTlec() method");
     invariant(isFunction(factory.createRoute), "factory must have createRoute() method");
@@ -44,7 +44,7 @@ function TlecBuilder(factory) {
     this._profileId = null;
 }
 
-extend(TlecBuilder.prototype, eventEmitter, serializable, {
+extend(Builder.prototype, eventEmitter, serializable, {
     build: function (args, sync) {
         if (args && args.profileId) {
             this._profileId = args.profileId;
@@ -56,14 +56,14 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._tlec = this._factory.createTlec();
         this._link();
         if (sync) {
-            this.status = TlecBuilder.STATUS_HT_EXCHANGE;
+            this.status = Builder.STATUS_HT_EXCHANGE;
             this._initTlht({
                 key: Hex.deserialize(sync.key),
                 inId: Hex.deserialize(sync.inId),
                 outId: Hex.deserialize(sync.outId)
             }, true);
         } else {
-            this.status = TlecBuilder.STATUS_NOT_STARTED;
+            this.status = Builder.STATUS_NOT_STARTED;
             this._tlkeBuilder = factory.createTlkeBuilder();
             this._tlkeBuilder.build();
             this._linkTlkeBuilder();
@@ -88,7 +88,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     processNetworkPacket: function (packet) {
-        //console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
+        //console.log("Builder got networkPacket: status = " + this.status, packet);
         if (this._route) {
             this._route.processNetworkPacket(packet);
         }
@@ -305,7 +305,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._unlinkTlkeBuilder();
             this._tlkeBuilder = null;
         }
-        this.status = TlecBuilder.STATUS_ESTABLISHED;
+        this.status = Builder.STATUS_ESTABLISHED;
         this._onChanged();
         this.fire("done", this);
     },
@@ -317,25 +317,25 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _onTlkeBuilderChanged: function () {
         switch (this._tlkeBuilder.getTlkeState()) {
         case Tlke.STATE_AWAITING_OFFER_RESPONSE:
-            this.status = TlecBuilder.STATUS_OFFER_GENERATED;
+            this.status = Builder.STATUS_OFFER_GENERATED;
             break;
         case Tlke.STATE_AWAITING_AUTH_RESPONSE:
-            this.status = TlecBuilder.STATUS_AUTH_GENERATED;
+            this.status = Builder.STATUS_AUTH_GENERATED;
             break;
         case Tlke.STATE_AWAITING_AUTH:
-            this.status = TlecBuilder.STATUS_AUTH_NEEDED;
+            this.status = Builder.STATUS_AUTH_NEEDED;
             break;
         case Tlke.STATE_AWAITING_OFFERDATA:
-            this.status = TlecBuilder.STATUS_OFFERDATA_NEEDED;
+            this.status = Builder.STATUS_OFFERDATA_NEEDED;
             break;
         case Tlke.STATE_AWAITING_AUTHDATA:
-            this.status = TlecBuilder.STATUS_AUTHDATA_NEEDED;
+            this.status = Builder.STATUS_AUTHDATA_NEEDED;
             break;
         case Tlke.STATE_CONNECTION_ESTABLISHED:
-            this.status = TlecBuilder.STATUS_HT_EXCHANGE;
+            this.status = Builder.STATUS_HT_EXCHANGE;
             break;
         case Tlke.STATE_CONNECTION_FAILED:
-            this.status = TlecBuilder.STATUS_AUTH_ERROR;
+            this.status = Builder.STATUS_AUTH_ERROR;
             break;
         }
         this._onChanged();
@@ -356,22 +356,22 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
 });
 
-TlecBuilder.STATUS_NOT_STARTED = 0;
+Builder.STATUS_NOT_STARTED = 0;
 
 // tlke A
-TlecBuilder.STATUS_OFFER_GENERATED = 1;
-TlecBuilder.STATUS_AUTH_GENERATED = 2;
-TlecBuilder.STATUS_AUTH_ERROR = -1;
+Builder.STATUS_OFFER_GENERATED = 1;
+Builder.STATUS_AUTH_GENERATED = 2;
+Builder.STATUS_AUTH_ERROR = -1;
 
 // tlke B
-TlecBuilder.STATUS_OFFERDATA_NEEDED = 4;
-TlecBuilder.STATUS_AUTHDATA_NEEDED = 5;
-TlecBuilder.STATUS_AUTH_NEEDED = 6;
+Builder.STATUS_OFFERDATA_NEEDED = 4;
+Builder.STATUS_AUTHDATA_NEEDED = 5;
+Builder.STATUS_AUTH_NEEDED = 6;
 
 // tlht both
-TlecBuilder.STATUS_HT_EXCHANGE = 3;
+Builder.STATUS_HT_EXCHANGE = 3;
 
 // can send messages now
-TlecBuilder.STATUS_ESTABLISHED = 10;
+Builder.STATUS_ESTABLISHED = 10;
 
-module.exports = TlecBuilder;
+module.exports = Builder;

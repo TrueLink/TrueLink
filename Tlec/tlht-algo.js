@@ -9,8 +9,6 @@ var Aes = require("modules/cryptography/aes-sjcl");
 var invariant = require("invariant");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 
-var DecryptionFailedError = require('./decryption-failed-error');
-
 TlhtAlgo.HashCount = 1000;
 TlhtAlgo.MinHashtailsWanted = 3;
 

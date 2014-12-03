@@ -3,12 +3,11 @@ var tools = require("modules/tools");
 var extend = tools.extend;
 
 var TlkeBuilder = require("../../TlkeBuilder");
-var TlecBuilder = require("../../TlecBuilder");
-var TlecCryptor = require("../../TlecBuilder/cryptor")
-var OverTlecBuilder = require("../../OverTlecBuilder");
 var Tlke = require("../../Tlke");
-var Tlht = require("../../Tlht");
-var Tlec = require("../Tlec");
+
+var Tlec = require("../index");
+
+var OverTlecBuilder = require("../../OverTlecBuilder");
 var Tlgr = require("Tlgr");
 var Route = require("Route");
 var TestTransport = require("TestTransport");
@@ -23,10 +22,10 @@ extend(TlConnectionFactory.prototype, {
         return new TlkeBuilder(this);
     },
     createTlecBuilder: function() {
-        return new TlecBuilder(this);
+        return new Tlec.Builder(this);
     },
     createTlecCryptor: function() {
-        return new TlecCryptor(this);
+        return new Tlec.Cryptor(this);
     },
     createOverTlecBuilder: function() {
         return new OverTlecBuilder(this);
@@ -35,10 +34,10 @@ extend(TlConnectionFactory.prototype, {
         return new Tlke(this);
     },
     createTlht: function() {
-        return new Tlht(this);
+        return new Tlec.Tlht(this);
     },
     createTlec: function() {
-        return new Tlec(this);
+        return new Tlec.Tlec(this);
     },
     createTlgr: function() {
         return new Tlgr(this);
