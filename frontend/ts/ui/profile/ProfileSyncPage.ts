@@ -2,8 +2,9 @@
 import React = require("react");
 import Profile = require("../../models/Profile");
 import reactObserver = require("../../mixins/reactObserver");
-import TlecBuilder = require("TlecBuilder");
-
+import Tlec = require("Tlec");
+var TlecBuilder = Tlec.Builder;
+    
 import multivalue = require("Multivalue");
 var DecBlocks = multivalue.DecBlocks;
 

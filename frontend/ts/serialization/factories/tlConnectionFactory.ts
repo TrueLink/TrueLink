@@ -4,12 +4,11 @@
     import extend = require("../../tools/extend");
     import prototype = require("./prototype");
 
+    import Tlec = require("Tlec");
+        
     import TlkeBuilder = require("TlkeBuilder");
-    import TlecBuilder = require("TlecBuilder");
     import OverTlecBuilder = require("OverTlecBuilder");
     import Tlke = require("Tlke");
-    import Tlht = require("Tlht");
-    import Tlec = require("Tlec");
     import Route = require("Route");
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
 
@@ -28,7 +27,7 @@
             return this._observed(new TlkeBuilder(this));
         },
         createTlecBuilder: function () {
-            return this._observed(new TlecBuilder(this));
+            return this._observed(new Tlec.Builder(this));
         },
 
         createOverTlecBuilder: function () {
@@ -40,10 +39,13 @@
             return this._observed(new Tlke(this));
         },
         createTlht: function () {
-            return this._observed(new Tlht(this));
+            return this._observed(new Tlec.Tlht(this));
         },
         createTlec: function () {
-            return this._observed(new Tlec(this));
+            return this._observed(new Tlec.Tlec(this));
+        },
+        createTlecCryptor: function () {
+            return this._observed(new Tlec.Cryptor(this));
         },
 
         createRandom: function () {

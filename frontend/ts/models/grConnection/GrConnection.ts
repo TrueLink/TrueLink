@@ -7,7 +7,8 @@
     import model = require("../../mixins/model");
     import Event = require("../../tools/event");
     import Model = require("../../tools/model");
-    import TlecBuilder = require("TlecBuilder");
+    import Tlec = require("Tlec");
+    var TlecBuilder = Tlec.Builder;
     import CouchAdapter = require("../../models/tlConnection/CouchAdapter");
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
 
