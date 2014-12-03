@@ -147,18 +147,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
 
 
         // dataflow:
-        // packet from network goes to cryptor
-        route.on("packet", cryptor.decrypt, cryptor);
-        // if ok, gets decrypted and goes to hash checker
-        cryptor.on("decrypted", tlht.unhash, tlht);
-        // if ok, gets unhashed and _parsed_(!)
-        // and goes back to tlht to be processed as hashtail
-        tlht.on("unhashed", tlht.processMessage, tlht);
-        // and at the sane time -- to tlec 
-        tlht.on("unhashed", tlec.processMessage, tlec);
-        // if ok -- gets fired as user message
-        tlec.on("messageToProcess", this._onMessage, this);
-                  
         // user message goes to hasher
         tlec.on("messageToSend", tlht.hash, tlht);
         // same as hashtail message
@@ -170,6 +158,18 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         // and then gets sent
         route.on("networkPacket", this._onNetworkPacket, this);
             
+        // packet from network goes to cryptor
+        route.on("packet", cryptor.decrypt, cryptor);
+        // if ok, gets decrypted and goes to hash checker
+        cryptor.on("decrypted", tlht.unhash, tlht);
+        // if ok, gets unhashed and _parsed_(!)
+        // and goes back to tlht to be processed as hashtail
+        tlht.on("unhashed", tlht.processMessage, tlht);
+        // and at the sane time -- to tlec 
+        tlht.on("unhashed", tlec.processMessage, tlec);
+        // if ok -- gets fired as user message
+        tlec.on("messageToProcess", this._onMessage, this);
+
 
         // misc
         route.on("openAddrIn", this._onRouteAddrIn, this);
