@@ -47,7 +47,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         var data = this._algo.serialize();
         data.readyCalled = this._readyCalled;
         data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
-            return packetData.as(Hex).serialize();
+            return {
+                isEcho: packetData.isEcho,
+                data: packetData.as(Hex).serialize()
+            };
         });
         packet.setData(data);
     },
@@ -56,7 +59,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._readyCalled = data.readyCalled;
         this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
             data.unhandledPacketsData.map(function (packetData) {
-                return Hex.deserialize(packetData);
+                return {
+                    isEcho: packetData.isEcho,
+                    data: Hex.deserialize(packetData)
+                };
             });
         this._algo.deserialize(data);
     },
