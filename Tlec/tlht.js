@@ -82,14 +82,8 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     // takes decrypted, fires unhashed and _parsed_!
     unhash: function (args) {
-        if (args.isEcho) {
-            //todo: remove this
-            this._doUnhash(this._algo.processPacket(args.data, args.isEcho), args.isEcho);
-            return;
-        }
-
         invariant(args.data instanceof Multivalue, "args.data must be multivalue");
-        this._unhandledPacketsData.unshift(args.data);
+        this._unhandledPacketsData.unshift(args);
         
         // try to handle packets one per cycle while handling succeeds
         var handled;
@@ -97,11 +91,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             handled = false;
             var i = 0;
             for ( ; i < this._unhandledPacketsData.length; i++) {
-                //todo: move processPacket into _doUnhash
-                var data = this._algo.processPacket(this._unhandledPacketsData[i]);
-                if (data !== null) {
-                    this._doUnhash(data);
-                    handled = true;
+                var data = this._unhandledPacketsData[i];
+                handled = this._doUnhash(data.data, data.isEcho);
+                if (handled) {
                     break;
                 }
             }
@@ -113,19 +105,27 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     _doUnhash: function (bytes, isEcho) {
+        var data = this._algo.processPacket(bytes, isEcho);
+
+        if (data === null) {
+            return false;
+        }
+
         var message;
         try {
-            message = JSON.parse(bytes.as(Utf8String).value);
+            message = JSON.parse(data.as(Utf8String).value);
         } catch (ex) {
-            console.log("Tlec failed to parse message", ex, bytes);
+            console.log("Tlec failed to parse message", ex, data);
             // not for me
-            return;
+            return true;
         }
 
         this.fire("unhashed", {
             isEcho: isEcho,
             data: message
         });        
+
+        return true;
     },
 
     // takes object (not Multivalue!), and fires stringified and hashed

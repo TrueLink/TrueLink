@@ -15,7 +15,7 @@ var logfunc = function() {
 }
 
 describe("True Link Encrypted Channel", function() {
-    this.timeout(10000);
+    this.timeout(50000);
 
     describe.skip("with builder", function() {
         before(function(done) {

@@ -23,6 +23,7 @@ function TlhtAlgo(random, id) {
     this._theirHashes = null;
 
     this._isFirstHashChecked = false;
+    this._isFirstEchoHashChecked = false;
     this._isFirstHashGenerated = false;
 }
 
@@ -84,9 +85,9 @@ TlhtAlgo.prototype.processHashtail = function (hashInfo) {
     this._ourHashes.push(hashInfo);
 }
 
-TlhtAlgo.prototype._isHashValid = function (hx) {
+TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {
     // first time check, is used for initial hashtail exchange
-    if (!this._isFirstHashChecked) {
+    if (!this._isFirstHashChecked && !isEcho) {
         if (hx.as(Hex).value === "00000000000000000000000000000000") {
             this._isFirstHashChecked = true;
             return true;
@@ -94,16 +95,28 @@ TlhtAlgo.prototype._isHashValid = function (hx) {
         return false;
     }
 
-    invariant(this._theirHashes, "hash checker: channel is not configured");
+    if (!this._isFirstEchoHashChecked && isEcho) {
+        if (hx.as(Hex).value === "00000000000000000000000000000000") {
+            this._isFirstEchoHashChecked = true;
+            return true;
+        }        
+        return false;
+    }
 
-    for (var hashIndex = 0; hashIndex < this._theirHashes.length; hashIndex++) {
-        var hashInfo = this._theirHashes[hashIndex];
+    var hashes = isEcho ? this._ourHashes : this._theirHashes;
 
-        var end = hashInfo.end.as(Hex).value;
-        var gotTail = hx;
+    invariant(hashes, "hash checker: channel is not configured");
+
+    for (var hashIndex = 0; hashIndex < hashes.length; hashIndex++) {
+        var hashInfo = hashes[hashIndex];
+
+
+        var end = (isEcho ? hx : hashInfo.end).as(Hex).value;
+        var start = isEcho ? hashInfo.start : hx;
+
         for (var i = 0; i < TlhtAlgo.HashCount; i++) {
-            gotTail = this._hash(gotTail);
-            if (gotTail.as(Hex).value === end) {
+            start = this._hash(start);
+            if (start.as(Hex).value === end) {
                 return true;
             }
         }
@@ -166,12 +179,8 @@ TlhtAlgo.prototype.processPacket = function (decryptedData, isEcho) {
     var hx = decryptedData.bitSlice(0, 128);
     var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
 
-    if (isEcho) {
-        //todo check
-    } else {
-        if (!this._isHashValid(hx)) {
-            return null;
-        }
+    if (!this._isHashValid(hx, isEcho)) {
+        return null;
     }
     
     return netData;
@@ -237,6 +246,7 @@ TlhtAlgo.prototype.deserialize = function (data) {
         });
     this._id = data.id;
     this._isFirstHashChecked = data.isFirstHashChecked;
+    this._isFirstEchoHashChecked = data.isFirstEchoHashChecked;
     this._isFirstHashGenerated = data.isFirstHashGenerated;
 }
 
@@ -259,6 +269,7 @@ TlhtAlgo.prototype.serialize = function () {
                 }
             }),
         isFirstHashChecked: this._isFirstHashChecked,
+        isFirstEchoHashChecked: this._isFirstEchoHashChecked,
         isFirstHashGenerated: this._isFirstHashGenerated,
         id: this._id   
     };
