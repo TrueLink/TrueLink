@@ -1,2 +1,4 @@
-declare class Cryptor {}
+declare class Cryptor {
+	constructor(factory: any);
+}
 export = Cryptor;

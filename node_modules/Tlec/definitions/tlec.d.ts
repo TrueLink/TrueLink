@@ -1,2 +1,4 @@
-declare class Tlec {}
+declare class Tlec {
+	constructor(factory: any);
+}
 export = Tlec;
