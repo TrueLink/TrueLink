@@ -5,10 +5,8 @@
 /// <reference path="../node_modules/invariant/invariant.d.ts"/>
 /// <reference path="../node_modules/Multivalue/definitions/exports.d.ts"/>
 /// <reference path="../node_modules/TlkeBuilder/TlkeBuilder.d.ts"/>
-/// <reference path="../node_modules/TlecBuilder/TlecBuilder.d.ts"/>
 /// <reference path="../node_modules/Tlgr/Tlgr.d.ts"/>
-/// <reference path="../node_modules/Tlht/Tlht.d.ts"/>
-/// <reference path="../node_modules/Tlec/Tlec.d.ts"/>
+/// <reference path="../node_modules/Tlec/definitions/exports.d.ts"/>
 /// <reference path="../node_modules/Tlke/Tlke.d.ts"/>
 /// <reference path="../node_modules/SerializationContext/SerializationContext.d.ts"/>
 /// <reference path="../node_modules/Route/Route.d.ts"/>
@@ -16,6 +14,7 @@
 /// <reference path="../node_modules/OverTlecBuilder/OverTlecBuilder.d.ts"/>
 /// <reference path="../node_modules/modules/modules.d.ts"/>
 /// <reference path="../node_modules/react-typescript-definitions/react.d.ts"/>
+
 import Application = require("./models/App");
 import AppComponent = require("./ui/AppComponent");
 import Serializer = require("./serialization/serializer");

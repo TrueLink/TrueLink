@@ -44,8 +44,10 @@
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},
             _tlht: {propType: "one", type: "Tlht"},
             _tlec: {propType: "one", type: "Tlec"},
-            _route: {propType: "one", type: "Route"}
+            _route: {propType: "one", type: "Route"},
+            _cryptor: {propType: "one", type: "TlecCryptor"}
         },
+        TlecCryptor: {},
         TlkeBuilder: {
             _tlke: {propType: "one", type: "Tlke"},
             _route: {propType: "one", type: "Route"}

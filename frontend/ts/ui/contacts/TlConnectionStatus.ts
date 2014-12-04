@@ -3,8 +3,9 @@
     import React = require("react");
     import Hex = require("Multivalue/multivalue/hex");
     import DecBlocks = require("Multivalue/multivalue/decBlocks");
-    import TlecBuilder = require("TlecBuilder");
-
+    import Tlec = require("Tlec");
+    var TlecBuilder = Tlec.Builder;
+    
     var exp = React.createClass({
         displayName: "TlConnectionStatus",
         handleGenerate: function () {

@@ -6,7 +6,8 @@
     import Model = require("../../tools/model");
     var serializable = modules.serialization.serializable;
     import Hex = require("Multivalue/multivalue/hex");
-    import TlecBuilder = require("TlecBuilder");
+    import Tlec = require("Tlec");
+    var TlecBuilder = Tlec.Builder;
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
     import Utf8String = require("Multivalue/multivalue/utf8string");
 

@@ -8,8 +8,6 @@ npm install .\SerializationContext & ^
 npm install .\TestTransport & ^
 npm install .\OverTlecBuilder & ^
 npm install .\Tlec & ^
-npm install .\TlecBuilder & ^
 npm install .\Tlgr & ^
-npm install .\Tlht & ^
 npm install .\Tlke & ^
 npm install .\TlkeBuilder

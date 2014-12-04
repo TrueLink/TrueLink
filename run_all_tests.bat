@@ -1,5 +1,5 @@
 @echo off
-for %%a in ("Multivalue", "Tlke", "Tlht", "Tlec", "Tlgr") do (	
+for %%a in ("Multivalue", "Tlke", "Tlec", "Tlgr") do (	
 	cd %%a
 	npm test
 	pause

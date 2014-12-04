@@ -12,7 +12,7 @@ var Hex = require("Multivalue/multivalue/hex");
 
 
 
-function TlecBuilder(factory) {
+function Builder(factory) {
     invariant(factory, "Can be constructed only with factory");
     invariant(isFunction(factory.createTlec), "factory must have createTlec() method");
     invariant(isFunction(factory.createRoute), "factory must have createRoute() method");
@@ -36,6 +36,7 @@ function TlecBuilder(factory) {
     this._route = null;
     this._tlkeBuilder = null;
     this._tlht = null;
+    this._cryptor = null;
     this.status = null;
     this._key = null;
     this._inId = null;
@@ -43,25 +44,26 @@ function TlecBuilder(factory) {
     this._profileId = null;
 }
 
-extend(TlecBuilder.prototype, eventEmitter, serializable, {
+extend(Builder.prototype, eventEmitter, serializable, {
     build: function (args, sync) {
         if (args && args.profileId) {
             this._profileId = args.profileId;
         }
         var factory = this._factory;
         this._route = factory.createRoute();
-        this._linkRoute();
         this._tlht = factory.createTlht();
-        this._linkTlht();
+        this._cryptor = factory.createTlecCryptor();
+        this._tlec = this._factory.createTlec();
+        this._link();
         if (sync) {
-            this.status = TlecBuilder.STATUS_HT_EXCHANGE;
+            this.status = Builder.STATUS_HT_EXCHANGE;
             this._initTlht({
                 key: Hex.deserialize(sync.key),
                 inId: Hex.deserialize(sync.inId),
                 outId: Hex.deserialize(sync.outId)
             }, true);
         } else {
-            this.status = TlecBuilder.STATUS_NOT_STARTED;
+            this.status = Builder.STATUS_NOT_STARTED;
             this._tlkeBuilder = factory.createTlkeBuilder();
             this._tlkeBuilder.build();
             this._linkTlkeBuilder();
@@ -82,14 +84,11 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     sendMessage: function (msg) {
-        if (!this._tlec) {
-            throw new Error("tlec is not yet built");
-        }
         this._tlec.sendMessage(msg);
     },
 
     processNetworkPacket: function (packet) {
-        //console.log("TlecBuilder got networkPacket: status = " + this.status, packet);
+        //console.log("Builder got networkPacket: status = " + this.status, packet);
         if (this._route) {
             this._route.processNetworkPacket(packet);
         }
@@ -99,7 +98,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     processHashtail: function (args) {
-        return this._tlht.processHashtail(args);
+        this._tlht.processHashtail(args);
     },
 
     addCowriter: function (cowriter) {
@@ -118,6 +117,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         packet.setLink("_tlht", context.getPacket(this._tlht));
         packet.setLink("_tlec", context.getPacket(this._tlec));
         packet.setLink("_route", context.getPacket(this._route));
+        packet.setLink("_cryptor", context.getPacket(this._cryptor));
     },
     deserialize: function (packet, context) {
         var factory = this._factory;
@@ -133,68 +133,80 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._linkTlkeBuilder();
 
         this._tlht = context.deserialize(packet.getLink("_tlht"), factory.createTlht, factory);
-        this._linkTlht();
-
         this._tlec = context.deserialize(packet.getLink("_tlec"), factory.createTlec, factory);
         this._route = context.deserialize(packet.getLink("_route"), factory.createRoute, factory);
-        this._linkRoute();
+        this._cryptor = context.deserialize(packet.getLink("_cryptor"), factory.createTlecCryptor, factory);
         this._link();
-    },
-
-    _linkRoute: function () {
-        var route = this._route;
-
-        route.on("networkPacket", this._onNetworkPacket, this);
-        route.on("openAddrIn", this._onRouteAddrIn, this);
-        route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
-    },
-
-    _unlinkRoute: function () {
-        var route = this._route;
-
-        route.off("networkPacket", this._onNetworkPacket, this);
-        route.off("openAddrIn", this._onRouteAddrIn, this);
-        route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
     },
 
     _link: function () {
         var tlec = this._tlec;
         var route = this._route;
+        var tlht = this._tlht;
+        var cryptor = this._cryptor;
 
-        if (tlec) {
-            route.on("packet", tlec.processPacket, tlec);
-            tlec.on("packet", route.processPacket, route);
-            tlec.on("message", this._onMessage, this);
-            tlec.on("requestedHash", this._onRequestedHash, this);
-            tlec.on("requestedHashCheck", this._onRequestedHashCheck, this);
-        }
+
+        // dataflow:
+        // user message goes to hasher
+        tlec.on("messageToSend", tlht.hash, tlht);
+        // same as hashtail message
+        tlht.on("messageToSend", tlht.hash, tlht);
+        // gets _stringified_(!) hashed and goes to cryptor
+        tlht.on("hashed", cryptor.encrypt, cryptor);
+        // gets encrypted and goes to route to be sent
+        cryptor.on("encrypted", route.processPacket, route);
+        // and then gets sent
+        route.on("networkPacket", this._onNetworkPacket, this);
+            
+        // packet from network goes to cryptor
+        route.on("packet", cryptor.decrypt, cryptor);
+        // if ok, gets decrypted and goes to hash checker
+        cryptor.on("decrypted", tlht.unhash, tlht);
+        // if ok, gets unhashed and _parsed_(!)
+        // and goes back to tlht to be processed as hashtail
+        tlht.on("unhashed", tlht.processMessage, tlht);
+        // and at the sane time -- to tlec 
+        tlht.on("unhashed", tlec.processMessage, tlec);
+        // if ok -- gets fired as user message
+        tlec.on("messageToProcess", this._onMessage, this);
+
+
+        // misc
+        route.on("openAddrIn", this._onRouteAddrIn, this);
+        route.on("closeAddrIn", this._onRouteCloseAddrIn, this);
+
+        tlht.on("htReady", this._initTlec, this);
+        tlht.on("hashtail", this._onHashtail, this);       
     },
 
     _unlink: function () {
         var tlec = this._tlec;
         var route = this._route;
+        var tlht = this._tlht;
+        var cryptor = this._cryptor;
 
-        if (tlec) {
-            route.off("packet", tlec.processPacket, tlec);
-            tlec.off("packet", route.processPacket, route);
-            tlec.off("message", this._onMessage, this);
-            tlec.off("requestedHash", this._onRequestedHash, this);
-            tlec.off("requestedHashCheck", this._onRequestedHashCheck, this);
-        }
-    },
-    _onRequestedHash: function (args) {
-        this._tlht.fulfillHashRequest(args);
-    },
-    _onRequestedHashCheck: function (args) {
-        this._tlht.fulfillHashCheckRequest(args);
-    },
-    _onFulfilledHashRequest: function (args) {
-        this._tlec.sendHashedMessage(args);
-    },
-    _onFulfilledHashCheckRequest: function (args) {
-        this._tlec.processCheckedPacket(args);
+
+        route.off("packet", cryptor.decrypt, cryptor);
+        cryptor.off("decrypted", tlht.unhash, tlht);
+        tlht.off("unhashed", tlht.processMessage, tlht);
+        tlht.off("unhashed", tlec.processMessage, tlec);
+        tlec.off("messageToProcess", this._onMessage, this);
+                  
+        tlec.off("messageToSend", tlht.hash, tlht);
+        tlht.off("messageToSend", tlht.hash, tlht);
+        tlht.off("hashed", cryptor.encrypt, cryptor);
+        cryptor.off("encrypted", route.processPacket, route);
+        route.off("networkPacket", this._onNetworkPacket, this);
+            
+
+        route.off("openAddrIn", this._onRouteAddrIn, this);
+        route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
+
+        tlht.off("htReady", this._initTlec, this);
+        tlht.off("hashtail", this._onHashtail, this);  
     },
     
+
     _onRouteAddrIn: function (args) {
         this.fire("openAddrIn", args);
     },
@@ -221,19 +233,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         }
     },
 
-    _linkTlht: function () {
-        var tlht = this._tlht;
-        var route = this._route;
-        if (tlht) {
-            route.on("packet", tlht.processPacket, tlht);
-            tlht.on("packet", route.processPacket, route);
-            tlht.on("htReady", this._initTlec, this);
-            tlht.on("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            tlht.on("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.on("hashtail", this._onHashtail, this);
-        }
-    },
-
     _unlinkTlkeBuilder: function () {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.off("offer", this._onOffer, this);
@@ -244,24 +243,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._tlkeBuilder.off("openAddrIn", this._onRouteAddrIn, this);
             this._tlkeBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
-    }, 
-
-    _unlinkTlht: function () {
-        var tlht = this._tlht;
-        var route = this._route;
-        if (tlht) {
-            route.off("packet", tlht.processPacket, tlht);
-            tlht.off("packet", route.processPacket, route);
-            tlht.off("htReady", this._initTlec, this);
-            tlht.off("fulfilledHashRequest", this._onFulfilledHashRequest, this);
-            tlht.off("fulfilledHashCheckRequest", this._onFulfilledHashCheckRequest, this);
-            tlht.off("hashtail", this._onHashtail, this);
-        }
-    },
-
-    _unlinkBuilders: function () {
-        this._unlinkTlht();
-        this._unlinkTlkeBuilder();
     },
 
 
@@ -288,6 +269,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
         this._outId = args.outId;
 
         args.profileId = this._profileId;
+        this._cryptor.init(args);
         this._tlht.init(args, sync);  //TODO 'sync = true' should not be needed here!
 
         if (!sync) { this._onReadyForSync(args); }
@@ -312,7 +294,6 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     },
 
     _initTlec: function (args) {
-        this._tlec = this._factory.createTlec();
         this._tlec.init({
             key: this._key,
             inId: this._inId,
@@ -324,7 +305,7 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
             this._unlinkTlkeBuilder();
             this._tlkeBuilder = null;
         }
-        this.status = TlecBuilder.STATUS_ESTABLISHED;
+        this.status = Builder.STATUS_ESTABLISHED;
         this._onChanged();
         this.fire("done", this);
     },
@@ -336,25 +317,25 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     _onTlkeBuilderChanged: function () {
         switch (this._tlkeBuilder.getTlkeState()) {
         case Tlke.STATE_AWAITING_OFFER_RESPONSE:
-            this.status = TlecBuilder.STATUS_OFFER_GENERATED;
+            this.status = Builder.STATUS_OFFER_GENERATED;
             break;
         case Tlke.STATE_AWAITING_AUTH_RESPONSE:
-            this.status = TlecBuilder.STATUS_AUTH_GENERATED;
+            this.status = Builder.STATUS_AUTH_GENERATED;
             break;
         case Tlke.STATE_AWAITING_AUTH:
-            this.status = TlecBuilder.STATUS_AUTH_NEEDED;
+            this.status = Builder.STATUS_AUTH_NEEDED;
             break;
         case Tlke.STATE_AWAITING_OFFERDATA:
-            this.status = TlecBuilder.STATUS_OFFERDATA_NEEDED;
+            this.status = Builder.STATUS_OFFERDATA_NEEDED;
             break;
         case Tlke.STATE_AWAITING_AUTHDATA:
-            this.status = TlecBuilder.STATUS_AUTHDATA_NEEDED;
+            this.status = Builder.STATUS_AUTHDATA_NEEDED;
             break;
         case Tlke.STATE_CONNECTION_ESTABLISHED:
-            this.status = TlecBuilder.STATUS_HT_EXCHANGE;
+            this.status = Builder.STATUS_HT_EXCHANGE;
             break;
         case Tlke.STATE_CONNECTION_FAILED:
-            this.status = TlecBuilder.STATUS_AUTH_ERROR;
+            this.status = Builder.STATUS_AUTH_ERROR;
             break;
         }
         this._onChanged();
@@ -363,32 +344,34 @@ extend(TlecBuilder.prototype, eventEmitter, serializable, {
     destroy: function () {
         if (this._route) { this._route.destroy(); }
         if (this._tlkeBuilder) { this._tlkeBuilder.destroy(); }
+        this._cryptor.destroy();
         this._unlink();
-        this._unlinkBuilders();
+        this._unlinkTlkeBuilder();
         this._tlec = null;
         this._route = null;
         this._tlht = null;
-        this._tlkeBuilder = null;
+        this._cryptor = null;
+        this._tlkeBuilder = null;        
     }
 
 });
 
-TlecBuilder.STATUS_NOT_STARTED = 0;
+Builder.STATUS_NOT_STARTED = 0;
 
 // tlke A
-TlecBuilder.STATUS_OFFER_GENERATED = 1;
-TlecBuilder.STATUS_AUTH_GENERATED = 2;
-TlecBuilder.STATUS_AUTH_ERROR = -1;
+Builder.STATUS_OFFER_GENERATED = 1;
+Builder.STATUS_AUTH_GENERATED = 2;
+Builder.STATUS_AUTH_ERROR = -1;
 
 // tlke B
-TlecBuilder.STATUS_OFFERDATA_NEEDED = 4;
-TlecBuilder.STATUS_AUTHDATA_NEEDED = 5;
-TlecBuilder.STATUS_AUTH_NEEDED = 6;
+Builder.STATUS_OFFERDATA_NEEDED = 4;
+Builder.STATUS_AUTHDATA_NEEDED = 5;
+Builder.STATUS_AUTH_NEEDED = 6;
 
 // tlht both
-TlecBuilder.STATUS_HT_EXCHANGE = 3;
+Builder.STATUS_HT_EXCHANGE = 3;
 
 // can send messages now
-TlecBuilder.STATUS_ESTABLISHED = 10;
+Builder.STATUS_ESTABLISHED = 10;
 
-module.exports = TlecBuilder;
+module.exports = Builder;
