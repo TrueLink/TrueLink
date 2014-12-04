@@ -162,12 +162,16 @@ TlhtAlgo.prototype.hashMessage = function (raw) {
     return hx.as(Bytes).concat(raw);
 }
 
-TlhtAlgo.prototype.processPacket = function (decryptedData) {
+TlhtAlgo.prototype.processPacket = function (decryptedData, isEcho) {
     var hx = decryptedData.bitSlice(0, 128);
     var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
 
-    if (!this._isHashValid(hx)) {
-        return null;
+    if (isEcho) {
+        //todo check
+    } else {
+        if (!this._isHashValid(hx)) {
+            return null;
+        }
     }
     
     return netData;

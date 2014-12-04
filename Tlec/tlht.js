@@ -75,10 +75,15 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
 
     // takes decrypted, fires unhashed and _parsed_!
-    unhash: function (bytes) {
-        invariant(bytes instanceof Multivalue, "bytes must be multivalue");
-        
-        this._unhandledPacketsData.unshift(bytes);
+    unhash: function (args) {
+        if (args.isEcho) {
+            //todo: remove this
+            this._doUnhash(this._algo.processPacket(args.data, args.isEcho), args.isEcho);
+            return;
+        }
+
+        invariant(args.data instanceof Multivalue, "args.data must be multivalue");
+        this._unhandledPacketsData.unshift(args.data);
         
         // try to handle packets one per cycle while handling succeeds
         var handled;
@@ -86,6 +91,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             handled = false;
             var i = 0;
             for ( ; i < this._unhandledPacketsData.length; i++) {
+                //todo: move processPacket into _doUnhash
                 var data = this._algo.processPacket(this._unhandledPacketsData[i]);
                 if (data !== null) {
                     this._doUnhash(data);
@@ -100,7 +106,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         } while (handled);                
     },
 
-    _doUnhash: function (bytes) {
+    _doUnhash: function (bytes, isEcho) {
         var message;
         try {
             message = JSON.parse(bytes.as(Utf8String).value);
@@ -110,7 +116,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             return;
         }
 
-        this.fire("unhashed", message);        
+        this.fire("unhashed", {
+            isEcho: isEcho,
+            data: message
+        });        
     },
 
     // takes object (not Multivalue!), and fires stringified and hashed
@@ -135,12 +144,17 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         this._unsentHashtailsCount--;        
     },
     
-    processMessage: function (message) {
+    processMessage: function (args) {
+        var message = args.data;
         if (message.t === "h" && message.d) {
-            this._algo.setHashEnd(Hex.deserialize(message.d));
-            this._onHashMayBeReady();
-            this._onChanged();
-        }    
+            if (args.isEcho) {
+                // what should we do?
+            } else {
+                this._algo.setHashEnd(Hex.deserialize(message.d));
+                this._onHashMayBeReady();
+                this._onChanged();
+            }    
+        }
     },
 
 
