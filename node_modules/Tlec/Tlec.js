@@ -45,9 +45,13 @@ extend(Tlec.prototype, eventEmitter, serializable, {
         });
     },
     
-    processMessage: function (message) {
+    processMessage: function (args) {
+        var message = args.data;
         if (message.t === "u" && message.d) {
-            this.fire("messageToProcess", Hex.deserialize(message.d));
+            this.fire("messageToProcess", {
+                isEcho: args.isEcho,
+                data: Hex.deserialize(message.d)
+            });
         }        
     },
 

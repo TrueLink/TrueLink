@@ -61,10 +61,13 @@ extend(Cryptor.prototype, eventEmitter, serializable, {
         this.fire("encrypted", encrypted);
     },
 
-    decrypt: function (bytes) {
-        var decrypted = this._decrypt(bytes);  
+    decrypt: function (args) {
+        var decrypted = this._decrypt(args.data);  
         if (decrypted) {
-            this.fire("decrypted", decrypted);
+            this.fire("decrypted", {
+                isEcho: args.isEcho,
+                data: decrypted
+            });
         }
     },
 

@@ -17,7 +17,7 @@ var logfunc = function() {
 describe("True Link Encrypted Channel", function() {
     this.timeout(50000);
 
-    describe.skip("with builder", function() {
+    describe("with builder", function() {
         before(function(done) {
             this.connection = utils.createConnection(done);
  
@@ -156,7 +156,7 @@ describe("True Link Encrypted Channel", function() {
         });
     });
 
-    describe.skip("multihashtail (TlecAlgo.HashCount = 5)", function() {
+    describe("multihashtail (TlecAlgo.HashCount = 5)", function() {
         before(function(done) {
             this.TlecAlgoHashCount = TlhtAlgo.HashCount;
             TlhtAlgo.HashCount = 5;
@@ -228,7 +228,7 @@ describe("True Link Encrypted Channel", function() {
         });
     });
 
-    describe.skip("tlec over tlec", function() {
+    describe("tlec over tlec", function() {
         before(function(done) {
             this.connection = utils.createConnection();
 
