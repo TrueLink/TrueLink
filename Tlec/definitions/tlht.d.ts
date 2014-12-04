@@ -1,2 +1,4 @@
-declare class Tlht {}
+declare class Tlht {
+	constructor(factory: any);
+}
 export = Tlht;
