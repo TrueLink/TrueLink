@@ -53,7 +53,7 @@
         constructor () {
             super();
 
-            this.uuid = uuid();
+            this.uuid = null;
 
             //this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
             this.app = null;
@@ -79,6 +79,7 @@
         }
 
         preinit() {
+            this.uuid = uuid();
         }
 
         init  (args) {

@@ -45,6 +45,7 @@
             _tlht: {propType: "one", type: "Tlht"},
             _tlec: {propType: "one", type: "Tlec"},
             _route: {propType: "one", type: "Route"},
+            _echoRoute: {propType: "one", type: "Route"},
             _cryptor: {propType: "one", type: "TlecCryptor"}
         },
         TlecCryptor: {},
