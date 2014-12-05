@@ -125,6 +125,12 @@ TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {
     return false;
 }
 
+TlhtAlgo.prototype.unhashedFirst = function (isEcho) {
+    return isEcho
+        ? this._isFirstEchoHashChecked
+        : this._isFirstHashChecked;
+}
+
 TlhtAlgo.prototype._getNextHash = function () {
     // first 'next hash', is used for initial hashtail exchange
     if (!this._isFirstHashGenerated) {

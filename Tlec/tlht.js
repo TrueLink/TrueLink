@@ -109,7 +109,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
                 this._unhandledPacketsData.splice(i, 1); 
                 this._onChanged();             
             }
-        } while (handled);                
+        } while (handled && this._readyCalled);                
     },
 
     _doUnhash: function (bytes, isEcho) {
