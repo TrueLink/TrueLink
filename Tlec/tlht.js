@@ -49,7 +49,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
             return {
                 isEcho: packetData.isEcho,
-                data: packetData.as(Hex).serialize()
+                data: packetData.data.as(Hex).serialize()
             };
         });
         packet.setData(data);
@@ -61,7 +61,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             data.unhandledPacketsData.map(function (packetData) {
                 return {
                     isEcho: packetData.isEcho,
-                    data: Hex.deserialize(packetData)
+                    data: Hex.deserialize(packetData.data)
                 };
             });
         this._algo.deserialize(data);
