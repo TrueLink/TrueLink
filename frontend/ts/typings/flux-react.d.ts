@@ -57,6 +57,8 @@ interface IUserMessage {
     //hacks for invitations to tlgr
     id?: string;
     contact?: any;
+
+    uuid?: string; // used for arrival confirmation
 }
 interface ITextMessage extends IUserMessage { 
     text : string;

@@ -483,6 +483,7 @@ extend(Profile.prototype, serializable);
             this.history = null;
             this.contact = null;
             this.unreadCount = 0;
+            this._unconfirmedMessagesIds = Object.create(null);
 
         }
 
@@ -513,8 +514,10 @@ extend(Profile.prototype, serializable);
             var msg: ITextMessage = {
                 text: message,
                 sender: this.profile.name,
-                type: "text"
+                type: "text",
+                uuid: uuid()
             };
+            this._unconfirmedMessagesIds[msg.uuid] = true;
             this._pushMessage(extend({}, msg, {
                 isMine: true
             }));
@@ -547,18 +550,15 @@ extend(Profile.prototype, serializable);
                 return;
             }
 
-            // pseudo-code:
-            // var index = this._sentMessagesIds.indexOf(message.id);
-            // if (index < 0) {
-            //     record_message_to_history;
-            //     this._sentMessagesIds.splice(index, 1);
-            // }
-            // submit_message_arrival(message.id)
-            // changed
-
-            // temp:
-            message.isMine = true;
-            this._pushMessage(message);
+            if (this._unconfirmedMessagesIds[message.uuid]) {                
+                delete this._unconfirmedMessagesIds[message.uuid];
+            } else {
+                // message was sent from another device
+                message.isMine = true;
+                this._pushMessage(message);
+            }
+            //todo confirm message arrival
+            this._onChanged();            
         }
 
         private _processMessage  (message : IUserMessage) {
@@ -628,7 +628,8 @@ extend(Profile.prototype, serializable);
             packet.setData({
                 _type_: "Dialog",
                 name: this.name,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                unconfirmedMessagesIds: this._unconfirmedMessagesIds
             });
             packet.setLink("contact", context.getPacket(this.contact));
         }
@@ -638,6 +639,7 @@ extend(Profile.prototype, serializable);
             var factory = this.getFactory();
             this.name = data.name;
             this.unreadCount = data.unread;
+            this._unconfirmedMessagesIds = data.unconfirmedMessagesIds;
             var contact = context.deserialize(packet.getLink("contact"), factory.createContact, factory);
             this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
             if (!this.history) {
