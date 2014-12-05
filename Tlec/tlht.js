@@ -82,11 +82,17 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     // takes decrypted, fires unhashed and _parsed_!
     unhash: function (args) {
+        console.log("tlht.unhash", args);
+
         if (args) { 
             invariant(args.data instanceof Multivalue, "args.data must be multivalue");
             this._unhandledPacketsData.unshift(args);
         } // if called without args -- then just recheck current packets
-        
+
+        if (!this._readyCalled && this._algo.unhashedFirst(args.isEcho)) {
+            return; // do not start firing packets to early
+        }
+
         // try to handle packets one per cycle while handling succeeds
         var handled;
         do {
@@ -227,6 +233,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         console.log("hashes ready");
         this._readyCalled = true;
         this.fire("htReady");
+        this.unhash();
     },
 
     _onChanged: function () {
