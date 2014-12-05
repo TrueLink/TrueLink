@@ -503,6 +503,7 @@ extend(Profile.prototype, serializable);
             }
             this.contact = contact;
             contact.tlConnection.onMessage.on(this._processMessage, this);
+            contact.tlConnection.onEcho.on(this._processEcho, this);
             if (!skipChanged) {
                 this._onChanged();
             }
@@ -541,7 +542,26 @@ extend(Profile.prototype, serializable);
             this._pushMessage(message);
         }
 
-        _processMessage  (message : IUserMessage) {
+        private _processEcho(message: IUserMessage) {
+            if(message.type !== "text") {
+                return;
+            }
+
+            // pseudo-code:
+            // var index = this._sentMessagesIds.indexOf(message.id);
+            // if (index < 0) {
+            //     record_message_to_history;
+            //     this._sentMessagesIds.splice(index, 1);
+            // }
+            // submit_message_arrival(message.id)
+            // changed
+
+            // temp:
+            message.isMine = true;
+            this._pushMessage(message);
+        }
+
+        private _processMessage  (message : IUserMessage) {
             if(message.type !== "text") {
                 return;
             }
