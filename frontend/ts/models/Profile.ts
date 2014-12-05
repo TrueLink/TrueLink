@@ -200,7 +200,8 @@
             if (args.what === "userinfo-edited") {
                 this._updateUserInfo(args.args);
             } else if (args.what === "contact-created") {
-                this.createContact(args.args);
+                var contact = this.createContact(args.args);
+                var dialog = this.startDirectDialog(contact);                
             } else if (args.what === "tlConnection") {
                 this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
             }
