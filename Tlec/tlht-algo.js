@@ -83,6 +83,7 @@ TlhtAlgo.prototype.processHashtail = function (hashInfo) {
         this._ourHashes.splice(this._ourHashes.indexOf(existingHashInfoArr[0]), 1);
     }
     this._ourHashes.push(hashInfo);
+    return !!existingHashInfoArr.length;
 }
 
 TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {

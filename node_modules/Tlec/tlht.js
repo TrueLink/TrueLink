@@ -82,8 +82,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     // takes decrypted, fires unhashed and _parsed_!
     unhash: function (args) {
-        invariant(args.data instanceof Multivalue, "args.data must be multivalue");
-        this._unhandledPacketsData.unshift(args);
+        if (args) { 
+            invariant(args.data instanceof Multivalue, "args.data must be multivalue");
+            this._unhandledPacketsData.unshift(args);
+        } // if called without args -- then just recheck current packets
         
         // try to handle packets one per cycle while handling succeeds
         var handled;
@@ -198,9 +200,12 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     processHashtail: function (hashInfo) {
-        this._algo.processHashtail(hashInfo);
+        var isBrandNew = this._algo.processHashtail(hashInfo);
         this._onHashMayBeReady();
         this._onChanged();
+        if (isBrandNew) { // new hashtail arrived -- recheck unhandled data
+            this.unhash(); 
+        }
     },
 
     _supplyHashtails: function () {
