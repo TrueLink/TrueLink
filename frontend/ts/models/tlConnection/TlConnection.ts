@@ -16,6 +16,7 @@
     export class TlConnection extends Model.Model implements ISerializable {
 
         public onMessage : Event.Event<IUserMessage>;
+        public onEcho : Event.Event<IUserMessage>;
         public onDone : Event.Event<TlConnection>;
         public onReadyForSync : Event.Event<any>;
         public onSyncMessage : Event.Event<any>;
@@ -32,6 +33,7 @@
             super();
 
             this.onMessage = new Event.Event<IUserMessage>("TlConnection.onMessage");
+            this.onEcho = new Event.Event<IUserMessage>("TlConnection.onEcho");
             this.onDone = new Event.Event<TlConnection>("TlConnection.onDone");
             this.onReadyForSync = new Event.Event<any>("TlConnection.onReadyForSync");
             this.onSyncMessage = new Event.Event<any>("TlConnection.onSyncMessage");
@@ -121,6 +123,7 @@
 
         _linkFinishedTlec  (tlecWrapper) {
             tlecWrapper.on("message", this._receiveMessage, this);
+            tlecWrapper.on("echo", this._receiveEcho, this);
         }
 
         _addTlec  (tlecWrapper) {
@@ -139,14 +142,26 @@
             activeTlec.sendMessage(data);
         }
 
-        _receiveMessage  (messageData) {
+        private _receiveMessage  (messageData) {
+            this._processIncomingMessage(messageData, false);
+        }
+
+        private _receiveEcho  (messageData) {
+            this._processIncomingMessage(messageData, true);
+        }
+
+        private _processIncomingMessage(messageData, isEcho) {
             if (messageData.metadata) {
                 delete messageData.metadata;
             }
             var result = JSON.parse(messageData.as(Utf8String).toString());
             result.metadata = result.metadata || {};
             result.metadata.tlConnection = this;
-            this.onMessage.emit(result);
+            if (isEcho) {
+                this.onEcho.emit(result);   
+            } else {
+                this.onMessage.emit(result);  
+            }         
         }
 
         _linkInitial  () {

@@ -17,6 +17,7 @@
         this._defineEvent("offer");
         this._defineEvent("auth");
         this._defineEvent("message");
+        this._defineEvent("echo");
         this._defineEvent("done");
         this._defineEvent("readyForSync");        
         this._defineEvent("syncMessage");
@@ -111,6 +112,7 @@
                 this._tlecBuilder.on("done", this._onDone, this);
                 this._tlecBuilder.on("readyForSync", this._onReadyForSync, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
+                this._tlecBuilder.on("echo", this._onEcho, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
@@ -192,6 +194,9 @@
         },
         _onMessage: function (msg) {
             this.fire("message", msg);
+        },
+        _onEcho: function (msg) {
+            this.fire("echo", msg);
         },
         _onDone: function () {
             this.fire("done", this);
