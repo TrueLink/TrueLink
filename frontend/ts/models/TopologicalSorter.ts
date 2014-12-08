@@ -14,21 +14,26 @@ export interface IMessage<T> {
 	data: T;
 }
 
+export interface IWithContext<T> {
+	data: T;
+	context: any;
+}
+
 export class Sorter<T> extends model.Model implements ISerializable {
 
-	public onUnwrapped: event.Event<T>;
-	public onWrapped: event.Event<IMessage<T>>;
+	public onUnwrapped: event.Event<IWithContext<T>>;
+	public onWrapped: event.Event<IWithContext<IMessage<T>>>;
 
 	private _allIds: IStringSet;
 	private _heads: string[];
-	private _buffer: IMessage<T>[];
+	private _buffer: IWithContext<IMessage<T>>[];
 
 
 	constructor() {
 		super();
 
-		this.onUnwrapped = new event.Event<T>("TopologicalSorter.onUnwrapped");
-        this.onWrapped = new event.Event<IMessage<T>>("TopologicalSorter.onWrapped");
+		this.onUnwrapped = new event.Event<IWithContext<T>>("TopologicalSorter.onUnwrapped");
+        this.onWrapped = new event.Event<IWithContext<IMessage<T>>>("TopologicalSorter.onWrapped");
         
         this._allIds = null;
         this._heads = null;
@@ -61,7 +66,7 @@ export class Sorter<T> extends model.Model implements ISerializable {
         this._buffer = data.buffer;
     }
 
-    public wrap(data: T): void {
+    public wrap(data: T, context?: any): void {
     	this._check();
 
     	var message: IMessage<T> = {
@@ -72,17 +77,23 @@ export class Sorter<T> extends model.Model implements ISerializable {
     	this._allIds[message.uuid] = true;
     	this._heads = [message.uuid];
 
-    	this.onWrapped.emit(message);
+    	this.onWrapped.emit({
+    		data: message,
+    		context: context
+    	});
 
     	this._onChanged();
     }
 
-    public unwrap(message: IMessage<T>) {
+    public unwrap(message: IMessage<T>, context?: any) {
     	this._check();
 
     	var buffer = this._buffer;
 
-    	buffer.unshift(message);
+    	buffer.unshift({
+    		data: message,
+    		context: context
+    	});
 
     	// check if it is time for any message to be unwrapped, one per cycle
     	var ordered: boolean;
@@ -100,9 +111,10 @@ export class Sorter<T> extends model.Model implements ISerializable {
     	this._onChanged();
     }
 
-    private _doUnwrap(message: IMessage<T>) {
+    private _doUnwrap(messageWihtContext: IWithContext<IMessage<T>>) {
     	var heads = this._heads;
 		var allIds = this._allIds;
+		var message = messageWihtContext.data;
 
         // it is time for the message if we already know (sent or emitted) every message, previous to this 
 		if (!message.prevIds.every(id => allIds[id])) { return false; }
@@ -118,7 +130,10 @@ export class Sorter<T> extends model.Model implements ISerializable {
     	});
     	
     	heads.push[message.uuid];
-        this.onUnwrapped.emit(message.data); 
+        this.onUnwrapped.emit({
+        	data: message.data,
+        	context: messageWihtContext.context
+        }); 
         return true;
     }
 }

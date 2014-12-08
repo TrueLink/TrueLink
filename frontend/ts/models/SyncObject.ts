@@ -11,7 +11,7 @@ import TopologicalSorter = require("./TopologicalSorter");
 
 export class SyncObject extends Model.Model implements ISerializable {
     public onJoinedToSync: Event.Event<SyncObject>;
-    public onSyncMessage: Event.Event<ITlgrTextMessageWrapper>;
+    public onSyncMessage: Event.Event<any>;
     public onDeviceAdded: Event.Event<string>;
 
     public grConnection: GrConnection.GrConnection;
@@ -28,7 +28,7 @@ export class SyncObject extends Model.Model implements ISerializable {
     constructor () {
         super();
         this.onJoinedToSync = new Event.Event<SyncObject>("SyncObject.onJoinedToSync");
-        this.onSyncMessage = new Event.Event<ITlgrTextMessageWrapper>("SyncObject.onSyncMessage");
+        this.onSyncMessage = new Event.Event<any>("SyncObject.onSyncMessage");
         this.onDeviceAdded = new Event.Event<string>("SyncObject.onDeviceAdded");
         this.grConnection = null;
         this.tlConnections = [];
@@ -120,16 +120,16 @@ export class SyncObject extends Model.Model implements ISerializable {
         this._sorter.unwrap(JSON.parse(message.text));
     }
 
-    private _onSyncMessage(message: ITlgrTextMessageWrapper) {
-        this.onSyncMessage.emit(message);
+    private _onSyncMessage(message: TopologicalSorter.IWithContext<TopologicalSorter.IMessage<any>>) {
+        this.onSyncMessage.emit(message.data);
     }
 
     sendSyncMessage(message: any) {
         this._sorter.wrap(message);
     }
 
-    private _doSendSyncMessage(message: any) {
-        this.grConnection.sendMessage(JSON.stringify(message));
+    private _doSendSyncMessage(message: TopologicalSorter.IWithContext<any>) {
+        this.grConnection.sendMessage(JSON.stringify(message.data));
     }
 
     private _onMessageFromMasterReceived(message, tlConnection) {

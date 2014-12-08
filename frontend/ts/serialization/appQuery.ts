@@ -37,7 +37,8 @@
         },
         TlConnection: {
             _initialTlec: {propType: "one", type: "CouchTlec"},
-            _tlecs: {propType: "many", type: "CouchTlec"}
+            _tlecs: {propType: "many", type: "CouchTlec"},
+            _sorter: {propType: "one", type: "TopologicalSorter"}
         },
         CouchTlec: {
             _tlecBuilder: {propType: "one", type: "TlecBuilder"}

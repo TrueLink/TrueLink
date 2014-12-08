@@ -11,6 +11,7 @@
     import Tlke = require("Tlke");
     import Route = require("Route");
     import CouchTlec = require("../../models/tlConnection/CouchTlec");
+    import TopologicalSorter = require("../../models/TopologicalSorter");
 
 
     function TlConnectionFactory(serializer, tlConnection, transport) {
@@ -61,7 +62,11 @@
 
         createRoute: function () {
             return this._observed(new Route(this));
-        }
+        },
+
+        createSorter: function () {
+            return this._observed(new TopologicalSorter.Sorter<IUserMessage>());
+        },
     });
 
     export = TlConnectionFactory;
