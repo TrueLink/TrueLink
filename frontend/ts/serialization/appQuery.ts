@@ -27,8 +27,10 @@
             transport: {propType: "one", type: "CouchTransport"},
             grConnection: {propType: "one", type: "GrConnection"},
             tlConnections: {propType: "many", type: "TlConnection"},
-            initialConnection: {propType: "one", type: "TlConnection"}
+            initialConnection: {propType: "one", type: "TlConnection"},
+            _sorter: {propType: "one", type: "TopologicalSorter"}
         },
+        TopologicalSorter: {},
         GrConnection: {
             activeTlgr: {propType: "one", type: "Tlgr"},
             transport: {propType: "one", type: "CouchTransport"}

@@ -7,6 +7,7 @@ import Model = require("../tools/model");
 import CouchTransport = require("../models/tlConnection/CouchTransport");
 import TlConnection = require("../models/tlConnection/TlConnection");
 import GrConnection = require("../models/grConnection/GrConnection");
+import TopologicalSorter = require("./TopologicalSorter");
 
 export class SyncObject extends Model.Model implements ISerializable {
     public onJoinedToSync: Event.Event<SyncObject>;
@@ -22,6 +23,8 @@ export class SyncObject extends Model.Model implements ISerializable {
     public devices: ITlgrShortUserInfo[];
     public profileUuid: string;
 
+    private _sorter: TopologicalSorter.Sorter<any>;
+
     constructor () {
         super();
         this.onJoinedToSync = new Event.Event<SyncObject>("SyncObject.onJoinedToSync");
@@ -35,6 +38,8 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.master = undefined;
         this.devices = [];
         this.profileUuid = null;
+
+        this._sorter = null;
     }
 
     init (args) {
@@ -43,6 +48,8 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.profileUuid = args.profileUuid;
         this.grConnection = this.getFactory().createGrConnection();
         this._linkGrConnection(this.grConnection);
+        this._sorter = this.getFactory().createSorter();
+        this._linkSorter();
         if(this.master) {
             this.grConnection.init({
                 invite: null,
@@ -76,7 +83,12 @@ export class SyncObject extends Model.Model implements ISerializable {
     private _linkGrConnection(conn) {
         conn.onUserJoined.on(this._deviceAdded, this);
         conn.onUserLeft.on(this._deviceRemoved, this);
-        conn.onMessage.on(this._onSyncMessage, this);
+        conn.onMessage.on(this._onRawSyncMessage, this);
+    }
+
+    private _linkSorter() {
+        this._sorter.onUnwrapped.on(this._onSyncMessage, this);
+        this._sorter.onWrapped.on(this._doSendSyncMessage, this);
     }
 
     private _onSlaveConnected(conn) {
@@ -103,11 +115,19 @@ export class SyncObject extends Model.Model implements ISerializable {
         // TBD
     }
     
+    private _onRawSyncMessage(message: ITlgrTextMessageWrapper) {
+        this._sorter.unwrap(JSON.parse(message.text));
+    }
+
     private _onSyncMessage(message: ITlgrTextMessageWrapper) {
         this.onSyncMessage.emit(message);
     }
 
     sendSyncMessage(message: any) {
+        this._sorter.wrap(message);
+    }
+
+    private _doSendSyncMessage(message: any) {
         this.grConnection.sendMessage(JSON.stringify(message));
     }
 
@@ -133,6 +153,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         packet.setLink("grConnection", context.getPacket(this.grConnection));
         packet.setLink("initialConnection", context.getPacket(this.initialConnection));
         packet.setLink("transport", context.getPacket(this.transport));
+        packet.setLink("_sorter", context.getPacket(this._sorter));
     }
 
     deserialize(packet, context) {
@@ -147,6 +168,8 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
         this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createGrConnection, factory);
         this._linkGrConnection(this.grConnection);
+        this._sorter = context.deserialize(packet.getLink("_sorter"), factory.createSorter, factory);
+        this._linkSorter();
         this.initialConnection = context.deserialize(packet.getLink("initialConnection"), factory.createTlConnection, factory);
         if(this.initialConnection) {
             this._linkConnectionToMaster(this.initialConnection);
