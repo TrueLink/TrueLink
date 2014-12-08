@@ -36,6 +36,8 @@ function Tlht(factory) {
     this._unhandledPacketsData = [];
     this._unhandledPacketsDataInner = [];
 
+    this.__debug_unhashedPackectsCounter = 0;
+
     // is used to determine if we are hashing another hashtail or user-message
     // in order to avoid calling this.generate() while already being in generation process
     // (should not be serialized?)
@@ -127,6 +129,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             // not for me
             return true;
         }
+
+        console.log("tlht._doUnhash about to fire unhashed",
+            this.__debug_unhashedPackectsCounter++,
+            isEcho, message);
 
         this.fire("unhashed", {
             isEcho: isEcho,

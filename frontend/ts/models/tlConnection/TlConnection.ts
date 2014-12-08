@@ -31,6 +31,9 @@
         private _addrIns : Array<any>;
         private _sorter: TopologicalSorter.Sorter<IUserMessage>;
 
+        private __debug_receivedPackectsCounter;
+
+
         constructor () {
             super();
 
@@ -48,6 +51,8 @@
             this._tlecs = [];
             this._addrIns = [];
             this._sorter = null;
+
+            this.__debug_receivedPackectsCounter = 0;
         }
 
         init(args?, sync?) {
@@ -133,6 +138,8 @@
         }
 
         _linkFinishedTlec  (tlecWrapper) {
+            console.log("TlConnection._linkFinishedTlec is about to link tlec", tlecWrapper);
+            
             tlecWrapper.on("message", this._receiveMessage, this);
             tlecWrapper.on("echo", this._receiveEcho, this);
         }
@@ -163,15 +170,23 @@
         }
 
         private _receiveMessage  (messageData) {
-            this._sorter.unwrap(JSON.parse(messageData.as(Utf8String).toString()), {
-                isEcho: false
-            });
+            var data = JSON.parse(messageData.as(Utf8String).toString())
+
+            console.log("TlConnection._receiveMessage about to pass message to unwrapper",
+                this.__debug_receivedPackectsCounter++,
+                false, data);
+
+            this._sorter.unwrap(data, { isEcho: false });
         }
 
         private _receiveEcho  (messageData) {
-            this._sorter.unwrap(JSON.parse(messageData.as(Utf8String).toString()), {
-                isEcho: true
-            });
+            var data = JSON.parse(messageData.as(Utf8String).toString())
+
+            console.log("TlConnection._receiveMessage about to pass message to unwrapper",
+                this.__debug_receivedPackectsCounter++,
+                true, data);
+
+            this._sorter.unwrap(data, { isEcho: true });
         }
 
         private _receiveOrderedMessage(messageWithContext: TopologicalSorter.IWithContext<IUserMessage>) {
