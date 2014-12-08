@@ -196,6 +196,7 @@
             this.fire("message", msg);
         },
         _onEcho: function (msg) {
+            console.log("CouchTlec._onEcho", msg);
             this.fire("echo", msg);
         },
         _onDone: function () {

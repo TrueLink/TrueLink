@@ -194,10 +194,9 @@
             this.tlConnections.forEach(conn => conn.addCowriter(newProfileId));
         }
 
-        private _processSyncMessage(message: ITlgrTextMessageWrapper) {
-            console.log(this.name, "got sync message", message);
+        private _processSyncMessage(args: any) {
+            console.log(this.name, "got sync message", args);
 
-            var args = JSON.parse(message.text);
             if (args.what === "userinfo-edited") {
                 this._updateUserInfo(args.args);
             } else if (args.what === "contact-created") {
@@ -474,6 +473,7 @@ extend(Profile.prototype, serializable);
         public history : MessageHistory.MessageHistory;
         public contact : Contact.Contact;
         public unreadCount : number;
+        private _unconfirmedMessagesIds: { [index: string]: boolean };
 
         constructor () {
 

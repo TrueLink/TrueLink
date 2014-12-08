@@ -10,6 +10,7 @@
     var TlecBuilder = Tlec.Builder;
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
     import Utf8String = require("Multivalue/multivalue/utf8string");
+    import TopologicalSorter = require("../TopologicalSorter");
 
     import uuid = require("uuid");
 
@@ -28,6 +29,7 @@
         private _initialTlec : any;
         private _tlecs : Array<any>;
         private _addrIns : Array<any>;
+        private _sorter: TopologicalSorter.Sorter<IUserMessage>;
 
         constructor () {
             super();
@@ -39,10 +41,13 @@
             this.onSyncMessage = new Event.Event<any>("TlConnection.onSyncMessage");
             this.offer = null;
             this.auth = null;
+
+            this.id = null;
+
             this._initialTlec = null;
             this._tlecs = [];
             this._addrIns = [];
-            this.id = null;
+            this._sorter = null;
         }
 
         init(args?, sync?) {
@@ -52,6 +57,9 @@
             this._linkInitial();
             this.id = sync.id || uuid();
             this._initialTlec.init(args, sync.args);
+            this._sorter = this.getFactory().createSorter();
+            this._sorter.init();
+            this._linkSorter();
             this._onChanged();
         }
 
@@ -103,6 +111,7 @@
 
             packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
             packet.setLink("_tlecs", context.getPacket(this._tlecs));
+            packet.setLink("_sorter", context.getPacket(this._sorter));
         }
 
         deserialize  (packet, context) {
@@ -117,6 +126,8 @@
 
             this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createCouchTlec, factory);
             this._linkInitial();
+            this._sorter = context.deserialize(packet.getLink("_sorter"), factory.createSorter, factory);
+            this._linkSorter();
             this._tlecs = context.deserialize(packet.getLink("_tlecs"), factory.createCouchTlec, factory);
             this._tlecs.forEach(this._linkFinishedTlec, this);
         }
@@ -124,6 +135,11 @@
         _linkFinishedTlec  (tlecWrapper) {
             tlecWrapper.on("message", this._receiveMessage, this);
             tlecWrapper.on("echo", this._receiveEcho, this);
+        }
+
+        private _linkSorter() {
+            this._sorter.onUnwrapped.on(this._receiveOrderedMessage, this);
+            this._sorter.onWrapped.on(this._doSendMessage, this);
         }
 
         _addTlec  (tlecWrapper) {
@@ -137,24 +153,36 @@
 
         sendMessage  (msg : IUserMessage) {
             if (!this.canSendMessages()) { throw new Error("no tlec"); }
-            var data = Utf8String.fromString(JSON.stringify(msg));
+            this._sorter.wrap(msg);
+        }
+
+        private _doSendMessage(msg: TopologicalSorter.IWithContext<TopologicalSorter.IMessage<IUserMessage>>) {
+            var data = JSON.stringify(msg.data);
             var activeTlec = this._tlecs[0];
-            activeTlec.sendMessage(data);
+            activeTlec.sendMessage(Utf8String.fromString(data));
         }
 
         private _receiveMessage  (messageData) {
-            this._processIncomingMessage(messageData, false);
+            this._sorter.unwrap(JSON.parse(messageData.as(Utf8String).toString()), {
+                isEcho: false
+            });
         }
 
         private _receiveEcho  (messageData) {
-            this._processIncomingMessage(messageData, true);
+            this._sorter.unwrap(JSON.parse(messageData.as(Utf8String).toString()), {
+                isEcho: true
+            });
         }
 
-        private _processIncomingMessage(messageData, isEcho) {
+        private _receiveOrderedMessage(messageWithContext: TopologicalSorter.IWithContext<IUserMessage>) {
+            this._processIncomingMessage(messageWithContext.data, messageWithContext.context.isEcho);
+        }
+
+        private _processIncomingMessage(messageData: IUserMessage, isEcho) {
             if (messageData.metadata) {
                 delete messageData.metadata;
             }
-            var result = JSON.parse(messageData.as(Utf8String).toString());
+            var result = messageData;
             result.metadata = result.metadata || {};
             result.metadata.tlConnection = this;
             if (isEcho) {

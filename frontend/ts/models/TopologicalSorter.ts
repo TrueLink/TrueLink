@@ -124,7 +124,7 @@ export class Sorter<T> extends model.Model implements ISerializable {
 
 	    	allIds[message.uuid] = true;
 	    	
-	    	// remove from heads every id this message covers, if some
+	    	// remove from heads every id this message covers, if any
 	    	message.prevIds.forEach(id => {
 	    		var index = heads.indexOf(id);
 	    		if (index >= 0) {
