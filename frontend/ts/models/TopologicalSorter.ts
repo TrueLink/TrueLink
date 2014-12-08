@@ -1,5 +1,8 @@
 "use strict";
 
+import modules = require("modules");
+var serializable = modules.serialization.serializable;
+import extend = require("../tools/extend");
 import invariant = require("invariant");
 import event = require("../tools/event");
 import uuid = require("uuid");
@@ -119,3 +122,5 @@ export class Sorter<T> extends model.Model implements ISerializable {
         return true;
     }
 }
+
+extend(Sorter.prototype, serializable);
