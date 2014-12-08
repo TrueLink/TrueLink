@@ -96,6 +96,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         }
 
         // try to handle packets one per cycle while handling succeeds
+        var readyCalled = this._readyCalled;
         var handled;
         do {
             handled = false;
@@ -111,7 +112,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
                 this._unhandledPacketsData.splice(i, 1); 
                 this._onChanged();             
             }
-        } while (handled && this._readyCalled);                
+        } while (handled && readyCalled);                
     },
 
     _doUnhash: function (bytes, isEcho) {
