@@ -119,17 +119,22 @@ export class Sorter<T> extends model.Model implements ISerializable {
         // it is time for the message if we already know (sent or emitted) every message, previous to this 
 		if (!message.prevIds.every(id => allIds[id])) { return false; }
 
-    	allIds[message.uuid] = true;
-    	
-    	// remove from heads every id this message covers, if some
-    	message.prevIds.forEach(id => {
-    		var index = heads.indexOf(id);
-    		if (index >= 0) {
-    			heads.splice(index, 1);
-    		}
-    	});
-    	
-    	heads.push(message.uuid);
+		if (!allIds[message.uuid]) {
+			// do this for unknown messages only as extra head would be added otherwise
+
+	    	allIds[message.uuid] = true;
+	    	
+	    	// remove from heads every id this message covers, if some
+	    	message.prevIds.forEach(id => {
+	    		var index = heads.indexOf(id);
+	    		if (index >= 0) {
+	    			heads.splice(index, 1);
+	    		}
+	    	});
+	    	
+	    	heads.push(message.uuid);
+	    }
+
         this.onUnwrapped.emit({
         	data: message.data,
         	context: messageWihtContext.context
