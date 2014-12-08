@@ -129,7 +129,7 @@ export class Sorter<T> extends model.Model implements ISerializable {
     		}
     	});
     	
-    	heads.push[message.uuid];
+    	heads.push(message.uuid);
         this.onUnwrapped.emit({
         	data: message.data,
         	context: messageWihtContext.context
