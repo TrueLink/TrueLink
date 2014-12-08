@@ -144,6 +144,8 @@ interface ITlgr extends IEventEmitter, ISerializable {
     init :  (args : any) => any;
 }
 
+interface IStringSet { [index: string]: boolean }
+
 
 declare var __any : any;
 declare var $ : any;
