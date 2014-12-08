@@ -49,6 +49,7 @@ export class SyncObject extends Model.Model implements ISerializable {
         this.grConnection = this.getFactory().createGrConnection();
         this._linkGrConnection(this.grConnection);
         this._sorter = this.getFactory().createSorter();
+        this._sorter.init();
         this._linkSorter();
         if(this.master) {
             this.grConnection.init({
