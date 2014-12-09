@@ -14,6 +14,7 @@ Hashtail.HashCount = 1000;
 
 Hashtail.deserialize = function (data) {
     var hashtail = new Hashtail();
+    hashtail._active = data.active;
     hashtail._owner = data.owner;
     hashtail._start = data.start ? Hex.deserialize(data.start) : null;
     hashtail._hashCounter = data.hashCounter;
@@ -39,6 +40,7 @@ Hashtail.hash = function (value) {
 
 
 function Hashtail() {
+    this._active = false;
     this._owner = null;
     this._start = null;
     this._cache = null;
@@ -51,6 +53,7 @@ function Hashtail() {
 
 Hashtail.prototype.serialize = function () {
     return {
+        active: this._active,
         owner: this._owner,
         stat: this._start ? this._start.as(Hex).serialize() : null,
         hashCounter: this._hashCounter,
@@ -62,7 +65,11 @@ Hashtail.prototype.serialize = function () {
 }
 
 Hashtail.prototype.isActiveAndOwnedBy = function (owner) {
-    return this._start && this._hashCounter > 1 && this._owner === owner;
+    return this._active && this._start && this._hashCounter > 1 && this._owner === owner;
+}
+
+Hashtail.prototype.activate = function () {
+    this._active = true;
 }
 
 // returns data to be sent to delegation target
@@ -87,10 +94,11 @@ Hashtail.prototype.isItYou = function (end) {
     return false  
 }
 
-Hashtail.prototype.initWithStart = function (hashInfo) {
+Hashtail.prototype.initWithStart = function (hashInfo, inactive) {
     invariant(!this._start || this._start.as(Hex).isEqualTo(hashInfo.start.as(Hex)), 
         "cannot initWithStart: start is already set and differs"); 
 
+    this._active = !inactive;
     this._owner = hashInfo.owner;
     this._start = hashInfo.start.as(Hex);
     this._hashCounter = hashInfo.hashCounter || Hashtail.HashCount;
@@ -162,8 +170,8 @@ function TlhtAlgo(random, id) {
     this._id = null;
     this._cowriters = [];
 
-    this._ourHashes = null;
-    this._theirHashes = null;
+    this._ourHashes = [];
+    this._theirHashes = [];
 
     this._isFirstHashChecked = false;
     this._isFirstEchoHashChecked = false;
@@ -182,10 +190,6 @@ TlhtAlgo.prototype.init = function (args, sync) {
 
     if (sync) {
         //TODO 'sync' should not be needed here!
-
-        this._ourHashes = [];
-        this._theirHashes = [];
-
         this._isFirstHashGenerated = true;        
     }
 }
@@ -204,7 +208,7 @@ TlhtAlgo.prototype._getMyActiveHashes = function () {
 
 TlhtAlgo.prototype._chooseHashtail = function () {
     var myHashes = this._getMyActiveHashes();
-    invariant(!this.isExpired(), "This channel is expired");
+    invariant(!this.areAnyHashesAvailable(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * myHashes.length);
     return myHashes[hashIndex];
@@ -273,9 +277,9 @@ TlhtAlgo.prototype._getNextHash = function () {
     return this._chooseHashtail().getNextHash();
 }
 
-TlhtAlgo.prototype.isExpired = function () {
-    // if (!this._ourHashes) -- then we are not expired, we are unconfigured yet
-    return this._ourHashes && (this._getMyActiveHashes().length === 0);
+// is truely expired if htReady was already called
+TlhtAlgo.prototype.areAnyHashesAvailable = function () {
+    return this._getMyActiveHashes().length === 0;
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
@@ -310,16 +314,15 @@ TlhtAlgo.prototype.generate = function () {
     var end = ht.initWithStart({
         start: this._random.bitArray(128),
         owner: this._id
-    });
+    }, true);
 
-    return {
-        hashEnd: end,
-        hashtail: ht
-    };
+    this._ourHashes.push(ht);
+
+    return end;
 }
 
 TlhtAlgo.prototype.isHashReady = function () {
-    return !!(this._ourHashes && this._theirHashes && this._ourHashes.length && this._theirHashes.length);
+    return !!(!this.areAnyHashesAvailable() && this._theirHashes.length);
 }
 
 TlhtAlgo.prototype.createMessage = function (raw, hash) {
@@ -327,16 +330,22 @@ TlhtAlgo.prototype.createMessage = function (raw, hash) {
     return message;
 }
 
-TlhtAlgo.prototype.pushMyHashtail = function (ht) {
-    if (!this._ourHashes) { this._ourHashes = []; }
-    this._ourHashes.push(ht);
+TlhtAlgo.prototype.activateHashEnd = function (hashEnd) {
+    var existingHashInfoArr = this._ourHashes.filter(function (ht) {
+        return ht.isItYou(hashEnd);
+    });
+    if (existingHashInfoArr.length) {
+        existingHashInfoArr[0].activate();
+    } else {
+        // hashtail should exists by this time
+        debugger;
+    }
 }
 
 TlhtAlgo.prototype.setHashEnd = function (hashEnd, isEcho) {
     var ht;
 
     if (isEcho) {
-        if (!this._ourHashes) { this._ourHashes = []; }
         var existingHashInfoArr = this._ourHashes.filter(function (ht) {
             return ht.isItYou(hashEnd);
         });
@@ -346,7 +355,6 @@ TlhtAlgo.prototype.setHashEnd = function (hashEnd, isEcho) {
             this._ourHashes.push(ht = new Hashtail());
         } 
     } else {
-        if (!this._theirHashes) { this._theirHashes = []; }
         this._theirHashes.push(ht = new Hashtail());
     }
         

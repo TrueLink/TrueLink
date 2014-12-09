@@ -229,6 +229,8 @@ describe("True Link Encrypted Channel", function() {
     });
 
     describe("tlec over tlec", function() {
+        this.timeout(5000);
+
         before(function(done) {
             this.connection = utils.createConnection();
 

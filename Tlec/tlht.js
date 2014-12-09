@@ -141,7 +141,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         var raw = new Utf8String(JSON.stringify(object));
         var hashed = this._algo.hashMessage(raw);
         this._onChanged();
-        if (this._algo.isExpired()) { 
+        if (this._algo.areAnyHashesAvailable()) { 
             this.fire("expired");
         }
         this.fire("hashed", hashed);
@@ -170,14 +170,14 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     generate: function () {
         console.log("Tlht generate");
-        var hash = this._algo.generate();
+        var hashEnd = this._algo.generate();
 
 
         // order matters for this two!
         // if we first push then send, we may sign it with itself
         // (auto references everywhere, yeah...)
-        this._sendMessage(hash.hashEnd);
-        this._algo.pushMyHashtail(hash.hashtail);
+        this._sendMessage(hashEnd);
+        this._algo.activateHashEnd(hashEnd);
 
 
         this._onHashMayBeReady();
@@ -186,7 +186,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     addCowriter: function (cowriter) {
         this._algo.addCowriter(cowriter);
-        if (this._algo.isExpired()) {
+        if (this._algo.areAnyHashesAvailable()) {
             return;
         }
         if (this._algo.getCowriterActiveHashes(cowriter).length > 0) {
