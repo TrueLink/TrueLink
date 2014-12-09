@@ -65,7 +65,7 @@
 
         serialize  (packet, context) {
             packet.setData({
-                id: this.id,
+                theId: this.id,
                 name: this.name
             });
             packet.setLink("tlConnection", context.getPacket(this.tlConnection));
@@ -76,7 +76,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
-            this.id = data.id;
+            this.id = data.theId;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
             
             this._link();

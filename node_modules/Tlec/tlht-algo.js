@@ -221,7 +221,7 @@ TlhtAlgo.prototype.deserialize = function (data) {
         data.herHashes.map(function (ht) {
             return Hashtail.deserialize(ht);
         });
-    this._id = data.id;
+    this._id = data.theId;
     this._isFirstHashChecked = data.isFirstHashChecked;
     this._isFirstEchoHashChecked = data.isFirstEchoHashChecked;
     this._isFirstHashGenerated = data.isFirstHashGenerated;
@@ -241,7 +241,7 @@ TlhtAlgo.prototype.serialize = function () {
         isFirstHashChecked: this._isFirstHashChecked,
         isFirstEchoHashChecked: this._isFirstEchoHashChecked,
         isFirstHashGenerated: this._isFirstHashGenerated,
-        id: this._id   
+        theId: this._id   
     };
 }
 

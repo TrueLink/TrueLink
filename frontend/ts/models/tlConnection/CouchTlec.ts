@@ -87,7 +87,7 @@
             }
             packet.setData({
                 adapters: adapters,
-                id: this.id
+                theId: this.id
             });
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
         },
@@ -101,7 +101,7 @@
                     this._addAdapter(adContext, (<any>CouchAdapter).deserialize(this._transport, data.adapters[adContext]))
                 }
             }
-            this.id = data.id;
+            this.id = data.theId;
             this._link();
         },
 

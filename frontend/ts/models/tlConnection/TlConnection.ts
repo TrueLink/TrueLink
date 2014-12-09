@@ -111,7 +111,7 @@
                 offer: this.offer ? this.offer.as(Hex).serialize() : null,
                 auth: this.auth ? this.auth.as(Hex).serialize() : null,
                 addrIns: this._addrIns.map(function (addr) { return addr.as(Hex).serialize(); }),
-                id: this.id
+                theId: this.id
             });
 
             packet.setLink("_initialTlec", context.getPacket(this._initialTlec));
@@ -127,7 +127,7 @@
             this.offer = data.offer ? Hex.deserialize(data.offer) : null;
             this.auth = data.auth ? Hex.deserialize(data.auth) : null;
             this._addrIns = data.addrIns ? data.addrIns.map(function (addr) { return Hex.deserialize(addr); }) : [];
-            this.id = data.id;
+            this.id = data.theId;
 
             this._initialTlec = context.deserialize(packet.getLink("_initialTlec"), factory.createCouchTlec, factory);
             this._linkInitial();
