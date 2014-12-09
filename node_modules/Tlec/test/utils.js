@@ -109,7 +109,6 @@ var Actor = function (name, otherName) {
 };
 
 Actor.prototype.sendMessage = function (text) {
-    this.history.push(this.name + ": " + text);
     this.tlec.sendMessage(new Utf8String(text));
 }
 
@@ -118,6 +117,9 @@ Actor.prototype.linkTlec = function (tlecEmitter) {
         this.tlec = tlec;
         tlec.on("message", function(bytes) {
             this.history.push(this.otherName + ": " + bytes.as(Utf8String).value);
+        }, this);
+        tlec.on("echo", function(bytes) {
+            this.history.push(this.name + ": " + bytes.as(Utf8String).value);
         }, this);
     }, this);    
 }
