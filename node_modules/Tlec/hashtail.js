@@ -21,8 +21,8 @@ Hashtail.deserialize = function (data) {
     hashtail._hashCounter = data.hashCounter;
 
     hashtail._checkCounter = data.checkCounter;
-    hashtail._end = data.start ? Hex.deserialize(data.end) : null;
-    hashtail._current = data.start ? Hex.deserialize(data.current) : null; 
+    hashtail._end = data.end ? Hex.deserialize(data.end) : null;
+    hashtail._current = data.current ? Hex.deserialize(data.current) : null; 
 
     return hashtail;
 }
@@ -58,7 +58,7 @@ Hashtail.prototype.serialize = function () {
     return {
         active: this._active,
         owner: this._owner,
-        stat: this._start ? this._start.as(Hex).serialize() : null,
+        start: this._start ? this._start.as(Hex).serialize() : null,
         hashCounter: this._hashCounter,
 
         checkCounter: this._checkCounter,

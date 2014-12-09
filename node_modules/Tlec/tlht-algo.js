@@ -144,8 +144,9 @@ TlhtAlgo.prototype.hashMessage = function (raw) {
 }
 
 TlhtAlgo.prototype.processPacket = function (decryptedData, isEcho) {
-    var hx = decryptedData.bitSlice(0, 128);
-    var netData = decryptedData.bitSlice(128, decryptedData.bitLength());
+    var data = decryptedData.as(BitArray);
+    var hx = data.bitSlice(0, 128);
+    var netData = data.bitSlice(128, data.bitLength());
 
     if (!this._isHashValid(hx, isEcho)) {
         return null;
