@@ -12,6 +12,40 @@ var Multivalue = require("Multivalue").multivalue.Multivalue;
 TlhtAlgo.HashCount = 1000;
 TlhtAlgo.MinHashtailsWanted = 3;
 
+/*
+    hashtail structure:
+    {
+        for those pushed from the outside or generated
+        (used for hashing)
+        owner: string
+            owner = pushed value
+            only those owner === algo._id may be used
+        start: Multivalue
+            default = pushed value
+            also used an secondary identifier
+        cache: Multivalue[]
+            default = [start, hash(start), hash(hash(start)), ..., hash(...(hash(start)))]: TlhtAlgo.HashCount items
+            not serialized
+        hashCounter: int
+            default = ThltAlgo.HashCount
+            dec by 1 on every successfull hash
+            used to check if not expired and to get hash num
+
+        for those pulled out of channel (our and their ones)
+        (used for checks)
+        checkCounter: int
+            default = ThltAlgo.HashCount
+            dec by 1 on every successfull check
+            used to check if not expired
+        end: Multivalue
+            default = pulled value
+            also used as identifier
+        current: Multivalue
+            default = end
+            replaced by previous hash on every successfull check
+    }
+*/
+
 function TlhtAlgo(random, id) {
     this._random = random;
 
