@@ -133,7 +133,8 @@
             this._sendSyncMessage("hashtail", {
                 owner: args.owner,
                 start: args.start.as(Hex).serialize(),
-                counter: args.counter
+                counter: args.counter,
+                end: args.end.as(Hex).serialize(),
             });
         },
 
@@ -157,7 +158,8 @@
             this._tlecBuilder.processHashtail({
                 owner: args.owner,
                 start: Hex.deserialize(args.start),
-                counter: args.counter
+                counter: args.counter,
+                end: Hex.deserialize(args.end)
             });
         },
 

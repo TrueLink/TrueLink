@@ -54,7 +54,7 @@ TlhtAlgo.prototype._getMyActiveHashes = function () {
 
 TlhtAlgo.prototype._chooseHashtail = function () {
     var myHashes = this._getMyActiveHashes();
-    invariant(!this.areAnyHashesAvailable(), "This channel is expired");
+    invariant(this.areAnyHashesAvailable(), "This channel is expired");
 
     var hashIndex = Math.floor(this._random.double() * myHashes.length);
     return myHashes[hashIndex];
@@ -125,7 +125,7 @@ TlhtAlgo.prototype._getNextHash = function () {
 
 // is truely expired if htReady was already called
 TlhtAlgo.prototype.areAnyHashesAvailable = function () {
-    return this._getMyActiveHashes().length === 0;
+    return this._getMyActiveHashes().length !== 0;
 }
 
 TlhtAlgo.prototype.areEnoughHashtailsAvailable = function () {
@@ -168,7 +168,7 @@ TlhtAlgo.prototype.generate = function () {
 }
 
 TlhtAlgo.prototype.isHashReady = function () {
-    return !!(!this.areAnyHashesAvailable() && this._theirHashes.length);
+    return !!(this.areAnyHashesAvailable() && this._theirHashes.length);
 }
 
 TlhtAlgo.prototype.createMessage = function (raw, hash) {

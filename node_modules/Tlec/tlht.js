@@ -86,10 +86,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             this._unhandledPacketsData.unshift(args);
         } // if called without args -- then just recheck current packets
 
-        if (!this._readyCalled && this._algo.unhashedFirst(args.isEcho)) {
-            return; // do not start firing packets to early
-        }
-
         // try to handle packets one per cycle while handling succeeds
         var readyCalled = this._readyCalled;
         var handled;
@@ -98,6 +94,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             var i = 0;
             for ( ; i < this._unhandledPacketsData.length; i++) {
                 var data = this._unhandledPacketsData[i];
+                if (!readyCalled && this._algo.unhashedFirst(data.isEcho)) {
+                    continue; // do not start firing packets to early
+                }
                 handled = this._doUnhash(data.data, data.isEcho);
                 if (handled) {
                     break;
@@ -140,7 +139,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         var raw = new Utf8String(JSON.stringify(object));
         var hashed = this._algo.hashMessage(raw);
         this._onChanged();
-        if (this._algo.areAnyHashesAvailable()) { 
+        if (!this._algo.areAnyHashesAvailable()) { 
             this.fire("expired");
         }
         this.fire("hashed", hashed);
@@ -185,7 +184,7 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     addCowriter: function (cowriter) {
         this._algo.addCowriter(cowriter);
-        if (this._algo.areAnyHashesAvailable()) {
+        if (!this._algo.areAnyHashesAvailable()) {
             return;
         }
         if (this._algo.getCowriterActiveHashes(cowriter).length > 0) {
