@@ -3,13 +3,7 @@ var tools = require("modules/tools");
 var extend = tools.extend;
 
 var TlkeBuilder = require("../../TlkeBuilder/TlkeBuilder");
-var TlhtBuilder = require("TlhtBuilder");
-var TlecBuilder = require("TlecBuilder");
-var OverTlecBuilder = require("OverTlecBuilder");
 var Tlke = require("../Tlke");
-var Tlht = require("Tlht");
-var Tlec = require("Tlec");
-var Tlgr = require("Tlgr");
 var Route = require("Route");
 var TestTransport = require("TestTransport");
 var Random = require("modules/cryptography/random");
@@ -22,26 +16,8 @@ extend(TlConnectionFactory.prototype, {
     createTlkeBuilder: function() {
         return new TlkeBuilder(this);
     },
-    createTlhtBuilder: function() {
-        return new TlhtBuilder(this);
-    },
-    createTlecBuilder: function() {
-        return new TlecBuilder(this);
-    },
-    createOverTlecBuilder: function() {
-        return new OverTlecBuilder(this);
-    },
     createTlke: function() {
         return new Tlke(this);
-    },
-    createTlht: function() {
-        return new Tlht(this);
-    },
-    createTlec: function() {
-        return new Tlec(this);
-    },
-    createTlgr: function() {
-        return new Tlgr(this);
     },
     // temp solution for smoke testing
     createTransport: function() {

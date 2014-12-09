@@ -57,6 +57,8 @@ interface IUserMessage {
     //hacks for invitations to tlgr
     id?: string;
     contact?: any;
+
+    uuid?: string; // used for arrival confirmation
 }
 interface ITextMessage extends IUserMessage { 
     text : string;
@@ -141,6 +143,8 @@ interface ITlgr extends IEventEmitter, ISerializable {
     sendMessage :  (text : any) => any;
     init :  (args : any) => any;
 }
+
+interface IStringSet { [index: string]: boolean }
 
 
 declare var __any : any;

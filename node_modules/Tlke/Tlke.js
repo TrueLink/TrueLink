@@ -173,7 +173,8 @@ extend(Tlke.prototype, eventEmitter, serializable, {
             } else {
                 throw ex;
             }
-        }                     
+        }                
+
         this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
         this.fire("packet", this._algo.getAuthResponse());
         this.fire("keyReady", keyAndCids);

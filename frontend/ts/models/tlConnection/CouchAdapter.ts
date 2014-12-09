@@ -18,7 +18,7 @@ export interface IAdapterRunOptions {
 }
 
 export class CouchAdapter {
-    public onPacket: Event.Event<ICouchPacket>;
+    public onPacket: Event.Event<ICouchMultivaluePacket>;
     public onChanged: Event.Event<any>;
     public transport: any;
     public _since: number;
@@ -30,7 +30,7 @@ export class CouchAdapter {
     private _needFetch: boolean;
 
     constructor(transport, options) {
-        this.onPacket = new Event.Event<ICouchPacket>("CouchAdapter.onPacket");
+        this.onPacket = new Event.Event<ICouchMultivaluePacket>("CouchAdapter.onPacket");
         this.onChanged = new Event.Event<any>("CouchAdapter.onChanged");
         invariant(transport, "Can i haz transport?");
         invariant(options, "Can i haz options?");
@@ -94,7 +94,7 @@ export class CouchAdapter {
         this.transport.fetchChannel(this._addr, 0, this._context);
     }
 
-    private _processPackets (packets: ICouchPackets) {
+    private _processPackets (packets: ICouchMultivaluePackets) {
         //if packets came from poll we should know the since
         if(packets.lastSeq) {
             this._since = packets.lastSeq;
@@ -106,7 +106,10 @@ export class CouchAdapter {
         }else{
             console.log("no needfetch")
         }
-        packets.packets.forEach((p: ICouchPacket) => {
+        packets.packets.forEach((p: ICouchMultivaluePacket) => {
+            if (!this._addr.as(Hex).isEqualTo((<MultivalueModule.multivalue.Multivalue>p.addr).as(Hex))) {
+                return; 
+            }
             var changes = false;
             if(!this.processedPackets[p.id]) {
                 this.onPacket.emit(p);
@@ -119,7 +122,8 @@ export class CouchAdapter {
         }, this);
     }
 
-    private handleFetchResult (packets: ICouchPackets) {
+    private handleFetchResult (packets: ICouchMultivaluePackets) {
+        debugger; // mr: where is this called? cannot find by fulltext search 
         console.log("Fetching done for channel: ", this._addr, packets);
         this._processPackets(packets);
     }

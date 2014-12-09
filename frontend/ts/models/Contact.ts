@@ -17,22 +17,25 @@
     export class Contact extends Model.Model implements ISerializable {
         public onInviteReceived : Event.Event<ITlgrInvitationWrapper>;
         public onInviteAccepted : Event.Event<IInviteAccepted>;
-
+        public onReadyForSync : Event.Event<any>;
+        
         public name : string;
         public profile : Profile.Profile;
         public tlConnection : any;
         public invites : {[key:string] : ITlgrInvitationMessage };
         public tlgrFilter : any;
+        public id: string;
 
         constructor () {
-           super(); 
+            super(); 
             this.onInviteReceived = new Event.Event<ITlgrInvitationWrapper>("Contact.onInviteReceived");
             this.onInviteAccepted = new Event.Event<any>("Contact.onInviteAccepted");
-        this.name = null;
-        this.profile = null;
-        this.tlConnection = null;
-        this.invites = {};
-    }
+            this.onReadyForSync = new Event.Event<any>("Contact.onReadyForSync");
+            this.name = null;
+            this.profile = null;
+            this.tlConnection = null;
+            this.invites = {};
+        }
 
         on (eName: string, handler : any, context : any) {
             super.on(eName, handler, context);
@@ -46,7 +49,9 @@
         init  (args) {
             invariant(args.tlConnection, "Can i haz args.tlConnection?");
             invariant(args.name, "Can i haz args.name?");
+            invariant(args.id, "Can i haz args.id?");
             this.tlConnection = args.tlConnection;
+            this.id = args.id;
             this.name = args.name;
             
             this._link();
@@ -59,7 +64,10 @@
         }
 
         serialize  (packet, context) {
-            packet.setData({name: this.name});
+            packet.setData({
+                theId: this.id,
+                name: this.name
+            });
             packet.setLink("tlConnection", context.getPacket(this.tlConnection));
         }
 
@@ -68,6 +76,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
+            this.id = data.theId;
             this.tlConnection = context.deserialize(packet.getLink("tlConnection"), factory.createTlConnection, factory);
             
             this._link();
@@ -75,6 +84,15 @@
 
         _link  () {
             this.tlConnection.onMessage.on(this.processMessage, this);
+            this.tlConnection.onReadyForSync.on(this._onConnectiononReadyForSync, this);
+        }
+
+        private _onConnectiononReadyForSync(args) {
+            this.onReadyForSync.emit({
+                id: this.id,
+                name: this.name,
+                args: args
+            });
         }
 
         processMessage  (message) {

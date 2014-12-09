@@ -15,7 +15,7 @@
                 return;
             }
             var profile = this.props.profiles.filter(function (profile) {
-                return (profile.name || profile.temporaryId) === value;
+                return profile.uuid === value;
             })[0];
             this.props.selectProfile(profile);
         },
@@ -44,8 +44,8 @@
                 }
 
                 return React.DOM.option({
-                    key: profile.name || profile.temporaryId,
-                    value: profile.name || profile.temporaryId,
+                    key: profile.uuid,
+                    value: profile.uuid,
                     className: "title"
                 }, name);
             });
@@ -56,7 +56,7 @@
                 React.DOM.select({
                     ref: "select",
                     className: "title",
-                    value: (current) ? (current.name || current.temporaryId) : "none",
+                    value: (current) ? (current.uuid) : "none",
                     onChange: this.handleSelect
                 }, options)
                 );

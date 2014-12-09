@@ -43,6 +43,7 @@ interface ICouchMultivaluePacket {
     addr: Object;//mutlivalue
     data: Object;//multivalue
     seq: number;
+    id: string;
 }
 
 

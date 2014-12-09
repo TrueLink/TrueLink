@@ -1,8 +1,7 @@
 {
   "name": "Tlec",
   "version": "0.1.0",
-  "description": "Tlec",
-  "main": "Tlec.js",
+  "description": "All about tlec: Tlec, Tlht, (Tlec)Cryptor, (Tlec)Builder",
   "scripts": {
     "test": "mocha"
   },

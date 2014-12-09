@@ -66,7 +66,20 @@ var exp = React.createClass({
                     return false;
                 },
                 className: "menu-item secondary"
-            }
+            },
+            "Clear storage and force update (temp)": {
+                handler: function () {
+                    if(confirm("this will delete ALL KEYS AND MESSAGES!")){
+                        fakeDb.clear().then(function(){
+                            localStorage.removeItem("tl:::manifest");
+                            location.reload(true);    
+                        });   
+                    }
+                    return false;
+                },
+                className: "menu-item secondary"
+            },
+            
         };
     },
     _getState: function () {

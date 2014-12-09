@@ -50,11 +50,13 @@ Users.prototype.serialize = function () {
     var byAid = this._byAid;
     var result = {};
     for (var key in byAid) {
+        var user = byAid[key];
         result[key] = {
-            aid: byAid[key].aid.as(Hex).serialize(),
-            ht: byAid[key].ht.as(Hex).serialize(),
-            publicKey: byAid[key].publicKey.serialize(),
-            meta: byAid[key].meta
+            aid: user.aid.as(Hex).serialize(),
+            ht: user.ht.as(Hex).serialize(),
+            htCounter: user.htCounter,
+            publicKey: user.publicKey.serialize(),
+            meta: user.meta
         }
     }
     return result;
@@ -62,11 +64,13 @@ Users.prototype.serialize = function () {
 
 Users.prototype.deserialize = function (byAid) {
     for (var key in byAid) {
+        var user = byAid[key];
         this._byAid[key] = { 
-            aid: Hex.deserialize(byAid[key].aid),
-            ht: Hex.deserialize(byAid[key].ht),
-            meta: byAid[key].meta,
-            publicKey: rsa.PublicKey.deserialize(byAid[key].publicKey)
+            aid: Hex.deserialize(user.aid),
+            ht: Hex.deserialize(user.ht),
+            htCounter: user.htCounter,
+            meta: user.meta,
+            publicKey: rsa.PublicKey.deserialize(user.publicKey)
         }
     }
 }

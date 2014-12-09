@@ -182,6 +182,7 @@ TlgrAlgo.prototype.processGroupJoinPackage = function (gjp) {
         "publicKey": publicKey,
         "meta": gjp.meta,
         "ht": ht,
+        htCounter: TlgrAlgo.hashCount - 1
     };
     this._users.putUserData(data)
     return data;
@@ -228,7 +229,8 @@ TlgrAlgo.prototype.decrypt = function (message) {
     // find message owner
     for (var i = 0; i < TlgrAlgo.hashCount; i += 1) {
         var user = this._users.findUserByHash(hx);
-        if(user) {
+        if (user && user.htCounter === TlgrAlgo.hashCount - i) {
+            user.htCounter--;
             return {
                 "sender": user,
                 "message": message,
