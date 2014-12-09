@@ -36,8 +36,6 @@ function Tlht(factory) {
     this._unhandledPacketsData = [];
     this._unhandledPacketsDataInner = [];
 
-    this.__debug_unhashedPackectsCounter = 0;
-
     // is used to determine if we are hashing another hashtail or user-message
     // in order to avoid calling this.generate() while already being in generation process
     // (should not be serialized?)
@@ -84,8 +82,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
 
     // takes decrypted, fires unhashed and _parsed_!
     unhash: function (args) {
-        console.log("tlht.unhash", args);
-
         if (args) { 
             invariant(args.data instanceof Multivalue, "args.data must be multivalue");
             this._unhandledPacketsData.unshift(args);
@@ -131,10 +127,6 @@ extend(Tlht.prototype, eventEmitter, serializable, {
             return true;
         }
 
-        console.log("tlht._doUnhash about to fire unhashed",
-            this.__debug_unhashedPackectsCounter++,
-            isEcho, message);
-
         this.fire("unhashed", {
             isEcho: isEcho,
             data: message
@@ -168,13 +160,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     processMessage: function (args) {
         var message = args.data;
         if (message.t === "h" && message.d) {
-            if (args.isEcho) {
-                // what should we do?
-            } else {
-                this._algo.setHashEnd(Hex.deserialize(message.d));
-                this._onHashMayBeReady();
-                this._onChanged();
-            }    
+            this._algo.setHashEnd(Hex.deserialize(message.d), args.isEcho);
+            this._onHashMayBeReady();
+            this._onChanged();
         }
     },
 
@@ -189,11 +177,10 @@ extend(Tlht.prototype, eventEmitter, serializable, {
         // if we first push then send, we may sign it with itself
         // (auto references everywhere, yeah...)
         this._sendMessage(hash.hashEnd);
-        this._algo.pushMyHashInfo(hash.hashInfo);
+        this._algo.pushMyHashtail(hash.hashtail);
 
 
         this._onHashMayBeReady();
-        this.fire("hashtail", hash.hashInfo);
         this._onChanged();
     },
 
@@ -213,12 +200,9 @@ extend(Tlht.prototype, eventEmitter, serializable, {
     },
 
     processHashtail: function (hashInfo) {
-        var isBrandNew = this._algo.processHashtail(hashInfo);
+        this._algo.processHashtail(hashInfo);
         this._onHashMayBeReady();
         this._onChanged();
-        if (isBrandNew) { // new hashtail arrived -- recheck unhandled data
-            this.unhash(); 
-        }
     },
 
     _supplyHashtails: function () {

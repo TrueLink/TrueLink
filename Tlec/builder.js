@@ -251,7 +251,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         this.fire("networkPacket", packet);
     },
     _onMessage: function (args) {
-        console.log("tlec.Builder._onMessage", args);
+        //console.log("tlec.Builder._onMessage", args);
         if (args.isEcho) {
             this.fire("echo", args.data);
         } else {

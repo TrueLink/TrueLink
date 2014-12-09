@@ -46,7 +46,7 @@ extend(Tlec.prototype, eventEmitter, serializable, {
     },
     
     processMessage: function (args) {
-        console.log("tlec.processMessage", args);
+        //console.log("tlec.processMessage", args);
         
         var message = args.data;
         if (message.t === "u" && message.d) {

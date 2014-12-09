@@ -9,42 +9,151 @@ var Aes = require("modules/cryptography/aes-sjcl");
 var invariant = require("invariant");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 
-TlhtAlgo.HashCount = 1000;
+
+Hashtail.HashCount = 1000;
+
+Hashtail.deserialize = function (data) {
+    var hashtail = new Hashtail();
+    hashtail._owner = data.owner;
+    hashtail._start = data.start ? Hex.deserialize(data.start) : null;
+    hashtail._hashCounter = data.hashCounter;
+
+    hashtail._checkCounter = data.checkCounter;
+    hashtail._end = data.start ? Hex.deserialize(data.end) : null;
+    hashtail._current = data.start ? Hex.deserialize(data.current) : null; 
+}
+
+Hashtail.isFirstHashValid = function (hash) {
+    invariant(hash, "hash must be multivalue");
+    
+    return hash.as(Hex).value === "00000000000000000000000000000000";
+}
+
+Hashtail.getFirstHash = function () {
+    return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+}
+
+Hashtail.hash = function (value) {
+    return SHA1(value).as(BitArray).bitSlice(0, 128);
+}
+
+
+function Hashtail() {
+    this._owner = null;
+    this._start = null;
+    this._cache = null;
+    this._hashCounter = null;
+
+    this._checkCounter = null;
+    this._end = null;
+    this._current = null;
+}
+
+Hashtail.prototype.serialize = function () {
+    return {
+        owner: this._owner,
+        stat: this._start ? this._start.as(Hex).serialize() : null,
+        hashCounter: this._hashCounter,
+
+        checkCounter: this._checkCounter,
+        end: this._end ? this._end.as(Hex).serialize() : null,
+        current: this._current ? this._current.as(Hex).serialize() : null,
+    };
+}
+
+Hashtail.prototype.isActiveAndOwnedBy = function (owner) {
+    return this._start && this._hashCounter > 1 && this._owner === owner;
+}
+
+// returns data to be sent to delegation target
+Hashtail.prototype.delegate = function (newOwner) {
+    this._owner = newOwner;
+    return {
+        owner: this._owner,
+        start: this._start,
+        hashCounter: this._hashCounter,
+
+        end: this._end // used for identification
+    };
+}
+
+Hashtail.prototype.isItYou = function (end) {
+    invariant(this._end, "hashtail has no end");
+    invariant(end && (end instanceof Multivalue), "end must be multivalue");
+    
+    // end is used as id
+    if (this._end) { return this._end.as(Hex).isEqualTo(end.as(Hex)); }
+    
+    return false  
+}
+
+Hashtail.prototype.initWithStart = function (hashInfo) {
+    invariant(!this._start || this._start.as(Hex).isEqualTo(hashInfo.start.as(Hex)), 
+        "cannot initWithStart: start is already set and differs"); 
+
+    this._owner = hashInfo.owner;
+    this._start = hashInfo.start.as(Hex);
+    this._hashCounter = hashInfo.hashCounter || Hashtail.HashCount;
+
+    if (!this._end) {
+        this._populateCache(Hashtail.HashCount);
+        this.initWithEnd(this._cache[Hashtail.HashCount]);
+    }
+
+    return this._end;
+}
+
+Hashtail.prototype.initWithEnd = function (end) {
+    this._end = end.as(Hex);
+    this._current = this._end;
+    this._checkCounter = Hashtail.HashCount;
+}
+
+// mutates hashtail!
+Hashtail.prototype.isHashValid = function (hash) {
+    invariant(hash, "hash must be multivalue");
+    invariant(this._end, "cannot check hash: end is not set");
+
+    var hashhash = Hashtail.hash(hash);
+    if (hashhash.as(Hex).isEqualTo(this._current.as(Hex))) {
+        this._current = hash.as(Hex);
+        this._checkCounter--;
+        return true;
+    }
+    return false;
+}
+
+// mutates hashtail!
+Hashtail.prototype.getNextHash = function () {
+    invariant(this._start, "cannot get hash: start is not set");
+
+    this._hashCounter--;
+    this._populateCache(this._hashCounter);
+    return this._cache[this._hashCounter];
+}
+
+Hashtail.prototype._populateCache = function (counter) {
+    if (!this._cache) {
+        this._cache = [];
+    }
+    var cache = this._cache;
+
+    if (!cache[counter]) {
+        var hx = cache[1] = this._start;
+        for (var i = 2; i <= counter; i++) {
+            hx = cache[i] = Hashtail.hash(hx);
+        }  
+    }
+}
+
+
+
+
+
 TlhtAlgo.MinHashtailsWanted = 3;
 
-/*
-    hashtail structure:
-    {
-        for those pushed from the outside or generated
-        (used for hashing)
-        owner: string
-            owner = pushed value
-            only those owner === algo._id may be used
-        start: Multivalue
-            default = pushed value
-            also used an secondary identifier
-        cache: Multivalue[]
-            default = [start, hash(start), hash(hash(start)), ..., hash(...(hash(start)))]: TlhtAlgo.HashCount items
-            not serialized
-        hashCounter: int
-            default = ThltAlgo.HashCount
-            dec by 1 on every successfull hash
-            used to check if not expired and to get hash num
-
-        for those pulled out of channel (our and their ones)
-        (used for checks)
-        checkCounter: int
-            default = ThltAlgo.HashCount
-            dec by 1 on every successfull check
-            used to check if not expired
-        end: Multivalue
-            default = pulled value
-            also used as identifier
-        current: Multivalue
-            default = end
-            replaced by previous hash on every successfull check
-    }
-*/
+//todo: this is for tests only, move ht into separate file
+TlhtAlgo.Hashtail = Hashtail;
 
 function TlhtAlgo(random, id) {
     this._random = random;
@@ -84,8 +193,8 @@ TlhtAlgo.prototype.init = function (args, sync) {
 TlhtAlgo.prototype.getCowriterActiveHashes = function(cowriter) {
     invariant(this._id || !cowriter, "getCowriterActiveHashes is disabled in single mode");
 
-    return this._ourHashes.filter(function (hashInfo) {
-        return hashInfo.counter > 1 && hashInfo.owner === cowriter; 
+    return this._ourHashes.filter(function (ht) {
+        return ht.isActiveAndOwnedBy(cowriter); 
     }.bind(this));  
 }
 
@@ -102,28 +211,29 @@ TlhtAlgo.prototype._chooseHashtail = function () {
 }
 
 TlhtAlgo.prototype.takeHashtail = function (newOwnerId) {
-    var hashInfo = this._chooseHashtail();
-    this._ourHashes.splice(this._ourHashes.indexOf(hashInfo), 1);
-    hashInfo.owner = newOwnerId;
-    return hashInfo;
+    return this._chooseHashtail().delegate(newOwnerId);
 }
 
 TlhtAlgo.prototype.processHashtail = function (hashInfo) {
     invariant(this._id, "processHashtail is disabled in single mode");
-    var existingHashInfoArr = this._ourHashes.filter(function (_hashInfo) {
-        return hashInfo.start.as(Hex).isEqualTo(_hashInfo.start.as(Hex));
+    var existingHashInfoArr = this._ourHashes.filter(function (ht) {
+        return ht.isItYou(hashInfo.end);
     });
+
+    var ht;
+
     if (existingHashInfoArr.length) {
-        this._ourHashes.splice(this._ourHashes.indexOf(existingHashInfoArr[0]), 1);
+        ht = existingHashInfoArr[0];
+    } else {
+        this._ourHashes.push(ht = new Hashtail());
     }
-    this._ourHashes.push(hashInfo);
-    return !!existingHashInfoArr.length;
+    ht.initWithStart(hashInfo);
 }
 
 TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {
     // first time check, is used for initial hashtail exchange
     if (!this._isFirstHashChecked && !isEcho) {
-        if (hx.as(Hex).value === "00000000000000000000000000000000") {
+        if (Hashtail.isFirstHashValid(hx)) {
             this._isFirstHashChecked = true;
             return true;
         }        
@@ -131,7 +241,7 @@ TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {
     }
 
     if (!this._isFirstEchoHashChecked && isEcho) {
-        if (hx.as(Hex).value === "00000000000000000000000000000000") {
+        if (Hashtail.isFirstHashValid(hx)) {
             this._isFirstEchoHashChecked = true;
             return true;
         }        
@@ -142,21 +252,7 @@ TlhtAlgo.prototype._isHashValid = function (hx, isEcho) {
 
     invariant(hashes, "hash checker: channel is not configured");
 
-    for (var hashIndex = 0; hashIndex < hashes.length; hashIndex++) {
-        var hashInfo = hashes[hashIndex];
-
-
-        var end = (isEcho ? hx : hashInfo.end).as(Hex).value;
-        var start = isEcho ? hashInfo.start : hx;
-
-        for (var i = 0; i < TlhtAlgo.HashCount; i++) {
-            start = this._hash(start);
-            if (start.as(Hex).value === end) {
-                return true;
-            }
-        }
-    }
-    return false;
+    return hashes.some(function (ht) { return ht.isHashValid(hx); });
 }
 
 TlhtAlgo.prototype.unhashedFirst = function (isEcho) {
@@ -169,20 +265,12 @@ TlhtAlgo.prototype._getNextHash = function () {
     // first 'next hash', is used for initial hashtail exchange
     if (!this._isFirstHashGenerated) {
         this._isFirstHashGenerated = true;
-        return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        return Hashtail.getFirstHash();
     }
 
     invariant(this._ourHashes, "hash getter: channel is not configured");
 
-    var hashInfo = this._chooseHashtail();
-
-    var hx = hashInfo.start;
-    for (var i = 0; i < hashInfo.counter; i++) {
-        hx = this._hash(hx);
-    }
-    hashInfo.counter--;    
-
-    return hx;    
+    return this._chooseHashtail().getNextHash();
 }
 
 TlhtAlgo.prototype.isExpired = function () {
@@ -198,17 +286,6 @@ TlhtAlgo.prototype.addCowriter = function (id) {
     invariant(this._id, "addCowriter is disabled in single mode");
     this._cowriters.push(id);
 }
-
-TlhtAlgo.prototype.getCowritersWithoutHashtails = function () {
-    invariant(this._id, "getCowritersWithoutHashtails is disabled in single mode");
-    var owners = this._ourHashes.reduce(function (owners, hashInfo) {
-        owners[hashInfo.owner] = true;
-    }, {});
-    return this._cowriters.filter(function (cowriter) {
-        !owners[cowriter];
-    });
-}
-
 
 TlhtAlgo.prototype.hashMessage = function (raw) {
     invariant(raw instanceof Multivalue, "raw must be multivalue");
@@ -229,18 +306,15 @@ TlhtAlgo.prototype.processPacket = function (decryptedData, isEcho) {
 
 
 TlhtAlgo.prototype.generate = function () {
-    var hashInfo = {
+    var ht = new Hashtail();
+    var end = ht.initWithStart({
         start: this._random.bitArray(128),
-        counter: TlhtAlgo.HashCount - 1,
         owner: this._id
-    };
-    var hashEnd = hashInfo.start;
-    for (var i = 0; i < TlhtAlgo.HashCount; i++) {
-        hashEnd = this._hash(hashEnd);
-    }
+    });
+
     return {
-        hashEnd: hashEnd,
-        hashInfo: hashInfo
+        hashEnd: end,
+        hashtail: ht
     };
 }
 
@@ -253,15 +327,30 @@ TlhtAlgo.prototype.createMessage = function (raw, hash) {
     return message;
 }
 
-TlhtAlgo.prototype.pushMyHashInfo = function (hashInfo) {
+TlhtAlgo.prototype.pushMyHashtail = function (ht) {
     if (!this._ourHashes) { this._ourHashes = []; }
-    this._ourHashes.push(hashInfo);
+    this._ourHashes.push(ht);
 }
-TlhtAlgo.prototype.setHashEnd = function (hashEnd) {
-    if (!this._theirHashes) { this._theirHashes = []; }
-    this._theirHashes.push({
-        end: hashEnd
-    });
+
+TlhtAlgo.prototype.setHashEnd = function (hashEnd, isEcho) {
+    var ht;
+
+    if (isEcho) {
+        if (!this._ourHashes) { this._ourHashes = []; }
+        var existingHashInfoArr = this._ourHashes.filter(function (ht) {
+            return ht.isItYou(hashEnd);
+        });
+        if (existingHashInfoArr.length) {
+            ht = existingHashInfoArr[0];
+        } else {
+            this._ourHashes.push(ht = new Hashtail());
+        } 
+    } else {
+        if (!this._theirHashes) { this._theirHashes = []; }
+        this._theirHashes.push(ht = new Hashtail());
+    }
+        
+    ht.initWithEnd(hashEnd);
 }
 
 
@@ -272,18 +361,12 @@ TlhtAlgo.prototype.deserialize = function (data) {
     this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
     this._cowriters = data.cowriters;
     this._ourHashes = !data.myHashes ? null : 
-        data.myHashes.map(function (hashInfo) {
-            return {
-                start: Hex.deserialize(hashInfo.start),
-                counter: hashInfo.counter,
-                owner: hashInfo.owner
-            }
+        data.myHashes.map(function (ht) {
+            return Hashtail.deserialize(ht);
         });
     this._theirHashes = !data.herHashes ? null : 
-        data.herHashes.map(function (hashInfo) {
-            return {
-                end: Hex.deserialize(hashInfo.end)
-            }
+        data.herHashes.map(function (ht) {
+            return Hashtail.deserialize(ht);
         });
     this._id = data.id;
     this._isFirstHashChecked = data.isFirstHashChecked;
@@ -296,28 +379,18 @@ TlhtAlgo.prototype.serialize = function () {
         dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
         cowriters: this._cowriters,
         myHashes: !this._ourHashes ? null :
-            this._ourHashes.map(function (hashInfo) {
-                return {
-                    start: hashInfo.start.as(Hex).serialize(),
-                    counter: hashInfo.counter,
-                    owner: hashInfo.owner
-                }
+            this._ourHashes.map(function (ht) {
+                return ht.serialize();
             }),
         herHashes: !this._theirHashes ? null :
-            this._theirHashes.map(function (hashInfo) {
-                return {
-                    end: hashInfo.end.as(Hex).serialize()
-                }
+            this._theirHashes.map(function (ht) {
+                return ht.serialize();
             }),
         isFirstHashChecked: this._isFirstHashChecked,
         isFirstEchoHashChecked: this._isFirstEchoHashChecked,
         isFirstHashGenerated: this._isFirstHashGenerated,
         id: this._id   
     };
-}
-
-TlhtAlgo.prototype._hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
 }
 
 module.exports = TlhtAlgo;
