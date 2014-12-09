@@ -106,7 +106,7 @@ Hashtail.prototype.initWithStart = function (hashInfo, inactive) {
 
     if (!this._end) {
         this._populateCache(Hashtail.HashCount);
-        this.initWithEnd(this._cache[Hashtail.HashCount]);
+        this._end = this._cache[Hashtail.HashCount]; // end should be set, as it is used as identifier
     }
 
     return this._end;
@@ -121,7 +121,11 @@ Hashtail.prototype.initWithEnd = function (end) {
 // mutates hashtail!
 Hashtail.prototype.isHashValid = function (hash) {
     invariant(hash, "hash must be multivalue");
-    invariant(this._end, "cannot check hash: end is not set");
+
+    if (!this._current) {
+        // hashtail was generated or delegated, but did not come from channel yet
+        return false;
+    }
 
     var hashhash = Hashtail.hash(hash);
     if (hashhash.as(Hex).isEqualTo(this._current.as(Hex))) {
