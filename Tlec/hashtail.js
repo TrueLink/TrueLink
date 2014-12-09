@@ -23,6 +23,8 @@ Hashtail.deserialize = function (data) {
     hashtail._checkCounter = data.checkCounter;
     hashtail._end = data.start ? Hex.deserialize(data.end) : null;
     hashtail._current = data.start ? Hex.deserialize(data.current) : null; 
+
+    return hashtail;
 }
 
 Hashtail.isFirstHashValid = function (hash) {
