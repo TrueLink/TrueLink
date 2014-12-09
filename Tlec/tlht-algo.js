@@ -1,172 +1,20 @@
 "use strict";
 
-var SHA1 = require("modules/cryptography/sha1-crypto-js");
-var Hex = require("Multivalue/multivalue/hex");
+var invariant = require("invariant");
+
+var multivalue = require("Multivalue");
+var Multivalue = multivalue.multivalue.Multivalue;
+var Hex = multivalue.Hex;
 var BitArray = require("Multivalue/multivalue/bitArray");
 var Bytes = require("Multivalue/multivalue/bytes");
-var Aes = require("modules/cryptography/aes-sjcl");
 
-var invariant = require("invariant");
-var Multivalue = require("Multivalue").multivalue.Multivalue;
-
-
-Hashtail.HashCount = 1000;
-
-Hashtail.deserialize = function (data) {
-    var hashtail = new Hashtail();
-    hashtail._active = data.active;
-    hashtail._owner = data.owner;
-    hashtail._start = data.start ? Hex.deserialize(data.start) : null;
-    hashtail._hashCounter = data.hashCounter;
-
-    hashtail._checkCounter = data.checkCounter;
-    hashtail._end = data.start ? Hex.deserialize(data.end) : null;
-    hashtail._current = data.start ? Hex.deserialize(data.current) : null; 
-}
-
-Hashtail.isFirstHashValid = function (hash) {
-    invariant(hash, "hash must be multivalue");
-    
-    return hash.as(Hex).value === "00000000000000000000000000000000";
-}
-
-Hashtail.getFirstHash = function () {
-    return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-}
-
-Hashtail.hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
-}
-
-
-function Hashtail() {
-    this._active = false;
-    this._owner = null;
-    this._start = null;
-    this._cache = null;
-    this._hashCounter = null;
-
-    this._checkCounter = null;
-    this._end = null;
-    this._current = null;
-}
-
-Hashtail.prototype.serialize = function () {
-    return {
-        active: this._active,
-        owner: this._owner,
-        stat: this._start ? this._start.as(Hex).serialize() : null,
-        hashCounter: this._hashCounter,
-
-        checkCounter: this._checkCounter,
-        end: this._end ? this._end.as(Hex).serialize() : null,
-        current: this._current ? this._current.as(Hex).serialize() : null,
-    };
-}
-
-Hashtail.prototype.isActiveAndOwnedBy = function (owner) {
-    return this._active && this._start && this._hashCounter > 1 && this._owner === owner;
-}
-
-Hashtail.prototype.activate = function () {
-    this._active = true;
-}
-
-// returns data to be sent to delegation target
-Hashtail.prototype.delegate = function (newOwner) {
-    this._owner = newOwner;
-    return {
-        owner: this._owner,
-        start: this._start,
-        hashCounter: this._hashCounter,
-
-        end: this._end // used for identification
-    };
-}
-
-Hashtail.prototype.isItYou = function (end) {
-    invariant(this._end, "hashtail has no end");
-    invariant(end && (end instanceof Multivalue), "end must be multivalue");
-    
-    // end is used as id
-    if (this._end) { return this._end.as(Hex).isEqualTo(end.as(Hex)); }
-    
-    return false  
-}
-
-Hashtail.prototype.initWithStart = function (hashInfo, inactive) {
-    invariant(!this._start || this._start.as(Hex).isEqualTo(hashInfo.start.as(Hex)), 
-        "cannot initWithStart: start is already set and differs"); 
-
-    this._active = !inactive;
-    this._owner = hashInfo.owner;
-    this._start = hashInfo.start.as(Hex);
-    this._hashCounter = hashInfo.hashCounter || Hashtail.HashCount;
-
-    if (!this._end) {
-        this._populateCache(Hashtail.HashCount);
-        this.initWithEnd(this._cache[Hashtail.HashCount]);
-    }
-
-    return this._end;
-}
-
-Hashtail.prototype.initWithEnd = function (end) {
-    this._end = end.as(Hex);
-    this._current = this._end;
-    this._checkCounter = Hashtail.HashCount;
-}
-
-// mutates hashtail!
-Hashtail.prototype.isHashValid = function (hash) {
-    invariant(hash, "hash must be multivalue");
-    invariant(this._end, "cannot check hash: end is not set");
-
-    var hashhash = Hashtail.hash(hash);
-    if (hashhash.as(Hex).isEqualTo(this._current.as(Hex))) {
-        this._current = hash.as(Hex);
-        this._checkCounter--;
-        return true;
-    }
-    return false;
-}
-
-// mutates hashtail!
-Hashtail.prototype.getNextHash = function () {
-    invariant(this._start, "cannot get hash: start is not set");
-
-    this._hashCounter--;
-    this._populateCache(this._hashCounter);
-    return this._cache[this._hashCounter];
-}
-
-Hashtail.prototype._populateCache = function (counter) {
-    if (!this._cache) {
-        this._cache = [];
-    }
-    var cache = this._cache;
-
-    if (!cache[counter]) {
-        var hx = cache[1] = this._start;
-        for (var i = 2; i <= counter; i++) {
-            hx = cache[i] = Hashtail.hash(hx);
-        }  
-    }
-}
-
-
-
-
+var Hashtail = require("./hashtail");
 
 TlhtAlgo.MinHashtailsWanted = 3;
-
-//todo: this is for tests only, move ht into separate file
-TlhtAlgo.Hashtail = Hashtail;
 
 function TlhtAlgo(random, id) {
     this._random = random;
 
-    this._dhAesKey = null;
     this._id = null;
     this._cowriters = [];
 
@@ -179,13 +27,11 @@ function TlhtAlgo(random, id) {
 }
 
 TlhtAlgo.prototype.init = function (args, sync) {
-    invariant(args.key instanceof Multivalue, "args.key must be multivalue");    
     invariant(this._random, "rng is not set");
 
     // assume single mode (no cowriters) if profileId not set
     invariant(!args.profileId || (typeof args.profileId === "string"), "args.profileId must be string");
     
-    this._dhAesKey = args.key;
     this._id = args.profileId;
 
     if (sync) {
@@ -366,7 +212,6 @@ TlhtAlgo.prototype.setHashEnd = function (hashEnd, isEcho) {
 
 
 TlhtAlgo.prototype.deserialize = function (data) {
-    this._dhAesKey = data.dhAesKey ? Hex.deserialize(data.dhAesKey) : null;
     this._cowriters = data.cowriters;
     this._ourHashes = !data.myHashes ? null : 
         data.myHashes.map(function (ht) {
@@ -384,7 +229,6 @@ TlhtAlgo.prototype.deserialize = function (data) {
 
 TlhtAlgo.prototype.serialize = function () {
     return {
-        dhAesKey: this._dhAesKey ? this._dhAesKey.as(Hex).serialize() : null,
         cowriters: this._cowriters,
         myHashes: !this._ourHashes ? null :
             this._ourHashes.map(function (ht) {

@@ -34,7 +34,6 @@ function Tlht(factory) {
     this._algo = new TlhtAlgo(factory.createRandom());
 
     this._unhandledPacketsData = [];
-    this._unhandledPacketsDataInner = [];
 
     // is used to determine if we are hashing another hashtail or user-message
     // in order to avoid calling this.generate() while already being in generation process

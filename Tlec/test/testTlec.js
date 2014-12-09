@@ -4,7 +4,7 @@ var Hex = require("Multivalue/multivalue/hex");
 var Utf8String = require("Multivalue/multivalue/utf8string");
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
-var TlhtAlgo = require("../tlht-algo");
+var Hashtail = require("../hashtail");
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -75,10 +75,10 @@ describe("True Link Encrypted Channel", function() {
         });
     });
 
-    describe("multihashtail (TlecAlgo.HashCount = 5)", function() {
+    describe("multihashtail (HashCount = 5)", function() {
         before(function(done) {
-            this.TlecAlgoHashCount = TlhtAlgo.Hashtail.HashCount;
-            TlhtAlgo.Hashtail.HashCount = 5;
+            this.TlecAlgoHashCount = Hashtail.HashCount;
+            Hashtail.HashCount = 5;
 
             this.connection = utils.createConnection(done);
  
@@ -91,7 +91,7 @@ describe("True Link Encrypted Channel", function() {
         });
 
         after(function () {
-            TlhtAlgo.Hashtail.HashCount = this.TlecAlgoHashCount;
+            Hashtail.HashCount = this.TlecAlgoHashCount;
         });
 
         beforeEach(function() {
