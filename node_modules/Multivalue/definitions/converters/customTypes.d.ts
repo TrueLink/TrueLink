@@ -5,6 +5,8 @@ import Base64Url = require("../multivalue/base64url");
 import Utf8String = require("../multivalue/utf8string");
 import Hex = require("../multivalue/hex");
 export declare function HexToDecBlocks(source: Hex): DecBlocks;
+export declare function HexToBytes(source: Hex): Bytes;
+export declare function BytesToHex(source: Bytes): Hex;
 export declare function DecBlocksToHex(source: DecBlocks): Hex;
 export declare function DecBlocksToBytes(source: DecBlocks): Bytes;
 export declare function BytesToDecBlocks(source: Bytes): DecBlocks;

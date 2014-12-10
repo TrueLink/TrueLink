@@ -61,6 +61,7 @@ export class Multivalue {
         if (!mediator) {
             throw new Error("The converter from " + from + " to " + to + " is not registered");
         }
+        console.log(mediator);
         return this.convert(mediator, to, this.convert(from, mediator, value));
     }
 
