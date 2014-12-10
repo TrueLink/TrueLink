@@ -24,14 +24,13 @@
     "TestTransport": "",
     "OverTlecBuilder": "",
     "Tlec": "",
-    "TlecBuilder": "",
     "Tlgr": "",
-    "Tlht": "",
-    "TlhtBuilder": "",
     "Tlke": "",
     "TlkeBuilder": ""
   },
   "devDependencies": {
+    "glob": "=4.2.2",
+
     "spa": "^0.3.3",
     "gulp": "^3.8.9",
     "gulp-clean": "^0.3.1",

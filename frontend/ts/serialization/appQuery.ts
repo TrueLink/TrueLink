@@ -27,29 +27,31 @@
             transport: {propType: "one", type: "CouchTransport"},
             grConnection: {propType: "one", type: "GrConnection"},
             tlConnections: {propType: "many", type: "TlConnection"},
-            initialConnection: {propType: "one", type: "TlConnection"}
+            initialConnection: {propType: "one", type: "TlConnection"},
+            _sorter: {propType: "one", type: "TopologicalSorter"}
         },
+        TopologicalSorter: {},
         GrConnection: {
             activeTlgr: {propType: "one", type: "Tlgr"},
             transport: {propType: "one", type: "CouchTransport"}
         },
         TlConnection: {
             _initialTlec: {propType: "one", type: "CouchTlec"},
-            _tlecs: {propType: "many", type: "CouchTlec"}
+            _tlecs: {propType: "many", type: "CouchTlec"},
+            _sorter: {propType: "one", type: "TopologicalSorter"}
         },
         CouchTlec: {
             _tlecBuilder: {propType: "one", type: "TlecBuilder"}
         },
         TlecBuilder: {
             _tlkeBuilder: {propType: "one", type: "TlkeBuilder"},
-            _tlhtBuilder: {propType: "one", type: "TlhtBuilder"},
-            _tlec: {propType: "one", type: "Tlec"},
-            _route: {propType: "one", type: "Route"}
-        },
-        TlhtBuilder: {
             _tlht: {propType: "one", type: "Tlht"},
-            _route: {propType: "one", type: "Route"}
+            _tlec: {propType: "one", type: "Tlec"},
+            _route: {propType: "one", type: "Route"},
+            _echoRoute: {propType: "one", type: "Route"},
+            _cryptor: {propType: "one", type: "TlecCryptor"}
         },
+        TlecCryptor: {},
         TlkeBuilder: {
             _tlke: {propType: "one", type: "Tlke"},
             _route: {propType: "one", type: "Route"}

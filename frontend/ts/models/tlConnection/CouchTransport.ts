@@ -125,7 +125,10 @@
 
             this._onChanged();
 
-            if (this._unsentPackets.length > 0) {
+            // stop spamming packets
+            // initiate send if current packet is the only
+            // it would be sent automatically otherwise
+            if (this._unsentPackets.length === 1) {
                 this._sendNextPacket();
             }
         }

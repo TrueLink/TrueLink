@@ -7,17 +7,26 @@
     import model = require("../../mixins/model");
     import CouchAdapter = require("./CouchAdapter");
 
+    import MultivalueModule = require("Multivalue");
+    var Hex = MultivalueModule.Hex;
+
+    import uuid = require("uuid");
+
     function CouchTlec() {
         this._defineEvent("changed");
         this._defineEvent("offer");
         this._defineEvent("auth");
         this._defineEvent("message");
+        this._defineEvent("echo");
         this._defineEvent("done");
+        this._defineEvent("readyForSync");        
+        this._defineEvent("syncMessage");
 
         this._tlecBuilder = null;
         this._transportAdapters = {};
         this._transport = null;
 
+        this.id = null;
     }
 
     extend(CouchTlec.prototype, eventEmitter, serializable, model, {
@@ -26,12 +35,18 @@
             this._transport = transport;
         },
 
-        init: function () {
+        init: function (args?, sync?) {
+            sync = sync || {};
+
             this.checkFactory();
             var factory = this._factory;
             this._tlecBuilder = factory.createTlecBuilder();
             this._link();
-            this._tlecBuilder.build();
+
+            this.id = sync.id || uuid();
+            this._onChanged();
+
+            this._tlecBuilder.build(args, sync.args);
         },
 
         //runs only after deserializing established connection
@@ -71,7 +86,8 @@
                 }
             }
             packet.setData({
-                adapters: adapters
+                adapters: adapters,
+                theId: this.id
             });
             packet.setLink("_tlecBuilder", context.getPacket(this._tlecBuilder));
         },
@@ -85,6 +101,7 @@
                     this._addAdapter(adContext, (<any>CouchAdapter).deserialize(this._transport, data.adapters[adContext]))
                 }
             }
+            this.id = data.theId;
             this._link();
         },
 
@@ -93,13 +110,57 @@
             if (this._tlecBuilder) {
                 this._tlecBuilder.on("changed", this._onChanged, this);
                 this._tlecBuilder.on("done", this._onDone, this);
+                this._tlecBuilder.on("readyForSync", this._onReadyForSync, this);
                 this._tlecBuilder.on("message", this._onMessage, this);
+                this._tlecBuilder.on("echo", this._onEcho, this);
                 this._tlecBuilder.on("offer", this._onOffer, this);
                 this._tlecBuilder.on("auth", this._onAuth, this);
                 this._tlecBuilder.on("openAddrIn", this._onTlecOpenAddr, this);
                 this._tlecBuilder.on("closeAddrIn", this._onTlecCloseAddr, this);
                 this._tlecBuilder.on("networkPacket", this._transport.sendPacket, this._transport);
+                this._tlecBuilder.on("hashtail", this._onHashtail, this);
             }
+        },
+
+        _onReadyForSync: function (args) {
+            this.fire("readyForSync", {
+                id: this.id,
+                args: args
+            });
+        },
+
+        _onHashtail: function (args) {
+            this._sendSyncMessage("hashtail", {
+                owner: args.owner,
+                start: args.start.as(Hex).serialize(),
+                hashCounter: args.hashCounter,
+                end: args.end.as(Hex).serialize(),
+            });
+        },
+
+        _sendSyncMessage: function (what, args) {
+            this.fire("syncMessage", {
+                id: this.id,
+                what: what,
+                args: args             
+            });
+        },
+
+        processSyncMessage: function (args) {
+            if (args.id !== this.id) { return; }
+
+            if (args.what === "hashtail") {
+                this._processHashtailSyncMessage(args.args);
+            }
+        },
+
+        _processHashtailSyncMessage: function (args) {
+            this._tlecBuilder.processHashtail({
+                owner: args.owner,
+                start: Hex.deserialize(args.start),
+                hashCounter: args.hashCounter,
+                end: Hex.deserialize(args.end)
+            });
         },
 
         _onTlecOpenAddr: function (args) {
@@ -136,14 +197,23 @@
         _onMessage: function (msg) {
             this.fire("message", msg);
         },
+        _onEcho: function (msg) {
+            console.log("CouchTlec._onEcho", msg);
+            this.fire("echo", msg);
+        },
         _onDone: function () {
             this.fire("done", this);
         },
+
 
         destroy: function () {
             if (this._tlecBuilder) {
                 this._tlecBuilder.destroy();
             }
+        },
+
+        addCowriter: function (cowriter) {
+            this._tlecBuilder.addCowriter(cowriter);
         }
 
     });

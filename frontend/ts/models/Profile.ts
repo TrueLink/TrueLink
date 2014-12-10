@@ -17,6 +17,11 @@
     import model = require("../mixins/model");
     import CouchAdapter = require("../models/tlConnection/CouchAdapter");
 
+    import uuid = require("uuid");
+
+    import MultivalueModule = require("Multivalue");
+    var Hex = MultivalueModule.Hex;
+
     export class Profile extends Model.Model implements ISerializable {
         //public onUrlChanged : Event.Event<any>; maybe it was used long time ago
         public grConnections : Array<GrConnection.GrConnection>;
@@ -25,7 +30,6 @@
         public bg : any;
         public documents : any;
         public contacts : any;
-        public temporaryId : string;
         public temporaryName : string;
         public publicityType : string;
         public name : string;
@@ -38,6 +42,7 @@
         public notificationType : string;
         public notificationSound : string;
         public sync: SyncObject.SyncObject;
+        public uuid: string;
 
         public static NOTIFICATION_NONE = "1";
         public static NOTIFICATION_COUNT = "2";
@@ -47,6 +52,8 @@
 
         constructor () {
             super();
+
+            this.uuid = null;
 
             //this.onUrlChanged = new Event.Event<any>("Profile.onUrlChanged");
             this.app = null;
@@ -72,7 +79,7 @@
         }
 
         preinit() {
-            this.temporaryId = urandom.string(30);
+            this.uuid = uuid();
         }
 
         init  (args) {
@@ -81,7 +88,6 @@
             invariant(args.serverUrl && (typeof args.serverUrl === "string"), "args.serverUrl must be non-empty string");
             invariant(typeof args.bg === "number", "args.bg must be number");
             
-            this.temporaryId = undefined;
             this.temporaryName = undefined;
 
             if (this.publicityType != "public") {
@@ -92,22 +98,22 @@
 
             this.name = args.name;
             this.bg = args.bg;
-            this.serverUrl = args.serverUrl;
-
 
             if(!this.sync) {
-                this.transport = this.getFactory().createTransport();
-                this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
-                this.sync = this.getFactory().createSync();
-                this.sync.init({
-                    master: true,
-                    transport: this.transport,
-                }); 
-                this.__debug_createSyncGroupChat(this.sync.grConnection);               
-            } else {
-                this.transport = this.sync.transport;
+                this._initTransport(args);
+                this._initSync(this.transport, true);          
+            
+                this._sendSyncMessage({
+                    what: "userinfo-edited",
+                    args: {
+                        name: this.name,
+                        publicityType: this.publicityType,
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        bg: this.bg
+                    }
+                });
             }
-
             this._onChanged();
         }
 
@@ -133,13 +139,16 @@
             return document;
         }
 
-        createContact  () {
+        createContact(syncArgs?) {
+            syncArgs = syncArgs || {};
+
             this.checkFactory();
             var contact = this.getFactory().createContact(this);
-            var contactTlConnection = this._createTlConnection();
+            var contactTlConnection = this._createTlConnection(syncArgs.args);
             this._addTlConnection(contactTlConnection);
             contact.init({
-                name : urandom.name(),
+                id : syncArgs.id || uuid(),
+                name : syncArgs.name || urandom.name(),
                 tlConnection: contactTlConnection
             });
             this.contacts.push(contact);
@@ -150,16 +159,67 @@
 
         // for the unfinished profile to be synced with profile created on another device
         startSyncing (args) {
+            this._initTransport(args);
+            this._initSync(this.transport, false);
+        }
+
+        private _initTransport(args) {
+            this.serverUrl = args.serverUrl;
+            this.transport = this.getFactory().createTransport();
+            this.transport.init({postingUrl: this.serverUrl, pollingUrl: this.serverUrl});
+        }
+
+        private _initSync(transport, isMaster) {
             this.sync = this.getFactory().createSync();
-
-            var transport = this.getFactory().createTransport();
-            transport.init({postingUrl: args.serverUrl, pollingUrl: args.serverUrl});
-
+            this._linkSync();
             this.sync.init({
-                transport: transport,
-                master: false
+                transport: this.transport,
+                master: isMaster,
+                profileUuid: this.uuid
             });
-            this.__debug_createSyncGroupChat(this.sync.grConnection);
+            this.__debug_createSyncGroupChat(this.sync.grConnection);        
+        }
+
+        private _linkSync() {
+            if (!this.sync) {
+                // this would happen on deserialization of profile being in creation process 
+                return;
+            }
+
+            this.sync.onSyncMessage.on(this._processSyncMessage, this);    
+            this.sync.onDeviceAdded.on(this._handleNewSyncDevice, this);                
+        }
+
+        private _handleNewSyncDevice(newProfileId: string) {
+            this.tlConnections.forEach(conn => conn.addCowriter(newProfileId));
+        }
+
+        private _processSyncMessage(args: any) {
+            console.log(this.name, "got sync message", args);
+
+            if (args.what === "userinfo-edited") {
+                this._updateUserInfo(args.args);
+            } else if (args.what === "contact-created") {
+                var contact = this.createContact(args.args);
+                var dialog = this.startDirectDialog(contact);                
+            } else if (args.what === "tlConnection") {
+                this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
+            }
+        }
+
+        //todo separate them all
+        private _updateUserInfo(args) {
+            this.name = args.name;
+            this.publicityType = args.publicityType;
+            this.email = args.email;
+            this.phoneNumber = args.phoneNumber;
+            this.bg = args.bg;
+
+            this._onChanged();                    
+        }
+
+        private _sendSyncMessage(data: any) {
+            this.sync.sendSyncMessage(data);
         }
 
         startDirectDialog  (contact, firstMessage?: any) {
@@ -270,10 +330,12 @@
             }
         }
 
-        private _createTlConnection  () {
+        private _createTlConnection (syncArgs?) {
             this.checkFactory();
             var tlConnection = this.getFactory().createTlConnection();
-            tlConnection.init();
+            tlConnection.init({
+                profileId: this.uuid
+            }, syncArgs);
             return tlConnection;
         }
 
@@ -296,7 +358,7 @@
 
         serialize  (packet, context) {
             packet.setData({
-                temporaryId: this.temporaryId,
+                uuid: this.uuid,
                 temporaryName: this.temporaryName,
                 publicityType: this.publicityType,
                 name: this.name,
@@ -322,7 +384,7 @@
             this.checkFactory();
             var factory = this.getFactory();
             var data = packet.getData();
-            this.temporaryId = data.temporaryId;
+            this.uuid = data.uuid;
             this.temporaryName = data.temporaryName;
             this.publicityType = data.publicityType;
             this.name = data.name;
@@ -338,6 +400,7 @@
             this.contacts = context.deserialize(packet.getLink("contacts"), factory.createContact, factory);
             this.contacts.forEach(this._linkContact, this);
             this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
+            this._linkSync();
             this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
@@ -349,11 +412,36 @@
 
         private _linkTlConnection  (conn) {
             conn.onMessage.on(this._onTlConnectionMessage, this);
+            conn.onSyncMessage.on(this._onTlConnectionSyncMessage, this);
+            conn.onDone.on(this._onTlConnectionDone, this);
         }
 
         private _linkContact  (contact) {
             contact.onInviteReceived.on(this._inviteReceived, this);
             contact.onInviteAccepted.on(this._handleInviteAccepted, this);
+            contact.onReadyForSync.on(this._handleContactReadyForSync, this);
+        }
+
+        private _handleContactReadyForSync(args) {
+            this._sendSyncMessage({
+                what: "contact-created",
+                args: args
+            });          
+        }
+
+        private _onTlConnectionSyncMessage(args) {
+            this._sendSyncMessage({
+                what: "tlConnection",
+                args: args
+            });            
+        }
+
+        private _onTlConnectionDone(args, sender) {
+            var conn = sender;
+            this.sync.devices.forEach(device => { 
+                if (device.name === this.uuid) { return; }
+                conn.addCowriter(device.name);
+            });              
         }
 
         private _inviteReceived (invite : ITlgrInvitationWrapper) {
@@ -385,17 +473,19 @@ extend(Profile.prototype, serializable);
         public history : MessageHistory.MessageHistory;
         public contact : Contact.Contact;
         public unreadCount : number;
+        private _unconfirmedMessagesIds: { [index: string]: boolean };
 
         constructor () {
 
             super();
-        this.profile = null;
-        this.name = null;
-        this.history = null;
-        this.contact = null;
-        this.unreadCount = 0;
+            this.profile = null;
+            this.name = null;
+            this.history = null;
+            this.contact = null;
+            this.unreadCount = 0;
+            this._unconfirmedMessagesIds = Object.create(null);
 
-    }
+        }
 
         setProfile  (profile: Profile) {
             this.profile = profile;
@@ -414,6 +504,7 @@ extend(Profile.prototype, serializable);
             }
             this.contact = contact;
             contact.tlConnection.onMessage.on(this._processMessage, this);
+            contact.tlConnection.onEcho.on(this._processEcho, this);
             if (!skipChanged) {
                 this._onChanged();
             }
@@ -423,8 +514,10 @@ extend(Profile.prototype, serializable);
             var msg: ITextMessage = {
                 text: message,
                 sender: this.profile.name,
-                type: "text"
+                type: "text",
+                uuid: uuid()
             };
+            this._unconfirmedMessagesIds[msg.uuid] = true;
             this._pushMessage(extend({}, msg, {
                 isMine: true
             }));
@@ -452,7 +545,23 @@ extend(Profile.prototype, serializable);
             this._pushMessage(message);
         }
 
-        _processMessage  (message : IUserMessage) {
+        private _processEcho(message: IUserMessage) {
+            if(message.type !== "text") {
+                return;
+            }
+
+            if (this._unconfirmedMessagesIds[message.uuid]) {                
+                delete this._unconfirmedMessagesIds[message.uuid];
+            } else {
+                // message was sent from another device
+                message.isMine = true;
+                this._pushMessage(message);
+            }
+            //todo confirm message arrival
+            this._onChanged();            
+        }
+
+        private _processMessage  (message : IUserMessage) {
             if(message.type !== "text") {
                 return;
             }
@@ -519,7 +628,8 @@ extend(Profile.prototype, serializable);
             packet.setData({
                 _type_: "Dialog",
                 name: this.name,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                unconfirmedMessagesIds: this._unconfirmedMessagesIds
             });
             packet.setLink("contact", context.getPacket(this.contact));
         }
@@ -529,6 +639,7 @@ extend(Profile.prototype, serializable);
             var factory = this.getFactory();
             this.name = data.name;
             this.unreadCount = data.unread;
+            this._unconfirmedMessagesIds = data.unconfirmedMessagesIds;
             var contact = context.deserialize(packet.getLink("contact"), factory.createContact, factory);
             this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
             if (!this.history) {

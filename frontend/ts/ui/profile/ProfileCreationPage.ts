@@ -1,8 +1,9 @@
 "use strict";
 import React = require("react");
 import reactObserver = require("../../mixins/reactObserver");
-import TlecBuilder = require("TlecBuilder");
-
+import Tlec = require("Tlec");
+var TlecBuilder = Tlec.Builder;
+    
 import multivalue = require("Multivalue");
 var DecBlocks = multivalue.DecBlocks;
 
@@ -331,6 +332,7 @@ var exp = React.createClass({
             }
             case "public": {
                 return PublicProfileForm({
+                    handleProfileCreation: this._handleProfileCreation,
                     pageModel: this.props.pageModel
                 });
             }

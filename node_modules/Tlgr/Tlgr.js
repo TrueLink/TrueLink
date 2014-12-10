@@ -42,16 +42,25 @@ function Tlgr(factory) {
     this._factory = factory;
     this._random = factory.createRandom();
     this._algo = new TlgrAlgo(this._random);
+
+    this._unhandledPacketsData = [];
 }
 
 extend(Tlgr.prototype, eventEmitter, serializable, {
     serialize: function (packet, context) {
         var data = this._algo.serialize();
+        data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
+            return packetData.as(Hex).serialize();
+        });
         packet.setData(data);
     },
 
     deserialize: function (packet, context) {
         var data = packet.getData();
+        this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
+            data.unhandledPacketsData.map(function (packetData) {
+                return Hex.deserialize(packetData);
+            });
         this._algo.deserialize(data);
     },
 
@@ -124,65 +133,94 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             && networkPacket.addr instanceof Multivalue
             && networkPacket.data instanceof Multivalue, "networkPacket must be {addr: multivalue, data: multivalue}");
         if (this._algo.getChannelId() && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
-            //packet is for our channel lets try to decrypt
-            console.log("Tlgr: trying to decrypt packet");
-            var message = null;
-            var decryptedData = null;
-            try {
-                decryptedData = this._algo.decrypt(networkPacket.data);
-                message = JSON.parse(decryptedData.message.as(Utf8String).toString());
-            }catch (e)
-            {
-                console.log(e);
-                return;
-            }
+            //packet is for our channel lets try to handle
 
-            if(decryptedData.sender) {
-                console.log("Tlgr got something: ", decryptedData.sender, message);
-                //if not our own text msg 
-                if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
-                        message.type === Tlgr.messageTypes.TEXT) {
-                    this.fire("message", {
-                        sender: { 
-                            aid: decryptedData.sender.aid.as(Hex).toString(),
-                            name: decryptedData.sender.meta.name
-                        },
-                        text: message.data
-                    });
-                    // == CHANNEL_ABANDONED
-                } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
-                    if (message.data === "reason=user exit") {
-                        this._algo.getUsers().removeUserData(decryptedData.sender);
-                        this.fire("user_left", { 
-                            aid: decryptedData.sender.aid.as(Hex).toString(),
-                            name: decryptedData.sender.meta.name
-                        });
-                    }
-                } else if (message.type === Tlgr.messageTypes.REKEY_INFO) {
-                    try {
-                        var encrypted = Hex.deserialize(message.data);
-                        var decrypted = this._algo.deprivatize(encrypted);
-                        console.log("Tlgr decrypted private message: ", decrypted);
-                        decrypted = JSON.parse(decrypted.as(Utf8String).toString());
+            //todo store decrypted instead, split decryption and owner search
+            this._unhandledPacketsData.unshift(networkPacket.data);
+            this.fire("changed", this);
 
-                        this.fire("rekey", decrypted);
-                        this.fire("changed", this);
-                        return;
-                    } catch (e) {
+            // try to handle packets one per cycle while handling succeeds
+            var handled;
+            do {
+                handled = false;
+                var i = 0;
+                for ( ; i < this._unhandledPacketsData.length; i++) {
+                    var packetData = this._unhandledPacketsData[i];
+                    handled = this._handlePacketData(packetData);
+                    if (handled) {
+                        break;
                     }
                 }
-            }else if(message.type === Tlgr.messageTypes.GJP && this._algo.looksLikeGJP(message.data)) {
-                console.log("Tlgr got gjp", message.data);
-                var userData = this._algo.processGroupJoinPackage(message.data); 
-                if(userData) {
-                    this.fire("user_joined", { 
-                            aid: userData.aid.as(Hex).toString(),
-                            name: userData.meta.name
-                        });
+                if (handled) {
+                    this._unhandledPacketsData.splice(i, 1);
+                    this.fire("changed", this);
+                }
+            } while (handled);
+        }
+    },
+
+    _handlePacketData: function (packetData) {
+        console.log("Tlgr: trying to decrypt packet");
+        var message = null;
+        var decryptedData = null;
+        try {
+            decryptedData = this._algo.decrypt(packetData);
+            message = JSON.parse(decryptedData.message.as(Utf8String).toString());
+        }catch (e)
+        {
+            console.log(e);
+            return true; // yes, we handled it: it is not for us
+        }
+
+        if(decryptedData.sender) {
+            console.log("Tlgr got something: ", decryptedData.sender, message);
+            //if not our own text msg 
+            if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
+                    message.type === Tlgr.messageTypes.TEXT) {
+                this.fire("message", {
+                    sender: { 
+                        aid: decryptedData.sender.aid.as(Hex).toString(),
+                        name: decryptedData.sender.meta.name
+                    },
+                    text: message.data
+                });
+                // == CHANNEL_ABANDONED
+            } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
+                if (message.data === "reason=user exit") {
+                    this._algo.getUsers().removeUserData(decryptedData.sender);
+                    this.fire("user_left", { 
+                        aid: decryptedData.sender.aid.as(Hex).toString(),
+                        name: decryptedData.sender.meta.name
+                    });
+                }
+            } else if (message.type === Tlgr.messageTypes.REKEY_INFO) {
+                try {
+                    var encrypted = Hex.deserialize(message.data);
+                    var decrypted = this._algo.deprivatize(encrypted);
+                    console.log("Tlgr decrypted private message: ", decrypted);
+                    decrypted = JSON.parse(decrypted.as(Utf8String).toString());
+
+                    this.fire("rekey", decrypted);
+                    this.fire("changed", this);
+                    return;
+                } catch (e) {
                 }
             }
             this.fire("changed", this);
+            return true;
+        } else if(message.type === Tlgr.messageTypes.GJP && this._algo.looksLikeGJP(message.data)) {
+            console.log("Tlgr got gjp", message.data);
+            var userData = this._algo.processGroupJoinPackage(message.data); 
+            if(userData) {
+                this.fire("user_joined", { 
+                        aid: userData.aid.as(Hex).toString(),
+                        name: userData.meta.name
+                    });
+            }
+            this.fire("changed", this);
+            return true;
         }
+        return false;        
     },
 
     generateInvitation: function () {

@@ -9,6 +9,8 @@ import GrConnection = require("../../models/grConnection/GrConnection");
 import GrConnectionFactory = require("./grConnectionFactory");
 import TlConnectionFactory = require("./tlConnectionFactory");
 
+import TopologicalSorter = require("../../models/TopologicalSorter");
+
 import CouchTransport = require("../../models/tlConnection/CouchTransport");
 
 function SyncFactory(serializer, sync) {
@@ -35,6 +37,10 @@ extend(SyncFactory.prototype, prototype, {
         var tlConnectionFactory = new TlConnectionFactory(this.serializer, tlConnection, this.sync.transport);
         tlConnection.setFactory(tlConnectionFactory);
         return this._observed(tlConnection);
+    },
+
+    createSorter: function () {
+        return this._observed(new TopologicalSorter.Sorter<any>());
     },
 });
 
