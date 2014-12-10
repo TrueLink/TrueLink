@@ -112,6 +112,12 @@ describe('Multivalue', () => {
             expect(new Bytes([8, 169, 157, 10, 239, 70, 62, 210, 33, 191, 147, 235, 135, 251, 83, 224]).as(DecBlocks).as(Hex).as(BitArray).bitLength()).to.equals(128);
         });
 
+        it("Bug from real world #2", function () {
+            expect(new Bytes([0, 0, 0, 0, 0, 0, 0]).as(Hex).toString()).to.equals("00000000000000", "7 Bytes to Hex");
+            expect(new Hex("00000000000000").as(Bytes).as(BitArray).bitLength()).to.equals(56, "7 Hex to Bytes");
+            expect(new Bytes([0]).as(Hex).as(BitArray).bitLength()).to.equals(8, "Bytes to Hex");
+            expect(new Hex("00").as(Bytes).as(BitArray).bitLength()).to.equals(8, "Hex to Bytes");
+        });
 
     });
 
