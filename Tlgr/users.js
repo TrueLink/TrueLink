@@ -5,7 +5,7 @@ var rsa = require("modules/cryptography/rsa-forge");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
 
-var hashtail = require("hashtail");
+var hashtail = require("./hashtail");
 
 var invariant = require("invariant");
 
@@ -29,7 +29,7 @@ function User(args) {
         this._aid = args.aid;
         this._publicKey = args.publicKey;
         this._meta = args.meta;
-        this._hashValidators = [new hashtail.Validator(args.ht))];
+        this._hashValidators = [new hashtail.Validator(args.ht)];
     } else {
         // going to be deserialized
         this._aid = null;
@@ -104,7 +104,7 @@ Users.prototype.removeUserData = function (data) {
 Users.prototype.findUserByHash = function (hx) {
     for (var aid in this._byAid) {
         var user = this._byAid[aid];
-        if (user.isHashValid(hx) {
+        if (user.isHashValid(hx)) {
             //todo check what exactly should be returned here
             return user.getInfo();
         }

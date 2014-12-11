@@ -11,7 +11,7 @@ var expect = chai.expect;
 describe("Test Tlgr by using it as chat", function() {
     this.timeout(20000);
 
-    describe.skip("Basic", function() {
+    describe("Basic", function() {
         before(function(done) {
             var conn = this.connection = new utils.Connection();
 
@@ -119,7 +119,7 @@ describe("Test Tlgr by using it as chat", function() {
     });
 
 
-    describe("Multihashtail (hashCount = 5)", function() {
+    describe.skip("Multihashtail (hashCount = 5)", function() {
         before(function(done) {
             this.hashCountBUffer = TlgrAlgo.hashCount;
             TlgrAlgo.hashCount = 5;

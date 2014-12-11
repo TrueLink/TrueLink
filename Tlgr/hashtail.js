@@ -11,9 +11,10 @@ var BitArray = require("Multivalue/multivalue/bitArray");
 
 
 var hashCount = 1000;
+var hashLength = 128;
 
 var hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, 128);
+    return SHA1(value).as(BitArray).bitSlice(0, hashLength);
 }
 
 
@@ -163,6 +164,8 @@ Generator.prototype._getHash = function (counter) {
 
 module.exports = {
     hashCount: hashCount,
+    hashLength: hashLength,
+    
     Validator: Validator,
     Generator: Generator
 };

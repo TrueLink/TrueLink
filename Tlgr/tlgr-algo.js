@@ -7,10 +7,14 @@ TlgrAlgo.groupUidLength = 128;
 TlgrAlgo.channelIdLength = 32;
 TlgrAlgo.sharedKeyLength = 256;
 TlgrAlgo.keyPairLength = 512;
-TlgrAlgo.hashCount = 1000;
-TlgrAlgo.hashLength = 128;
 TlgrAlgo.ivLength = 128;
 TlgrAlgo.keyLength = 128;
+
+
+TlgrAlgo.hashCount = 1000;
+TlgrAlgo.hashLength = 128;
+
+
 
 var rsa = require("modules/cryptography/rsa-forge");
 var AES = require("modules/cryptography/aes-forge");
@@ -181,8 +185,7 @@ TlgrAlgo.prototype.processGroupJoinPackage = function (gjp) {
         "aid": aid,
         "publicKey": publicKey,
         "meta": gjp.meta,
-        "ht": ht,
-        htCounter: TlgrAlgo.hashCount - 1
+        "ht": ht
     };
     this._users.putUserData(data)
     return data;
@@ -226,20 +229,9 @@ TlgrAlgo.prototype.decrypt = function (message) {
     var message = data.as(ByteBuffer);
     var hx = message.take(TlgrAlgo.hashLength);
 
-    // find message owner
-    for (var i = 0; i < TlgrAlgo.hashCount; i += 1) {
-        var user = this._users.findUserByHash(hx);
-        if (user && user.htCounter === TlgrAlgo.hashCount - i) {
-            user.htCounter--;
-            return {
-                "sender": user,
-                "message": message,
-            }
-        }
-        hx = this._hash(hx);
-    }
     return {
-        "message": message,
+        //sender: this._users.findUserByHash(hx),
+        message: message,
     }
 };
 
