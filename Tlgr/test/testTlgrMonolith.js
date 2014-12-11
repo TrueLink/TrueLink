@@ -24,15 +24,24 @@ describe("Test Tlgr by using it as chat", function() {
             da.georgeWeasley = new utils.Actor("Fred", conn.createTlgr());
             da.fredWeasley = new utils.Actor("George", conn.createTlgr());
 
+            var expectedJoinCount = Object.keys(da).length * Object.keys(da).length;
+            var handleJoin = function() {
+                expectedJoinCount--;
+                if (!expectedJoinCount) done();
+            };
+
+            conn.tlgrs.forEach(function (tlgr) {
+                tlgr.on("user_joined", handleJoin);
+            });
+
             da.hermioneGranger.startChat();
             da.harryPotter.joinChat(da.hermioneGranger.generateInvitation());
             da.ronandWeasley.joinChat(da.hermioneGranger.generateInvitation());
             da.nevilleLongbottom.joinChat(da.harryPotter.generateInvitation());
+            da.lunaLovegood.joinChat(da.harryPotter.generateInvitation());
             da.ginevraWeasley.joinChat(da.ronandWeasley.generateInvitation());
             da.georgeWeasley.joinChat(da.hermioneGranger.generateInvitation());
             da.fredWeasley.joinChat(da.georgeWeasley.generateInvitation());
-
-            done();
         });
 
         it("can send messages", function() {
@@ -40,26 +49,25 @@ describe("Test Tlgr by using it as chat", function() {
 
 
             for (var actor in da) {
-                expect(actor.group).to.be.deep.equal(da.harryPotter.group);
+                expect(da[actor].group).to.be.deep.equal(da.harryPotter.group);
             }
 
-            var expectedGroup = {
-                "Harry": true,
-                "Hermione": true,
-                "Ron": true,
-                "Neville": true,
-                "Luna": true,
-                "Ginny": true,
-                "Fred": true,
-                "George": true,
-            };
-            var actualGroup = {};
-            for (var name in da.harryPotter.group) {
-                actualGroup[name] = true;
-            }
+            var expectedGroup = [
+                "Hermione",
+                "Harry",
+                "Ron",
+                "Neville",
+                "Luna",
+                "Ginny",
+                "Fred",
+                "George",
+            ];
 
-            expect(actualGroup).to.be.deep.equal(expectedGroup);
+            expect(da.harryPotter.group.map(function (u) {
+                return u.name;
+            })).to.be.deep.equal(expectedGroup);
 
+            
             var conversation = [{
                 actor: da.harryPotter,
                 text: "Hi all!"
@@ -91,7 +99,7 @@ describe("Test Tlgr by using it as chat", function() {
             });
 
             for (actor in da) {
-                expect(actor.history).to.be.deep.equal(da.harryPotter.history);
+                expect(da[actor].history).to.be.deep.equal(da.harryPotter.history);
             }
 
             expect(da.harryPotter.history.map(function (message) {

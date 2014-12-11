@@ -12,6 +12,7 @@ var extend = tools.extend;
 
 function TestTransport() {
     this._defineEvent("networkPacket");
+    this._defineEvent("packet");
     this.buffer = new Dictionary();
 }
 
@@ -58,6 +59,9 @@ extend(TestTransport.prototype, eventEmitter, {
             addr: addr,
             data: packet
         });
+    },
+    onPacket: function (networkPacket) {
+        this.fire("packet", networkPacket);
     }
 });
 

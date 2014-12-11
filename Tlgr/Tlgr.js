@@ -145,7 +145,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
                 handled = false;
                 var i = 0;
                 for ( ; i < this._unhandledPacketsData.length; i++) {
-                    var packetData = this._unhandledPacketsData[i];
+                    var packetData = this._unhandledPacketsData[i].as(Hex); // hack to avoid ByteBuffer reusage
                     handled = this._handlePacketData(packetData);
                     if (handled) {
                         break;
@@ -160,7 +160,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     _handlePacketData: function (packetData) {
-        console.log("Tlgr: trying to decrypt packet");
+        //console.log("Tlgr: trying to decrypt packet");
         var message = null;
         var decryptedData = null;
         try {
@@ -173,7 +173,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         }
 
         if(decryptedData.sender) {
-            console.log("Tlgr got something: ", decryptedData.sender, message);
+            //console.log("Tlgr got something: ", decryptedData.sender, message);
             //if not our own text msg 
             if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
                     message.type === Tlgr.messageTypes.TEXT) {
@@ -209,7 +209,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             this.fire("changed", this);
             return true;
         } else if(message.type === Tlgr.messageTypes.GJP && this._algo.looksLikeGJP(message.data)) {
-            console.log("Tlgr got gjp", message.data);
+            //console.log("Tlgr got gjp", message.data);
             var userData = this._algo.processGroupJoinPackage(message.data); 
             if(userData) {
                 this.fire("user_joined", { 
@@ -235,7 +235,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         }
         this.fire("packet", {
             addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
+            data: this._algo.encrypt(new Utf8String(JSON.stringify(msg))).as(Hex)  // hack to avoid ByteBuffer reusage
         });
         this.fire("changed", this);
     },
@@ -266,7 +266,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         
         this.fire("packet", {
             addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(gjpJson))
+            data: this._algo.encrypt(new Utf8String(gjpJson)).as(Hex) // hack to avoid ByteBuffer reusage
         });
     },
 

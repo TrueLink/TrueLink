@@ -22,30 +22,35 @@ extend(TlConnectionFactory.prototype, {
 var factory = new TlConnectionFactory();
 
 function Connection() {
-	this.transport = new TestTransport();
+	this.transports = [];
 	this.tlgrs = [];
 }
 
-Connection.prototype._linkTlgrToTransport = function (tlgr) {
-	var transport = this.transport;
+Connection.prototype._link = function (transport, tlgr) {
+	this.transports.forEach(function (t) {
+		transport.on("packet", t.sendNetworkPacket, t);	
+		t.on("packet", transport.sendNetworkPacket, transport);	
+	});
 
-    tlgr.on("packet", transport.sendNetworkPacket, transport);
+	tlgr.on("packet", transport.onPacket, transport);
     tlgr.on("openAddrIn", transport.openAddr, transport);
     transport.on("networkPacket", tlgr.onNetworkPacket, tlgr);	
 }
 
 Connection.prototype.createTlgr = function () {
+	var transport = new TestTransport();
 	var tlgr = factory.createTlgr();
-	this._linkTlgrToTransport(tlgr);
+	this.transports.push(transport);
 	this.tlgrs.push(tlgr);
-
+	this._link(transport, tlgr);
+	
 	return tlgr;
 }
 
 var Actor = function (name, tlgr) {
     this.name = name;
     this.history = [];
-    this.group = Object.create(null);
+    this.group = [];
     this.tlgr = tlgr;
     this._linkTlgr();
 };
@@ -59,12 +64,10 @@ Actor.prototype._linkTlgr = function () {
 }
 
 Actor.prototype._handleMessage = function (message) {
-	console.log(this.name, "got message", message);
 	this.history.push(message);
 }
 Actor.prototype._handleUserJoined = function (args) {
-	console.log(this.name, "got join packet", args);
-	this.group[args.name] = args;
+	this.group.push(args);
 }
 Actor.prototype._handleRekey = function (message) {
 	throw new Error("Not implemented");
@@ -92,6 +95,10 @@ Actor.prototype.generateInvitation = function () {
 }
 
 Actor.prototype.sendMessage = function (text) {
+	this.history.push({
+		sender: this.group.filter(function (u) { return u.name === this.name; }.bind(this))[0],
+		text: text
+	}); // todo: impl echo!!!11
     this.tlgr.sendMessage(text);
 }
 
