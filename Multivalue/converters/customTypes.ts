@@ -13,6 +13,33 @@ export function HexToDecBlocks(source: Hex): DecBlocks {
     return new DecBlocks(leemon.bigInt2str(bi, 10));
 }
 
+export function HexToBytes(source: Hex): Bytes {
+    var sv = source.value;
+    var k = sv.length;
+    if (k % 2) {
+        throw new Error("Hex value length should be even");
+    }
+    var b: number[] = [];
+    for (var i = 0; i < k; i += 2) {
+        b.push(parseInt(sv.substr(i, 2), 16));
+    }
+    return new Bytes(b);
+}
+
+export function BytesToHex(source: Bytes): Hex {
+    var sv = source.value;
+    var ret = "", i = 0, len = sv.length;
+    while (i < len) {
+      var h = sv[i].toString(16);
+      if (h.length < 2) {
+        h = "0" + h;
+      }
+      ret += h;
+      i++;
+    }
+    return new Hex(ret);
+}
+
 export function DecBlocksToHex(source: DecBlocks): Hex {
     var bi = leemon.str2bigInt(source.value, 10);
     var hex = new Hex(leemon.bigInt2str(bi, 16));
@@ -189,7 +216,9 @@ export function Utf8StringToBytes(source: Utf8String): Bytes {
 }
 
 export function register() {
-    multivalue.Multivalue.register(Hex, DecBlocks, HexToDecBlocks);
+    multivalue.Multivalue.register(Hex, Bytes, HexToBytes);
+    multivalue.Multivalue.register(Bytes, Hex, BytesToHex);
+    multivalue.Multivalue.register(Hex, DecBlocks, HexToDecBlocks, true);
     multivalue.Multivalue.register(DecBlocks, Hex, DecBlocksToHex);
     multivalue.Multivalue.register(Bytes, DecBlocks, BytesToDecBlocks);
     multivalue.Multivalue.register(DecBlocks, Bytes, DecBlocksToBytes);
