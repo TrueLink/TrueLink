@@ -5,6 +5,71 @@ var rsa = require("modules/cryptography/rsa-forge");
 var Multivalue = require("Multivalue").multivalue.Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
 
+var hashtail = require("hashtail");
+
+var invariant = require("invariant");
+
+
+
+User.deserialize = function (data) {
+    var user = new User();
+
+    this._aid = Hex.deserialize(data.aid);
+    this._hashvalidators = data.hashValidators.map(function (hv) {
+            return hashtail.Validator.deserialize(hv);
+        });
+    this._publicKey = rsa.PublicKey.deserialize(data.publicKey);
+    this._meta = data.meta;
+
+    return user;
+}
+
+function User(args) {
+    if (args) {
+        this._aid = args.aid;
+        this._publicKey = args.publicKey;
+        this._meta = args.meta;
+        this._hashValidators = [new hashtail.Validator(args.ht))];
+    } else {
+        // going to be deserialized
+        this._aid = null;
+        this._publicKey = null;
+        this._meta = null;
+        this._hashValidators = null;
+    }
+}
+
+User.prototype.serialize = function () {
+    return {
+        aid: this._aid.as(Hex).serialize(),
+        hashValidators: this._hashValidators.map(function (hv) {
+                return hv.serialize();
+            }),
+        publicKey: this._publicKey.serialize(),
+        meta: this._meta
+    };
+}
+
+User.prototype.isHashValid = function () {
+    return this._hashValidators.some(function (hv) { return hv.isHashValid(hx); });
+}
+
+User.prototype.getInfo = function () {
+    return {
+        aid: this._aid,
+        meta: this._meta,
+        publicKey: this._publicKey
+    }
+}
+
+User.prototype.getMeta = function () {
+    return this._meta;
+}
+
+
+
+
+
 
 function Users() {
     this._byAid = {};
@@ -14,22 +79,22 @@ Users.prototype.getUsers = function () {
     return Object.keys(this._byAid).map(function (item) {
         return {
             aid: item,
-            name: this._byAid[item].meta.name
+            name: this._byAid[item].getMeta().name
         }
     }, this);
 };
 
 Users.prototype.getUserData = function (aid) {
     if (aid instanceof Multivalue) {
-        return this.getUserData(aid.as(Hex).serialize());
+        aid = aid.as(Hex).serialize();
     }
-    if (typeof aid === 'string' || aid instanceof String) {
-        return this._byAid[aid];
-    }
+    invariant(typeof aid === 'string' || aid instanceof String, "aid should be Multivalue or string");
+    //todo check what exactly should be returned here
+    return this._byAid[aid].getInfo();
 }
 
 Users.prototype.putUserData = function (data) {
-    this._byAid[data.aid.as(Hex).serialize()] = data;
+    this._byAid[data.aid.as(Hex).serialize()] = new User(data);
 }
 
 Users.prototype.removeUserData = function (data) {
@@ -37,41 +102,26 @@ Users.prototype.removeUserData = function (data) {
 }
 
 Users.prototype.findUserByHash = function (hx) {
-    var hex = hx.as(Hex);
-    for (var index in this._byAid) {
-        var user = this._byAid[index];
-        if (user.ht.as(Hex).isEqualTo(hex)) {
-            return user;
+    for (var aid in this._byAid) {
+        var user = this._byAid[aid];
+        if (user.isHashValid(hx) {
+            //todo check what exactly should be returned here
+            return user.getInfo();
         }
     }
 }
 
 Users.prototype.serialize = function () {
-    var byAid = this._byAid;
     var result = {};
     for (var key in byAid) {
-        var user = byAid[key];
-        result[key] = {
-            aid: user.aid.as(Hex).serialize(),
-            ht: user.ht.as(Hex).serialize(),
-            htCounter: user.htCounter,
-            publicKey: user.publicKey.serialize(),
-            meta: user.meta
-        }
+        result[key] = this._byAid[key].serialize();
     }
     return result;
 }
 
 Users.prototype.deserialize = function (byAid) {
     for (var key in byAid) {
-        var user = byAid[key];
-        this._byAid[key] = { 
-            aid: Hex.deserialize(user.aid),
-            ht: Hex.deserialize(user.ht),
-            htCounter: user.htCounter,
-            meta: user.meta,
-            publicKey: rsa.PublicKey.deserialize(user.publicKey)
-        }
+        this._byAid[key] = User.deserialize(byAid[key]);
     }
 }
 
