@@ -23,7 +23,7 @@ extend(TestTransport.prototype, eventEmitter, {
         this.checkEventHandlers();
         console.log("opening addr: %s", addr.as(Hex));
         invariant(addr instanceof Multivalue, "addr must be multivalue");
-        var bufItem = this.buffer.first(function (item) { return item.key.isEqualTo(addr.as(Hex)); });
+        var bufItem = this.buffer.first(function (item) { return item.key.as(Hex).isEqualTo(addr.as(Hex)); });
         if (bufItem) {
             var buf = bufItem.value;
             bufItem.value = [];
@@ -41,7 +41,7 @@ extend(TestTransport.prototype, eventEmitter, {
 
         var addr = networkPacket.addr;
         var packet = networkPacket.data;
-        var bufItem = this.buffer.first(function (item) { return item.key.isEqualTo(addr.as(Hex)); });
+        var bufItem = this.buffer.first(function (item) { return item.key.as(Hex).isEqualTo(addr.as(Hex)); });
         var buf;
         if (!bufItem) {
             buf = [];

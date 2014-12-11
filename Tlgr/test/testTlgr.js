@@ -15,7 +15,7 @@ var logfunc = function() {
     //console.log.apply(console, args);
 }
 
-describe("AES Forge Wrapper", function() {
+describe.skip("AES Forge Wrapper", function() {
     var AES = require("modules/cryptography/aes-forge");
 
     it("encrypt and dercypt", function() {
@@ -28,7 +28,7 @@ describe("AES Forge Wrapper", function() {
     });
 });
 
-describe("RSA Forge Wrapper", function() {
+describe.skip("RSA Forge Wrapper", function() {
     var rsa = require("modules/cryptography/rsa-forge");
 
     it("should generate serializable keypair", function() {
@@ -45,7 +45,7 @@ describe("RSA Forge Wrapper", function() {
     })
 });
 
-describe("True Link Group Rekeying", function() {
+describe.skip("True Link Group Rekeying", function() {
 
     var Tlgr = require("../Tlgr");
 

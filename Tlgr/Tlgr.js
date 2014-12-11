@@ -168,7 +168,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             message = JSON.parse(decryptedData.message.as(Utf8String).toString());
         }catch (e)
         {
-            console.log(e);
+            console.log(e, decryptedData.message.as(Utf8String).toString());
             return true; // yes, we handled it: it is not for us
         }
 
