@@ -160,15 +160,13 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     _handlePacketData: function (packetData) {
-        console.log("Tlgr: trying to decrypt packet");
+        //console.log("Tlgr: trying to decrypt packet");
         var message = null;
         var decryptedData = null;
         try {
-            console.log("_handlePacketData | packetData =", packetData);
             decryptedData = this._algo.decrypt(packetData);
-            console.log("_handlePacketData | decryptedData =", decryptedData);
             message = JSON.parse(decryptedData.message.as(Utf8String).toString());
-        }catch (e)
+        } catch (e)
         {
             if (decryptedData) {
                 console.log(e, "decryptedData =", decryptedData.message.as(Utf8String).toString());
@@ -179,7 +177,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         }
 
         if(decryptedData.sender) {
-            console.log("Tlgr got something: ", decryptedData.sender, message);
+            //console.log("Tlgr got something: ", decryptedData.sender, message);
             //if not our own text msg 
             if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
                     message.type === Tlgr.messageTypes.TEXT) {

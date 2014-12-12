@@ -38,7 +38,7 @@ Connection.prototype._link = function (transport, tlgr) {
 }
 
 Connection.prototype.createTlgr = function () {
-	var transport = new TestTransport();
+	var transport = new TestTransport({muted: true});
 	var tlgr = factory.createTlgr();
 	this.transports.push(transport);
 	this.tlgrs.push(tlgr);
