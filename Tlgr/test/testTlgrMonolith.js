@@ -3,7 +3,7 @@ require("Multivalue").converters.register();
 var EventEmitter = require("modules/events/eventEmitter");
 var utils = require("./utils");
 
-var TlgrAlgo = require("../tlgr-algo");
+var hashtail = require("../hashtail");
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -120,10 +120,10 @@ describe("Test Tlgr by using it as chat", function() {
     });
 
 
-    describe.skip("Multihashtail (hashCount = 5)", function() {
+    describe("Multihashtail (hashCount = 5)", function() {
         before(function(done) {
-            this.hashCountBUffer = TlgrAlgo.hashCount;
-            TlgrAlgo.hashCount = 5;
+            this.hashCountBuffer = hashtail.hashCount;
+            hashtail.hashCount = 5;
 
 
             var conn = this.connection = new utils.Connection();
@@ -160,7 +160,7 @@ describe("Test Tlgr by using it as chat", function() {
         });
 
         after(function () {
-            TlgrAlgo.hashCount = this.hashCountBUffer;
+            hashtail.hashCount = this.hashCountBuffer;
         });
 
 

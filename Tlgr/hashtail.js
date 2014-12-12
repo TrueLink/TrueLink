@@ -10,13 +10,14 @@ var Hex = multivalue.Hex;
 var BitArray = require("Multivalue/multivalue/bitArray");
 var Bytes = require("Multivalue/multivalue/bytes");
 
+var hashtail = {};
 
-var hashCount = 1000;
-var hashLength = 128;
-var minHashtailsWanted = 3;
+hashtail.hashCount = 1000;
+hashtail.hashLength = 128;
+hashtail.minHashtailsWanted = 3;
 
 var hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, hashLength);
+    return SHA1(value).as(BitArray).bitSlice(0, hashtail.hashLength);
 }
 
 
@@ -37,7 +38,7 @@ function Validator(end) {
         invariant(end instanceof Multivalue, "end must be multivalue");
         this._end = end.as(Hex);
         this._current = this._end;
-        this._counter = hashCount;        
+        this._counter = hashtail.hashCount;        
     } else {
         // going to be deserialized
         this._end = null;
@@ -87,7 +88,7 @@ function Generator(args) {
         this._active = !args.inactive;
         this._owner = args.owner;
         this._start = args.start.as(Hex);
-        this._counter = args.counter || hashCount;
+        this._counter = args.counter || hashtail.hashCount;
     } else {
         // going to be deserialized
         this._active = false;
@@ -140,7 +141,7 @@ Generator.prototype.isItYou = function (start) {
 }
 
 Generator.prototype.getEnd = function () {
-    return this._getHash(hashCount); 
+    return this._getHash(hashtail.hashCount); 
 }
 
 // mutates generator!
@@ -245,11 +246,11 @@ GeneratorPool.prototype.areAnyHashesAvailable = function () {
 }
 
 GeneratorPool.prototype.areEnoughHashtailsAvailable = function () {
-    return this._getMyActiveHashes().length >= minHashtailsWanted;
+    return this._getMyActiveHashes().length >= hashtail.minHashtailsWanted;
 }
 
 GeneratorPool.prototype.createGenerator = function () {
-    var start = this._random.bitArray(hashLength);
+    var start = this._random.bitArray(hashtail.hashLength);
     var hg = new Generator({
         start: start,
         owner: this._thisOwner,
@@ -264,12 +265,6 @@ GeneratorPool.prototype.createGenerator = function () {
     };
 }
 
-
-module.exports = {
-    hashCount: hashCount,
-    hashLength: hashLength,
-    minHashtailsWanted: minHashtailsWanted,
-    
-    Validator: Validator,
-    GeneratorPool: GeneratorPool
-};
+hashtail.Validator = Validator;
+hashtail.GeneratorPool = GeneratorPool;
+module.exports = hashtail;
