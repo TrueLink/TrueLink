@@ -12,6 +12,7 @@ var BitArray = require("Multivalue/multivalue/bitArray");
 
 var hashCount = 1000;
 var hashLength = 128;
+var minHashtailsWanted = 3;
 
 var hash = function (value) {
     return SHA1(value).as(BitArray).bitSlice(0, hashLength);
@@ -104,7 +105,11 @@ Generator.prototype.serialize = function () {
     };
 }
 
-//todo: update owner
+Generator.prototype.update(args) {
+    this._active = true;
+    this._owner = args.owner;
+    this._counter = args.counter;
+}
 
 Generator.prototype.isActiveAndOwnedBy = function (owner) {
     return this._active && this._start && this._counter > 1 && this._owner === owner;
@@ -161,10 +166,103 @@ Generator.prototype._getHash = function (counter) {
 
 
 
+GeneratorPool.deserialize = function (data) {
+    var pool = new GeneratorPool();
+
+    pool._thisOwner = data.thisOwner;
+    pool._pool = data.pool.map(function (ng) {
+        return Generator.deserialize(hg);
+    });
+
+    return pool;
+}
+
+function GeneratorPool(args) {
+    if (args) {
+        this._thisOwner = args.profileId;
+        this._pool = [];
+    } else {
+        this._thisOwner = null;
+        this._pool = null;
+    }
+}
+
+GeneratorPool.prototype.serialize = function () {
+    return {
+        thisOwner: this._thisOwner,
+        pool: this._pool.map(function (hg) {
+            return hg.serialize();
+        });
+    }
+}
+
+GeneratorPool.prototype._getCowriterActiveHashes = function (owner) {
+    return this._pool.filter(function (hg) {
+        return hg.isActiveAndOwnedBy(owner); 
+    }.bind(this));  
+}
+
+GeneratorPool.prototype._getMyActiveHashes = function () {
+    return this._getCowriterActiveHashes(this._thisOwner); 
+}
+
+GeneratorPool.prototype._chooseHashtail = function () {
+    var myHashes = this._getMyActiveHashes();
+    invariant(this.areAnyHashesAvailable(), "This channel is expired");
+
+    var hashIndex = Math.floor(this._random.double() * myHashes.length);
+    return myHashes[hashIndex];
+}
+
+GeneratorPool.prototype.delegateGenerator = function (newOwnerId) {
+    return this._chooseHashtail().delegate(newOwnerId);
+}
+
+GeneratorPool.prototype.processDelegatedGenerator = function (hashInfo) {
+    var existingHashInfoArr = this._ourHashes.filter(function (hg) {
+        return hg.isItYou(hashInfo.start);
+    });
+
+    if (existingHashInfoArr.length) {        
+        existingHashInfoArr[0].update(hashInfo);
+    } else {
+        this._ourHashes.push(hg = new Generator(hashInfo));
+    }
+}
+
+GeneratorPool.prototype.getNextHash = function () {
+    return this._chooseHashtail().getNextHash();
+}
+
+GeneratorPool.prototype.areAnyHashesAvailable = function () {
+    return this._getMyActiveHashes().length !== 0;
+}
+
+GeneratorPool.prototype.areEnoughHashtailsAvailable = function () {
+    return this._getMyActiveHashes().length >= minHashtailsWanted;
+}
+
+GeneratorPool.prototype.createGenerator = function () {
+    var hg = new Generator({
+        start: this._random.bitArray(128),
+        owner: this._id,
+        inactive: true,
+    });
+
+    this._ourHashes.push(hg);
+
+    return {
+        end: hg.getEnd(),
+        activator: hg.activate.bind(hg)
+    };
+}
+
+
 module.exports = {
     hashCount: hashCount,
     hashLength: hashLength,
+    minHashtailsWanted: minHashtailsWanted,
     
     Validator: Validator,
-    Generator: Generator
+    GeneratorPool: GeneratorPool
 };
