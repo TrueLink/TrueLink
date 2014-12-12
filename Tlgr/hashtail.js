@@ -105,7 +105,7 @@ Generator.prototype.serialize = function () {
     };
 }
 
-Generator.prototype.update(args) {
+Generator.prototype.update = function (args) {
     this._active = true;
     this._owner = args.owner;
     this._counter = args.counter;
@@ -166,8 +166,8 @@ Generator.prototype._getHash = function (counter) {
 
 
 
-GeneratorPool.deserialize = function (data) {
-    var pool = new GeneratorPool();
+GeneratorPool.deserialize = function (random, data) {
+    var pool = new GeneratorPool(random);
 
     pool._thisOwner = data.thisOwner;
     pool._pool = data.pool.map(function (ng) {
@@ -177,7 +177,8 @@ GeneratorPool.deserialize = function (data) {
     return pool;
 }
 
-function GeneratorPool(args) {
+function GeneratorPool(random, args) {
+    this._random = random;
     if (args) {
         this._thisOwner = args.profileId;
         this._pool = [];
@@ -192,7 +193,7 @@ GeneratorPool.prototype.serialize = function () {
         thisOwner: this._thisOwner,
         pool: this._pool.map(function (hg) {
             return hg.serialize();
-        });
+        })
     }
 }
 
@@ -208,7 +209,7 @@ GeneratorPool.prototype._getMyActiveHashes = function () {
 
 GeneratorPool.prototype._chooseHashtail = function () {
     var myHashes = this._getMyActiveHashes();
-    invariant(this.areAnyHashesAvailable(), "This channel is expired");
+    invariant(myHashes.length, "Cannot choose hashtail: I have none");
 
     var hashIndex = Math.floor(this._random.double() * myHashes.length);
     return myHashes[hashIndex];
@@ -219,14 +220,14 @@ GeneratorPool.prototype.delegateGenerator = function (newOwnerId) {
 }
 
 GeneratorPool.prototype.processDelegatedGenerator = function (hashInfo) {
-    var existingHashInfoArr = this._ourHashes.filter(function (hg) {
+    var existingHashInfoArr = this._pool.filter(function (hg) {
         return hg.isItYou(hashInfo.start);
     });
 
     if (existingHashInfoArr.length) {        
         existingHashInfoArr[0].update(hashInfo);
     } else {
-        this._ourHashes.push(hg = new Generator(hashInfo));
+        this._pool.push(hg = new Generator(hashInfo));
     }
 }
 
@@ -243,13 +244,14 @@ GeneratorPool.prototype.areEnoughHashtailsAvailable = function () {
 }
 
 GeneratorPool.prototype.createGenerator = function () {
+    var start = this._random.bitArray(hashLength);
     var hg = new Generator({
-        start: this._random.bitArray(128),
-        owner: this._id,
+        start: start,
+        owner: this._thisOwner,
         inactive: true,
     });
 
-    this._ourHashes.push(hg);
+    this._pool.push(hg);
 
     return {
         end: hg.getEnd(),

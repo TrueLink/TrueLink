@@ -261,10 +261,10 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             fetch: true
         });
         //send group join package
-        var gjp = this._algo.generateGroupJoinPackage({name:args.userName});
-        gjp = {
+        var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
+        var gjp = {
             type: Tlgr.messageTypes.GJP,
-            data: gjp
+            data: gjpWrapper.gjp
         };
         var gjpJson = JSON.stringify(gjp);
         
@@ -272,6 +272,8 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             addr: this._algo.getChannelId(),
             data: this._algo.encrypt(new Utf8String(gjpJson)).as(Hex) // hack to avoid ByteBuffer reusage
         });
+
+        gjpWrapper.activator();
     },
 
 });

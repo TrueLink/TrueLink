@@ -11,11 +11,6 @@ TlgrAlgo.ivLength = 128;
 TlgrAlgo.keyLength = 128;
 
 
-TlgrAlgo.hashCount = 1000;
-TlgrAlgo.hashLength = 128;
-
-
-
 var rsa = require("modules/cryptography/rsa-forge");
 var AES = require("modules/cryptography/aes-forge");
 var SHA1 = require("modules/cryptography/sha1-crypto-js");
@@ -30,6 +25,8 @@ var tools = require("modules/tools");
 var isFunction = tools.isFunction;
 
 var Users = require('./users');
+
+var hashtail = require('./hashtail');
 
 
 // __________________________________________________________________________ //
@@ -55,12 +52,11 @@ SerializationHelper.deserializeValueAsHex = function (value) {
 function TlgrAlgo(random) {
     this._random = random;
 
-    this._groupUID = null;
-    this._channelID = null;
+    this._groupUid = null;
+    this._channelId = null;
     this._sharedKey = null;
     this._inviteId = null;
-    this._hashStart = null;
-    this._hashTail = null;
+    this._hashGeneratorPool = null;
     this._users = new Users();
 
     this._keyPair = rsa.generateKeyPair({bits: TlgrAlgo.keyPairLength});
@@ -91,30 +87,14 @@ TlgrAlgo.prototype.getMyName = function () {
     return this._users.getUserData(this.getMyAid()).meta.name;
 }
 
-
-TlgrAlgo.prototype._hash = function (value) {
-    return SHA1(value).as(BitArray).bitSlice(0, TlgrAlgo.hashLength);
-};
-
 TlgrAlgo.prototype._getRandomBytes = function (bitLength) {
     invariant(this._random, "random was not set");
     invariant(isFunction(this._random.bitArray), "random must implement IRandom");
     return this._random.bitArray(bitLength);
 };
 
-TlgrAlgo.prototype._nextHashTail = function() {
-    var current = this._hashStart;
-    for (var i = 0; i < TlgrAlgo.hashCount; i += 1) {
-        var next = this._hash(current);
-        if(next.as(Hex).isEqualTo(this._hashTail.as(Hex))) {
-            this._hashTail = current;
-            return next;
-        }
-        current = next;
-    }
-};
-
 TlgrAlgo.prototype.createChannel = function() {
+    this._hashGeneratorPool = new hashtail.GeneratorPool(this._random, {profileId: "temporary-profile-id-placeholder"})
     this._groupUid = this._getRandomBytes(TlgrAlgo.groupUidLength);
     this._channelId = this._getRandomBytes(TlgrAlgo.channelIdLength);
     this._sharedKey = this._getRandomBytes(TlgrAlgo.sharedKeyLength);            
@@ -134,25 +114,22 @@ TlgrAlgo.prototype.generateInvite = function () {
 
 TlgrAlgo.prototype.acceptInvite = function (invite) {
     invariant(invite.pVer == TlgrAlgo.tlgrVersion, "invalid protocol version");
+    this._hashGeneratorPool = new hashtail.GeneratorPool(this._random, {profileId: "temporary-profile-id-placeholder"})
     this._inviteId = Hex.deserialize(invite.inviteId);
     this._groupUid = Hex.deserialize(invite.groupUid);
     this._channelId = Hex.deserialize(invite.channelId);
     this._sharedKey = Hex.deserialize(invite.sharedKey);
 };
 
-TlgrAlgo.prototype.generateGroupJoinPackage = function (metadata) {
-    this._hashStart = this._getRandomBytes(TlgrAlgo.hashLength);
-    this._hashTail = this._hashStart;
-    for (var i = 0; i < TlgrAlgo.hashCount; i += 1) {
-        this._hashTail = this._hash(this._hashTail);
-    }
+TlgrAlgo.prototype.generateGroupJoinPackage = function (metadata) {    
+    var gen = this._hashGeneratorPool.createGenerator();
 
     var gjp = {
-        "ver": [TlgrAlgo.tlgrVersion, TlgrAlgo.gjpVersion],
-        "ht": this._hashTail.as(Hex).serialize(),
-        "meta": (metadata)?(metadata):({}),
-        "pk": this._keyPair.publicKey.serialize(),
-        "aid": this._aid.as(Hex).serialize(),
+        ver: [TlgrAlgo.tlgrVersion, TlgrAlgo.gjpVersion],
+        ht: gen.end.as(Hex).serialize(),
+        meta: (metadata)?(metadata):({}),
+        pk: this._keyPair.publicKey.serialize(),
+        aid: this._aid.as(Hex).serialize(),
     };
     if (this._inviteId) {
         gjp.invite = this._inviteId.as(Hex).serialize();
@@ -161,7 +138,10 @@ TlgrAlgo.prototype.generateGroupJoinPackage = function (metadata) {
     var values = [gjp.ver, gjp.aid, gjp.ht, gjp.meta, gjp.pk];
     var sign = this._keyPair.privateKey.sign(JSON.stringify(values));
     gjp.sign = sign.as(Hex).serialize();
-    return gjp;
+    return {
+        gjp: gjp,
+        hashActivator: gen.activator
+    };
 };
 
 TlgrAlgo.prototype.looksLikeGJP = function (gjp) {
@@ -213,7 +193,7 @@ TlgrAlgo.prototype.deprivatize = function(message) {
 
 TlgrAlgo.prototype.encrypt = function (message) {
     invariant(this._sharedKey, "not configured");
-    var hx = this._nextHashTail();
+    var hx = this._hashGeneratorPool.getNextHash();
     var data = hx.as(ByteBuffer).concat(message);
     var iv = this._getRandomBytes(TlgrAlgo.ivLength);
     var encrypted = AES.encryptCbc(data, this._sharedKey, iv);
@@ -227,7 +207,7 @@ TlgrAlgo.prototype.decrypt = function (message) {
     var data = AES.decryptCbc(encrypted, this._sharedKey, iv);
 
     var message = data.as(ByteBuffer);
-    var hx = message.take(TlgrAlgo.hashLength);
+    var hx = message.take(hashtail.hashLength);
 
     return {
         sender: this._users.findUserByHash(hx),
@@ -241,8 +221,7 @@ TlgrAlgo.prototype.serialize = function () {
         channelId: SerializationHelper.serializeValueAsHex(this._channelId),
         sharedKey: SerializationHelper.serializeValueAsHex(this._sharedKey),
         inviteId: SerializationHelper.serializeValueAsHex(this._inviteId),
-        hashStart: SerializationHelper.serializeValueAsHex(this._hashStart),
-        hashTail: SerializationHelper.serializeValueAsHex(this._hashTail),
+        hashGeneratorPool: this._hashGeneratorPool ? this._hashGeneratorPool.serialize() : null,
         publicKey: SerializationHelper.serializeValue(this._keyPair.publicKey),
         privateKey: SerializationHelper.serializeValue(this._keyPair.privateKey),
         users: this._users.serialize(),
@@ -258,8 +237,9 @@ TlgrAlgo.prototype.deserialize = function (data) {
     this._channelId = SerializationHelper.deserializeValueAsHex(data.channelId);
     this._sharedKey = SerializationHelper.deserializeValueAsHex(data.sharedKey);
     this._inviteId = SerializationHelper.deserializeValueAsHex(data.inviteId);
-    this._hashStart = SerializationHelper.deserializeValueAsHex(data.hashStart);
-    this._hashTail = SerializationHelper.deserializeValueAsHex(data.hashTail);
+    this._hashGeneratorPool = data.hashGeneratorPool
+        ? hashtail.GeneratorPool.deserialize(this._random, data.hashGeneratorPool)
+        : null;
     if(data.users) {
         this._users.deserialize(data.users);
     }
