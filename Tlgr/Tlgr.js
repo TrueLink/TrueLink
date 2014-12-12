@@ -270,10 +270,9 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         
         this.fire("packet", {
             addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(gjpJson)).as(Hex) // hack to avoid ByteBuffer reusage
+            data: this._algo.encrypt(new Utf8String(gjpJson), true).as(Hex) // hack to avoid ByteBuffer reusage
         });
-
-        gjpWrapper.activator();
+        gjpWrapper.hashActivator.call();
     },
 
 });

@@ -8,6 +8,7 @@ var multivalue = require("Multivalue");
 var Multivalue = multivalue.multivalue.Multivalue;
 var Hex = multivalue.Hex;
 var BitArray = require("Multivalue/multivalue/bitArray");
+var Bytes = require("Multivalue/multivalue/bytes");
 
 
 var hashCount = 1000;
@@ -175,6 +176,10 @@ GeneratorPool.deserialize = function (random, data) {
     });
 
     return pool;
+}
+
+GeneratorPool.getFirstHash = function () {
+    return new Bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
 
 function GeneratorPool(random, args) {

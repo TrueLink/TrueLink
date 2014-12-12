@@ -191,9 +191,9 @@ TlgrAlgo.prototype.deprivatize = function(message) {
     return AES.decryptCbc(encrypted, key, iv);
 };
 
-TlgrAlgo.prototype.encrypt = function (message) {
+TlgrAlgo.prototype.encrypt = function (message, isGjp) {
     invariant(this._sharedKey, "not configured");
-    var hx = this._hashGeneratorPool.getNextHash();
+    var hx = isGjp ? hashtail.GeneratorPool.getFirstHash() : this._hashGeneratorPool.getNextHash();
     var data = hx.as(ByteBuffer).concat(message);
     var iv = this._getRandomBytes(TlgrAlgo.ivLength);
     var encrypted = AES.encryptCbc(data, this._sharedKey, iv);
