@@ -230,7 +230,7 @@ TlgrAlgo.prototype.decrypt = function (message) {
     var hx = message.take(TlgrAlgo.hashLength);
 
     return {
-        //sender: this._users.findUserByHash(hx),
+        sender: this._users.findUserByHash(hx),
         message: message,
     }
 };

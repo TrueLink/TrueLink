@@ -53,12 +53,11 @@ Validator.prototype.serialize = function () {
 }
 
 // mutates Validator!
-Validator.prototype.isHashValid = function (hash) {
-    invariant(hash instanceof Multivalue, "hash must be multivalue");
-
-    var hashhash = hash(hash);
-    if (hashhash.as(Hex).isEqualTo(this._current.as(Hex))) {
-        this._current = hash.as(Hex);
+Validator.prototype.isHashValid = function (hx) {
+    invariant(hx instanceof Multivalue, "hash must be multivalue");
+    var hashhx = hash(hx);
+    if (hashhx.as(Hex).isEqualTo(this._current.as(Hex))) {
+        this._current = hx.as(Hex);
         this._counter--;
         return true;
     }
@@ -153,7 +152,7 @@ Generator.prototype._getHash = function (counter) {
     if (!cache[counter]) {
         var hx = cache[1] = this._start;
         for (var i = 2; i <= counter; i++) {
-            hx = cache[i] = Generator.hash(hx);
+            hx = cache[i] = hash(hx);
         }  
     }
 

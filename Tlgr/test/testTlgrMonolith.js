@@ -101,6 +101,7 @@ describe("Test Tlgr by using it as chat", function() {
             });
 
             for (actor in da) {
+                //console.log("history", actor, da[actor].history);
                 expect(da[actor].history).to.be.deep.equal(da.harryPotter.history);
             }
 

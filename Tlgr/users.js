@@ -50,7 +50,7 @@ User.prototype.serialize = function () {
     };
 }
 
-User.prototype.isHashValid = function () {
+User.prototype.isHashValid = function (hx) {
     return this._hashValidators.some(function (hv) { return hv.isHashValid(hx); });
 }
 

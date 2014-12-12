@@ -170,7 +170,11 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             message = JSON.parse(decryptedData.message.as(Utf8String).toString());
         }catch (e)
         {
-            console.log(e, decryptedData.message.as(Utf8String).toString());
+            if (decryptedData) {
+                console.log(e, "decryptedData =", decryptedData.message.as(Utf8String).toString());
+            } else {
+                console.log(e, "packetData =", packetData);
+            }
             return true; // yes, we handled it: it is not for us
         }
 
