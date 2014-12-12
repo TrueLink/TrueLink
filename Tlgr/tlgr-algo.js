@@ -204,16 +204,18 @@ TlgrAlgo.prototype.decrypt = function (message) {
     invariant(this._sharedKey, "not configured");
     var encrypted = message.as(ByteBuffer);
     var iv = encrypted.take(TlgrAlgo.ivLength);
-    var data = AES.decryptCbc(encrypted, this._sharedKey, iv);
+    return AES.decryptCbc(encrypted, this._sharedKey, iv);
+};
 
+TlgrAlgo.prototype.unhash = function (data) {
     var message = data.as(ByteBuffer);
     var hx = message.take(hashtail.hashLength);
 
     return {
         sender: this._users.findUserByHash(hx),
-        message: message,
+        message: message.as(Hex), // hach to fix ByteBuffer reusage bug
     }
-};
+}
 
 TlgrAlgo.prototype.serialize = function () {
     return {

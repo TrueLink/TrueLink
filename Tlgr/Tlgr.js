@@ -35,6 +35,8 @@ function Tlgr(factory) {
     this._defineEvent("openAddrIn");
     this._defineEvent("closeAddrIn");
     this._defineEvent("message");
+    this._defineEvent("echo");
+    this._defineEvent("messageOrEcho");
     this._defineEvent("user_joined");
     this._defineEvent("rekey");
     this._defineEvent("user_left");
@@ -135,10 +137,16 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         if (this._algo.getChannelId() && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
             //packet is for our channel lets try to handle
 
-            //todo store decrypted instead, split decryption and owner search
-            this._unhandledPacketsData.unshift(networkPacket.data);
-            this.fire("changed", this);
+            // trying to decrypt
+            var decrypted = null;
+            try {
+                var decrypted = this._algo.decrypt(networkPacket.data);
+            } catch (e) {
+                // not for us
+            }
 
+            this._unhandledPacketsData.unshift(decrypted);
+            
             // try to handle packets one per cycle while handling succeeds
             var handled;
             do {
@@ -159,42 +167,43 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         }
     },
 
-    _handlePacketData: function (packetData) {
-        //console.log("Tlgr: trying to decrypt packet");
+    _handlePacketData: function (packetData) {        
+        var unhashed = this._algo.unhash(packetData);
+
         var message = null;
-        var decryptedData = null;
         try {
-            decryptedData = this._algo.decrypt(packetData);
-            message = JSON.parse(decryptedData.message.as(Utf8String).toString());
-        } catch (e)
-        {
-            if (decryptedData) {
-                console.log(e, "decryptedData =", decryptedData.message.as(Utf8String).toString());
-            } else {
-                console.log(e, "packetData =", packetData);
-            }
+            message = JSON.parse(unhashed.message.as(Utf8String).toString());
+        } catch (e) {
             return true; // yes, we handled it: it is not for us
         }
 
-        if(decryptedData.sender) {
-            //console.log("Tlgr got something: ", decryptedData.sender, message);
-            //if not our own text msg 
-            if(decryptedData.sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString() &&
-                    message.type === Tlgr.messageTypes.TEXT) {
-                this.fire("message", {
+        if(unhashed.sender) {
+            var sender = unhashed.sender;
+            //console.log("Tlgr got something: ", sender, message);
+            if (false) {
+                //todo: add HASHTAIL message type processor here
+            } else if (message.type === Tlgr.messageTypes.TEXT) {
+                var messageToFire = {
                     sender: { 
-                        aid: decryptedData.sender.aid.as(Hex).toString(),
-                        name: decryptedData.sender.meta.name
+                        aid: sender.aid.as(Hex).toString(),
+                        name: sender.meta.name
                     },
                     text: message.data
-                });
-                // == CHANNEL_ABANDONED
+                };
+                //if not our own text msg 
+                if (sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString()) {
+                    this.fire("message", messageToFire);
+                } else {
+                    this.fire("echo", messageToFire);
+                }
+                this.fire("messageOrEcho", messageToFire);
+            // == CHANNEL_ABANDONED
             } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
                 if (message.data === "reason=user exit") {
-                    this._algo.getUsers().removeUserData(decryptedData.sender);
+                    this._algo.getUsers().removeUserData(sender);
                     this.fire("user_left", { 
-                        aid: decryptedData.sender.aid.as(Hex).toString(),
-                        name: decryptedData.sender.meta.name
+                        aid: sender.aid.as(Hex).toString(),
+                        name: sender.meta.name
                     });
                 }
             } else if (message.type === Tlgr.messageTypes.REKEY_INFO) {
