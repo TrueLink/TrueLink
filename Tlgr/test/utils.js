@@ -58,12 +58,20 @@ var Actor = function (name, tlgr) {
 Actor.prototype._linkTlgr = function () {
 	var tlgr = this.tlgr;
 	tlgr.on("message", this._handleMessage, this);
+	tlgr.on("echo", this._handleEcho, this);
+	tlgr.on("messageOrEcho", this._handleMessageOrEcho, this);
 	tlgr.on("user_joined", this._handleUserJoined, this);
 	tlgr.on("rekey", this._handleRekey, this);
 	tlgr.on("user_left", this._handleUserLeft, this);
 }
 
 Actor.prototype._handleMessage = function (message) {
+	// do nothing, use _handleMessageOrEcho
+}
+Actor.prototype._handleEcho = function (message) {
+	// do nothing, use _handleMessageOrEcho
+}
+Actor.prototype._handleMessageOrEcho = function (message) {
 	this.history.push(message);
 }
 Actor.prototype._handleUserJoined = function (args) {
@@ -95,10 +103,6 @@ Actor.prototype.generateInvitation = function () {
 }
 
 Actor.prototype.sendMessage = function (text) {
-	this.history.push({
-		sender: this.group.filter(function (u) { return u.name === this.name; }.bind(this))[0],
-		text: text
-	}); // todo: impl echo!!!11
     this.tlgr.sendMessage(text);
 }
 
