@@ -248,4 +248,19 @@ TlgrAlgo.prototype.deserialize = function (data) {
     this._aid = SerializationHelper.deserializeValueAsHex(data.aid);
 }
 
+
+
+TlgrAlgo.prototype.generateHashtail = function () {
+    return this._hashGeneratorPool.createGenerator();
+}
+
+TlgrAlgo.prototype.areEnoughHashtailsAvailable = function () {
+    return this._hashGeneratorPool.areEnoughHashtailsAvailable();
+}
+
+TlgrAlgo.prototype.addHashtail = function (userAid, hashtail) {
+    this._users.addHashtail(userAid, hashtail);
+}
+
+
 module.exports = TlgrAlgo;

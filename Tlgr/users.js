@@ -66,6 +66,10 @@ User.prototype.getMeta = function () {
     return this._meta;
 }
 
+User.prototype.addHashtail = function (hashtail) {
+    this._hashvalidators.push(new hashtail.Validator(hashtail));
+}
+
 
 
 
@@ -109,6 +113,10 @@ Users.prototype.findUserByHash = function (hx) {
             return user.getInfo();
         }
     }
+}
+
+Users.prototype.addHashtail = function (userAid, hashtail) {
+    this._byAid[userAid.as(Hex).serialize()].addHashtail(hashtail);
 }
 
 Users.prototype.serialize = function () {

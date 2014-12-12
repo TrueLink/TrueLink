@@ -4,7 +4,8 @@ Tlgr.messageTypes = {
     "REKEY_INFO": "rekey info",
     "CHANNEL_ABANDONED": "channel abandoned",
     "TEXT" : "text",
-    "GJP" : "gjp"
+    "GJP" : "gjp",
+    HASHTAIL: "ht"
 }
 
 var eventEmitter = require("modules/events/eventEmitter");
@@ -46,6 +47,11 @@ function Tlgr(factory) {
     this._algo = new TlgrAlgo(this._random);
 
     this._unhandledPacketsData = [];
+
+    // is used to determine if we are hashing another hashtail or user-message
+    // in order to avoid calling this.generate() while already being in generation process
+    // (should not be serialized?)
+    this._unsentHashtailsCount = 0;
 }
 
 extend(Tlgr.prototype, eventEmitter, serializable, {
@@ -100,15 +106,10 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     sendChannelAbandoned: function (reasonRekey) {
-        var msg = {
-            type: "channel abandoned",
-            data: (reasonRekey)?("reason=rekey"):("reason=user exit")
-        }
-        this.fire("packet", {
-            addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
-        });
-        this.fire("changed", this);
+        this._sendData(
+            Tlgr.messageTypes.CHANNEL_ABANDONED,
+            (reasonRekey)?("reason=rekey"):("reason=user exit"));
+        this._onChanged();
     },
 
     afterDeserialize: function () {
@@ -133,8 +134,10 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     onNetworkPacket: function (networkPacket) {
         invariant(networkPacket
             && networkPacket.addr instanceof Multivalue
-            && networkPacket.data instanceof Multivalue, "networkPacket must be {addr: multivalue, data: multivalue}");
-        if (this._algo.getChannelId() && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
+            && networkPacket.data instanceof Multivalue,
+            "networkPacket must be {addr: multivalue, data: multivalue}");
+        if (this._algo.getChannelId()
+            && this._algo.getChannelId().as(Hex).isEqualTo(networkPacket.addr.as(Hex))) {
             //packet is for our channel lets try to handle
 
             // trying to decrypt
@@ -180,23 +183,10 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         if(unhashed.sender) {
             var sender = unhashed.sender;
             //console.log("Tlgr got something: ", sender, message);
-            if (false) {
-                //todo: add HASHTAIL message type processor here
+            if (message.type === Tlgr.messageTypes.HASHTAIL) {
+                this._processHashtailFromChannel(sender, message.data);
             } else if (message.type === Tlgr.messageTypes.TEXT) {
-                var messageToFire = {
-                    sender: { 
-                        aid: sender.aid.as(Hex).toString(),
-                        name: sender.meta.name
-                    },
-                    text: message.data
-                };
-                //if not our own text msg 
-                if (sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString()) {
-                    this.fire("message", messageToFire);
-                } else {
-                    this.fire("echo", messageToFire);
-                }
-                this.fire("messageOrEcho", messageToFire);
+                this._processTextMessage(sender, message.data);
             // == CHANNEL_ABANDONED
             } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
                 if (message.data === "reason=user exit") {
@@ -240,18 +230,23 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         return this._algo.generateInvite();
     },
 
-    sendMessage: function (text) {
-        invariant(typeof text === "string", "tlgr.sendMessage text must be string");
-        var msg = {
-            type: Tlgr.messageTypes.TEXT,
-            data: text
+    // this does not fire "changed", but has to. it relies on caller to do this.
+    _sendData: function (type, data, isGjp) {
+        if (!isGjp) {
+            this._supplyHashtails();
         }
         this.fire("packet", {
             addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(JSON.stringify(msg))).as(Hex)  // hack to avoid ByteBuffer reusage
+            data: this._algo.encrypt(new Utf8String(JSON.stringify({
+                type: type,
+                data: data
+            })), isGjp)
         });
-        this.fire("changed", this);
     },
+
+
+
+ 
 
     //if args has invite we accept it, if not - we create new channel
     init: function (args) {
@@ -271,18 +266,77 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         });
         //send group join package
         var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
-        var gjp = {
-            type: Tlgr.messageTypes.GJP,
-            data: gjpWrapper.gjp
-        };
-        var gjpJson = JSON.stringify(gjp);
-        
-        this.fire("packet", {
-            addr: this._algo.getChannelId(),
-            data: this._algo.encrypt(new Utf8String(gjpJson), true).as(Hex) // hack to avoid ByteBuffer reusage
-        });
+
+        this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, true);
+
         gjpWrapper.hashActivator.call();
+
+        this._onChanged();
     },
+
+
+
+
+
+    sendMessage: function (text) {
+        invariant(typeof text === "string", "tlgr.sendMessage text must be string");
+        this._sendData(Tlgr.messageTypes.TEXT, text);
+        this._onChanged();
+    },
+
+    _processTextMessage: function (sender, data) {
+        var messageToFire = {
+            sender: { 
+                aid: sender.aid.as(Hex).toString(),
+                name: sender.meta.name
+            },
+            text: data
+        };
+        //if not our own text msg 
+        if (sender.aid.as(Hex).toString() !== this._algo.getAid().as(Hex).toString()) {
+            this.fire("message", messageToFire);
+        } else {
+            this.fire("echo", messageToFire);
+        }
+        this.fire("messageOrEcho", messageToFire);
+    },
+
+
+
+
+
+
+    _sendHashtail: function (hashtail) {
+        this._unsentHashtailsCount++;     
+        this._sendData(Tlgr.messageTypes.HASHTAIL, hashtail.as(Hex).serialize())   
+        this._unsentHashtailsCount--;        
+    },
+
+    _generateHashtail: function () {
+        console.log("Tlgr generates hashtail");
+        var hashtailWrapper = this._algo.generateHashtail();
+        this._sendHashtail(hashtailWrapper.end);
+        //activate hashtail after it was send to avoid using it itself for hashing message about it 
+        hashtailWrapper.activator.call();
+        this._onChanged();
+    },
+
+    _supplyHashtails: function () {
+        //avoid calling this.generate() while already being in generation process
+        if (this._unsentHashtailsCount !== 0) { return; }        
+
+        while (!this._algo.areEnoughHashtailsAvailable()) {
+            this._generateHashtail();
+        }            
+    },    
+
+    _processHashtailFromChannel: function (sender, data) {
+        this._algo.addHashtail(sender.aid, Hex.deserialize(data));
+    },
+
+    _onChanged: function () {
+        this.fire("changed", this);
+    }
 
 });
 
