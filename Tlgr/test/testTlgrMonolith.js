@@ -51,6 +51,7 @@ describe("Test Tlgr by using it as chat", function() {
 
 
             for (var actor in da) {
+                //console.log("group", actor, da[actor].group);
                 expect(da[actor].group).to.be.deep.equal(da.harryPotter.group);
             }
 
@@ -69,7 +70,6 @@ describe("Test Tlgr by using it as chat", function() {
                 return u.name;
             })).to.be.deep.equal(expectedGroup);
 
-            
             var conversation = [{
                 actor: da.harryPotter,
                 text: "Hi all!"
@@ -142,6 +142,7 @@ describe("Test Tlgr by using it as chat", function() {
             var expectedJoinCount = Object.keys(da).length * Object.keys(da).length;
             var handleJoin = function() {
                 expectedJoinCount--;
+                //console.log("handleJoin", "expectedJoinCount", expectedJoinCount);
                 if (!expectedJoinCount) done();
             };
 
@@ -187,7 +188,6 @@ describe("Test Tlgr by using it as chat", function() {
                 return u.name;
             })).to.be.deep.equal(expectedGroup);
 
-            
             var conversationPiece = [{
                 actor: da.harryPotter,
                 text: "Hi all!"

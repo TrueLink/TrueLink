@@ -197,7 +197,7 @@ TlgrAlgo.prototype.encrypt = function (message, isGjp) {
     var data = hx.as(ByteBuffer).concat(message);
     var iv = this._getRandomBytes(TlgrAlgo.ivLength);
     var encrypted = AES.encryptCbc(data, this._sharedKey, iv);
-    return iv.as(ByteBuffer).concat(encrypted);
+    return iv.as(ByteBuffer).concat(encrypted).as(Hex); // hach to avoid ByteBuffer reusage
 };
 
 TlgrAlgo.prototype.decrypt = function (message) {

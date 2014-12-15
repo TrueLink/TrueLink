@@ -15,7 +15,7 @@ User.deserialize = function (data) {
     var user = new User();
 
     this._aid = Hex.deserialize(data.aid);
-    this._hashvalidators = data.hashValidators.map(function (hv) {
+    this._hashValidators = data.hashValidators.map(function (hv) {
             return hashtail.Validator.deserialize(hv);
         });
     this._publicKey = rsa.PublicKey.deserialize(data.publicKey);
@@ -66,8 +66,8 @@ User.prototype.getMeta = function () {
     return this._meta;
 }
 
-User.prototype.addHashtail = function (hashtail) {
-    this._hashvalidators.push(new hashtail.Validator(hashtail));
+User.prototype.addHashtail = function (ht) {
+    this._hashValidators.push(new hashtail.Validator(ht));
 }
 
 
@@ -115,8 +115,8 @@ Users.prototype.findUserByHash = function (hx) {
     }
 }
 
-Users.prototype.addHashtail = function (userAid, hashtail) {
-    this._byAid[userAid.as(Hex).serialize()].addHashtail(hashtail);
+Users.prototype.addHashtail = function (userAid, ht) {
+    this._byAid[userAid.as(Hex).serialize()].addHashtail(ht);
 }
 
 Users.prototype.serialize = function () {
