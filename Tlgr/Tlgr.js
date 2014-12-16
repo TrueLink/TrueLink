@@ -41,6 +41,7 @@ function Tlgr(factory) {
     this._defineEvent("user_joined");
     this._defineEvent("rekey");
     this._defineEvent("user_left");
+    this._defineEvent("readyForSync");
 
     this._factory = factory;
     this._random = factory.createRandom();
@@ -187,7 +188,6 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
                 this._processHashtailFromChannel(sender, message.data);
             } else if (message.type === Tlgr.messageTypes.TEXT) {
                 this._processTextMessage(sender, message.data);
-            // == CHANNEL_ABANDONED
             } else if (message.type === Tlgr.messageTypes.CHANNEL_ABANDONED) {
                 if (message.data === "reason=user exit") {
                     this._algo.getUsers().removeUserData(sender);
@@ -212,7 +212,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             this.fire("changed", this);
             return true;
         } else if(message.type === Tlgr.messageTypes.GJP && this._algo.looksLikeGJP(message.data)) {
-            //console.log("Tlgr got gjp", message.data);
+            // console.log("Tlgr got gjp", "message.data", message.data);
             var userData = this._algo.processGroupJoinPackage(message.data); 
             if(userData) {
                 this.fire("user_joined", { 
@@ -232,6 +232,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
 
     // this does not fire "changed", but has to. it relies on caller to do this.
     _sendData: function (type, data, isGjp) {
+        // console.log("Tlgr._sendData", "type", type, "data", data, "isGjp", isGjp);
         if (!isGjp) {
             this._supplyHashtails();
         }
@@ -249,14 +250,18 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
  
 
     //if args has invite we accept it, if not - we create new channel
-    init: function (args) {
+    init: function (args, syncArgs) {
         invariant(this._random, "rng is not set");
         this.checkEventHandlers();
-        if(args.invite){
-            this._algo.acceptInvite(args.invite);
-        }else {
-            this._algo.createChannel();
+
+        if (syncArgs) {
+            this._algo.sync(args, syncArgs);
+        } else if (args.invite) {
+            this._algo.acceptInvite(args, args.invite);
+        } else {
+            this._algo.createChannel(args);
         }
+
         this._channelContext = urandom.int(0, 0xFFFFFFFF);
         //lets listen for packets from that channel
         this.fire("openAddrIn", {
@@ -264,12 +269,17 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             context: this._channelContext,
             fetch: true
         });
-        //send group join package
-        var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
 
-        this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, true);
+        if (!syncArgs) {
+            //send group join package
+            var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
 
-        gjpWrapper.hashActivator.call();
+            this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, true);
+
+            gjpWrapper.hashActivator.call();
+
+            this.fire("readyForSync", this._algo.getSyncArgs());
+        }
 
         this._onChanged();
     },

@@ -17,6 +17,7 @@ var SHA1 = require("modules/cryptography/sha1-crypto-js");
 
 var invariant = require("invariant");
 
+var Multivalue = require("Multivalue").multivalue.Multivalue;
 var Hex = require("Multivalue/multivalue/hex");
 var ByteBuffer = require("Multivalue/multivalue/byteBuffer");
 var BitArray = require("Multivalue/multivalue/bitArray");
@@ -63,6 +64,52 @@ function TlgrAlgo(random) {
     this._aid = rsa.getPublicKeyFingerprint(this._keyPair.publicKey);
 };
 
+TlgrAlgo.prototype._init = function (args) {
+    var invalidArgsMessage = "args should be { "
+        + "profileId: null or string, "
+        + "groupUid: Multivalue, "
+        + "channelId: Multivalue, "
+        + "sharedKey: Multivalue }";
+    invariant(args, invalidArgsMessage);
+    invariant(!args.profileId
+        || typeof args.profileId === 'string'
+        || args.profileId instanceof String, invalidArgsMessage);
+    invariant(args.groupUid && args.groupUid instanceof Multivalue, invalidArgsMessage);
+    invariant(args.channelId && args.channelId instanceof Multivalue, invalidArgsMessage);
+    invariant(args.sharedKey && args.sharedKey instanceof Multivalue, invalidArgsMessage);
+
+    this._hashGeneratorPool = new hashtail.GeneratorPool(this._random, args);
+    this._groupUid = args.groupUid;
+    this._channelId = args.channelId;
+    this._sharedKey = args.sharedKey;
+}
+
+TlgrAlgo.prototype.getSyncArgs = function () {
+    return {
+        groupUid: this._groupUid.as(Hex).serialize(),
+        channelId: this._channelId.as(Hex).serialize(),
+        sharedKey: this._sharedKey.as(Hex).serialize(),
+        inviteId: this._inviteId && this._inviteId.as(Hex).serialize(),
+        publicKey: this._keyPair.publicKey.serialize(),
+        privateKey: this._keyPair.privateKey.serialize()
+    };
+}
+
+TlgrAlgo.prototype.sync = function (args, syncArgs) {
+    this._init({
+        profileId: args && args.profileId,
+        groupUid: Hex.deserialize(syncArgs.groupUid),
+        channelId: Hex.deserialize(syncArgs.channelId),
+        sharedKey: Hex.deserialize(syncArgs.sharedKey),
+    });
+
+    this._inviteId = syncArgs.inviteId && Hex.deserialize(syncArgs.inviteId);
+    this._keyPair = {
+        publicKey: rsa.PublicKey.deserialize(syncArgs.publicKey),
+        privateKey: rsa.PrivateKey.deserialize(syncArgs.privateKey)
+    };
+}
+
 TlgrAlgo.prototype.getUID = function () {
     return this._groupUid.as(Hex).serialize();
 };
@@ -93,12 +140,18 @@ TlgrAlgo.prototype._getRandomBytes = function (bitLength) {
     return this._random.bitArray(bitLength);
 };
 
-TlgrAlgo.prototype.createChannel = function() {
-    this._hashGeneratorPool = new hashtail.GeneratorPool(this._random, {profileId: "temporary-profile-id-placeholder"})
-    this._groupUid = this._getRandomBytes(TlgrAlgo.groupUidLength);
-    this._channelId = this._getRandomBytes(TlgrAlgo.channelIdLength);
-    this._sharedKey = this._getRandomBytes(TlgrAlgo.sharedKeyLength);            
+TlgrAlgo.prototype.createChannel = function(args) {
+    this._init({
+        profileId: args && args.profileId,
+        groupUid: this._getRandomBytes(TlgrAlgo.groupUidLength),
+        channelId: this._getRandomBytes(TlgrAlgo.channelIdLength),
+        sharedKey: this._getRandomBytes(TlgrAlgo.sharedKeyLength),
+    });
 };
+
+
+
+
 
 TlgrAlgo.prototype.generateInvite = function () {
     var inviteId = this._getRandomBytes(TlgrAlgo.inviteIdLength);
@@ -112,14 +165,21 @@ TlgrAlgo.prototype.generateInvite = function () {
     };
 };
 
-TlgrAlgo.prototype.acceptInvite = function (invite) {
+TlgrAlgo.prototype.acceptInvite = function (args, invite) {
     invariant(invite.pVer == TlgrAlgo.tlgrVersion, "invalid protocol version");
-    this._hashGeneratorPool = new hashtail.GeneratorPool(this._random, {profileId: "temporary-profile-id-placeholder"})
+
+    this._init({
+        profileId: args && args.profileId,
+        groupUid: Hex.deserialize(invite.groupUid),
+        channelId: Hex.deserialize(invite.channelId),
+        sharedKey: Hex.deserialize(invite.sharedKey),
+    });   
+
     this._inviteId = Hex.deserialize(invite.inviteId);
-    this._groupUid = Hex.deserialize(invite.groupUid);
-    this._channelId = Hex.deserialize(invite.channelId);
-    this._sharedKey = Hex.deserialize(invite.sharedKey);
 };
+
+
+
 
 TlgrAlgo.prototype.generateGroupJoinPackage = function (metadata) {    
     var gen = this._hashGeneratorPool.createGenerator();
@@ -171,6 +231,9 @@ TlgrAlgo.prototype.processGroupJoinPackage = function (gjp) {
     return data;
 };
 
+
+
+
 TlgrAlgo.prototype.privatize = function (aid, data) {
     var key = this._getRandomBytes(TlgrAlgo.keyLength);
     var iv = this._getRandomBytes(TlgrAlgo.ivLength);
@@ -217,6 +280,9 @@ TlgrAlgo.prototype.unhash = function (data) {
     }
 }
 
+
+
+
 TlgrAlgo.prototype.serialize = function () {
     return {
         groupUid: SerializationHelper.serializeValueAsHex(this._groupUid),
@@ -247,6 +313,7 @@ TlgrAlgo.prototype.deserialize = function (data) {
     }
     this._aid = SerializationHelper.deserializeValueAsHex(data.aid);
 }
+
 
 
 
