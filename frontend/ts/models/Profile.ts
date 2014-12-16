@@ -202,8 +202,12 @@
             } else if (args.what === "contact-created") {
                 var contact = this.createContact(args.args);
                 var dialog = this.startDirectDialog(contact);                
+            } else if (args.what === "groupchat-created") {
+                var chat = this.syncGroupChat(args.args)            
             } else if (args.what === "tlConnection") {
                 this.tlConnections.forEach(conn => conn.processSyncMessage(args.args));
+            } else if (args.what === "grConnection") {
+                this.grConnections.forEach(conn => conn.processSyncMessage(args.args));
             }
         }
 
@@ -268,7 +272,6 @@
         }
 
         startGroupChat  (invite, contact, displayName) {
-            this.checkFactory();
             if (invite) {
                 //maybe we already have this group chat
                 for (var key in this.dialogs) {
@@ -280,29 +283,55 @@
                 }
                 contact = invite.contact;
             } 
-            var chatCaption = (contact)?("Group: " + contact.name + " and others..."):("Group Chat " + Math.random())
-            var chat = this.getFactory().createGroupChat();
-            var grConnection = this.getFactory().createGrConnection();
-            grConnection.init({
-                invite: (invite)?(invite.invite):null,
-                userName: displayName,
-                transport: this.transport
-            });
 
-            chat.init({
-                name: chatCaption,
-                grConnection: grConnection
-            });
-            this.grConnections.push(grConnection);
-            this.dialogs.push(chat);
+            var chatCaption = (contact)?("Group: " + contact.name + " and others..."):("Group Chat " + Math.random())
+
+            var chat = this._startGroupChat({
+                name: chatCaption
+            }, {
+                invite: invite && invite.invite,
+                userName: displayName
+            }); 
+
             if (invite) {
                 this._gcByInviteId[invite.id] = chat;
             }
+
+            return chat;
+        }
+
+        syncGroupChat(args) {
+            return this._startGroupChat({
+                id: args.id,
+                name: args.name
+            }, {
+                //todo sync username
+                userName: "TBD"
+            }, args.args);           
+        }
+
+        private _startGroupChat(chatInitArgs, grInitArgs, grSyncArgs?) {
+            this.checkFactory();
+
+            var chat = this.getFactory().createGroupChat();
+            var grConnection = this.getFactory().createGrConnection();
+
+            this.grConnections.push(grConnection);
+            this.dialogs.push(chat);
             
             this._linkDialog(chat);
+
+            chatInitArgs = chatInitArgs || {};
+            chatInitArgs.grConnection = grConnection;
+            chat.init(chatInitArgs);
+
+            grInitArgs = grInitArgs || {};
+            grInitArgs.transport = this.transport;
+            grConnection.init(grInitArgs, grSyncArgs);
+
             this._onChanged();
             //console.log("startGroupChat", invite);
-            return chat;
+            return chat;  
         }
 
         __debug_createSyncGroupChat(grConnection: GrConnection.GrConnection): GroupChat {
@@ -320,14 +349,24 @@
 
         private _linkDialog  (dialog) {
             dialog.onChanged.on(this._onDialogChanged, this);
+            if (dialog.onReadyForSync) {
+                dialog.onReadyForSync.on(this._onGroupChatReadyForSync);
+            }
         }
 
-        private _onDialogChanged  () {
+        private _onDialogChanged() {
             var havingUnread = this.dialogs.filter(function (dialog) { return dialog.unreadCount > 0; });
             if (havingUnread.length !== this.unreadCount) {
                 this.unreadCount = havingUnread.length;
                 this._onChanged();
             }
+        }
+
+        private _onGroupChatReadyForSync(args) {
+            this._sendSyncMessage({
+                what: "groupchat-created",
+                args: args
+            }); 
         }
 
         private _createTlConnection (syncArgs?) {
@@ -402,6 +441,7 @@
             this.sync = context.deserialize(packet.getLink("sync"), factory.createSync, factory);
             this._linkSync();
             this.grConnections = context.deserialize(packet.getLink("grConnections"), factory.createGrConnection, factory);
+            this.grConnections.forEach(this._linkGrConnection, this);
             this.tlConnections = context.deserialize(packet.getLink("tlConnections"), factory.createTlConnection, factory);
             this.dialogs = context.deserialize(packet.getLink("dialogs"), factory.createDialogLikeObj, factory);
             this.dialogs.forEach(this._linkDialog, this);
@@ -459,6 +499,17 @@
             }
         }
 
+
+        private _linkGrConnection(conn) {
+            conn.onSyncMessage.on(this._onGrConnectionSyncMessage, this);
+        }
+
+        private _onGrConnectionSyncMessage(args) {
+            this._sendSyncMessage({
+                what: "grConnection",
+                args: args
+            });            
+        }
 
     };
 extend(Profile.prototype, serializable);
@@ -657,15 +708,21 @@ extend(Dialog.prototype, serializable);
 
 
     export class GroupChat extends Model.Model implements ISerializable {
+        public onReadyForSync : Event.Event<any>;
+
         public profile : Profile;
         public grConnection : GrConnection.GrConnection;
-        public name : string;
+        public id: string;
+        public name : string;        
         
         public history : MessageHistory.MessageHistory;
         private unreadCount : number;
         
         constructor () {
             super();
+
+            this.onReadyForSync = new Event.Event<any>("Contact.onReadyForSync");
+            
             console.log("Constructing GroupChat...");
             this.profile = null;
             this.grConnection = null;
@@ -683,6 +740,7 @@ extend(Dialog.prototype, serializable);
             invariant(args.grConnection, "Can i haz args.grConnection?");
             
             this.name = args.name;
+            this.id = args.id || uuid();
             this.grConnection = args.grConnection;
             this._setTlgrEventHandlers();
             this._onChanged();
@@ -725,10 +783,19 @@ extend(Dialog.prototype, serializable);
             }
         }
 
+        private _onConnectiononReadyForSync(args) {
+            this.onReadyForSync.emit({
+                id: this.id,
+                name: this.name,
+                args: args
+            });
+        }
+
         _setTlgrEventHandlers  () {
             this.grConnection.onMessage.on(this.processMessage, this);
             this.grConnection.onUserJoined.on(this._handleUserJoined, this);
             this.grConnection.onUserLeft.on(this._handleUserLeft, this);
+            this.grConnection.onReadyForSync.on(this._onConnectiononReadyForSync, this);
         }
 
         sendMessage  (message : string) {
@@ -800,7 +867,8 @@ extend(Dialog.prototype, serializable);
             packet.setData({
                 _type_: "GroupChat",
                 name: this.name,
-                unread: this.unreadCount
+                unread: this.unreadCount,
+                theId: this.id,
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
             packet.setLink("history", context.getPacket(this.history));
@@ -811,6 +879,7 @@ extend(Dialog.prototype, serializable);
             var factory = this.getFactory();
             var data = packet.getData();
             this.name = data.name;
+            this.id = data.theId;
             this.unreadCount = data.unread;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
             this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);

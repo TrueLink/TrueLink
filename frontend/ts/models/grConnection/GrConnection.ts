@@ -12,10 +12,18 @@
     import CouchAdapter = require("../../models/tlConnection/CouchAdapter");
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
 
+    import uuid = require("uuid");
+
     export class GrConnection extends Model.Model implements ISerializable {
         public onUserJoined : Event.Event<ITlgrShortUserInfo>;
         public onUserLeft : Event.Event<ITlgrShortUserInfo>;
         public onMessage : Event.Event<ITlgrTextMessageWrapper>;
+        public onEcho : Event.Event<ITlgrTextMessageWrapper>;
+        public onMessageOrEcho : Event.Event<ITlgrTextMessageWrapper>;
+        public onSyncMessage : Event.Event<any>;
+        public onReadyForSync : Event.Event<any>;
+        
+        public id: string;
 
         public _activeTlgr : ITlgr;
         private _oldTlgr : ITlgr;
@@ -27,8 +35,12 @@
             super();
             this.onUserJoined = new Event.Event<ITlgrShortUserInfo>("GrConnection.onUserJoined");
             this.onUserLeft = new Event.Event<ITlgrShortUserInfo>("GrConnection.onUserLeft");
-            this.onMessage = new Event.Event<any>("GrConnection.onMessage");
-
+            this.onMessage = new Event.Event<ITlgrTextMessageWrapper>("GrConnection.onMessage");
+            this.onEcho = new Event.Event<ITlgrTextMessageWrapper>("GrConnection.onEcho");
+            this.onMessageOrEcho = new Event.Event<ITlgrTextMessageWrapper>("GrConnection.onMessageOrEcho");
+            this.onReadyForSync = new Event.Event<any>("GrConnection.onReadyForSync");
+            this.onSyncMessage = new Event.Event<any>("GrConnection.onSyncMessage");
+            
             this._activeTlgr = null;
             this._transport = null;
         }
@@ -37,7 +49,11 @@
     //
     //}
         //called when creating totally new connection (not when deserialized)
-        init  (args) {
+        init  (args, syncArgs?) {
+            syncArgs = syncArgs || {};
+
+            this.id = syncArgs.id || uuid();            
+
             this.since = 0;
             this._transport = args.transport;
             this._activeTlgr = this.getFactory().createTlgr();
@@ -47,7 +63,7 @@
             this._activeTlgr.init({
                 invite: args.invite,
                 userName: args.userName
-            });
+            }, syncArgs.args);
             this.onChanged.emit(this);
         }
 
@@ -99,6 +115,20 @@
                 msg.sender.oldchannel = true;
             }
             this.onMessage.emit(msg , this);
+        }
+
+        private _handleEcho  (msg: ITlgrTextMessageWrapper, tlgr : ITlgr) {
+            if (tlgr == this._oldTlgr) {
+                msg.sender.oldchannel = true;
+            }
+            this.onEcho.emit(msg , this);
+        }
+
+        private _handleMessageOrEcho  (msg: ITlgrTextMessageWrapper, tlgr : ITlgr) {
+            if (tlgr == this._oldTlgr) {
+                msg.sender.oldchannel = true;
+            }
+            this.onMessageOrEcho.emit(msg , this);
         }
 
         private _handleRekeyInfo  (rekeyInfo) {
@@ -168,15 +198,51 @@
             tlgr.on("openAddrIn", this._handleOpenAddrIn, this);
             tlgr.on("closeAddrIn", this._handleCloseAddrIn, this);
             tlgr.on("message", this._handleMessage, this);
+            tlgr.on("echo", this._handleEcho, this);
+            tlgr.on("messageOrEcho", this._handleMessageOrEcho, this);
             tlgr.on("user_left", this._handleUserLeft, this);
             tlgr.on("user_joined", this._handleUserJoined, this);
             tlgr.on("rekey", this._handleRekeyInfo, this);
             tlgr.on("changed", this._onChanged, this);
+            tlgr.on("readyForSync", this._onReadyForSync, this);
+        }
+
+        private _onReadyForSync (syncArgs) {
+            this.onReadyForSync.emit({
+                id: this.id,
+                args: syncArgs
+            });
+        }
+
+        private _onTlgrSyncMessage(args) {
+            //todo
+            // this._sendSyncMessage("tlgr", args);
+        }
+
+        private _sendSyncMessage(what, args) {
+            this.onSyncMessage.emit({
+                id: this.id,
+                what: what,
+                args: args
+            });
+        }
+
+        processSyncMessage(args) {
+            if (args.id !== this.id) { return; }
+
+            if (args.what === "tlgr") {
+                //todo
+                // if (this._initialTlec) {
+                //     this._initialTlec.processSyncMessage(args.args);
+                // }
+                // this._tlecs.forEach(tlec => tlec.processSyncMessage(args.args));
+            }
         }
 
         serialize  (packet, context) {
             packet.setData({
-                since: (this.adapter) ? (this.adapter._since) : 0
+                since: (this.adapter) ? (this.adapter._since) : 0,
+                theId: this.id
             });
             packet.setLink("activeTlgr", context.getPacket(this._activeTlgr));
             packet.setLink("transport", context.getPacket(this._transport));
@@ -185,7 +251,10 @@
         deserialize  (packet, context) {
             invariant(this.getFactory(), "factory is not set");
             var factory = this.getFactory();
-            this.since = packet.getData().since;
+            var data = packet.getData();
+
+            this.since = data.since;
+            this.id = data.theId;
             this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
             this._transport = context.deserialize(packet.getLink("transport"));
             this._setTlgrEventHandlers(this._activeTlgr);

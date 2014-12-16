@@ -141,7 +141,7 @@ interface ITlgr extends IEventEmitter, ISerializable {
     onNetworkPacket :  (networkPacket : any) => any;
     generateInvitation :  () => any;
     sendMessage :  (text : any) => any;
-    init :  (args : any) => any;
+    init :  (args : any, syncARgs? : any) => any;
 }
 
 interface IStringSet { [index: string]: boolean }
