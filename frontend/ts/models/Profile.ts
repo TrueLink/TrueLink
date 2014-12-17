@@ -835,8 +835,8 @@ extend(Dialog.prototype, serializable);
 
         //handleMessage
         processMessage  (message: ITlgrTextMessageWrapper) {
-            var mag;
-            if (__debug && __debug.isPlainTextChat) {
+            var msg;
+            if (this.__debug && this.__debug.isPlainTextChat) {
                 msg = {text: message.text};
             } else {
                 msg = JSON.parse(message.text);
@@ -853,8 +853,8 @@ extend(Dialog.prototype, serializable);
         }
 
         private _processEcho(message: ITlgrTextMessageWrapper) {
-            var mag;
-            if (__debug && __debug.isPlainTextChat) {
+            var msg;
+            if (this.__debug && this.__debug.isPlainTextChat) {
                 msg = {text: message.text};
             } else {
                 msg = JSON.parse(message.text);
@@ -924,7 +924,7 @@ extend(Dialog.prototype, serializable);
                 unread: this.unreadCount,
                 theId: this.id,
                 unconfirmedMessagesIds: this._unconfirmedMessagesIds,
-                __debug: this.__debug;
+                __debug: this.__debug,
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
             packet.setLink("history", context.getPacket(this.history));
