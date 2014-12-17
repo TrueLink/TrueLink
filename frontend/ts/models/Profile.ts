@@ -338,7 +338,10 @@
             var chat = this.getFactory().createGroupChat();
             chat.init({
                 name: "Sync (debug)",
-                grConnection: grConnection
+                grConnection: grConnection,
+                __debug: {
+                    isPlainTextChat: true
+                }
             });
             this.dialogs.push(chat);
             this._linkDialog(chat);
@@ -718,6 +721,8 @@ extend(Dialog.prototype, serializable);
         public history : MessageHistory.MessageHistory;
         private unreadCount : number;
         private _unconfirmedMessagesIds: IStringSet;
+
+        private __debug: any = null;
         
         constructor () {
             super();
@@ -743,6 +748,7 @@ extend(Dialog.prototype, serializable);
             
             this.name = args.name;
             this.id = args.id || uuid();
+            this.__debug = args.__debug;
             this.grConnection = args.grConnection;
             this._setTlgrEventHandlers();
             this._onChanged();
@@ -829,7 +835,13 @@ extend(Dialog.prototype, serializable);
 
         //handleMessage
         processMessage  (message: ITlgrTextMessageWrapper) {
-            var msg = JSON.parse(message.text);
+            var mag;
+            if (__debug && __debug.isPlainTextChat) {
+                msg = {text: message.text};
+            } else {
+                msg = JSON.parse(message.text);
+            }
+
             var m : ITextMessage = {
                 isMine : false,
                 unread : true,
@@ -841,7 +853,13 @@ extend(Dialog.prototype, serializable);
         }
 
         private _processEcho(message: ITlgrTextMessageWrapper) {
-            var msg = JSON.parse(message.text);
+            var mag;
+            if (__debug && __debug.isPlainTextChat) {
+                msg = {text: message.text};
+            } else {
+                msg = JSON.parse(message.text);
+            }
+
             if (this._unconfirmedMessagesIds[msg.uuid]) {                
                 delete this._unconfirmedMessagesIds[msg.uuid];
             } else {
@@ -906,6 +924,7 @@ extend(Dialog.prototype, serializable);
                 unread: this.unreadCount,
                 theId: this.id,
                 unconfirmedMessagesIds: this._unconfirmedMessagesIds,
+                __debug: this.__debug;
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
             packet.setLink("history", context.getPacket(this.history));
@@ -917,6 +936,7 @@ extend(Dialog.prototype, serializable);
             var data = packet.getData();
             this.name = data.name;
             this.id = data.theId;
+            this.__debug = data.__debug;
             this.unreadCount = data.unread;
             this._unconfirmedMessagesIds = data.unconfirmedMessagesIds;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
