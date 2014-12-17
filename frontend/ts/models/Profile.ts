@@ -350,7 +350,7 @@
         private _linkDialog  (dialog) {
             dialog.onChanged.on(this._onDialogChanged, this);
             if (dialog.onReadyForSync) {
-                dialog.onReadyForSync.on(this._onGroupChatReadyForSync);
+                dialog.onReadyForSync.on(this._onGroupChatReadyForSync, this);
             }
         }
 

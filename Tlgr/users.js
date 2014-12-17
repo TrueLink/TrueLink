@@ -121,7 +121,7 @@ Users.prototype.addHashtail = function (userAid, ht) {
 
 Users.prototype.serialize = function () {
     var result = {};
-    for (var key in byAid) {
+    for (var key in this._byAid) {
         result[key] = this._byAid[key].serialize();
     }
     return result;
