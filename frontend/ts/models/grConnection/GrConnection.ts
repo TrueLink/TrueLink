@@ -233,9 +233,9 @@
             if (args.what === "hashtail") {
                 //todo: check if activeTlgr is the target, store if not and then recheck on every rekey
                 this._activeTlgr.processDelegatedHashtail({                    
-                    owner: args.owner,
-                    start: Hex.deserialize(args.start),
-                    counter: args.counter,
+                    owner: args.args.owner,
+                    start: Hex.deserialize(args.args.start),
+                    counter: args.args.counter,
                 });
             }
         }

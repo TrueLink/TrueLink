@@ -323,8 +323,9 @@
             var grConnection = this.getFactory().createGrConnection();
 
             this.grConnections.push(grConnection);
-            this.dialogs.push(chat);
-            
+            this._linkGrConnection(grConnection);
+
+            this.dialogs.push(chat);            
             this._linkDialog(chat);
 
             chatInitArgs = chatInitArgs || {};

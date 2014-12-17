@@ -233,7 +233,7 @@ GeneratorPool.prototype.processDelegatedGenerator = function (hashInfo) {
     if (existingHashInfoArr.length) {        
         existingHashInfoArr[0].update(hashInfo);
     } else {
-        this._pool.push(hg = new Generator(hashInfo));
+        this._pool.push(new Generator(hashInfo));
     }
 }
 
