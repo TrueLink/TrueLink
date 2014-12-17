@@ -192,6 +192,7 @@
 
         private _handleNewSyncDevice(newProfileId: string) {
             this.tlConnections.forEach(conn => conn.addCowriter(newProfileId));
+            this.grConnections.forEach(conn => conn.addCowriter(newProfileId));
         }
 
         private _processSyncMessage(args: any) {
@@ -296,6 +297,11 @@
             if (invite) {
                 this._gcByInviteId[invite.id] = chat;
             }
+
+            this.sync.devices.forEach(device => { 
+                if (device.name === this.uuid) { return; }
+                chat.grConnection.addCowriter(device.name);
+            });      
 
             return chat;
         }

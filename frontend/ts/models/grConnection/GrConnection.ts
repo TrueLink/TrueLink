@@ -12,6 +12,10 @@
     import CouchAdapter = require("../../models/tlConnection/CouchAdapter");
     import CouchTransport = require("../../models/tlConnection/CouchTransport");
 
+    import MultivalueModule = require("Multivalue");
+    var Hex = MultivalueModule.Hex;
+
+
     import uuid = require("uuid");
 
     export class GrConnection extends Model.Model implements ISerializable {
@@ -214,11 +218,6 @@
             });
         }
 
-        private _onTlgrSyncMessage(args) {
-            //todo
-            // this._sendSyncMessage("tlgr", args);
-        }
-
         private _sendSyncMessage(what, args) {
             this.onSyncMessage.emit({
                 id: this.id,
@@ -230,13 +229,26 @@
         processSyncMessage(args) {
             if (args.id !== this.id) { return; }
 
-            if (args.what === "tlgr") {
-                //todo
-                // if (this._initialTlec) {
-                //     this._initialTlec.processSyncMessage(args.args);
-                // }
-                // this._tlecs.forEach(tlec => tlec.processSyncMessage(args.args));
+            if (args.what === "hashtail") {
+                //todo: check if activeTlgr is the target, store if not and then recheck on every rekey
+                this._activeTlgr.processDelegatedHashtail({                    
+                    owner: args.owner,
+                    start: Hex.deserialize(args.start),
+                    counter: args.counter,
+                });
             }
+        }
+
+        addCowriter(cowriter) {
+            var hashtail = this._activeTlgr.delegateHashtail(cowriter);
+            if (!hashtail) { return; }
+
+            this._sendSyncMessage("hashtail", {
+                //todo: specify tlgr: it may be changed due to rekey
+                owner: hashtail.owner,
+                start: hashtail.start.as(Hex).serialize(),
+                counter: hashtail.counter,
+            });
         }
 
         serialize  (packet, context) {

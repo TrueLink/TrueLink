@@ -125,6 +125,12 @@ interface ITlgrTextMessageWrapper {
     text: string;
 }
 
+interface ITlgrHashInfo {
+    owner: string;
+    start: any; //Multivalue
+    counter: number;
+}
+
 interface ITlgr extends IEventEmitter, ISerializable {
     //serializeUsers :  () => any;
     //deserializeUsers :  (byAid : any) => any;
@@ -142,6 +148,8 @@ interface ITlgr extends IEventEmitter, ISerializable {
     generateInvitation :  () => any;
     sendMessage :  (text : any) => any;
     init :  (args : any, syncARgs? : any) => any;
+    delegateHashtail: (cowriter: string) => ITlgrHashInfo;
+    processDelegatedHashtail: (hashInfo: ITlgrHashInfo) => void;
 }
 
 interface IStringSet { [index: string]: boolean }

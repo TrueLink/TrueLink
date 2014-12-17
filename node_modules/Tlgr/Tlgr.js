@@ -344,10 +344,29 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
         this._algo.addHashtail(sender.aid, Hex.deserialize(data));
     },
 
+
+    delegateHashtail: function (newOwnerId) {
+        if (!this._algo.areAnyHashtailsAvailable) {
+            return null;
+        }
+
+        this._supplyHashtails();
+        var ht = this._algo.delegateHashtail(newOwnerId);
+        this._supplyHashtails();
+        
+        return ht;
+    },
+
+    processDelegatedHashtail: function (hashInfo) {
+        this._algo.processDelegatedHashtail(hashInfo);
+    },
+
+
+
+
     _onChanged: function () {
         this.fire("changed", this);
-    }
-
+    },
 });
 
 module.exports = Tlgr;

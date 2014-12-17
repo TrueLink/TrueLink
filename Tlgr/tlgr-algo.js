@@ -332,8 +332,21 @@ TlgrAlgo.prototype.areEnoughHashtailsAvailable = function () {
     return this._hashGeneratorPool.areEnoughHashtailsAvailable();
 }
 
+TlgrAlgo.prototype.areAnyHashtailsAvailable = function () {
+    return this._hashGeneratorPool.areAnyHashesAvailable();
+}
+
 TlgrAlgo.prototype.addHashtail = function (userAid, hashtail) {
     this._users.addHashtail(userAid, hashtail);
+}
+
+
+TlgrAlgo.prototype.delegateHashtail = function (newOwnerId) {
+    return this._hashGeneratorPool.delegateGenerator(newOwnerId);
+}
+
+TlgrAlgo.prototype.processDelegatedHashtail = function (hashInfo) {
+    this._hashGeneratorPool.processDelegatedGenerator(hashInfo);
 }
 
 
