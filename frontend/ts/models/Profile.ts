@@ -524,7 +524,7 @@ extend(Profile.prototype, serializable);
         public history : MessageHistory.MessageHistory;
         public contact : Contact.Contact;
         public unreadCount : number;
-        private _unconfirmedMessagesIds: { [index: string]: boolean };
+        private _unconfirmedMessagesIds: IStringSet;
 
         constructor () {
 
@@ -717,6 +717,7 @@ extend(Dialog.prototype, serializable);
         
         public history : MessageHistory.MessageHistory;
         private unreadCount : number;
+        private _unconfirmedMessagesIds: IStringSet;
         
         constructor () {
             super();
@@ -729,6 +730,7 @@ extend(Dialog.prototype, serializable);
             this.name = null;
             this.history = new MessageHistory.MessageHistory();
             this.unreadCount = 0;
+            this._unconfirmedMessagesIds = Object.create(null);
         }
 
         setProfile (profile) {
@@ -793,6 +795,8 @@ extend(Dialog.prototype, serializable);
 
         _setTlgrEventHandlers  () {
             this.grConnection.onMessage.on(this.processMessage, this);
+            this.grConnection.onEcho.on(this._processEcho, this);
+            this.grConnection.onMessageOrEcho.on(this._processMessageOrEcho, this);
             this.grConnection.onUserJoined.on(this._handleUserJoined, this);
             this.grConnection.onUserLeft.on(this._handleUserLeft, this);
             this.grConnection.onReadyForSync.on(this._onConnectiononReadyForSync, this);
@@ -801,12 +805,18 @@ extend(Dialog.prototype, serializable);
         sendMessage  (message : string) {
             var msg : ITextMessage = {
                 text: message,
-                sender: this.grConnection.getMyName() + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
-            }
+                sender: this.grConnection.getMyName()
+                     + " (" + this.grConnection.getMyAid().substring(0,4) + ")"
+            };
             msg.isMine = true;
+            var msgToSend = {
+                text: message,
+                uuid: uuid()
+            }
+            this._unconfirmedMessagesIds[msgToSend.uuid] = true;
             this._pushMessage(msg);
             if (this.grConnection) {
-                this.grConnection.sendMessage(message);
+                this.grConnection.sendMessage(JSON.stringify(msgToSend));
             }
         }
 
@@ -819,14 +829,40 @@ extend(Dialog.prototype, serializable);
 
         //handleMessage
         processMessage  (message: ITlgrTextMessageWrapper) {
+            var msg = JSON.parse(message.text);
             var m : ITextMessage = {
                 isMine : false,
                 unread : true,
                 sender : message.sender.name ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")  : message.sender.aid.substring(0,4),
-                text : message.text
+                text : msg.text
             }
 
             this._pushMessage(m);
+        }
+
+        private _processEcho(message: ITlgrTextMessageWrapper) {
+            var msg = JSON.parse(message.text);
+            if (this._unconfirmedMessagesIds[msg.uuid]) {                
+                delete this._unconfirmedMessagesIds[msg.uuid];
+            } else {
+                // message was sent from another device
+                var m : ITextMessage = {
+                    isMine : true,
+                    unread : false,
+                    sender : message.sender.name
+                        ? (message.sender.name + " (" +message.sender.aid.substring(0,4) + ")")
+                        : message.sender.aid.substring(0,4),
+                    text : msg.text
+                }
+
+                this._pushMessage(m);
+            }
+            //todo confirm message arrival
+            this._onChanged();            
+        }
+
+        private _processMessageOrEcho(message: ITlgrTextMessageWrapper) {
+            // stub
         }
 
         _pushMessage  (message: ITextMessage) {
@@ -869,6 +905,7 @@ extend(Dialog.prototype, serializable);
                 name: this.name,
                 unread: this.unreadCount,
                 theId: this.id,
+                unconfirmedMessagesIds: this._unconfirmedMessagesIds,
             });
             packet.setLink("grConnection", context.getPacket(this.grConnection));
             packet.setLink("history", context.getPacket(this.history));
@@ -881,6 +918,7 @@ extend(Dialog.prototype, serializable);
             this.name = data.name;
             this.id = data.theId;
             this.unreadCount = data.unread;
+            this._unconfirmedMessagesIds = data.unconfirmedMessagesIds;
             this.grConnection = context.deserialize(packet.getLink("grConnection"), factory.createTlgr, factory);
             this.history = context.deserialize(packet.getLink("history"), factory.createMessageHistory, factory);
             this._setTlgrEventHandlers();
