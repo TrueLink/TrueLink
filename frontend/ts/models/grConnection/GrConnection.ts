@@ -65,6 +65,7 @@
             this._setTlgrEventHandlers(this._activeTlgr);
 
             this._activeTlgr.init({
+                profileId: args.profileId,
                 invite: args.invite,
                 userName: args.userName
             }, syncArgs.args);

@@ -333,6 +333,7 @@
 
             grInitArgs = grInitArgs || {};
             grInitArgs.transport = this.transport;
+            grInitArgs.profileId = this.uuid;
             grConnection.init(grInitArgs, grSyncArgs);
 
             this._onChanged();
