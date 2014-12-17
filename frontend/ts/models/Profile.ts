@@ -347,7 +347,8 @@
                 name: "Sync (debug)",
                 grConnection: grConnection,
                 __debug: {
-                    isPlainTextChat: true
+                    isPlainTextChat: true,
+                    doNotSyncFlag: true
                 }
             });
             this.dialogs.push(chat);
@@ -359,7 +360,7 @@
 
         private _linkDialog  (dialog) {
             dialog.onChanged.on(this._onDialogChanged, this);
-            if (dialog.onReadyForSync) {
+            if (dialog.onReadyForSync && !(dialog.__debug && dialog.__debug.doNotSyncFlag)) {
                 dialog.onReadyForSync.on(this._onGroupChatReadyForSync, this);
             }
         }
@@ -729,7 +730,7 @@ extend(Dialog.prototype, serializable);
         private unreadCount : number;
         private _unconfirmedMessagesIds: IStringSet;
 
-        private __debug: any = null;
+        __debug: any = null;
         
         constructor () {
             super();
