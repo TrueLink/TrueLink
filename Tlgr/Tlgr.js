@@ -196,6 +196,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
                 return;
             }
             data = this._algo.privatize(Hex.deserialize(aid), new Utf8String(JSON.stringify(data)))
+                .as(Hex).serialize();
         }
         this.fire("packet", {
             addr: this._algo.getChannelId(),
@@ -248,9 +249,11 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     _processRekey: function(sender, data) {
+        var encrypted = Hex.deserialize(data);
+
         var decrypted;
         try {
-            decrypted = this._algo.deprivatize(data);
+            decrypted = this._algo.deprivatize(encrypted);
         } catch (e) {
             return;
         }

@@ -186,7 +186,8 @@ TlgrAlgo.prototype.acceptInvite = function (args, invite) {
         groupUid: Hex.deserialize(invite.groupUid),
         channelId: Hex.deserialize(invite.channelId),
         sharedKey: Hex.deserialize(invite.sharedKey),
-        inviteId: Hex.deserialize(invite.inviteId)
+        inviteId: Hex.deserialize(invite.inviteId),
+        keyPair: args && args.keyPair // temporary (?) used for rekey
     });
 };
 
