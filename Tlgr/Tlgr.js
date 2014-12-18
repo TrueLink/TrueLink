@@ -336,7 +336,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     processDelegatedHashtail: function (hashInfo) {
-        this._algo.processDelegatedHashtail(hashInfo);
+        return this._algo.processDelegatedHashtail(hashInfo);
     },
 
 
