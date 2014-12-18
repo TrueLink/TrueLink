@@ -126,9 +126,12 @@ interface ITlgrTextMessageWrapper {
 }
 
 interface ITlgrHashInfo {
-    owner: string;
-    start: any; //Multivalue
-    counter: number;
+    groupUid: any; //Multivalue
+    hashtail: {
+        owner: string;
+        start: any; //Multivalue
+        counter: number;
+    }
 }
 
 interface ITlgr extends IEventEmitter, ISerializable {

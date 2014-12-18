@@ -34,6 +34,7 @@
         private _transport : CouchTransport.CouchTransport;
         private since : number;
         private adapter : CouchAdapter.CouchAdapter;
+        private _undeliveredHashtails: any[]; // sync messages, can be serialized directly
 
         constructor () {
             super();
@@ -136,6 +137,8 @@
             this.onMessageOrEcho.emit(msg , this);
         }
 
+
+
         private _handleRekeyInfo  (rekeyInfo) {
             console.log("Got rekey info", rekeyInfo);
             this._oldTlgr = this._activeTlgr;
@@ -148,6 +151,8 @@
                 userName: myName,
                 keyPair: this._oldTlgr.getKeyPair()
             });
+            this._undeliveredHashtails = this._undeliveredHashtails
+                .filter(ht => !this._processHashtailDelegationBoby(ht));
             this.onChanged.emit(this);
         }
 
@@ -178,6 +183,9 @@
             } );
             this._oldTlgr.sendRekeyInfo(members.map(function (m) { return m.aid; }), this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
+            this._undeliveredHashtails = this._undeliveredHashtails
+                .filter(ht => !this._processHashtailDelegationBoby(ht));
+            this.onChanged.emit(this);
         }
 
         destroy  () {
@@ -229,17 +237,31 @@
             });
         }
 
+        private _processHashtailDelegationBoby(args) {
+            return this._activeTlgr.processDelegatedHashtail({
+                groupUid: Hex.deserialize(args.groupUid),
+                hashtail: {
+                    owner: args.hashtail.owner,
+                    start: Hex.deserialize(args.hashtail.start),
+                    counter: args.hashtail.counter
+                }
+            });
+        }
+
+        private _processHashtailDelegation(args) {
+            var gotIt = this._processHashtailDelegationBoby(args);
+            if (!gotIt) {
+                this._undeliveredHashtails.push(args);
+            }
+        }
+
         processSyncMessage(args) {
             if (args.id !== this.id) { return; }
 
             if (args.what === "hashtail") {
-                //todo: check if activeTlgr is the target, store if not and then recheck on every rekey
-                this._activeTlgr.processDelegatedHashtail({                    
-                    owner: args.args.owner,
-                    start: Hex.deserialize(args.args.start),
-                    counter: args.args.counter,
-                });
+                this._processHashtailDelegation(args.args);
             }
+            this.onChanged.emit(this);
         }
 
         addCowriter(cowriter) {
@@ -247,17 +269,20 @@
             if (!hashtail) { return; }
 
             this._sendSyncMessage("hashtail", {
-                //todo: specify tlgr: it may be changed due to rekey
-                owner: hashtail.owner,
-                start: hashtail.start.as(Hex).serialize(),
-                counter: hashtail.counter,
+                groupUid: hashtail.groupUid.as(Hex).serialize(),
+                hashtail: {
+                    owner: hashtail.hashtail.owner,
+                    start: hashtail.hashtail.start.as(Hex).serialize(),
+                    counter: hashtail.hashtail.counter
+                }
             });
         }
 
         serialize  (packet, context) {
             packet.setData({
                 since: (this.adapter) ? (this.adapter._since) : 0,
-                theId: this.id
+                theId: this.id,
+                undeliveredHashtails: this._undeliveredHashtails
             });
             packet.setLink("activeTlgr", context.getPacket(this._activeTlgr));
             packet.setLink("transport", context.getPacket(this._transport));
@@ -270,6 +295,7 @@
 
             this.since = data.since;
             this.id = data.theId;
+            this._undeliveredHashtails = data.undeliveredHashtails;
             this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
             this._transport = context.deserialize(packet.getLink("transport"));
             this._setTlgrEventHandlers(this._activeTlgr);
