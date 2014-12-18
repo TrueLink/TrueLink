@@ -117,13 +117,17 @@ TlgrAlgo.prototype.sync = function (args, syncArgs) {
         keyPair: {
             publicKey: rsa.PublicKey.deserialize(syncArgs.keyPair.publicKey),
             privateKey: rsa.PrivateKey.deserialize(syncArgs.keyPair.privateKey)
-        },
+        }
     });
 }
 
 TlgrAlgo.prototype.getUID = function () {
     return this._groupUid.as(Hex).serialize();
 };
+
+TlgrAlgo.prototype.getKeyPair = function () {
+    return this._keyPair;
+}
 
 TlgrAlgo.prototype.getUsers = function () {
     return this._users;
@@ -153,7 +157,8 @@ TlgrAlgo.prototype._getRandomBytes = function (bitLength) {
 
 TlgrAlgo.prototype.createChannel = function(args) {
     this._init({
-        profileId: args && args.profileId
+        profileId: args && args.profileId,
+        keyPair: args && args.keyPair // temporary (?) used for rekey
     });
 };
 
@@ -169,7 +174,7 @@ TlgrAlgo.prototype.generateInvite = function () {
         "inviteId": inviteId.as(Hex).serialize(),
         "groupUid": this._groupUid.as(Hex).serialize(),
         "channelId": this._channelId.as(Hex).serialize(),
-        "sharedKey": this._sharedKey.as(Hex).serialize(),
+        "sharedKey": this._sharedKey.as(Hex).serialize()
     };
 };
 
@@ -181,7 +186,7 @@ TlgrAlgo.prototype.acceptInvite = function (args, invite) {
         groupUid: Hex.deserialize(invite.groupUid),
         channelId: Hex.deserialize(invite.channelId),
         sharedKey: Hex.deserialize(invite.sharedKey),
-        inviteId: Hex.deserialize(invite.inviteId),
+        inviteId: Hex.deserialize(invite.inviteId)
     });
 };
 
@@ -196,7 +201,7 @@ TlgrAlgo.prototype.generateGroupJoinPackage = function (metadata) {
         ht: gen.end.as(Hex).serialize(),
         meta: (metadata)?(metadata):({}),
         pk: this._keyPair.publicKey.serialize(),
-        aid: this._aid.as(Hex).serialize(),
+        aid: this._aid.as(Hex).serialize()
     };
     if (this._inviteId) {
         gjp.invite = this._inviteId.as(Hex).serialize();
@@ -283,7 +288,7 @@ TlgrAlgo.prototype.unhash = function (data) {
 
     return {
         sender: this._users.findUserByHash(hx),
-        message: message.as(Hex), // hach to fix ByteBuffer reusage bug
+        message: message.as(Hex) // hack to fix ByteBuffer reusage bug
     }
 }
 

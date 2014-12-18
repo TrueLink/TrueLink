@@ -56,72 +56,19 @@ function Tlgr(factory) {
 }
 
 extend(Tlgr.prototype, eventEmitter, serializable, {
-    serialize: function (packet, context) {
-        var data = this._algo.serialize();
-        data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
-            return packetData.as(Hex).serialize();
-        });
-        packet.setData(data);
-    },
 
-    deserialize: function (packet, context) {
-        var data = packet.getData();
-        this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
-            data.unhandledPacketsData.map(function (packetData) {
-                return Hex.deserialize(packetData);
-            });
-        this._algo.deserialize(data);
-    },
 
     getUID: function () {
         return this._algo.getUID();
     },
 
+    getKeyPair: function () {
+        return this._algo.getKeyPair();
+    },
+
     getUsers: function () {
         return this._algo.getUsers().getUsers();
     },
-
-    makePrivateMessage: function (aid, message/*string*/) {
-        var usrData = this._algo.getUsers().getUserData(aid);
-        var encrypted = this._algo.privatize(Hex.deserialize(aid), new Utf8String(message));
-        var msg = {
-            type: Tlgr.messageTypes.REKEY_INFO,
-            data: encrypted.as(Hex).serialize()
-        }
-        return msg;
-    },
-
-    //rekeyInfo -  invitation object
-    sendRekeyInfo: function (aidList, rekeyInfo) {
-        aidList.forEach(function (aid) {
-            var usrData = this._algo.getUsers().getUserData(aid);
-            if (usrData) {
-                var msg = this.makePrivateMessage(aid, JSON.stringify(rekeyInfo));
-                this.fire("packet", {
-                    addr: this._algo.getChannelId(),
-                    data: this._algo.encrypt(new Utf8String(JSON.stringify(msg)))
-                });
-            }
-        }, this);
-        this.fire("changed", this);
-    },
-
-    sendChannelAbandoned: function (reasonRekey) {
-        this._sendData(
-            Tlgr.messageTypes.CHANNEL_ABANDONED,
-            (reasonRekey)?("reason=rekey"):("reason=user exit"));
-        this._onChanged();
-    },
-
-    afterDeserialize: function () {
-        this._channelContext = urandom.int(0, 0xFFFFFFFF);
-        this.fire("openAddrIn", {
-            addr: this._algo.getChannelId(),
-            context: this._channelContext,
-            fetch: false
-        });
-    },
-
 
     getMyAid: function () {
         return this._algo.getMyAid();
@@ -130,7 +77,23 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     getMyName: function () {
         return this._algo.getMyName();
     },
-    
+
+
+    afterDeserialize: function () {
+        this._openAddrIn(false);
+    },
+
+
+    sendChannelAbandoned: function (reasonRekey) {
+        this._sendData(
+            Tlgr.messageTypes.CHANNEL_ABANDONED,
+            (reasonRekey)?("reason=rekey"):("reason=user exit"));
+        this._onChanged();
+    },
+
+
+
+
     //process only packets from our  channel
     onNetworkPacket: function (networkPacket) {
         invariant(networkPacket
@@ -147,6 +110,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
                 var decrypted = this._algo.decrypt(networkPacket.data);
             } catch (e) {
                 // not for us
+                return;
             }
 
             this._unhandledPacketsData.unshift(decrypted);
@@ -197,17 +161,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
                     });
                 }
             } else if (message.type === Tlgr.messageTypes.REKEY_INFO) {
-                try {
-                    var encrypted = Hex.deserialize(message.data);
-                    var decrypted = this._algo.deprivatize(encrypted);
-                    console.log("Tlgr decrypted private message: ", decrypted);
-                    decrypted = JSON.parse(decrypted.as(Utf8String).toString());
-
-                    this.fire("rekey", decrypted);
-                    this.fire("changed", this);
-                    return;
-                } catch (e) {
-                }
+                this._processRekey(sender, message.data);
             }
             this.fire("changed", this);
             return true;
@@ -231,10 +185,17 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     },
 
     // this does not fire "changed", but has to. it relies on caller to do this.
-    _sendData: function (type, data, isGjp) {
+    //todo aid should be Multivalue? why string?
+    _sendData: function (type, data, aid, isGjp) {
         // console.log("Tlgr._sendData", "type", type, "data", data, "isGjp", isGjp);
         if (!isGjp) {
             this._supplyHashtails();
+        }
+        if (aid) {
+            if (!this._algo.getUsers().getUserData(aid)) {
+                return;
+            }
+            data = this._algo.privatize(Hex.deserialize(aid), new Utf8String(JSON.stringify(data)))
         }
         this.fire("packet", {
             addr: this._algo.getChannelId(),
@@ -262,28 +223,43 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
             this._algo.createChannel(args);
         }
 
-        this._channelContext = urandom.int(0, 0xFFFFFFFF);
-        //lets listen for packets from that channel
-        this.fire("openAddrIn", {
-            addr: this._algo.getChannelId(),
-            context: this._channelContext,
-            fetch: true
-        });
+        this._openAddrIn(true);
 
         if (!syncArgs) {
             //send group join package
             var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
-
-            this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, true);
-
+            this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, null, true);
             gjpWrapper.hashActivator.call();
-
             this.fire("readyForSync", this._algo.getSyncArgs());
         }
 
         this._onChanged();
     },
 
+
+
+
+    //rekeyInfo -  invitation object
+    sendRekeyInfo: function (aidList, rekeyInfo) {
+        aidList.forEach(function (aid) {
+            this._sendData(Tlgr.messageTypes.REKEY_INFO, rekeyInfo, aid);
+        }, this);
+        this.fire("changed", this);
+    },
+
+    _processRekey: function(sender, data) {
+        var decrypted;
+        try {
+            decrypted = this._algo.deprivatize(data);
+        } catch (e) {
+            return;
+        }
+
+        console.log("Tlgr decrypted private message: ", decrypted);
+        var parsed = JSON.parse(decrypted.as(Utf8String).toString());
+        this.fire("rekey", parsed);
+        this.fire("changed", this);
+    },
 
 
 
@@ -366,6 +342,32 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
 
     _onChanged: function () {
         this.fire("changed", this);
+    },
+
+    _openAddrIn: function (fetch) {
+        this._channelContext = urandom.int(0, 0xFFFFFFFF);
+        this.fire("openAddrIn", {
+            addr: this._algo.getChannelId(),
+            context: this._channelContext,
+            fetch: fetch
+        });
+    },
+
+    serialize: function (packet, context) {
+        var data = this._algo.serialize();
+        data.unhandledPacketsData = this._unhandledPacketsData.map(function (packetData) {
+            return packetData.as(Hex).serialize();
+        });
+        packet.setData(data);
+    },
+
+    deserialize: function (packet, context) {
+        var data = packet.getData();
+        this._unhandledPacketsData = !data.unhandledPacketsData ? [] :
+            data.unhandledPacketsData.map(function (packetData) {
+                return Hex.deserialize(packetData);
+            });
+        this._algo.deserialize(data);
     },
 });
 

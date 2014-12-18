@@ -145,7 +145,8 @@
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
                 invite: rekeyInfo,
-                userName: myName
+                userName: myName,
+                keyPair: this._oldTlgr.getKeyPair()
             });
             this.onChanged.emit(this);
         }
@@ -172,7 +173,8 @@
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
-                userName: myName 
+                userName: myName,
+                keyPair: this._oldTlgr.getKeyPair()
             } );
             this._oldTlgr.sendRekeyInfo(members.map(function (m) { return m.aid; }), this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
