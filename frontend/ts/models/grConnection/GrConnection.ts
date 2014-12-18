@@ -147,7 +147,8 @@
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
-                invite: rekeyInfo,
+                doNotSendGjp: rekeyInfo.doNotSendGjp,
+                invite: rekeyInfo.rekeyInfo,
                 userName: myName,
                 keyPair: this._oldTlgr.getKeyPair()
             });

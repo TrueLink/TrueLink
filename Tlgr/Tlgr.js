@@ -214,7 +214,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
 
         this._openAddrIn(true);
 
-        if (!syncArgs) {
+        if (!syncArgs && !args.doNotSendGjp) {
             //send group join package
             var gjpWrapper = this._algo.generateGroupJoinPackage({name:args.userName});
             this._sendData(Tlgr.messageTypes.GJP, gjpWrapper.gjp, null, true);
@@ -264,7 +264,10 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
 
         console.log("Tlgr decrypted private message: ", decrypted);
         var parsed = JSON.parse(decrypted.as(Utf8String).toString());
-        this.fire("rekey", parsed);
+        this.fire("rekey", {
+            doNotSendGjp: !this._algo.areAnyHashtailsAvailable(), // do not send gjp if did not have hashtails!
+            rekeyInfo: parsed
+        });
     },
 
 
