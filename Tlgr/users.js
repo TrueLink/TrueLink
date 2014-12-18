@@ -117,16 +117,19 @@ Users.prototype.getUsers = function () {
     }, this);
 };
 
-// puts user and returns 'true' if it is unknown.
-// updates it (adds ht) and returns 'false' otherwise.
+// puts user if it is unknown.
+// updates it (adds ht) otherwise.
 Users.prototype.putUserData = function (data) {
     var user = this._getUser(data.aid);
+    var isNewUser = !user;
     if (user) {
         user.addHashtail(data.ht);
-        return false;
     } else {
-        this._setUser(data.aid, new User(data));
-        return true;
+        this._setUser(data.aid, user = new User(data));
+    }
+    return {
+        isNewUser: isNewUser,
+        user: user.getInfo()
     }
 }
 

@@ -232,10 +232,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
     _processGroupJoinPacket: function(data) {
         var userData = this._algo.processGroupJoinPackage(data);
         if(userData.isNewUser) {
-            this.fire("user_joined", {
-                aid: userData.data.aid.as(Hex).toString(),
-                name: userData.data.meta.name
-            });
+            this.fire("user_joined", userData.user);
         }
     },
 
