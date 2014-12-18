@@ -240,8 +240,11 @@ TlgrAlgo.prototype.processGroupJoinPackage = function (gjp) {
         "meta": gjp.meta,
         "ht": ht
     };
-    this._users.putUserData(data)
-    return data;
+    var isNewUser = this._users.putUserData(data);
+    return {
+        isNewUser: isNewUser,
+        data: data
+    };
 };
 
 
