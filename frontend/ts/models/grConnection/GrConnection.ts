@@ -36,6 +36,7 @@
         private adapter : CouchAdapter.CouchAdapter;
         private _undeliveredHashtails: any[]; // sync messages, can be serialized directly
         private _readyForSyncFired: boolean; // prevents firing ready for sync on rekey
+        private _profileId: string; // for tlgr init on rekeys
 
         constructor () {
             super();
@@ -65,11 +66,12 @@
             this._undeliveredHashtails = [];
             this._activeTlgr = this.getFactory().createTlgr();
             this._readyForSyncFired = !!syncArgs;
+            this._profileId = args.profileId;
             
             this._setTlgrEventHandlers(this._activeTlgr);
 
             this._activeTlgr.init({
-                profileId: args.profileId,
+                profileId: this._profileId,
                 invite: args.invite,
                 userName: args.userName
             }, syncArgs && syncArgs.args);
@@ -157,6 +159,7 @@
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
+                profileId: this._profileId,
                 doNotSendGjp: rekeyInfo.doNotSendGjp,
                 invite: rekeyInfo.rekeyInfo,
                 userName: this._oldTlgr.getMyName(),
@@ -183,6 +186,7 @@
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
+                profileId: this._profileId,
                 userName: this._oldTlgr.getMyName(),
                 keyPair: this._oldTlgr.getKeyPair()
             } );
@@ -289,6 +293,7 @@
 
         serialize  (packet, context) {
             packet.setData({
+                profileId: this._profileId,
                 since: (this.adapter) ? (this.adapter._since) : 0,
                 theId: this.id,
                 undeliveredHashtails: this._undeliveredHashtails,
@@ -303,6 +308,7 @@
             var factory = this.getFactory();
             var data = packet.getData();
 
+            this._profileId = data.profileId;
             this.since = data.since;
             this.id = data.theId;
             this._undeliveredHashtails = data.undeliveredHashtails;
