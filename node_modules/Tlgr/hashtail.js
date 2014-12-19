@@ -51,7 +51,7 @@ Validator.prototype.serialize = function () {
     return {
         counter: this._counter,
         end: this._end ? this._end.as(Hex).serialize() : null,
-        current: this._current ? this._current.as(Hex).serialize() : null,
+        current: this._current ? this._current.as(Hex).serialize() : null
     };
 }
 
@@ -103,7 +103,7 @@ Generator.prototype.serialize = function () {
         active: this._active,
         owner: this._owner,
         start: this._start ? this._start.as(Hex).serialize() : null,
-        counter: this._counter,
+        counter: this._counter
     };
 }
 
@@ -127,7 +127,7 @@ Generator.prototype.delegate = function (newOwner) {
     return {
         owner: this._owner,
         start: this._start,
-        counter: this._counter,
+        counter: this._counter
     };
 }
 
@@ -172,7 +172,7 @@ GeneratorPool.deserialize = function (random, data) {
     var pool = new GeneratorPool(random);
 
     pool._thisOwner = data.thisOwner;
-    pool._pool = data.pool.map(function (ng) {
+    pool._pool = data.pool.map(function (hg) {
         return Generator.deserialize(hg);
     });
 
@@ -254,7 +254,7 @@ GeneratorPool.prototype.createGenerator = function () {
     var hg = new Generator({
         start: start,
         owner: this._thisOwner,
-        inactive: true,
+        inactive: true
     });
 
     this._pool.push(hg);
