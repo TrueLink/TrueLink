@@ -58,15 +58,13 @@
     //}
         //called when creating totally new connection (not when deserialized)
         init  (args, syncArgs?) {
-            syncArgs = syncArgs || {};
-
-            this.id = syncArgs.id || uuid();            
+            this.id = (syncArgs && syncArgs.id) || uuid();
 
             this.since = 0;
             this._transport = args.transport;
             this._undeliveredHashtails = [];
             this._activeTlgr = this.getFactory().createTlgr();
-            this._readyForSyncFired = false;
+            this._readyForSyncFired = !!syncArgs;
             
             this._setTlgrEventHandlers(this._activeTlgr);
 
@@ -74,7 +72,7 @@
                 profileId: args.profileId,
                 invite: args.invite,
                 userName: args.userName
-            }, syncArgs.args);
+            }, syncArgs && syncArgs.args);
             this.onChanged.emit(this);
         }
 
