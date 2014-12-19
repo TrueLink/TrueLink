@@ -153,7 +153,7 @@
             }
 
             this._oldTlgr = this._activeTlgr;
-            if (rekeyInfo.doNotSendGjp) {
+            if (!rekeyInfo.doNotSendGjp) {
                 this._oldTlgr.sendChannelAbandoned();
             }
             this._activeTlgr = this.getFactory().createTlgr();
