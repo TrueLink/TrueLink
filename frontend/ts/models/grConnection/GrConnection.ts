@@ -35,6 +35,7 @@
         private since : number;
         private adapter : CouchAdapter.CouchAdapter;
         private _undeliveredHashtails: any[]; // sync messages, can be serialized directly
+        private _readyForSyncFired: boolean; // prevents firing ready for sync on rekey
 
         constructor () {
             super();
@@ -65,6 +66,7 @@
             this._transport = args.transport;
             this._undeliveredHashtails = [];
             this._activeTlgr = this.getFactory().createTlgr();
+            this._readyForSyncFired = false;
             
             this._setTlgrEventHandlers(this._activeTlgr);
 
@@ -227,6 +229,8 @@
         }
 
         private _onReadyForSync (syncArgs) {
+            if (this._readyForSyncFired) { return; }
+            this._readyForSyncFired = true;
             this.onReadyForSync.emit({
                 id: this.id,
                 args: syncArgs
@@ -286,7 +290,8 @@
             packet.setData({
                 since: (this.adapter) ? (this.adapter._since) : 0,
                 theId: this.id,
-                undeliveredHashtails: this._undeliveredHashtails
+                undeliveredHashtails: this._undeliveredHashtails,
+                readyForSyncFired: this._readyForSyncFired
             });
             packet.setLink("activeTlgr", context.getPacket(this._activeTlgr));
             packet.setLink("transport", context.getPacket(this._transport));
@@ -300,6 +305,7 @@
             this.since = data.since;
             this.id = data.theId;
             this._undeliveredHashtails = data.undeliveredHashtails;
+            this._readyForSyncFired = data.readyForSyncFired;
             this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
             this._transport = context.deserialize(packet.getLink("transport"));
             this._setTlgrEventHandlers(this._activeTlgr);
