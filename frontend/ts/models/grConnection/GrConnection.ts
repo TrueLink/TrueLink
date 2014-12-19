@@ -144,17 +144,24 @@
 
 
 
-        private _handleRekeyInfo  (rekeyInfo) {
+        private _handleRekeyInfo  (rekeyInfo, tlgr: ITlgr) {
             console.log("Got rekey info", rekeyInfo);
+            if (tlgr == this._oldTlgr) {
+                // ignore rekeys from oldTlgr
+                // this also prevents re-rekey of rekey done in this.initiateRekey
+                return;
+            }
+
             this._oldTlgr = this._activeTlgr;
-            var myName = this._activeTlgr.getMyName();
-            this._oldTlgr.sendChannelAbandoned();
+            if (rekeyInfo.doNotSendGjp) {
+                this._oldTlgr.sendChannelAbandoned();
+            }
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
                 doNotSendGjp: rekeyInfo.doNotSendGjp,
                 invite: rekeyInfo.rekeyInfo,
-                userName: myName,
+                userName: this._oldTlgr.getMyName(),
                 keyPair: this._oldTlgr.getKeyPair()
             });
             this._undeliveredHashtails = this._undeliveredHashtails
@@ -167,27 +174,23 @@
         }
 
         initiateRekey  (members : Array<ITlgrShortUserInfo>/*not sure about this interface*/) {
-            this._oldTlgr = this._activeTlgr;
-            var myAid = this._oldTlgr.getMyAid();
-            var i = -1;
-            members.forEach(function (m : ITlgrShortUserInfo, ind) {
-                if (m.aid === myAid) {
-                    i = ind;
-                }
-            });
-            if(i==-1) {
-                this._oldTlgr = null;
+            var myAid = this._activeTlgr.getMyAid();
+            if (!members.some((m: ITlgrShortUserInfo) => m.aid === myAid))
+            {
+                // prevent rekey that excludes rekey initiator
                 return;
             }
-            var myName = members[i].name;
-            members.splice(i, 1);
+
+            this._oldTlgr = this._activeTlgr;
             this._activeTlgr = this.getFactory().createTlgr();
             this._setTlgrEventHandlers(this._activeTlgr);
             this._activeTlgr.init({
-                userName: myName,
+                userName: this._oldTlgr.getMyName(),
                 keyPair: this._oldTlgr.getKeyPair()
             } );
-            this._oldTlgr.sendRekeyInfo(members.map(function (m) { return m.aid; }), this._activeTlgr.generateInvitation());
+            this._oldTlgr.sendRekeyInfo(
+                members.map(function (m) { return m.aid; }),
+                this._activeTlgr.generateInvitation());
             this._oldTlgr.sendChannelAbandoned();
             this._undeliveredHashtails = this._undeliveredHashtails
                 .filter(ht => !this._processHashtailDelegationBoby(ht));
