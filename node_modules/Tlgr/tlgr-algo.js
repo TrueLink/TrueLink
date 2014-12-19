@@ -146,7 +146,8 @@ TlgrAlgo.prototype.getMyAid = function () {
 }
 
 TlgrAlgo.prototype.getMyName = function () {
-    return this._users.getUserData(this.getMyAid()).meta.name;
+    var me = this._users.getUserData(this.getMyAid());
+    return me && me.meta.name;
 }
 
 TlgrAlgo.prototype._getRandomBytes = function (bitLength) {

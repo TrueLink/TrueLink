@@ -105,7 +105,8 @@ Users.prototype._setUser = function (aid /*string or Multivalue*/, value /*User*
 
 Users.prototype.getUserData = function (aid) {
     //todo check what exactly should be returned here
-    return this._getUser(aid).getInfo();
+    var user = this._getUser(aid);
+    return user && user.getInfo();
 }
 
 Users.prototype.getUsers = function () {
