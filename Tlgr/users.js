@@ -92,7 +92,7 @@ Users.prototype._setUser = function (aid /*string or Multivalue*/, value /*User*
         aid = aid.as(Hex).serialize();
     }
     invariant(typeof aid === 'string', "aid should be Multivalue or string");
-    invariant(value instanceof User, "value should be User");
+    invariant(!value || value instanceof User, "value should be User");
     if (value) {
         this._byAid[aid] = value;
     } else {

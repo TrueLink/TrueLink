@@ -48,6 +48,8 @@
             
             this._activeTlgr = null;
             this._transport = null;
+
+            this._undeliveredHashtails = null;
         }
 
     //interface IGrConnectionInitParams {
@@ -61,6 +63,7 @@
 
             this.since = 0;
             this._transport = args.transport;
+            this._undeliveredHashtails = [];
             this._activeTlgr = this.getFactory().createTlgr();
             
             this._setTlgrEventHandlers(this._activeTlgr);
