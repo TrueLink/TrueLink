@@ -14,12 +14,12 @@ var invariant = require("invariant");
 User.deserialize = function (data) {
     var user = new User();
 
-    this._aid = Hex.deserialize(data.aid);
-    this._hashValidators = data.hashValidators.map(function (hv) {
+    user._aid = Hex.deserialize(data.aid);
+    user._hashValidators = data.hashValidators.map(function (hv) {
             return hashtail.Validator.deserialize(hv);
         });
-    this._publicKey = rsa.PublicKey.deserialize(data.publicKey);
-    this._meta = data.meta;
+    user._publicKey = rsa.PublicKey.deserialize(data.publicKey);
+    user._meta = data.meta;
 
     return user;
 }
