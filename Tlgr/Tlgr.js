@@ -331,7 +331,7 @@ extend(Tlgr.prototype, eventEmitter, serializable, {
 
 
     delegateHashtail: function (newOwnerId) {
-        if (!this._algo.areAnyHashtailsAvailable) {
+        if (!this._algo.areAnyHashtailsAvailable()) {
             return null;
         }
 
