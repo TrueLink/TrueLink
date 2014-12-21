@@ -8,3 +8,8 @@ https://github.com/isaacs/node-glob/issues/145
 
 
 todo: remove it when everything is ok 
+
+
+
+
+same for spa's "module-definition": "=2.1.0"

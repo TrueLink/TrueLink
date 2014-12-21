@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "glob": "=4.2.2",
-
+    "module-definition": "=2.1.0",
+    
     "spa": "^0.3.3",
     "gulp": "^3.8.9",
     "gulp-clean": "^0.3.1",
