@@ -315,8 +315,10 @@
             this._readyForSyncFired = data.readyForSyncFired;
             this._activeTlgr = context.deserialize(packet.getLink("activeTlgr"), factory.createTlgr, factory);
             this._transport = context.deserialize(packet.getLink("transport"));
-            this._setTlgrEventHandlers(this._activeTlgr);
-            this._activeTlgr.afterDeserialize();
+            if (this._activeTlgr) {
+                this._setTlgrEventHandlers(this._activeTlgr);
+                this._activeTlgr.afterDeserialize();
+            }
         }
     }
 extend(GrConnection.prototype, serializable);
