@@ -12,4 +12,6 @@ todo: remove it when everything is ok
 
 
 
-same for spa's "module-definition": "=2.1.0"
+same for spa's
+- "module-definition": "=2.1.0"
+- "detective-amd": "=2.2.1"
