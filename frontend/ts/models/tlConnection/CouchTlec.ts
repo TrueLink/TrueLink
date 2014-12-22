@@ -214,6 +214,10 @@
 
         addCowriter: function (cowriter) {
             this._tlecBuilder.addCowriter(cowriter);
+        },
+
+        canAddCowriter: function(): boolean {
+            return this._tlecBuilder.canAddCowriter();
         }
 
     });

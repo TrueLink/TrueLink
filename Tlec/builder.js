@@ -111,6 +111,11 @@ extend(Builder.prototype, eventEmitter, serializable, {
         this._tlht.addCowriter(cowriter);
     },
 
+    canAddCowriter: function () {
+        // it is to early to add cowriter when tlke is not done
+        return !!this._key;
+    },
+
     serialize: function (packet, context) {
         packet.setData({
             status: this.status,
@@ -126,6 +131,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         packet.setLink("_echoRoute", context.getPacket(this._echoRoute));
         packet.setLink("_cryptor", context.getPacket(this._cryptor));
     },
+
     deserialize: function (packet, context) {
         var factory = this._factory;
         var data = packet.getData();
@@ -135,7 +141,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         this._outId = data.outId ? Hex.deserialize(data.outId) : null;
         this._profileId = data.profileId;
 
-        
+
         this._tlkeBuilder = context.deserialize(packet.getLink("_tlkeBuilder"), factory.createTlkeBuilder, factory);
         this._linkTlkeBuilder();
 
@@ -166,7 +172,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         cryptor.on("encrypted", route.processPacket, route);
         // and then gets sent
         route.on("networkPacket", this._onNetworkPacket, this);
-            
+
         // packet from network goes to cryptor signed as non-echo
         route.on("packet", this._onRoutePacket, this);
         // if ok, gets decrypted and goes to hash checker
@@ -174,7 +180,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         // if ok, gets unhashed and _parsed_(!)
         // and goes back to tlht to be processed as hashtail
         tlht.on("unhashed", tlht.processMessage, tlht);
-        // and at the sane time -- to tlec 
+        // and at the sane time -- to tlec
         tlht.on("unhashed", tlec.processMessage, tlec);
         // if ok -- gets fired as user message
         tlec.on("messageToProcess", this._onMessage, this);
@@ -190,7 +196,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         echoRoute.on("closeAddrIn", this._onRouteCloseAddrIn, this);
 
         tlht.on("htReady", this._initTlec, this);
-        tlht.on("hashtail", this._onHashtail, this);       
+        tlht.on("hashtail", this._onHashtail, this);
     },
 
     _unlink: function () {
@@ -212,9 +218,9 @@ extend(Builder.prototype, eventEmitter, serializable, {
         tlht.off("unhashed", tlht.processMessage, tlht);
         tlht.off("unhashed", tlec.processMessage, tlec);
         tlec.off("messageToProcess", this._onMessage, this);
-                  
+
         echoRoute.off("packet", this._onEchoRoutePacket, this);
-            
+
 
         route.off("openAddrIn", this._onRouteAddrIn, this);
         route.off("closeAddrIn", this._onRouteCloseAddrIn, this);
@@ -222,7 +228,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         echoRoute.off("closeAddrIn", this._onRouteCloseAddrIn, this);
 
         tlht.off("htReady", this._initTlec, this);
-        tlht.off("hashtail", this._onHashtail, this);  
+        tlht.off("hashtail", this._onHashtail, this);
     },
 
     _processPacket: function (isEcho, data) {
@@ -239,7 +245,6 @@ extend(Builder.prototype, eventEmitter, serializable, {
     _onEchoRoutePacket: function (bytes) {
         this._processPacket(true, bytes);
     },
-
     _onRouteAddrIn: function (args) {
         this.fire("openAddrIn", args);
     },
@@ -250,6 +255,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         //console.log("Sending some packet: ", packet);
         this.fire("networkPacket", packet);
     },
+
     _onMessage: function (args) {
         //console.log("tlec.Builder._onMessage", args);
         if (args.isEcho) {
@@ -271,6 +277,7 @@ extend(Builder.prototype, eventEmitter, serializable, {
         }
     },
 
+
     _unlinkTlkeBuilder: function () {
         if (this._tlkeBuilder) {
             this._tlkeBuilder.off("offer", this._onOffer, this);
@@ -282,15 +289,13 @@ extend(Builder.prototype, eventEmitter, serializable, {
             this._tlkeBuilder.off("closeAddrIn", this._onRouteCloseAddrIn, this);
         }
     },
-
-
     _onOffer: function (offer) {
         this.fire("offer", offer);
     },
+
     _onAuth: function (auth) {
         this.fire("auth", auth);
     },
-
     _onTlkeDone: function (args) {
         this._initTlht(args);
     },

@@ -191,7 +191,9 @@
         }
 
         private _handleNewSyncDevice(newProfileId: string) {
-            this.tlConnections.forEach(conn => conn.addCowriter(newProfileId));
+            this.tlConnections.forEach(conn => {
+                if (conn.canAddCowriter()) { conn.addCowriter(newProfileId); }
+            });
             this.grConnections.forEach(conn => conn.addCowriter(newProfileId));
         }
 

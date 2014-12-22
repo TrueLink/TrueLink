@@ -271,6 +271,12 @@
             var activeTlec = this._tlecs[0] || this._initialTlec;
             activeTlec.addCowriter(cowriter);
         }
+
+
+        canAddCowriter(): boolean {
+            var activeTlec = this._tlecs[0] || this._initialTlec;
+            return activeTlec.canAddCowriter();
+        }
     };
 extend(TlConnection.prototype, serializable);
 
