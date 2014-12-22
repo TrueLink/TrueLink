@@ -356,7 +356,7 @@ TlgrAlgo.prototype.delegateHashtail = function (newOwnerId) {
 
 // returns true if hashtail is for this tlgr
 TlgrAlgo.prototype.processDelegatedHashtail = function (hashInfo) {
-    if (hashInfo.groupUid.as(Hex).isEqualTo(this._groupUid)) {
+    if (hashInfo.groupUid.as(Hex).isEqualTo(this._groupUid.as(Hex))) {
         this._hashGeneratorPool.processDelegatedGenerator(hashInfo.hashtail);
         return true;
     } else {
