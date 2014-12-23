@@ -47,7 +47,7 @@ extend(TlConnectionFactory.prototype, {
     // temp solution for smoke testing
     createTransport: function() {
         if (!this._transport) {
-            this._transport = new TestTransport();
+            this._transport = new TestTransport({muted: true});
         }
         return this._transport;
     },

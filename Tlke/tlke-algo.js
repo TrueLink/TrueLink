@@ -27,7 +27,11 @@ function TlkeAlgo(random) {
     this._dh = null;
     this._auth = null;
     this._check = null;
-    this._authData = null;
+    this._authDataCandidates = null;
+}
+
+TlkeAlgo.prototype.init = function () {
+    this._authDataCandidates = [];
 }
 
 TlkeAlgo.prototype._getRandomBytes = function (bitLength) {
@@ -121,7 +125,7 @@ TlkeAlgo.prototype._getVerifiedDhk = function () {
 
 // Bob 4.2
 TlkeAlgo.prototype.acceptAuthData = function (bytes) {
-    this._authData = bytes;
+    this._authDataCandidates.push(bytes);
 }
 
 // Bob 4.1
@@ -134,15 +138,30 @@ TlkeAlgo.prototype.hasAuth = function () {
 }
 
 TlkeAlgo.prototype.hasAuthData = function () {        
-    return !!this._authData;
+    return !!this._authDataCandidates.length;
 }
 
 // Bob 4.3 (4.1 + 4.2)
 TlkeAlgo.prototype.acceptAuthAndData = function () {
-    var bytes = this._authData;
     // todo check's checksum and ACHTUNG if not match
     var verified = this._getVerifiedDhk();
-    this._check = this._decrypt(bytes, verified);
+
+    this._authDataCandidates.filter(function (bytes) {
+        try {
+            this._check = this._decrypt(bytes, verified);
+        } catch (ex) {
+            if (ex instanceof DecryptionFailedError) {
+                console.warn("Received bad bytes.  " + ex.innerError.message);
+                return;
+            } else {
+                throw ex;
+            }
+        }
+    }.bind(this));
+    this._authDataCandidates.splice(0, this._authDataCandidates.length);
+
+    if (!this._check) { return; }
+
     var hCheck = this._hash(this._check);
     return {
         inId: hCheck.bitSlice(0, 16),
@@ -176,7 +195,9 @@ TlkeAlgo.prototype.deserialize = function (data) {
     this._dh = data.dh ? DiffieHellman.deserialize(data.dh) : null;
     this._auth = data.auth ? Hex.deserialize(data.auth) : null;
     this._check = data.check ? Hex.deserialize(data.check) : null;
-    this._authData = data.authData ? Hex.deserialize(data.authData) : null;
+    this._authDataCandidates = data.authDataCandidates.map(function(authData) {
+        return Hex.deserialize(authData);
+    });
 }
 
 TlkeAlgo.prototype.serialize = function () {
@@ -186,7 +207,9 @@ TlkeAlgo.prototype.serialize = function () {
         dh: this._dh ? this._dh.serialize() : null,
         auth: this._auth ? this._auth.as(Hex).serialize() : null,
         check: this._check ? this._check.as(Hex).serialize() : null,
-        authData: this._authData ? this._authData.as(Hex).serialize() : null
+        authDataCandidates: this._authDataCandidates.map(function (authData) {
+            return authData.as(Hex).serialize()
+        })
     };
 }
 

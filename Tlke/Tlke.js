@@ -39,6 +39,7 @@ function Tlke(factory) {
 extend(Tlke.prototype, eventEmitter, serializable, {
     init: function () {
         this.state = Tlke.STATE_NOT_STARTED;
+        this._algo.init();
     },
     generate: function () {
         this.checkEventHandlers();
@@ -143,9 +144,7 @@ extend(Tlke.prototype, eventEmitter, serializable, {
     // Bob 4.2
     _acceptAuthData: function (bytes) {
         this._algo.acceptAuthData(bytes);
-        if (this._algo.hasAuth()) {
-            this._acceptAuthAndData();
-        } else {
+        if (!(this._algo.hasAuth() && this._acceptAuthAndData())) {
             this.state = Tlke.STATE_AWAITING_AUTH;
         }
     },
@@ -153,9 +152,7 @@ extend(Tlke.prototype, eventEmitter, serializable, {
     // Bob 4.1
     _acceptAuth: function (auth) {
         this._algo.acceptAuth(auth)
-        if (this._algo.hasAuthData()) {
-            this._acceptAuthAndData();
-        } else {
+        if (!(this._algo.hasAuthData() && this._acceptAuthAndData())) {
             this.state = Tlke.STATE_AWAITING_AUTHDATA;
         }
         this._onChanged();
@@ -163,22 +160,17 @@ extend(Tlke.prototype, eventEmitter, serializable, {
 
     // Bob 4.3 (4.1 + 4.2)
     _acceptAuthAndData: function () {
-        var keyAndCids;
-        try {
-            keyAndCids = this._algo.acceptAuthAndData();
-        } catch (ex) {
-            if (ex instanceof DecryptionFailedError) {
-                console.warn("Received bad bytes.  " + ex.innerError.message);
-                return;
-            } else {
-                throw ex;
-            }
-        }                
+        var keyAndCids = this._algo.acceptAuthAndData();
+
+        if (!keyAndCids) {
+            return;
+        }
 
         this.state = Tlke.STATE_CONNECTION_ESTABLISHED;
         this.fire("packet", this._algo.getAuthResponse());
         this.fire("keyReady", keyAndCids);
         this._onChanged();
+        return true;
     },
 
     // Alice 5
