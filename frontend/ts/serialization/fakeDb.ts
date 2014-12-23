@@ -36,8 +36,14 @@ var priv = {
 
     dump: function () {
         console.log("writing localForage...");
-        return lf.setItem("objs", JSON.stringify(objs)).then(function(){
-            return lf.setItem("links", JSON.stringify(lnks)); // "object cannot be cloned"
+        try {
+            var odata = JSON.stringify(objs);
+            var ldata = JSON.stringify(lnks);
+        } catch(e) {
+            alert("fakedb.dump JSON FAIL 1");
+        }
+        return lf.setItem("objs", odata).then(function(){
+            return lf.setItem("links", ldata); // "object cannot be cloned"
         }).then(function(){console.log("lf commit finished")});
     },
 
