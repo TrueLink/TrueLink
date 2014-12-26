@@ -260,10 +260,12 @@
             if (args.id !== this.id) { return; }
 
             if (args.what === "tlec") {
+                // process all tlecs first, then initial tlec
+                // because _onInitialTlecBuilderDone may be called while processing
+                this._tlecs.forEach(tlec => tlec.processSyncMessage(args.args));
                 if (this._initialTlec) {
                     this._initialTlec.processSyncMessage(args.args);
                 }
-                this._tlecs.forEach(tlec => tlec.processSyncMessage(args.args));
             }
         }
 
