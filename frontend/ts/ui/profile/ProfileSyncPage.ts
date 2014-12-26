@@ -41,7 +41,8 @@ var ProfileSyncPage = React.createClass({
     _handleNewSync: function() {
         var profile = this.props.pageModel.model;
         var sync = profile.sync;
-        sync.startSlaveConnection();
+        var connection = sync.startSlaveConnection();
+        connection.on("changed", this._onModelChanged, this);
         return false;
     },
 

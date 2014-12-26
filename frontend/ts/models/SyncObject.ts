@@ -74,6 +74,8 @@ export class SyncObject extends Model.Model implements ISerializable {
         conn.generateOffer();
 
         this._onChanged();
+
+        return conn;
     }
 
     private _linkConnectionToMaster(conn) {
