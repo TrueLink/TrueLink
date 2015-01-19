@@ -58,13 +58,21 @@ var ProfileSyncPage = React.createClass({
                 return React.DOM.div(null,
                     React.DOM.label(null, "Offer:", 
                         React.DOM.br(), 
-                        React.DOM.input({readOnly: true, value: offer})));
+                        React.DOM.input({
+                            id: "sync-offer-field",
+                            readOnly: true, 
+                            value: offer
+                            })));
             case TlecBuilder.STATUS_AUTH_GENERATED:
                 var auth =  tlConnection.auth ? tlConnection.auth.as(DecBlocks).toString() : null;
                 return React.DOM.div(null,
                     React.DOM.label(null, "Auth:", 
                         React.DOM.br(), 
-                        React.DOM.input({readOnly: true, value: auth})));
+                        React.DOM.input({
+                            id: "sync-auth-field",
+                            readOnly: true, 
+                            value: auth
+                        })));
             case TlecBuilder.STATUS_AUTH_ERROR:
                 tlStatus = "Auth error";
                 break;
@@ -100,6 +108,7 @@ var ProfileSyncPage = React.createClass({
             sync.tlConnections.map(this._renderConnectionStatus),
             sync.devices.map(this._renderConnectedStatus),
             React.DOM.a({
+                id: "add-device-button", 
                 className: "button",
                 href: "#",
                 onClick: this._handleNewSync

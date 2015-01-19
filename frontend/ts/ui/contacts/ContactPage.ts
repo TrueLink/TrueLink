@@ -45,6 +45,7 @@
                                 onSelect: function () {} // menu does not close on item click without this
                             },
                             ReactBootstrap.MenuItem({
+                                id: "contact-go-to-dialog-button",
                                 onClick: this.handleGoToDialog
                             }, "Go to dialog"),
                             ReactBootstrap.MenuItem({

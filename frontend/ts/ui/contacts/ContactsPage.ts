@@ -50,6 +50,7 @@
                 React.DOM.div({className: "app-page-content has-header"},
                     React.DOM.div({className: "generic-block"},
                         React.DOM.a({
+                            id: "add-contact-button",
                             className: "button",
                             href: "",
                             onClick: this.handleAddContact

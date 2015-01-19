@@ -93,6 +93,7 @@ var ProfileTypeChooser = React.createClass({
             React.DOM.div({ className: "app-page-footer" },
                 React.DOM.p(null, "Or do you have a profile on another device already?"),
                 React.DOM.a({
+                    id: "create-synced-profile-button",
                     className: "button",
                     href: "#",
                     onClick: this._handleProfileSync
@@ -228,9 +229,15 @@ var SyncProfileForm = React.createClass({
                 return React.DOM.div(null,
                     React.DOM.label(null, "Offer:", 
                         React.DOM.br(),
-                        React.DOM.input({ref: "offer"})),
+                        React.DOM.input({
+                            id: "sync-profile-offer-field",
+                            ref: "offer"
+                        })),
                     React.DOM.div(null, 
-                        React.DOM.button({onClick: this.handleOfferInput}, "Accept offer")));
+                        React.DOM.button({
+                            id: "sync-profile-accept-offer-button",
+                            onClick: this.handleOfferInput
+                        }, "Accept offer")));
             case TlecBuilder.STATUS_OFFER_GENERATED:
                 tlStatus = "Offer provided";
                 break;
@@ -250,9 +257,15 @@ var SyncProfileForm = React.createClass({
                 return React.DOM.div(null,
                     React.DOM.label(null, "Auth:", 
                         React.DOM.br(),
-                        React.DOM.input({ref: "auth"})),
+                        React.DOM.input({
+                            id: "sync-profile-auth-field",
+                            ref: "auth"
+                        })),
                     React.DOM.div(null, 
-                        React.DOM.button({onClick: this.handleAuthInput}, "Accept auth")));
+                        React.DOM.button({
+                            id: "sync-profile-accept-auth-button",
+                            onClick: this.handleAuthInput
+                        }, "Accept auth")));
             case TlecBuilder.STATUS_HT_EXCHANGE:
                 tlStatus = "Hashtail exchange";
                 break;

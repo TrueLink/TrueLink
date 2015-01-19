@@ -34,6 +34,7 @@ var exp = React.createClass({
                 needsProfile: true
             },
             "Contacts": {
+                id: "contacts-menu-item",
                 handler: router.createNavigateHandler("contacts", currentProfile),
                 className: "menu-item",
                 needsProfile: true
@@ -44,6 +45,7 @@ var exp = React.createClass({
                 needsProfile: true
             },
             "Sync": {
+                id: "sync-menu-item",
                 handler: router.createNavigateHandler("profileSync", currentProfile),
                 className: "menu-item last",
                 needsProfile: true
@@ -165,6 +167,7 @@ var exp = React.createClass({
             item = items[title];
             if (item.needsProfile && !profileIsInitiated) { continue; }
             menuItems[title] = React.DOM.a({
+                id: item.id,
                 href: "",
                 className: item.className,
                 onClick: item.handler
