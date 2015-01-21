@@ -53,12 +53,16 @@
                     this.props.message.sender,
                     " invited you to group chat"
                 ),
-                React.DOM.button({
-                    onClick: this._accept
-                }, "Accept"),
-                React.DOM.button({
+                React.DOM.input({
+                    type: "button",
+                    onClick: this._accept,
+                    value: "Accept"
+                }),
+                React.DOM.input({
+                    type: "button",
                     onClick: this._reject
-                }, "Reject"),
+                    value: "Reject"
+                }),
                 React.DOM.span({ }, " Name: "),
                 React.DOM.input({ 
                     value: this.state.visibleName,

@@ -21,8 +21,13 @@
                 onClick: this.handleDialogClick.bind(this, dialog)
             },
                 React.DOM.div({className: "dialog-image"}, ""),
-                React.DOM.div({className: "dialog-title"},
-                        dialog.name + (dialog.unreadCount ? " (" + dialog.unreadCount + ")" : "")));
+                React.DOM.div({
+                    className: "dialog-title",
+                    "data-name": dialog.name
+                    },
+                    dialog.name + (dialog.unreadCount ? " (" + dialog.unreadCount + ")" : "")
+                )
+            );
         },
 
         handleStartDialog: function () {

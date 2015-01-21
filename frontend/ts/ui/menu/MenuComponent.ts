@@ -28,6 +28,7 @@ var exp = React.createClass({
                 needsProfile: true
             },
             "Dialogs": {
+                id: "dialogs-menu-item",
                 handler: router.createNavigateHandler("dialogs", currentProfile),
                 className: "menu-item",
                 misc: dialogsMisc,

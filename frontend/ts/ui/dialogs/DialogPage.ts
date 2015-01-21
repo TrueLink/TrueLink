@@ -132,6 +132,7 @@
                                 onSelect: function () {} // menu does not close on item click without this
                             },
                             ReactBootstrap.MenuItem({
+                                id: "dialog-add-people-button",
                                 onClick: this._onAddPeople
                             }, "Add People..."),
                             ReactBootstrap.MenuItem({

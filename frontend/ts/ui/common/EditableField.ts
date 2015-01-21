@@ -33,27 +33,53 @@ var exp = React.createClass({
     },
     render: function () {
         var props = this.props;
-        var basicTag = (!!this.props.inline)?React.DOM.span:React.DOM.div;
+        var basicTag = (!!this.props.inline) ? React.DOM.span : React.DOM.div;
         var displayMode = [
-            React.DOM.span({className: "editable-display", key: "0"}, props.value),
+            React.DOM.span({
+                className: "editable-display", 
+                key: "0"
+                }, 
+                props.value
+            ),
             React.DOM.button({
                 key: "1",
                 className: "editable-edit-button",
                 onClick: this.editMode
             }, " ✎")
         ];
-        var editMode = basicTag({className: "editable-input"},
-            React.DOM.form({onSubmit: this.onSubmit}, React.DOM.input({
-                ref: "editBox",
-                id: props.id,
-                value: this.state.value,
-                onChange: this.onChange,
-                onKeyUp: this.onKeyUp,
-                onBlur: this.onSubmit
-            })));
-        return basicTag({className: "editable-field", "data-id":props.id},
-            basicTag({className: "editable-label"}, React.DOM.label({htmlFor: props.id}, props.label)),
-            this.state.isEditing ? editMode : displayMode);
+        var editMode = basicTag({
+            className: "editable-input"
+            },
+            React.DOM.form({
+                onSubmit: this.onSubmit
+                }, 
+                React.DOM.input({
+                    ref: "editBox",
+                    id: props.id,
+                    value: this.state.value,
+                    onChange: this.onChange,
+                    onKeyUp: this.onKeyUp,
+                    onBlur: this.onSubmit
+                })
+            )
+        );
+        return basicTag({
+            className: "editable-field", 
+            "data-id": props.id
+            },
+            basicTag({
+                className: "editable-label"
+                }, 
+                React.DOM.label({
+                    htmlFor: props.id
+                    }, 
+                    props.label
+                )
+            ),
+            this.state.isEditing 
+                ? editMode 
+                : displayMode
+        );
     }
 });
 export = exp;
