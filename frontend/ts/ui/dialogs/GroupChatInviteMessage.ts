@@ -60,7 +60,7 @@
                 }),
                 React.DOM.input({
                     type: "button",
-                    onClick: this._reject
+                    onClick: this._reject,
                     value: "Reject"
                 }),
                 React.DOM.span({ }, " Name: "),
