@@ -7,6 +7,7 @@ hosting:
     "./../(**/*.*)": "$1"
     "./(**/*.*)": "$1"
 hosting_map: "./hosting-map.json"
+bundle: "./bundle.js"
 index: "./index.html"
 excludes:
 - "./bugsnag*"
@@ -39,7 +40,7 @@ paths:
     exports: "empty"
     localforage: "../vendor/localforage/localforage"
 cached:
-    - "./favicon.png"
+    - "./favicon.ico"
     - "./index.html"
     #- "./config_p.js" # patch before spa
     - "./react-dist.js"
@@ -66,6 +67,24 @@ cached:
     - "./img/checkboxNotChecked.png"
     - "./img/overlayBkg.png"
     - "./img/overlayWhite.png"
+    - "./img/overlayWhite.png"
+    - "./img/logo/apple-touch-icon.png"
+    - "./img/logo/apple-touch-icon-57x57.png"
+    - "./img/logo/apple-touch-icon-60x60.png"
+    - "./img/logo/apple-touch-icon-72x72.png"
+    - "./img/logo/apple-touch-icon-76x76.png"
+    - "./img/logo/apple-touch-icon-114x114.png"
+    - "./img/logo/apple-touch-icon-120x120.png"
+    - "./img/logo/apple-touch-icon-144x144.png"
+    - "./img/logo/apple-touch-icon-152x152.png"
+    - "./img/logo/apple-touch-icon-180x180.png"
+    - "./img/logo/apple-touch-icon-precomposed.png"
+    - "./img/logo/favicon-32x32.png" # note other favicons are not included
+    - "./img/logo/mstile-70x70.png"
+    - "./img/logo/mstile-144x144.png"
+    - "./img/logo/mstile-150x150.png"
+    - "./img/logo/mstile-310x150.png"
+    - "./img/logo/mstile-310x310.png"
     - "./media/chrap.wav"
     - "./media/chrap.mp3"
     #- "./opensans-full.css" and font

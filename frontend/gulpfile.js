@@ -28,7 +28,8 @@ var filesToMove = [
     './css/**/*',
     './img/**/*',
     './media/*',
-    './favicon.png',
+    './favicon.ico',
+    './browserconfig.xml',
     './zepto.js',
     './uuid.js',
     './react-dist.js'
