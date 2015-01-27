@@ -117,7 +117,11 @@ export class Application extends Model.Model implements ISerializable {
             this.setMenu(factory.createMenu());
             this.setRouter(factory.createRouter());
             this.addProfile();
-            this.router.navigate("profileCreation", this.currentProfile);
+            if (this.currentProfile.name) {
+                this.router.navigate("home", this);
+            } else {
+                this.router.navigate("profileCreation", this.currentProfile);
+            }
 
         }
 
@@ -176,6 +180,12 @@ export class Application extends Model.Model implements ISerializable {
                     var cand = decodeURIComponent(window.location.hash.match(/#nickname=([^&]*)/)[1]);
                     if (cand.length >= 3) {
                         profile.temporaryName = cand;
+                        profile.set("publicityType", "anonymous");
+                        profile.init({
+                            name: cand,
+                            bg: profile.app._getNextBgIndex(),
+                            serverUrl: profile.app.defaultPollingUrl
+                        });
                         window.location.hash = "";
                     }
                 } catch (e) { }

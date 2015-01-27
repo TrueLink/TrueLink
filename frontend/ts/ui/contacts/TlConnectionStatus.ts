@@ -27,6 +27,11 @@
             return false;
         },
 
+        focusTarget: function(event) {
+            event.target.focus();
+            event.target.select();
+        },
+
         handleOfferInput: function () {
             var offer = DecBlocks.fromString(this.refs.offer.getDOMNode().value);
             this.props.tlConnection.enterOffer(offer);
@@ -80,6 +85,7 @@
                         React.DOM.label(null, "Offer:", React.DOM.br(), React.DOM.input({
                             id: "create-contact-offer-field",
                             readOnly: true, 
+                            onClick: this.focusTarget,
                             value: offer
                         })));
             var authDisplay = status !== TlecBuilder.STATUS_AUTH_GENERATED ? null :
@@ -87,6 +93,7 @@
                         React.DOM.label(null, "Auth:", React.DOM.br(), React.DOM.input({
                             id: "create-contact-auth-field",
                             readOnly: true, 
+                            onClick: this.focusTarget,
                             value: auth
                         })));
             var generateButton = status !== TlecBuilder.STATUS_NOT_STARTED ? null :
