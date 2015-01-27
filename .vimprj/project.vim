@@ -34,7 +34,7 @@ endfunction
 
 function! CompileMessanger()
     :cclo
-    :silent :make ts/config.ts ts/main.ts ts/converters/all.ts --module amd --outDir lib
+    :silent :make frontend/ts/config.ts frontend/ts/main.ts frontend/ts/converters/all.ts --module amd --outDir lib
     if len(getqflist()) > 0
         :copen
     endif

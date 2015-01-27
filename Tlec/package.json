@@ -1,0 +1,16 @@
+{
+  "name": "Tlec",
+  "version": "0.1.0",
+  "description": "All about tlec: Tlec, Tlht, (Tlec)Cryptor, (Tlec)Builder",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "toliman",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "mocha": "^2.0.1"
+  },
+  "private": true
+}

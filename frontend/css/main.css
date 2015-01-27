@@ -1,0 +1,619 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body, html {
+    font-size: 100%;
+    height: 100%;
+    width: 100%;
+}
+
+input[type="text"], input[type="password"], input[type="submit"], input[type="button"]{
+    padding: 5px;
+    font-size: 14px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+input[type="text"], input[type="password"] {
+    display: block;
+    width: 100%;
+}
+
+.clearfix:after {
+    content: " ";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+}
+
+/* --- GENERIC ---*/
+#app {
+    font-family: 'Open Sans' , sans-serif;
+    font-size: 16px;
+    color: #282828;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+}
+
+select, option, input {
+    font-family: 'Open Sans',sans-serif;
+}
+
+.app-menu, .app-view, .app-page {
+    height: 100%;
+    position: relative;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: normal;
+}
+a.title {
+    text-decoration: none;
+}
+
+.default-background-light {
+    background-color: #1F497D;
+}
+.default-background-dark {
+    background-color: #153153
+}
+
+.app-view {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.app-page-header .title{ font-size: 22px; }
+
+
+.app-page-header a.title {
+    color: #282828;
+    line-height: 50px;
+    margin-left: 10px;
+}
+
+.app-page-content {
+    padding: 10px;
+}
+
+.wide {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.app-page-header, .app-page-footer, .app-page-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+.app-page-content.has-header{
+    top: 50px;
+}
+.app-page-content.has-footer{
+    bottom: 50px;
+}
+.app-page-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    top: 0;
+    bottom: 0;
+}
+
+.app-page-header, .app-page-footer {
+    background: #8AB1D3;
+    height: 50px;
+}
+
+.app-page-header {
+    top: 0;
+}
+
+.app-page-footer {
+    bottom: 0;
+}
+
+
+.bubble
+{
+    margin-top: 10px;
+    position: relative;
+    width: 80%;
+    padding: 10px;
+    background: #E9F0DA;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.bubble-right {
+    float: right;
+    margin-right: 10px;
+}
+.bubble-left {
+    float: left;
+    margin-left: 10px;
+}
+
+
+.bubble-right:after
+{
+    content: "";
+    position: absolute;
+    top: 9px;
+    right: -10px;
+    border-style: solid;
+    border-width: 11px 0 11px 11px;
+    border-color: transparent #E9F0DA;
+    display: block;
+    width: 0;
+    z-index: 1;
+    /*-webkit-transform:rotate(360deg);*/
+    /*border-style: inset;*/
+}
+.bubble-left:after
+{
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: -10px;
+    border-style: solid;
+    border-width: 11px 11px 11px 0;
+    border-color: transparent #E9F0DA transparent transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+}
+
+/* --- MENU --- */
+.app-menu {
+    background-color: #C6C6C6;
+    float: left;
+    width: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.app-menu .title {
+    width: 100%;
+    padding: 5px;
+}
+.app-menu .profile-selector {
+
+}
+.app-menu .profile-selector select{
+    background: #C6C6C6;
+    border: none;
+}
+.app-menu .profile-selector option {
+}
+.app-menu a.menu-item {
+    color: #282828;
+    display: block;
+    padding: 14px;
+    text-decoration: none;
+}
+.app-menu a.menu-item:hover {
+    background: #CCC;
+}
+.app-menu a.secondary { font-size: 14px; }
+.app-menu a.last {
+    border-bottom: 1px solid #A0A0A0;
+}
+.app-menu p {
+    margin: 14px 0 0 14px;
+}
+
+/* --- LOGIN --- */
+.login-form {
+    height: 100%;
+    padding: 20px;
+}
+
+/* --- HOME --- */
+
+/* --- DOCUMENTS --- */
+
+/* --- CONTACTS --- */
+.contacts-page .contact-image {
+    height: 60px;
+    width: 60px;
+    border-right: 1px solid #282828;
+    float: left;
+}
+
+.contacts-page .contact-title {
+    font-size: 22px;
+    margin-left: 10px;
+    float: left;
+}
+
+/* --- CONTACT (temp)--- */
+.contact-page label {
+    /* un-bootstrap */
+    font-weight: normal;
+    display: block;
+}
+.contact-page .tlStatus {
+    margin: 10px 0;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+.contact-page .tlStatus input, 
+.contact-page .tlStatus button, 
+.contact-page .tlStatus select, 
+.contact-page .tlStatus textarea {
+    /* un-bootstrap */
+    color: black;
+}
+.contact-page .tlStatus input {
+    font-size: 1.5rem;
+    width: 80%;
+}
+.contact-page .tlStatus button {
+    padding: .3em;
+}
+
+/* --- DIALOGS --- */
+.dialogs-page .dialog {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.dialogs-page .dialog .dialog-image {
+    flex: 0 0 auto;
+
+    height: 60px;
+    width: 60px;
+    border-right: 1px solid #282828;
+}
+
+.dialogs-page .dialog .dialog-title {
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+    font-size: 22px;
+    margin-left: 10px;
+}
+
+/* --- DIALOG --- */
+.dialog-page .app-page-header .editable-display {
+    overflow: hidden;
+    display: inline-block;
+    max-width: 55%;
+    white-space: nowrap;
+}
+.dialog-page .app-page-header .editable-input {
+    display: inline-block;
+    width: 55%;
+}
+
+.dialog-page .app-page-footer {
+    height: 75px;
+    background: none;
+}
+
+.dialog-page .app-page-content.has-footer{
+    bottom: 75px;
+}
+
+.dialog-page .app-page-footer .tabs-header, .dialog-page .app-page-footer .tabs-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.dialog-page .app-page-footer .tabs-header {
+    bottom: 51px;
+    height: 25px;
+    line-height: 25px;
+    z-index: 100;
+}
+.dialog-page .app-page-footer .tab-title {
+    float: left;
+    background: #8ab1d3;
+    border: solid #ccc;
+    border-width: 1px 1px 0 1px;
+    padding: 0 10px;
+}
+.dialog-page .app-page-footer .tabs-content {
+    background: #8ab1d3;
+    border-top: 1px solid #ccc;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+    z-index: 90;
+}
+
+.dialog-page .app-page-footer .message-input {
+    height: 100%;
+    width: 100%;
+    text-align: left;
+    position: relative;
+    padding-left: 10px;
+    padding-right: 100px;
+}
+.dialog-page .app-page-footer .message-input .send-button {
+    position: absolute;
+    right: 10px;
+    top:0;
+    bottom: 0;
+}
+.dialog-page .app-page-footer .message-input button, .dialog-page .app-page-footer .message-input input {
+    padding: 5px;
+    line-height: normal;
+}
+.dialog-page .app-page-footer .message-input button {
+} 
+.dialog-page .app-page-footer .message-input input {
+    width: 100%;
+}
+
+
+/* --- MISC --- */
+.generic-block {
+    border: 1px solid #282828;
+    background: #fff;
+    margin-top: 10px;
+}
+
+a.button {
+    color: #282828;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    padding: 5px;
+    background-color: #F9F9F9;
+}
+a.button:hover {
+    background-color: #F3F3F3;
+}
+
+.stretch-background{
+    background: no-repeat center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.user-background-0 {
+    background-image: url("../img/bgs/bkgLeaf.jpg");
+}
+.user-background-1 {
+    background-image: url("../img/bgs/bkgCity.jpg");
+}
+.user-background-2 {
+    background-image: url("../img/bgs/bkgEarth.jpg");
+}
+.user-background-3 {
+    background-image: url("../img/bgs/bkgWood.jpg");
+}
+
+.editable-field {
+}
+.editable-display{
+    background-color: rgba(255,255,255,0.3);
+}
+
+.editable-label{
+    color: #fff;
+}
+
+.pageTitle{
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.editable-display{
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.editable-edit-button{
+    padding:3px;
+}
+.editable-input input{
+    width: 100%;
+}
+
+
+
+
+.sidebar-hider {
+    position: relative;
+    height: 100%;  
+}
+.sidebar-hider-bar-container {    
+    position: absolute;
+    height: 100%;
+    z-index: 1000;  
+}
+.sidebar-hider-toggler {
+    display: none;
+    cursor: pointer;
+}
+.sidebar-hider-bar {
+    height: 100%;
+    display: inline-block;    
+    width: 250px;
+}
+.sidebar-hider-content {
+    margin-left: 250px;    
+    height: 100%;
+}   
+
+@media screen and (max-width: 650px) {  
+    .sidebar-hider-shown .sidebar-hider-bar-container {
+        width: 100%;
+    }
+    .sidebar-hider-shown .sidebar-hider-toggler {
+        display: inline-block;
+        opacity: .3;
+        background-color: black;
+        height: 100%;
+        width: 100%;        
+        left: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .sidebar-hider-hidden .sidebar-hider-bar {
+        display: none;
+    }
+    .sidebar-hider-hidden .sidebar-hider-toggler {
+        display: inline-block;
+        background-color: #8888ff;
+        height: 50px;
+        position: absolute;
+        width: 50px;
+        text-align: center;
+    }
+
+    .sidebar-hider-hidden .app-page-header {
+        left: 50px;
+    }
+
+    .sidebar-hider-content {
+        margin-left: 0;    
+    }
+}
+
+
+
+
+
+.header-dropdown-menu-button {
+    float: right;
+    height: 100%;
+    width: 50px;
+}
+
+.header-dropdown-menu-button > * {
+    height: 100%;
+    width: 100%;
+}
+
+.header-dropdown-menu-button .dropdown-toggle {
+    height: 100%;
+    width: 100%;
+}
+
+.header-dropdown-menu-button .dropdown-menu > li > a {
+    padding: 14px;
+    font-size: 16px;
+}
+
+
+
+
+
+.profile-creation-page {
+    background-color: #f9f9f9;
+}
+.profile-creation-page .app-page-content, .profile-creation-page .app-page-footer {
+    padding: 16px 27px;
+}
+.profile-creation-page h1 {
+    background: url("../img/logo32_2.jpg") no-repeat;
+    padding: 0;
+    margin: 0;
+    padding-left: 38px;
+    font-size: 30px;
+}
+.profile-creation-page h2 {
+    padding: 30px 0 10px 0;
+    margin: 0;
+    font-size: 18px;
+    font-weight: normal;
+}
+.profile-creation-page .app-page-content.has-footer {
+    bottom: 113px;
+}
+.profile-creation-page .hint {
+    padding: 12px 0;
+    font-size: 15px;
+    line-height: 18px;
+}
+.profile-creation-page .button,
+.profile-creation-page input[type="submit"] {
+    padding: 10px;
+    font-size: larger;
+}
+.profile-creation-page .app-page-content .button,
+.profile-creation-page input[type="submit"] {
+    color: white;
+}
+.profile-creation-page .app-page-content .button:hover,
+.profile-creation-page input[type="submit"] {
+    background-color: #6BA1CF;
+}
+.profile-creation-anonymous.button {
+    background-color: #1c416f;
+}
+.profile-creation-pseudonymous.button {
+    background-color: #275b9d;
+}
+.profile-creation-public.button {
+    background-color: #4281d0;
+}
+.profile-creation-page .app-page-footer {
+    background-color: #4f8abd;
+    color: white;
+    height: auto;
+}
+.profile-creation-page .app-page-footer .button:hover {
+    background-color: #ddd;
+}
+
+.profile-creation-page form .hint {
+    padding: 0;
+    margin: 0;
+    color: gray;
+}
+
+.profile-creation-page form {
+    margin-top: 70px;
+}
+
+.profile-creation-page .separator {
+    height: 32px;
+}
+
+.profile-creation-page label {
+    font-weight: normal;
+    font-size: 24px;
+}
+
+.profile-creation-page input[type="submit"] {
+    background-color: #275B9D;
+    border: none;
+}
+
+.profile-creation-page input[type="text"] {
+    margin: 6px 0;
+    font-weight: lighter;
+    font-size: larger;
+    padding: 3px;
+    border: solid 1px gray;
+}
+
+.profile-creation-page input[type="text"],
+.profile-creation-page input[type="submit"],
+.profile-creation-page label {
+    display: block;
+    width: 100%;
+}
+

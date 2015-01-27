@@ -1,0 +1,56 @@
+{
+  "name": "flux-react",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TrueLink",
+  "main": "server.js",
+  "dependencies": {
+    "connect": "^2.8.4",
+    "es6-promise": "^2.0.0",
+    "node-uuid": "^1.4.1",
+    "q": "^1.0.1",
+    "react": "^0.11.2",
+    "react-bootstrap": "^0.12.0",
+    "react-typescript-definitions": "0.0.6",
+    "yargs": "^1.3.2",
+
+    "crypto-js": "",
+    "Multivalue": "",
+    "invariant": "",
+    "modules": "",
+    "Filter": "",
+    "Route": "",
+    "SerializationContext": "",
+    "TestTransport": "",
+    "OverTlecBuilder": "",
+    "Tlec": "",
+    "Tlgr": "",
+    "Tlke": "",
+    "TlkeBuilder": ""
+  },
+  "devDependencies": {
+    "glob": "=4.2.2",
+    "module-definition": "=2.1.0",
+    "detective-amd": "=2.2.1",
+    
+    "spa": "^0.3.3",
+    "gulp": "^3.8.9",
+    "gulp-clean": "^0.3.1",
+    "gulp-concat": "^2.4.1",
+    "gulp-rename": "^1.2.0",
+    "gulp-replace": "^0.4.0",
+    "gulp-util": "^3.0.1",
+    "gulp-typescript": "^2.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "truelink",
+    "messenger",
+    "im"
+  ],
+  "author": "wizzard0",
+  "license": "MIT"
+}

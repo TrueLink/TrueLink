@@ -1,0 +1,6 @@
+{
+  "name": "invariant",
+  "version": "0.0.0",
+  "main": "invariant.js",
+  "private": true
+}

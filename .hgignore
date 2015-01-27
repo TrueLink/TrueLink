@@ -7,9 +7,19 @@ start.lnk
 start2.lnk
 server2.js
 *.sublime-workspace
-node_modules
+*/node_modules
 *.orig
 rev.txt
 build/*
 *.suo
 ts/config.ts
+npm-debug.log
+Multivalue\obj\**
+.ntvs_analysis.dat
+
+syntax: regexp
+# npm ddp for /node_modules:
+^node_modules/sjcl-all/
+^node_modules/node-forge/
+^node_modules/BigInt/
+^node_modules/lodash/
