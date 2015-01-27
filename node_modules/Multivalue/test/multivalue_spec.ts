@@ -11,7 +11,7 @@ import DecBlocks = require("../multivalue/decBlocks");
 import Hex = require("../multivalue/hex");
 import Utf8String = require("../multivalue/utf8string");
 import X32WordArray = require("../multivalue/x32wordArray");
-import sjcl = require("sjcl-all");
+import sjcl = require("sjcl");
 import chai = require("chai");
 
 var expect = chai.expect;

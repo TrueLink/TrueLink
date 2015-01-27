@@ -1,5 +1,5 @@
 var multivalue = require("../multivalue");
-var sjcl = require("sjcl-all");
+var sjcl = require("sjcl");
 var Hex = require("../multivalue/hex");
 var Bytes = require("../multivalue/bytes");
 var BitArray = require("../multivalue/bitArray");

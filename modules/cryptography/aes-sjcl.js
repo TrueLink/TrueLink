@@ -1,5 +1,5 @@
 "use strict";
-var sjcl = require("sjcl-all");
+var sjcl = require("sjcl");
 var AesAlg = sjcl.cipher.aes;
 sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."]();
 var cbc = sjcl.mode.cbc;

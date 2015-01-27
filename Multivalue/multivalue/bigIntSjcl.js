@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var multivalue = require("../multivalue");
-var sjcl = require("sjcl-all");
+var sjcl = require("sjcl");
 var BigIntSjcl = (function (_super) {
     __extends(BigIntSjcl, _super);
     function BigIntSjcl(value) {

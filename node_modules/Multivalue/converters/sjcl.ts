@@ -1,5 +1,5 @@
 import multivalue = require("../multivalue");
-import sjcl = require("sjcl-all");
+import sjcl = require("sjcl");
 import Hex = require("../multivalue/hex");
 import Bytes = require("../multivalue/bytes");
 import BitArray = require("../multivalue/bitArray");

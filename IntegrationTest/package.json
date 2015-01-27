@@ -1,0 +1,18 @@
+{
+  "name": "IntegrationTest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "dependencies": {
+    "colors": "^1.0.3",
+    "q": "^1.1.2",
+    "selenium-standalone": "^3.2.0",
+    "wd": "^0.3.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "coffee test.coffee -g"
+  },
+  "author": "",
+  "license": "ISC"
+}
