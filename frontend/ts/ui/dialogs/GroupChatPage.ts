@@ -111,10 +111,14 @@
             var input = React.DOM.div({ className: "message-input" },
                     React.DOM.form({ onSubmit: this._onSubmit },
                         React.DOM.input({
+                            id: "dialog-message-field",
                             value: this.state.messageText,
                             onChange: function (e) { this.setState({ messageText: e.target.value });}.bind(this)
                         })),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
+                React.DOM.div({ className: "send-button" }, React.DOM.button({
+                    id: "dialog-send-button",
+                    onClick: this._onSubmit 
+                    }, "Send")));
             var content;
             var messagesView;
             if (this.state.pageModel.addContact) {
@@ -150,6 +154,7 @@
                                 onClick: this._handleMembers
                             }, "Manage members"),
                             ReactBootstrap.MenuItem({
+                                id: "group-chat-rekey-button",
                                 onClick: this._handleRekey
                             }, "Rekey"),
                             ReactBootstrap.MenuItem({

@@ -33,7 +33,13 @@
                     },
                     "You have accepted invitation to group chat from ",
                     this.props.message.sender, 
-                    React.DOM.button({ style: { "display": "block" }, onClick: this.props.onGoToChat.bind(null, this.props.message.inviteId) }, "Go to chat")
+                    React.DOM.button({ 
+                        style: { 
+                            "display": "block"
+                        },
+                        className: "invite-message-go-to-chat-button",
+                        onClick: this.props.onGoToChat.bind(null, this.props.message.inviteId) 
+                    }, "Go to chat")
                 );
             }
             if (this.state.accepted === false) {
@@ -53,16 +59,16 @@
                     this.props.message.sender,
                     " invited you to group chat"
                 ),
-                React.DOM.input({
+                React.DOM.button({
+                    className: "invite-message-accept-button",
                     type: "button",
                     onClick: this._accept,
-                    value: "Accept"
-                }),
-                React.DOM.input({
+                }, "Accept"),
+                React.DOM.button({
+                    className: "invite-message-reject-button",
                     type: "button",
                     onClick: this._reject,
-                    value: "Reject"
-                }),
+                }, "Reject"),
                 React.DOM.span({ }, " Name: "),
                 React.DOM.input({ 
                     value: this.state.visibleName,

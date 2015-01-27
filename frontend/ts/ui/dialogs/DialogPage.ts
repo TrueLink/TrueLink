@@ -90,8 +90,14 @@
             var router = this.props.router;
 
             var input = React.DOM.div({ className: "message-input" },
-                React.DOM.form({ onSubmit: this._onSubmit }, React.DOM.input({ ref: "inputMessage" })),
-                React.DOM.div({ className: "send-button" }, React.DOM.button({ onClick: this._onSubmit }, "Send")));
+                React.DOM.form({ onSubmit: this._onSubmit }, React.DOM.input({ 
+                    id: "dialog-message-field",
+                    ref: "inputMessage" 
+                    })),
+                React.DOM.div({ className: "send-button" }, React.DOM.button({ 
+                    id: "dialog-send-button",
+                    onClick: this._onSubmit 
+                    }, "Send")));
             var configure = React.DOM.div({ className: "message-input" },
                 React.DOM.button({ onClick: this._onConfigure }, "Configure secure channel"));
             var content = null;
