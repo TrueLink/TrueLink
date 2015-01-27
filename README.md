@@ -1,6 +1,6 @@
 # TrueLink Messenger
 
-See https://true.im/ for details
+See https://true.im/ for details, and [wiki](https://github.com/TrueLink/TrueLink/wiki) for release notes, roadmap, etc
 
 IMPORTANT: This is PRE-RELEASE SOFTWARE!
 YOUR MESSAGE HISTORY IS STORED UNENCRYPTED ON YOUR COMPUTER!
@@ -27,5 +27,5 @@ Build:
 
 License: MIT
 
-Contact: Oleksandr Nikitin <[oleksandr@tvori.info](oleksandr@tvori.info)>
+Contact: Oleksandr Nikitin <[oleksandr@tvori.info](mailto:oleksandr@tvori.info)>
 
