@@ -1,27 +1,39 @@
 ﻿<!DOCTYPE html>
 <html manifest="tl.appcache">
 <head>
-    <title>Loading - Truelink</title>
+    <title>Loading - TrueLink</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="favicon.ico" /> 
+    <link rel="apple-touch-icon" sizes="57x57" href="img/logo/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/logo/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/logo/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/logo/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/logo/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/logo/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/logo/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/logo/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/logo/apple-touch-icon-180x180.png" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-192x192.png" sizes="192x192" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-160x160.png" sizes="160x160" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-24x24.png" sizes="24x24" />
+    <link rel="icon" type="image/png" href="img/logo/favicon-32x32.png" sizes="32x32" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <meta name="msapplication-TileColor" content="#da532c" />
+    <meta name="msapplication-TileImage" content="/img/logo/mstile-144x144.png" />
     <style type="text/css">
         <%- inline("./bootstrap.css") %>
         #loader .items{
-            font-size:10px;
+            font-size:5px;
         }
         #loader .items .name, 
         #loader .items .state{
-            width: 20px;
-            overflow: hidden;
-            text-overflow: clip;
-            display: inline-block;
-            white-space: nowrap;
         }
         #loader div.evaluate-item,
         #loader div.download-item
         {
-            display: inline;
         }
     </style>
     <link rel="stylesheet" href="./css/bootstrap.css" />
@@ -33,7 +45,7 @@
     <!--<script src="bugsnag.js" data-apikey="a07e6f4cdfb2395eabb4753bdf9f119b" type="text/javascript"></script>    -->
     <script type="text/javascript">
         window.fluxConfig = {
-            defaultPollingUrl: "http://127.0.0.1:5984/tl_channels",
+            defaultPollingUrl: "https://channels.true.im/",
             buildDay: "__DAY__",
             buildMonth: "__MONTH__",
             buildRevision: "__HG_REV__",
@@ -120,21 +132,16 @@
             }
         <% } %>
 
-        //var _wt = window.timing; // note, debugger.js will later remove window.timing from window, capture it here
         window.onload = function() 
         {
-            //_wt.record('onload'); 
-            loader.load(); // TODO does not work when localStorage is unavailable, need to fall back to some in-memory shit, and dont location.reload()
+            loader.load(); // TODO does not work when localStorage is unavailable, need to fall back to in-memory, and avoid location.reload()
         }
     })();
 	</script>
-    
-    <!--<script async type="text/javascript" src="lib.js"></script>-->
 </head>
 <body id="_root">
-    <noscript>Javascript is not enabled!</noscript>
-    <pre id="loader_tag">Waiting for the core to start.
-    </pre>
+    <noscript>Please enable JavaScript!</noscript>
+    <pre id="loader_tag">Loading...</pre>
 
 
     <div class="hide">

@@ -186,8 +186,8 @@ var exp = React.createClass({
             })), menuItems, 
                 React.DOM.div(null, 
                     React.DOM.small(null, React.DOM.br(null), 
-                        "HTML: 14." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision, React.DOM.br(null),                            
-                        "JS: 14." + fc.buildMonth2 + "." + fc.buildDay2 + "-" + fc.buildRevision2, React.DOM.br(null), 
+                        "HTML: 15." + fc.buildMonth + "." + fc.buildDay + "-" + fc.buildRevision, React.DOM.br(null),                            
+                        "JS: 15." + fc.buildMonth2 + "." + fc.buildDay2 + "-" + fc.buildRevision2, React.DOM.br(null), 
                         (this.state.currentProfile) ? (this.state.currentProfile.serverUrl) : null),
                     !profileIsInitiated ? null :
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
