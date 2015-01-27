@@ -26,4 +26,6 @@ Build:
 ```
 
 License: MIT
-Contact: oleksandr@tvori.info
+
+Contact: Oleksandr Nikitin <[oleksandr@tvori.info](oleksandr@tvori.info)>
+
