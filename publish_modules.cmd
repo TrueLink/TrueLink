@@ -1,4 +1,5 @@
 npm install .\crypto-js & ^
+npm install .\sjcl & ^
 npm install .\Multivalue & ^
 npm install .\invariant & ^
 npm install .\modules & ^

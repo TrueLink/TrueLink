@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var multivalue = require("../multivalue");
-var sjcl = require("sjcl-all");
+var sjcl = require("sjcl");
 var BitArray = (function (_super) {
     __extends(BitArray, _super);
     function BitArray(arr) {

@@ -1,5 +1,5 @@
 import multivalue = require("../multivalue");
-import sjcl = require("sjcl-all");
+import sjcl = require("sjcl");
 declare class BitArray extends multivalue.Multivalue {
     static typeName: string;
     value: sjcl.BitArray;

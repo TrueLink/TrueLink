@@ -10,7 +10,7 @@ var DecBlocks = require("../multivalue/decBlocks");
 var Hex = require("../multivalue/hex");
 var Utf8String = require("../multivalue/utf8string");
 var X32WordArray = require("../multivalue/x32wordArray");
-var sjcl = require("sjcl-all");
+var sjcl = require("sjcl");
 var chai = require("chai");
 var expect = chai.expect;
 converters.register();

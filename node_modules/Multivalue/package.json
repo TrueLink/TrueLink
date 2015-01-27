@@ -18,7 +18,7 @@
     "jsbn-typescript-definitions": "^1.2.0-3",
     "lodash": "^2.4.1",
     "node-forge": "^0.6.16",
-    "sjcl-all": "^1.0.1",
+    "sjcl": "^1.0.1",
     "sjcl-typescript-definitions": "^1.0.1-0"
   },
   "devDependencies": {
