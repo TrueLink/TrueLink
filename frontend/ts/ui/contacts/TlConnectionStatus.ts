@@ -32,6 +32,12 @@
             event.target.select();
         },
 
+        onFocusTarget: function(event) {
+            event.target.focus();
+            event.target.select();
+            event.target.setSelectionRange(0, 9999); // iOS
+        },
+
         handleOfferInput: function () {
             var offer = DecBlocks.fromString(this.refs.offer.getDOMNode().value);
             this.props.tlConnection.enterOffer(offer);
@@ -82,18 +88,18 @@
 
             var offerDisplay = status !== TlecBuilder.STATUS_OFFER_GENERATED ? null :
                     React.DOM.div(null,
-                        React.DOM.label(null, "Offer:", React.DOM.br(), React.DOM.input({
+                        React.DOM.label(null, "Offer:", React.DOM.br(), React.DOM.textarea({
                             id: "create-contact-offer-field",
-                            readOnly: true, 
                             onClick: this.focusTarget,
+                            onFocus: this.onFocusTarget,
                             value: offer
                         })));
             var authDisplay = status !== TlecBuilder.STATUS_AUTH_GENERATED ? null :
                     React.DOM.div(null,
                         React.DOM.label(null, "Auth:", React.DOM.br(), React.DOM.input({
                             id: "create-contact-auth-field",
-                            readOnly: true, 
                             onClick: this.focusTarget,
+                            onFocus: this.onFocusTarget,
                             value: auth
                         })));
             var generateButton = status !== TlecBuilder.STATUS_NOT_STARTED ? null :

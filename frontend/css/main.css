@@ -21,7 +21,6 @@ input[type="text"], input[type="password"], input[type="submit"], input[type="bu
 input[type="text"], input[type="password"] {
     display: block;
     width: 100%;
-    cursor: text;
 }
 
 .clearfix:after {
@@ -257,9 +256,18 @@ a.title {
     color: black;
 }
 .contact-page .tlStatus input {
-    font-size: 0.8rem;
+    font-size: 1.5rem;
     width: 100%;
+    cursor: text;
 }
+
+.contact-page .tlStatus textarea {
+    font-size: 1.5rem;
+    width: 100%;
+    cursor: text;
+    height: 7rem;
+}
+
 .contact-page .tlStatus button {
     padding: .3em;
 }
@@ -489,6 +497,10 @@ a.button:hover {
 
     .sidebar-hider-content {
         margin-left: 0;    
+    }
+
+    .profile-creation-page h1#tlTitle {
+        margin-left: 40px;
     }
 }
 

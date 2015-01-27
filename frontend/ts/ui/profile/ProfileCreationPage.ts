@@ -64,7 +64,7 @@ var ProfileTypeChooser = React.createClass({
     render: function () {
         return React.DOM.div({className: "profile-creation-page app-page"},
             React.DOM.div({className: "app-page-content has-footer"},                                 
-                React.DOM.h1(null, "TrueLink"),
+                React.DOM.h1({id:"tlTitle"}, "TrueLink"),
                 React.DOM.h2(null, "Create new profile:"),
                 React.DOM.a({
                         className: "button profile-creation-anonymous",
@@ -73,34 +73,34 @@ var ProfileTypeChooser = React.createClass({
                     }, "Anonymous"),
                 React.DOM.p({
                         className: "hint"
-                    }, "Nothing is known about you. No one can initiate contact with you."),
+                    }, "Nothing is known about you."),
                 React.DOM.p({
                         className: "hint"
-                    }, "NOTE: In this version, local history encryption is disabled, to ease debugging. Please do not use it for sensitive data."),
+                    }, "NOTE: Development mode - History encryption disabled."),
                 React.DOM.a({
                         className: "button profile-creation-pseudonymous",
                         href: "#",
                         onClick: this._handlePseudoAnonymousType
-                    }, "Pseudonymous [DOES NOT WORK]"),
+                    }, "Pseudonymous [N/A]"),
                 React.DOM.p({
                         className: "hint"
-                    }, "Your contacts know nothing but your nickname. A link that allows initiating conacts with you is generated."),
+                    }, "People can find you by your nickname or public key."),
                 React.DOM.a({
                         className: "button profile-creation-public",
                         href: "#",
                         onClick: this._handlePublicType
-                    }, "Public Account [DOES NOT WORK]"),
+                    }, "Public Account [N/A]"),
                 React.DOM.p({
                         className: "hint"
-                    }, "Your contacts know your name, email and phone number. A link that allows initiating conacts with you is generated.")),
+                    }, "Publish your name, email and phone number. You'll get a link to your profile.")),
             React.DOM.div({ className: "app-page-footer" },
-                React.DOM.p(null, "Or do you have a profile on another device already?"),
+                React.DOM.p(null, "Already using TrueLink?"),
                 React.DOM.a({
                     id: "create-synced-profile-button",
                     className: "button",
                     href: "#",
                     onClick: this._handleProfileSync
-                }, "Sign into existing profile [EXPERIMENTAL]")));
+                }, "Sync this device")));
     }
 });
 
