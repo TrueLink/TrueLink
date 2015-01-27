@@ -70,7 +70,7 @@ var exp = React.createClass({
                 },
                 className: "menu-item secondary"
             },
-            "Clear storage and force update (temp)": {
+            "Reset All (temp)": {
                 handler: function () {
                     if(confirm("this will delete ALL KEYS AND MESSAGES!")){
                         fakeDb.clear().then(function(){
@@ -80,7 +80,7 @@ var exp = React.createClass({
                     }
                     return false;
                 },
-                className: "menu-item secondary"
+                className: "menu-item last"
             },
             
         };
@@ -193,7 +193,9 @@ var exp = React.createClass({
                         React.DOM.small(null, React.DOM.br(null), "Unsent packets: ", this.getUnsent()),
                     !profileIsInitiated ? null :
                         React.DOM.small(null, React.DOM.br(null), "", this.getNetstat())
-                )
+                ),
+                React.DOM.div(null, React.DOM.a({href:'https://github.com/TrueLink/TrueLink/wiki/ReleaseNotes', target:'_blank'}, 'Release Notes')),
+                React.DOM.div(null, React.DOM.a({href:'https://github.com/TrueLink/TrueLink/issues', target:'_blank'}, 'Report Bug'))
             );
     }
 });

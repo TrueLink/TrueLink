@@ -101,18 +101,27 @@ var ProfileSyncPage = React.createClass({
 
     render: function () {
         var profile = this.props.pageModel.model;
+        var router = this.props.router;
         var sync = profile.sync;
         var max = sync.tlConnections.length;
 
         return React.DOM.div(null, 
-            sync.tlConnections.map(this._renderConnectionStatus),
-            sync.devices.map(this._renderConnectedStatus),
-            React.DOM.a({
-                id: "add-device-button", 
-                className: "button",
-                href: "#",
-                onClick: this._handleNewSync
-                }, "Add Device")
+            React.DOM.div({className: "app-page-header"},
+                    React.DOM.a({
+                        className: "title",
+                        href: "",
+                        onClick: router.createNavigateHandler("home", profile.app)
+                    }, "Sync Configuration for " + profile.name)),
+            React.DOM.div({ className: "app-page-content has-header" },
+                sync.tlConnections.map(this._renderConnectionStatus),
+                sync.devices.map(this._renderConnectedStatus),
+                React.DOM.a({
+                    id: "add-device-button", 
+                    className: "button",
+                    href: "#",
+                    onClick: this._handleNewSync
+                    }, "Add Device")
+                )
             );
     }
 });

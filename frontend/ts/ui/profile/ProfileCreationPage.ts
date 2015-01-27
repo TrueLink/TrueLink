@@ -74,11 +74,14 @@ var ProfileTypeChooser = React.createClass({
                 React.DOM.p({
                         className: "hint"
                     }, "Nothing is known about you. No one can initiate contact with you."),
+                React.DOM.p({
+                        className: "hint"
+                    }, "NOTE: In this version, local history encryption is disabled, to ease debugging. Please do not use it for sensitive data."),
                 React.DOM.a({
                         className: "button profile-creation-pseudonymous",
                         href: "#",
                         onClick: this._handlePseudoAnonymousType
-                    }, "Pseudonymous"),
+                    }, "Pseudonymous [DOES NOT WORK]"),
                 React.DOM.p({
                         className: "hint"
                     }, "Your contacts know nothing but your nickname. A link that allows initiating conacts with you is generated."),
@@ -86,7 +89,7 @@ var ProfileTypeChooser = React.createClass({
                         className: "button profile-creation-public",
                         href: "#",
                         onClick: this._handlePublicType
-                    }, "Public Account"),
+                    }, "Public Account [DOES NOT WORK]"),
                 React.DOM.p({
                         className: "hint"
                     }, "Your contacts know your name, email and phone number. A link that allows initiating conacts with you is generated.")),
@@ -97,7 +100,7 @@ var ProfileTypeChooser = React.createClass({
                     className: "button",
                     href: "#",
                     onClick: this._handleProfileSync
-                }, "Sign into existing profile")));
+                }, "Sign into existing profile [EXPERIMENTAL]")));
     }
 });
 

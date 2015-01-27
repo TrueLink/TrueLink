@@ -21,6 +21,7 @@ input[type="text"], input[type="password"], input[type="submit"], input[type="bu
 input[type="text"], input[type="password"] {
     display: block;
     width: 100%;
+    cursor: text;
 }
 
 .clearfix:after {
@@ -191,7 +192,7 @@ a.title {
 
 }
 .app-menu .profile-selector select{
-    background: #C6C6C6;
+    background: #A6A6B6;
     border: none;
 }
 .app-menu .profile-selector option {
@@ -256,8 +257,8 @@ a.title {
     color: black;
 }
 .contact-page .tlStatus input {
-    font-size: 1.5rem;
-    width: 80%;
+    font-size: 0.8rem;
+    width: 100%;
 }
 .contact-page .tlStatus button {
     padding: .3em;

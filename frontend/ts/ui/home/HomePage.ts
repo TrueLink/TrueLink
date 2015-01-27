@@ -47,7 +47,7 @@
                             }, "(stub) Enter confirmation"),
                             ReactBootstrap.MenuItem({
                                 onClick: function () {/* stub */}
-                            }, "(stub) Connet to a public key"),
+                            }, "(stub) Connect to a public key"),
                             ReactBootstrap.MenuItem({
                                 divider: true
                             }),
@@ -67,8 +67,9 @@
                         className: "title",
                         href: "#"
                     }, "Home page: " + app.currentProfile.name))
-                ,
+                ,                
                 React.DOM.div({ className: "app-page-content has-header" },
+                    React.DOM.div(null, React.DOM.h2({className:'pheader'}, "Profiles on this device")),
                     React.DOM.ul(null, profileComponents)));
         }
     });
