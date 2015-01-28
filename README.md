@@ -2,6 +2,8 @@
 
 See https://true.im/ for details, and [wiki](https://github.com/TrueLink/TrueLink/wiki) for release notes, roadmap, etc
 
+Alpha version live at https://true.im/alpha/ (HTML5 offline-capable web app)
+
 IMPORTANT: This is PRE-RELEASE SOFTWARE!
 YOUR MESSAGE HISTORY IS STORED UNENCRYPTED ON YOUR COMPUTER!
 DO NOT USE FOR SENSITIVE INFORMATION YET!
