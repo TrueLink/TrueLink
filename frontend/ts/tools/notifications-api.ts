@@ -2,6 +2,9 @@
 import Profile = require("models/Profile");
 
 export var notify = function (title: string, message: string) {
+    if (!((<any>window).fluxConfig.canPlayAudio)) {
+        return;
+    }
     if ('Notification' in window) {
         var options = {
             body: message,
