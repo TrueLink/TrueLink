@@ -18,6 +18,9 @@ export var playMessageArrivedSound = function (profile: Profile.Profile) {
     if (profile.notificationSound === "disabled") {
         return;
     }
+    if (!((<any>window).fluxConfig.canPlayAudio)) {
+        return;
+    }
     if (profile.notificationSound === "audiotag1") {
         (<any>document.getElementById("audiotag1")).play();
     }

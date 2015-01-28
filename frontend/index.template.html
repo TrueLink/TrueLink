@@ -45,11 +45,18 @@
 
     <!--<script src="bugsnag.js" data-apikey="a07e6f4cdfb2395eabb4753bdf9f119b" type="text/javascript"></script>    -->
     <script type="text/javascript">
+        var ua = navigator.userAgent;
+        var canPlayAudio = true;
+        if (!!/Safari/.exec(ua) && !/Chrome/.exec(ua) && !!/Chrome/.exec(ua)) {
+            console.log('OS X Safari crashes when playing sound!');
+            canPlayAudio = false;
+        }
         window.fluxConfig = {
             defaultPollingUrl: "https://channels.true.im/",
             buildDay: "__DAY__",
             buildMonth: "__MONTH__",
             buildRevision: "__HG_REV__",
+            canPlayAudio: canPlayAudio
         };
         window.realwindow = window;
     </script>
